@@ -1,103 +1,136 @@
-import Image from "next/image";
+import Link from 'next/link';
+import { Briefcase, Search, MapPin, Building2, Users } from 'lucide-react';
+// import { Button } from '@/components/ui/button';
 
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-blue-50 to-white">
+        <div className="container mx-auto px-4 py-16 sm:px-6 md:py-24 lg:px-8">
+          <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
+            <div>
+              <div className="mb-4 inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-700">
+                <Briefcase className="mr-2 h-4 w-4" />
+                Find your dream job today
+              </div>
+              <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-gray-900 md:text-5xl">
+                Unlock your next career move with CareerConnect
+              </h1>
+              <p className="mb-6 text-lg text-gray-600">
+                Discover thousands of job opportunities from top companies. Whether you're a
+                candidate looking for your dream job or an employer searching for the perfect
+                talent, CareerConnect has you covered.
+              </p>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+              {/* Search Bar */}
+              <div className="flex flex-col gap-3 rounded-lg bg-white p-4 shadow-md md:flex-row md:gap-4">
+                <div className="flex flex-1 items-center rounded-md border px-3 py-2">
+                  <Search className="mr-2 h-5 w-5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Job title, keywords, or company"
+                    className="w-full outline-none"
+                  />
+                </div>
+                <div className="flex items-center rounded-md border px-3 py-2">
+                  <MapPin className="mr-2 h-5 w-5 text-gray-400" />
+                  <input type="text" placeholder="Location" className="w-full outline-none" />
+                </div>
+                {/* <Button className="w-full md:w-auto">Search Jobs</Button> */}
+              </div>
+
+              {/* Stats */}
+              <div className="mt-8 grid grid-cols-3 gap-4">
+                <div>
+                  <div className="text-2xl font-bold text-gray-900">10k+</div>
+                  <div className="text-sm text-gray-600">Jobs Available</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-gray-900">5k+</div>
+                  <div className="text-sm text-gray-600">Companies</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-gray-900">50k+</div>
+                  <div className="text-sm text-gray-600">Candidates</div>
+                </div>
+              </div>
+            </div>
+            <div className="hidden lg:block">
+              <div className="relative">
+                <div className="absolute -top-10 -right-10 h-72 w-72 rounded-full bg-blue-100 blur-3xl" />
+                <div className="absolute -bottom-10 -left-10 h-72 w-72 rounded-full bg-purple-100 blur-3xl" />
+                <div className="relative rounded-lg border bg-white p-6 shadow-lg">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="rounded-md border p-4">
+                      <div className="text-sm text-gray-500">Featured</div>
+                      <div className="font-semibold">Senior Frontend Engineer</div>
+                      <div className="text-sm text-gray-500">TechCorp • Remote</div>
+                    </div>
+                    <div className="rounded-md border p-4">
+                      <div className="text-sm text-gray-500">New</div>
+                      <div className="font-semibold">Product Manager</div>
+                      <div className="text-sm text-gray-500">InnovateLabs • Onsite</div>
+                    </div>
+                    <div className="rounded-md border p-4">
+                      <div className="text-sm text-gray-500">Hot</div>
+                      <div className="font-semibold">Data Scientist</div>
+                      <div className="text-sm text-gray-500">DataWorks • Hybrid</div>
+                    </div>
+                    <div className="rounded-md border p-4">
+                      <div className="text-sm text-gray-500">Trending</div>
+                      <div className="font-semibold">UX Designer</div>
+                      <div className="text-sm text-gray-500">DesignHub • Remote</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </section>
+
+      {/* CTA Sections */}
+      <section className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="rounded-lg border bg-white p-6">
+            <div className="mb-4 flex items-center">
+              <Users className="mr-2 h-6 w-6 text-blue-600" />
+              <h3 className="text-xl font-bold">For Candidates</h3>
+            </div>
+            <p className="mb-4 text-gray-600">
+              Create your profile, upload your resume, and get matched with top job opportunities
+              tailored to your skills and experience.
+            </p>
+            <div className="flex gap-3">
+              {/* <Button asChild>
+                <Link href="/register">Create Free Account</Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/jobs">Browse Jobs</Link>
+              </Button> */}
+            </div>
+          </div>
+          <div className="rounded-lg border bg-white p-6">
+            <div className="mb-4 flex items-center">
+              <Building2 className="mr-2 h-6 w-6 text-blue-600" />
+              <h3 className="text-xl font-bold">For Employers</h3>
+            </div>
+            <p className="mb-4 text-gray-600">
+              Post jobs, manage applications, and find the perfect candidates with our powerful
+              hiring tools and AI-powered matching.
+            </p>
+            <div className="flex gap-3">
+              {/* <Button asChild>
+                <Link href="/post-job">Post a Job</Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/candidates">Find Candidates</Link>
+              </Button> */}
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

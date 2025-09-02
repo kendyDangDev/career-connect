@@ -1,0 +1,264 @@
+### Test System Categories API
+### Cần đăng nhập với tài khoản Admin trước khi test
+
+### Variables
+@baseUrl = http://localhost:3001/api/admin/system-categories
+@authToken = YOUR_AUTH_TOKEN_HERE
+
+### ====================
+### INDUSTRIES API
+### ====================
+
+### Get all industries
+GET {{baseUrl}}/industries
+Cookie: next-auth.session-token={{authToken}}
+
+### Get industries with filters
+GET {{baseUrl}}/industries?page=1&limit=10&search=tech&isActive=true&sortBy=name&sortOrder=asc
+Cookie: next-auth.session-token={{authToken}}
+
+### Get single industry
+GET {{baseUrl}}/industries/INDUSTRY_ID_HERE
+Cookie: next-auth.session-token={{authToken}}
+
+### Create new industry
+POST {{baseUrl}}/industries
+Content-Type: application/json
+Cookie: next-auth.session-token={{authToken}}
+
+{
+  "name": "Công nghệ thông tin",
+  "description": "Ngành công nghệ thông tin và phần mềm",
+  "iconUrl": "https://example.com/it-icon.png",
+  "sortOrder": 1
+}
+
+### Update industry
+PUT {{baseUrl}}/industries/INDUSTRY_ID_HERE
+Content-Type: application/json
+Cookie: next-auth.session-token={{authToken}}
+
+{
+  "name": "Công nghệ thông tin - Phần mềm",
+  "description": "Ngành công nghệ thông tin, phần mềm và dịch vụ số",
+  "isActive": true
+}
+
+### Delete industry
+DELETE {{baseUrl}}/industries/INDUSTRY_ID_HERE
+Cookie: next-auth.session-token={{authToken}}
+
+### Bulk update industries status
+POST {{baseUrl}}/industries/bulk/update-status
+Content-Type: application/json  
+Cookie: next-auth.session-token={{authToken}}
+
+{
+  "ids": ["id1", "id2", "id3"],
+  "isActive": false
+}
+
+### Bulk delete industries
+DELETE {{baseUrl}}/industries/bulk
+Content-Type: application/json
+Cookie: next-auth.session-token={{authToken}}
+
+{
+  "ids": ["id1", "id2", "id3"]
+}
+
+### ====================
+### CATEGORIES API
+### ====================
+
+### Get all categories
+GET {{baseUrl}}/categories
+Cookie: next-auth.session-token={{authToken}}
+
+### Get root categories with children
+GET {{baseUrl}}/categories?parentId=null&includeChildren=true
+Cookie: next-auth.session-token={{authToken}}
+
+### Get single category
+GET {{baseUrl}}/categories/CATEGORY_ID_HERE
+Cookie: next-auth.session-token={{authToken}}
+
+### Create root category
+POST {{baseUrl}}/categories
+Content-Type: application/json
+Cookie: next-auth.session-token={{authToken}}
+
+{
+  "name": "Lập trình",
+  "description": "Các vị trí liên quan đến lập trình",
+  "iconUrl": "https://example.com/programming-icon.png",
+  "sortOrder": 1
+}
+
+### Create child category
+POST {{baseUrl}}/categories
+Content-Type: application/json
+Cookie: next-auth.session-token={{authToken}}
+
+{
+  "name": "Frontend Developer",
+  "parentId": "PARENT_CATEGORY_ID_HERE",
+  "description": "Lập trình viên Frontend",
+  "sortOrder": 1
+}
+
+### Update category
+PUT {{baseUrl}}/categories/CATEGORY_ID_HERE
+Content-Type: application/json
+Cookie: next-auth.session-token={{authToken}}
+
+{
+  "name": "Backend Developer",
+  "parentId": "NEW_PARENT_ID_OR_EMPTY_STRING",
+  "isActive": true
+}
+
+### Delete category
+DELETE {{baseUrl}}/categories/CATEGORY_ID_HERE
+Cookie: next-auth.session-token={{authToken}}
+
+### ====================
+### SKILLS API
+### ====================
+
+### Get all skills
+GET {{baseUrl}}/skills
+Cookie: next-auth.session-token={{authToken}}
+
+### Get skills by category
+GET {{baseUrl}}/skills?category=TECHNICAL
+Cookie: next-auth.session-token={{authToken}}
+
+### Get single skill
+GET {{baseUrl}}/skills/SKILL_ID_HERE
+Cookie: next-auth.session-token={{authToken}}
+
+### Create new skill
+POST {{baseUrl}}/skills
+Content-Type: application/json
+Cookie: next-auth.session-token={{authToken}}
+
+{
+  "name": "React.js",
+  "category": "TECHNICAL",
+  "description": "React.js framework for building user interfaces",
+  "iconUrl": "https://example.com/react-icon.png"
+}
+
+### Update skill
+PUT {{baseUrl}}/skills/SKILL_ID_HERE
+Content-Type: application/json
+Cookie: next-auth.session-token={{authToken}}
+
+{
+  "name": "React.js & React Native",
+  "category": "TECHNICAL",
+  "isActive": true
+}
+
+### Delete skill
+DELETE {{baseUrl}}/skills/SKILL_ID_HERE
+Cookie: next-auth.session-token={{authToken}}
+
+### Import skills from CSV
+POST {{baseUrl}}/skills/import
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+Cookie: next-auth.session-token={{authToken}}
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="skills.csv"
+Content-Type: text/csv
+
+name,category,description
+JavaScript,TECHNICAL,JavaScript programming language
+TypeScript,TECHNICAL,TypeScript programming language
+Communication,SOFT,Communication skills
+Team Work,SOFT,Team collaboration skills
+English,LANGUAGE,English language
+Vietnamese,LANGUAGE,Vietnamese language
+Git,TOOL,Version control system
+Docker,TOOL,Container platform
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### ====================
+### LOCATIONS API
+### ====================
+
+### Get all locations
+GET {{baseUrl}}/locations
+Cookie: next-auth.session-token={{authToken}}
+
+### Get locations by type
+GET {{baseUrl}}/locations?type=PROVINCE&parentId=null
+Cookie: next-auth.session-token={{authToken}}
+
+### Get location tree
+GET {{baseUrl}}/locations?parentId=null&includeChildren=true
+Cookie: next-auth.session-token={{authToken}}
+
+### Get single location
+GET {{baseUrl}}/locations/LOCATION_ID_HERE
+Cookie: next-auth.session-token={{authToken}}
+
+### Create country
+POST {{baseUrl}}/locations
+Content-Type: application/json
+Cookie: next-auth.session-token={{authToken}}
+
+{
+  "name": "Việt Nam",
+  "type": "COUNTRY",
+  "latitude": 14.058324,
+  "longitude": 108.277199
+}
+
+### Create province
+POST {{baseUrl}}/locations
+Content-Type: application/json
+Cookie: next-auth.session-token={{authToken}}
+
+{
+  "name": "Hà Nội",
+  "type": "PROVINCE",
+  "parentId": "VIETNAM_ID_HERE",
+  "latitude": 21.028511,
+  "longitude": 105.804817
+}
+
+### Create city
+POST {{baseUrl}}/locations
+Content-Type: application/json
+Cookie: next-auth.session-token={{authToken}}
+
+{
+  "name": "Quận Ba Đình",
+  "type": "CITY",
+  "parentId": "HANOI_ID_HERE",
+  "latitude": 21.035,
+  "longitude": 105.815
+}
+
+### Update location
+PUT {{baseUrl}}/locations/LOCATION_ID_HERE
+Content-Type: application/json
+Cookie: next-auth.session-token={{authToken}}
+
+{
+  "name": "TP. Hồ Chí Minh",
+  "latitude": 10.8231,
+  "longitude": 106.6297,
+  "isActive": true
+}
+
+### Delete location
+DELETE {{baseUrl}}/locations/LOCATION_ID_HERE
+Cookie: next-auth.session-token={{authToken}}
+
+### Get popular cities
+GET {{baseUrl}}/locations/popular
+Cookie: next-auth.session-token={{authToken}}

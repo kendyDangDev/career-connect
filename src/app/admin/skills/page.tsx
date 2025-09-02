@@ -1,0 +1,384 @@
+'use client';
+
+import React, { useState, useCallback } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import { useSkills } from '@/hooks/useSkills';
+import { SkillsTable } from './components/SkillsTable';
+import { SkillForm } from './components/SkillForm';
+import { SkillDetail } from './components/SkillDetail';
+import { SkillsAnalytics } from './components/SkillsAnalytics';
+import { Skill, CreateSkillDto, UpdateSkillDto, SkillQuery } from '@/types/system-categories';
+import { toast } from 'react-hot-toast';
+import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Progress } from '@/components/ui/progress';
+import {
+  Home,
+  ChevronRight,
+  BarChart3,
+  TableIcon,
+  Trash2,
+  Download,
+  Upload,
+  FileText,
+} from 'lucide-react';
+
+export default function SkillsManagementPage() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const {
+    skills,
+    loading,
+    error,
+    totalPages,
+    totalItems,
+    currentPage,
+    pageSize,
+    filters,
+    categoryStats,
+    fetchSkills,
+    getSkill,
+    createSkill,
+    updateSkill,
+    deleteSkill,
+    updateFilters,
+    resetFilters,
+    refreshData,
+  } = useSkills();
+
+  const [formOpen, setFormOpen] = useState(false);
+  const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
+  const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [skillToDelete, setSkillToDelete] = useState<Skill | null>(null);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [importing, setImporting] = useState(false);
+
+  // Xử lý mở form thêm mới
+  const handleAddNew = () => {
+    setFormMode('create');
+    setSelectedSkill(null);
+    setFormOpen(true);
+  };
+
+  // Xử lý mở form chỉnh sửa
+  const handleEdit = (skill: Skill) => {
+    setFormMode('edit');
+    setSelectedSkill(skill);
+    setFormOpen(true);
+  };
+
+  // Xử lý xem chi tiết
+  const handleView = (skill: Skill) => {
+    setSelectedSkill(skill);
+    setDetailOpen(true);
+  };
+
+  // Xử lý xóa
+  const handleDeleteClick = (skill: Skill) => {
+    setSkillToDelete(skill);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (skillToDelete) {
+      const success = await deleteSkill(skillToDelete.id);
+      if (success) {
+        setDeleteConfirmOpen(false);
+        setSkillToDelete(null);
+      }
+    }
+  };
+
+  // Xử lý submit form
+  const handleFormSubmit = async (data: CreateSkillDto | UpdateSkillDto): Promise<boolean> => {
+    if (formMode === 'create') {
+      return await createSkill(data as CreateSkillDto);
+    } else if (selectedSkill) {
+      return await updateSkill(selectedSkill.id, data as UpdateSkillDto);
+    }
+    return false;
+  };
+
+  // Xử lý thay đổi trạng thái
+  const handleStatusChange = async (skill: Skill, isActive: boolean) => {
+    const success = await updateSkill(skill.id, { isActive });
+    if (success) {
+      setDetailOpen(false);
+      await refreshData();
+    }
+  };
+
+  // Xử lý phân trang
+  const handlePageChange = (page: number) => {
+    updateFilters({ page });
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    updateFilters({ limit: size, page: 1 });
+  };
+
+  // Xử lý sắp xếp
+  const handleSort = (field: string) => {
+    const isCurrentSort = filters.sortBy === field;
+    updateFilters({
+      sortBy: field,
+      sortOrder: isCurrentSort && filters.sortOrder === 'asc' ? 'desc' : 'asc',
+    });
+  };
+
+  // Xử lý tìm kiếm
+  const handleSearch = (search: string) => {
+    updateFilters({ search, page: 1 });
+  };
+
+  // Xử lý lọc
+  const handleFilterChange = (newFilters: Partial<SkillQuery>) => {
+    updateFilters({ ...newFilters, page: 1 });
+  };
+
+  // Xử lý export
+  const handleExport = async () => {
+    try {
+      const queryParams = new URLSearchParams();
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          queryParams.append(key, value.toString());
+        }
+      });
+
+      const response = await fetch(`/api/admin/system-categories/skills/export?${queryParams}`);
+
+      if (!response.ok) {
+        throw new Error('Export failed');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `skills-export-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast.success('Export thành công');
+    } catch (error) {
+      toast.error('Lỗi khi export dữ liệu');
+    }
+  };
+
+  // Xử lý import
+  const handleImport = async (file: File) => {
+    setImporting(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/admin/system-categories/skills/import', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Import failed');
+      }
+
+      toast.success(result.message || 'Import thành công');
+      setImportDialogOpen(false);
+      await refreshData();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Lỗi khi import dữ liệu');
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  return (
+    <div className="container mx-auto max-w-7xl space-y-6">
+      {/* Breadcrumbs */}
+      <nav className="mb-6 flex items-center space-x-2 text-sm">
+        <a
+          href="/admin"
+          className="text-muted-foreground hover:text-foreground flex items-center transition-colors"
+        >
+          <Home className="mr-1 h-4 w-4" />
+          Trang chủ
+        </a>
+        <ChevronRight className="text-muted-foreground h-4 w-4" />
+        <span className="text-foreground">Quản lý kỹ năng</span>
+      </nav>
+
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold">Quản lý kỹ năng</h1>
+        <p className="text-muted-foreground">Quản lý danh sách kỹ năng cho ứng viên và việc làm</p>
+      </div>
+
+      {/* Error Alert */}
+      {error && (
+        <div className="bg-destructive/15 text-destructive border-destructive/20 mb-6 rounded-lg border px-4 py-3">
+          {error}
+        </div>
+      )}
+
+      {/* Tabs */}
+      <Tabs defaultValue="list" className="mb-6 space-y-2">
+        <TabsList className="grid w-full max-w-[400px] grid-cols-2">
+          <TabsTrigger value="list" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Danh sách
+          </TabsTrigger>
+          <TabsTrigger value="analytics" className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Thống kê
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="list" className="m-0 pb-6">
+          <Card>
+            <CardContent className="p-0">
+              <SkillsTable
+                skills={skills}
+                loading={loading}
+                totalItems={totalItems}
+                currentPage={currentPage}
+                pageSize={pageSize}
+                filters={filters}
+                onPageChange={handlePageChange}
+                onPageSizeChange={handlePageSizeChange}
+                onSort={handleSort}
+                onSearch={handleSearch}
+                onFilterChange={handleFilterChange}
+                onEdit={handleEdit}
+                onDelete={handleDeleteClick}
+                onView={handleView}
+                onAddNew={handleAddNew}
+                onExport={handleExport}
+                onImport={() => setImportDialogOpen(true)}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="analytics" className="m-0 border-t py-6">
+          <SkillsAnalytics skills={skills} categoryStats={categoryStats} />
+        </TabsContent>
+      </Tabs>
+
+      {/* Form Dialog */}
+      <SkillForm
+        open={formOpen}
+        onClose={() => setFormOpen(false)}
+        onSubmit={handleFormSubmit}
+        skill={selectedSkill}
+        mode={formMode}
+      />
+
+      {/* Detail Dialog */}
+      <SkillDetail
+        open={detailOpen}
+        onClose={() => setDetailOpen(false)}
+        skill={selectedSkill}
+        onEdit={handleEdit}
+        onDelete={handleDeleteClick}
+        onStatusChange={handleStatusChange}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xóa kỹ năng <strong>{skillToDelete?.name}</strong>? Hành động
+              này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteConfirmOpen(false)}>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Xóa
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Import Dialog */}
+      <Dialog open={importDialogOpen} onOpenChange={() => !importing && setImportDialogOpen(false)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Import kỹ năng</DialogTitle>
+            <DialogDescription>
+              Chọn file CSV hoặc JSON để import danh sách kỹ năng. File phải có các cột: name,
+              category, description (tùy chọn), iconUrl (tùy chọn)
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+              <p className="text-sm text-blue-800">
+                Chọn file CSV hoặc JSON để import danh sách kỹ năng. File phải có các cột: name,
+                category, description (tùy chọn), iconUrl (tùy chọn)
+              </p>
+            </div>
+
+            <Button
+              className="w-full"
+              disabled={importing}
+              onClick={() => document.getElementById('file-upload')?.click()}
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              {importing ? 'Đang import...' : 'Chọn file'}
+            </Button>
+
+            <input
+              id="file-upload"
+              type="file"
+              className="hidden"
+              accept=".csv,.json"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  handleImport(file);
+                }
+              }}
+            />
+
+            {importing && (
+              <div className="space-y-2">
+                <Progress value={undefined} className="w-full" />
+                <p className="text-muted-foreground text-center text-sm">Đang xử lý file...</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

@@ -1,0 +1,381 @@
+{
+  "info": {
+    "_postman_id": "employer-auth-api",
+    "name": "Career Connect - Employer Auth API",
+    "description": "API collection for employer registration and authentication",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "companyId", 
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "emailToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "phoneNumber",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Register Employer",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "    const response = pm.response.json();",
+              "    pm.collectionVariables.set('userId', response.userId);",
+              "    pm.collectionVariables.set('companyId', response.companyId);",
+              "    ",
+              "    pm.test('Registration successful', () => {",
+              "        pm.expect(response).to.have.property('message');",
+              "        pm.expect(response).to.have.property('userId');",
+              "        pm.expect(response).to.have.property('companyId');",
+              "        pm.expect(response.requiresEmailVerification).to.be.true;",
+              "        pm.expect(response.requiresPhoneVerification).to.be.true;",
+              "    });",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "companyName",
+              "value": "Công ty TNHH ABC",
+              "type": "text"
+            },
+            {
+              "key": "taxCode",
+              "value": "0123456789",
+              "type": "text"
+            },
+            {
+              "key": "industryId",
+              "value": "",
+              "type": "text",
+              "disabled": true
+            },
+            {
+              "key": "companySize",
+              "value": "SMALL_11_50",
+              "type": "text"
+            },
+            {
+              "key": "websiteUrl",
+              "value": "https://company-abc.com",
+              "type": "text"
+            },
+            {
+              "key": "description",
+              "value": "Công ty chuyên về phát triển phần mềm và giải pháp công nghệ",
+              "type": "text"
+            },
+            {
+              "key": "address",
+              "value": "123 Nguyễn Huệ, Quận 1",
+              "type": "text"
+            },
+            {
+              "key": "city",
+              "value": "Hồ Chí Minh",
+              "type": "text"
+            },
+            {
+              "key": "province",
+              "value": "TP. Hồ Chí Minh",
+              "type": "text"
+            },
+            {
+              "key": "companyPhone",
+              "value": "0901234567",
+              "type": "text"
+            },
+            {
+              "key": "companyEmail",
+              "value": "contact@company-abc.com",
+              "type": "text"
+            },
+            {
+              "key": "foundedYear",
+              "value": "2010",
+              "type": "text"
+            },
+            {
+              "key": "firstName",
+              "value": "Nguyễn",
+              "type": "text"
+            },
+            {
+              "key": "lastName",
+              "value": "Văn A",
+              "type": "text"
+            },
+            {
+              "key": "position",
+              "value": "Giám đốc",
+              "type": "text"
+            },
+            {
+              "key": "userEmail",
+              "value": "admin@company-abc.com",
+              "type": "text"
+            },
+            {
+              "key": "userPhone",
+              "value": "0909876543",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "SecureP@ss123",
+              "type": "text"
+            },
+            {
+              "key": "confirmPassword",
+              "value": "SecureP@ss123",
+              "type": "text"
+            },
+            {
+              "key": "businessLicenseFile",
+              "type": "file",
+              "src": "/path/to/business-license.pdf"
+            },
+            {
+              "key": "authorizationLetterFile",
+              "type": "file",
+              "src": "/path/to/authorization.pdf",
+              "disabled": true
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/employer/auth/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "employer", "auth", "register"]
+        }
+      }
+    },
+    {
+      "name": "2. Verify Email (POST)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Email verified successfully', () => {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.emailVerified).to.be.true;",
+              "    pm.expect(response.nextStep).to.equal('PHONE_VERIFICATION');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"token\": \"{{emailToken}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/employer/auth/verify-email",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "employer", "auth", "verify-email"]
+        }
+      }
+    },
+    {
+      "name": "2. Verify Email (GET)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/employer/auth/verify-email?token={{emailToken}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "employer", "auth", "verify-email"],
+          "query": [
+            {
+              "key": "token",
+              "value": "{{emailToken}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "3. Verify Phone",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Phone verified successfully', () => {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.phoneVerified).to.be.true;",
+              "    pm.expect(response.nextStep).to.equal('AWAITING_APPROVAL');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"phone\": \"0909876543\",\n  \"otp\": \"123456\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/employer/auth/verify-phone",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "employer", "auth", "verify-phone"]
+        }
+      }
+    },
+    {
+      "name": "4. Resend OTP",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('OTP resent successfully', () => {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response).to.have.property('message');",
+              "    pm.expect(response).to.have.property('phone');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"phone\": \"0909876543\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/employer/auth/verify-phone",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "employer", "auth", "verify-phone"]
+        }
+      }
+    },
+    {
+      "name": "5. Check Registration Status (by userId)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status retrieved successfully', () => {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response).to.have.property('status');",
+              "    pm.expect(response).to.have.property('user');",
+              "    pm.expect(response).to.have.property('company');",
+              "    pm.expect(response).to.have.property('timeline');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/employer/auth/registration-status?userId={{userId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "employer", "auth", "registration-status"],
+          "query": [
+            {
+              "key": "userId",
+              "value": "{{userId}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "5. Check Registration Status (by companyId)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/employer/auth/registration-status?companyId={{companyId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "employer", "auth", "registration-status"],
+          "query": [
+            {
+              "key": "companyId",
+              "value": "{{companyId}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "5. Check Registration Status (by email)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/employer/auth/registration-status?email=admin@company-abc.com",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "employer", "auth", "registration-status"],
+          "query": [
+            {
+              "key": "email",
+              "value": "admin@company-abc.com"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

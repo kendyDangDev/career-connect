@@ -1,0 +1,386 @@
+{
+  "info": {
+    "_postman_id": "candidate-skills-education-api",
+    "name": "Candidate Skills & Education API",
+    "description": "API collection for managing candidate skills and education records in Career Connect platform",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Skills",
+      "item": [
+        {
+          "name": "Get All Skills",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/candidate/skills?includeSkillDetails=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["candidate", "skills"],
+              "query": [
+                {
+                  "key": "includeSkillDetails",
+                  "value": "true",
+                  "description": "Whether to include full skill details"
+                }
+              ]
+            },
+            "description": "Retrieves all skills for the authenticated candidate"
+          },
+          "response": []
+        },
+        {
+          "name": "Add Single Skill",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"skillId\": \"skill_id_here\",\n  \"proficiencyLevel\": \"INTERMEDIATE\",\n  \"yearsExperience\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/candidate/skills",
+              "host": ["{{baseUrl}}"],
+              "path": ["candidate", "skills"]
+            },
+            "description": "Adds a new skill to the candidate's profile"
+          },
+          "response": []
+        },
+        {
+          "name": "Add Multiple Skills",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"skills\": [\n    {\n      \"skillId\": \"skill_id_1\",\n      \"proficiencyLevel\": \"EXPERT\",\n      \"yearsExperience\": 5\n    },\n    {\n      \"skillId\": \"skill_id_2\",\n      \"proficiencyLevel\": \"BEGINNER\",\n      \"yearsExperience\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/candidate/skills",
+              "host": ["{{baseUrl}}"],
+              "path": ["candidate", "skills"]
+            },
+            "description": "Bulk add multiple skills to the candidate's profile"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Skill",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/candidate/skills/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["candidate", "skills", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "skill_id_here",
+                  "description": "ID of the skill to retrieve"
+                }
+              ]
+            },
+            "description": "Retrieves a specific skill for the candidate"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Skill",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"proficiencyLevel\": \"EXPERT\",\n  \"yearsExperience\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/candidate/skills/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["candidate", "skills", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "skill_id_here",
+                  "description": "ID of the skill to update"
+                }
+              ]
+            },
+            "description": "Updates a candidate's skill proficiency level or years of experience"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Skill",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/candidate/skills/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["candidate", "skills", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "skill_id_here",
+                  "description": "ID of the skill to delete"
+                }
+              ]
+            },
+            "description": "Removes a skill from the candidate's profile"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Education",
+      "item": [
+        {
+          "name": "Get All Education Records",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/candidate/education?sortBy=startDate&sortOrder=desc&includeDescription=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["candidate", "education"],
+              "query": [
+                {
+                  "key": "sortBy",
+                  "value": "startDate",
+                  "description": "Field to sort by (startDate, endDate, createdAt, gpa)"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc",
+                  "description": "Sort direction (asc, desc)"
+                },
+                {
+                  "key": "includeDescription",
+                  "value": "true",
+                  "description": "Whether to include description field"
+                }
+              ]
+            },
+            "description": "Retrieves all education records for the authenticated candidate"
+          },
+          "response": []
+        },
+        {
+          "name": "Add Single Education Record",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"institutionName\": \"University of Technology\",\n  \"degreeType\": \"BACHELOR\",\n  \"fieldOfStudy\": \"Computer Science\",\n  \"startDate\": \"2018-09-01\",\n  \"endDate\": \"2022-06-30\",\n  \"gpa\": 3.75,\n  \"description\": \"Focused on software engineering\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/candidate/education",
+              "host": ["{{baseUrl}}"],
+              "path": ["candidate", "education"]
+            },
+            "description": "Adds a new education record to the candidate's profile"
+          },
+          "response": []
+        },
+        {
+          "name": "Add Multiple Education Records",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"education\": [\n    {\n      \"institutionName\": \"University A\",\n      \"degreeType\": \"BACHELOR\",\n      \"fieldOfStudy\": \"Computer Science\",\n      \"startDate\": \"2018-09-01\",\n      \"endDate\": \"2022-06-30\",\n      \"gpa\": 3.75\n    },\n    {\n      \"institutionName\": \"University B\",\n      \"degreeType\": \"MASTER\",\n      \"fieldOfStudy\": \"Data Science\",\n      \"startDate\": \"2022-09-01\",\n      \"endDate\": null,\n      \"gpa\": null\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/candidate/education",
+              "host": ["{{baseUrl}}"],
+              "path": ["candidate", "education"]
+            },
+            "description": "Bulk add multiple education records"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Education Record",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/candidate/education/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["candidate", "education", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "education_id_here",
+                  "description": "ID of the education record"
+                }
+              ]
+            },
+            "description": "Retrieves a specific education record"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Education Record",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"institutionName\": \"Updated University Name\",\n  \"gpa\": 3.85,\n  \"endDate\": \"2022-07-15\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/candidate/education/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["candidate", "education", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "education_id_here",
+                  "description": "ID of the education record to update"
+                }
+              ]
+            },
+            "description": "Updates an existing education record"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Education Record",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/candidate/education/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["candidate", "education", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "education_id_here",
+                  "description": "ID of the education record to delete"
+                }
+              ]
+            },
+            "description": "Removes an education record from the candidate's profile"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Add any pre-request scripts here",
+          "// For example, refresh auth token if needed"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Add any test scripts here",
+          "// For example, check response status",
+          "pm.test(\"Status code is 2xx\", function () {",
+          "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+          "});"
+        ]
+      }
+    }
+  ]
+}

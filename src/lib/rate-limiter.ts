@@ -16,23 +16,26 @@ interface RequestInfo {
 const requestStore = new Map<string, RequestInfo>();
 
 // Cleanup expired entries every 5 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, value] of requestStore.entries()) {
-    if (now > value.resetTime) {
-      requestStore.delete(key);
+setInterval(
+  () => {
+    const now = Date.now();
+    for (const [key, value] of requestStore.entries()) {
+      if (now > value.resetTime) {
+        requestStore.delete(key);
+      }
     }
-  }
-}, 5 * 60 * 1000);
+  },
+  5 * 60 * 1000
+);
 
 export function createRateLimiter(options: RateLimiterOptions) {
   return (request: NextRequest): NextResponse | null => {
     const ip = getClientIP(request);
     const key = `${ip}:${request.nextUrl.pathname}`;
     const now = Date.now();
-    
+
     const requestInfo = requestStore.get(key);
-    
+
     if (!requestInfo) {
       // First request from this IP for this endpoint
       requestStore.set(key, {
@@ -41,7 +44,7 @@ export function createRateLimiter(options: RateLimiterOptions) {
       });
       return null; // Allow request
     }
-    
+
     if (now > requestInfo.resetTime) {
       // Window has expired, reset
       requestStore.set(key, {
@@ -50,7 +53,7 @@ export function createRateLimiter(options: RateLimiterOptions) {
       });
       return null; // Allow request
     }
-    
+
     if (requestInfo.count >= options.maxRequests) {
       // Rate limit exceeded
       return NextResponse.json(
@@ -61,11 +64,11 @@ export function createRateLimiter(options: RateLimiterOptions) {
         { status: options.statusCode || 429 }
       );
     }
-    
+
     // Increment counter
     requestInfo.count++;
     requestStore.set(key, requestInfo);
-    
+
     return null; // Allow request
   };
 }
@@ -75,19 +78,19 @@ function getClientIP(request: NextRequest): string {
   const forwarded = request.headers.get('x-forwarded-for');
   const realIP = request.headers.get('x-real-ip');
   const clientIP = request.headers.get('x-client-ip');
-  
+
   if (forwarded) {
     return forwarded.split(',')[0].trim();
   }
-  
+
   if (realIP) {
     return realIP.trim();
   }
-  
+
   if (clientIP) {
     return clientIP.trim();
   }
-  
+
   // Fallback to unknown if no IP found
   return 'unknown';
 }

@@ -1,0 +1,527 @@
+openapi: 3.0.3
+info:
+  title: Career Connect - Employer Authentication API
+  description: API endpoints for employer registration, verification and authentication
+  version: 1.0.0
+  contact:
+    name: Career Connect Support
+    email: support@career-connect.com
+
+servers:
+  - url: https://api.career-connect.com
+    description: Production server
+  - url: http://localhost:3000
+    description: Development server
+
+tags:
+  - name: Employer Auth
+    description: Employer registration and authentication endpoints
+
+paths:
+  /api/employer/auth/register:
+    post:
+      tags:
+        - Employer Auth
+      summary: Register new employer account
+      description: Register a new employer account with company information and verification documents
+      operationId: registerEmployer
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - companyName
+                - taxCode
+                - address
+                - city
+                - province
+                - companyPhone
+                - companyEmail
+                - firstName
+                - lastName
+                - position
+                - userEmail
+                - userPhone
+                - password
+                - confirmPassword
+                - businessLicenseFile
+              properties:
+                companyName:
+                  type: string
+                  minLength: 3
+                  maxLength: 255
+                  description: Company name
+                  example: "Công ty TNHH ABC"
+                taxCode:
+                  type: string
+                  pattern: '^\d{10}(-\d{3})?$'
+                  description: Tax code (10 digits or 10-3 format)
+                  example: "0123456789"
+                industryId:
+                  type: string
+                  description: Industry ID reference
+                  example: "cl123456789"
+                companySize:
+                  type: string
+                  enum:
+                    - STARTUP_1_10
+                    - SMALL_11_50
+                    - MEDIUM_51_200
+                    - LARGE_201_500
+                    - ENTERPRISE_500_PLUS
+                  description: Company size category
+                websiteUrl:
+                  type: string
+                  format: uri
+                  description: Company website URL
+                  example: "https://company.com"
+                description:
+                  type: string
+                  maxLength: 5000
+                  description: Company description
+                address:
+                  type: string
+                  minLength: 10
+                  maxLength: 255
+                  description: Company address
+                  example: "123 Nguyễn Huệ, Quận 1"
+                city:
+                  type: string
+                  minLength: 2
+                  maxLength: 100
+                  description: City name
+                  example: "Hồ Chí Minh"
+                province:
+                  type: string
+                  minLength: 2
+                  maxLength: 100
+                  description: Province/City name
+                  example: "TP. Hồ Chí Minh"
+                companyPhone:
+                  type: string
+                  pattern: '^(\+84|0)(3|5|7|8|9)\d{8}$'
+                  description: Company phone number
+                  example: "0901234567"
+                companyEmail:
+                  type: string
+                  format: email
+                  description: Company email
+                  example: "contact@company.com"
+                foundedYear:
+                  type: integer
+                  minimum: 1800
+                  maximum: 2025
+                  description: Year company was founded
+                  example: 2010
+                firstName:
+                  type: string
+                  minLength: 2
+                  maxLength: 50
+                  description: Representative's first name
+                  example: "Nguyễn"
+                lastName:
+                  type: string
+                  minLength: 2
+                  maxLength: 50
+                  description: Representative's last name
+                  example: "Văn A"
+                position:
+                  type: string
+                  minLength: 2
+                  maxLength: 100
+                  description: Representative's position
+                  example: "Giám đốc"
+                userEmail:
+                  type: string
+                  format: email
+                  description: User account email
+                  example: "admin@company.com"
+                userPhone:
+                  type: string
+                  pattern: '^(\+84|0)(3|5|7|8|9)\d{8}$'
+                  description: User phone number
+                  example: "0909876543"
+                password:
+                  type: string
+                  minLength: 8
+                  description: Account password (must contain uppercase, lowercase, number and special character)
+                  example: "SecureP@ss123"
+                confirmPassword:
+                  type: string
+                  description: Password confirmation
+                  example: "SecureP@ss123"
+                businessLicenseFile:
+                  type: string
+                  format: binary
+                  description: Business license file (PDF, JPG, PNG - max 10MB)
+                authorizationLetterFile:
+                  type: string
+                  format: binary
+                  description: Authorization letter if applicable (PDF, JPG, PNG - max 10MB)
+      responses:
+        '200':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản."
+                  userId:
+                    type: string
+                    example: "cl123456789"
+                  companyId:
+                    type: string
+                    example: "cl987654321"
+                  requiresEmailVerification:
+                    type: boolean
+                    example: true
+                  requiresPhoneVerification:
+                    type: boolean
+                    example: true
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+                  - $ref: '#/components/schemas/ValidationError'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/employer/auth/verify-email:
+    post:
+      tags:
+        - Employer Auth
+      summary: Verify email with token
+      description: Verify email address using verification token
+      operationId: verifyEmailPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+              properties:
+                token:
+                  type: string
+                  description: Email verification token
+                  example: "a1b2c3d4e5f6g7h8i9j0"
+      responses:
+        '200':
+          description: Email verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationResponse'
+        '400':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    get:
+      tags:
+        - Employer Auth
+      summary: Verify email via link
+      description: Verify email address by clicking link in email
+      operationId: verifyEmailGet
+      parameters:
+        - name: token
+          in: query
+          required: true
+          description: Email verification token
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Email verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationResponse'
+        '400':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/employer/auth/verify-phone:
+    post:
+      tags:
+        - Employer Auth
+      summary: Verify phone number with OTP
+      description: Verify phone number using OTP code
+      operationId: verifyPhone
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone
+                - otp
+              properties:
+                phone:
+                  type: string
+                  pattern: '^(\+84|0)(3|5|7|8|9)\d{8}$'
+                  description: Phone number to verify
+                  example: "+84901234567"
+                otp:
+                  type: string
+                  pattern: '^\d{6}$'
+                  description: 6-digit OTP code
+                  example: "123456"
+      responses:
+        '200':
+          description: Phone verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationResponse'
+        '400':
+          description: Invalid OTP or phone number
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    put:
+      tags:
+        - Employer Auth
+      summary: Resend OTP
+      description: Request a new OTP code (max 3 times per hour)
+      operationId: resendOTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone
+              properties:
+                phone:
+                  type: string
+                  pattern: '^(\+84|0)(3|5|7|8|9)\d{8}$'
+                  description: Phone number to send OTP
+                  example: "+84901234567"
+      responses:
+        '200':
+          description: OTP sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Mã OTP mới đã được gửi đến số điện thoại của bạn"
+                  phone:
+                    type: string
+                    example: "+849***567"
+        '404':
+          description: Phone number not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/employer/auth/registration-status:
+    get:
+      tags:
+        - Employer Auth
+      summary: Check registration status
+      description: Check current registration and verification status
+      operationId: getRegistrationStatus
+      parameters:
+        - name: userId
+          in: query
+          description: User ID
+          schema:
+            type: string
+        - name: companyId
+          in: query
+          description: Company ID
+          schema:
+            type: string
+        - name: email
+          in: query
+          description: User email
+          schema:
+            type: string
+            format: email
+      responses:
+        '200':
+          description: Registration status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistrationStatus'
+        '400':
+          description: Missing required parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User or company not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Email này đã được sử dụng"
+          
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Dữ liệu không hợp lệ"
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              path:
+                type: array
+                items:
+                  type: string
+              message:
+                type: string
+    
+    VerificationResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Email đã được xác thực thành công"
+        emailVerified:
+          type: boolean
+        phoneVerified:
+          type: boolean
+        nextStep:
+          type: string
+          enum:
+            - EMAIL_VERIFICATION
+            - PHONE_VERIFICATION
+            - AWAITING_APPROVAL
+            - COMPLETED
+          example: "PHONE_VERIFICATION"
+        company:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            verificationStatus:
+              type: string
+              enum:
+                - PENDING
+                - VERIFIED
+                - REJECTED
+    
+    RegistrationStatus:
+      type: object
+      properties:
+        status:
+          type: object
+          properties:
+            currentStep:
+              type: string
+              enum:
+                - EMAIL_VERIFICATION
+                - PHONE_VERIFICATION
+                - AWAITING_APPROVAL
+                - COMPLETED
+                - REJECTED
+                - UNKNOWN
+            nextAction:
+              type: string
+              nullable: true
+            emailVerified:
+              type: boolean
+            phoneVerified:
+              type: boolean
+            companyVerificationStatus:
+              type: string
+              enum:
+                - PENDING
+                - VERIFIED
+                - REJECTED
+            userStatus:
+              type: string
+              enum:
+                - ACTIVE
+                - INACTIVE
+                - SUSPENDED
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+            email:
+              type: string
+            name:
+              type: string
+            phone:
+              type: string
+        company:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            slug:
+              type: string
+            verificationStatus:
+              type: string
+        timeline:
+          type: array
+          items:
+            type: object
+            properties:
+              step:
+                type: string
+              status:
+                type: string
+                enum:
+                  - COMPLETED
+                  - PENDING
+                  - WAITING
+                  - REJECTED
+              completedAt:
+                type: string
+                format: date-time
+                nullable: true
+              description:
+                type: string

@@ -1,19 +1,20 @@
 import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { authOptions } from '@/lib/auth-config';
 import { CompanyReviewService } from '@/services/company-review.service';
-import { 
-  successResponse, 
-  errorResponse, 
+import {
+  successResponse,
+  errorResponse,
   serverErrorResponse,
   validationErrorResponse,
-  unauthorizedResponse
+  unauthorizedResponse,
 } from '@/utils/api-response';
 import {
   createCompanyReviewSchema,
-  getCompanyReviewsQuerySchema
+  getCompanyReviewsQuerySchema,
 } from '@/lib/validations/company-review.validation';
 import { UserType } from '@/generated/prisma';
+import jwt from 'jsonwebtoken';
 
 /**
  * GET /api/reviews/company
@@ -24,7 +25,7 @@ export async function GET(req: NextRequest) {
     // Parse query parameters
     const searchParams = req.nextUrl.searchParams;
     const queryParams = Object.fromEntries(searchParams.entries());
-    
+
     // Validate query parameters
     const validatedParams = getCompanyReviewsQuerySchema.safeParse(queryParams);
     if (!validatedParams.success) {
@@ -40,43 +41,48 @@ export async function GET(req: NextRequest) {
       if (!session) {
         return unauthorizedResponse();
       }
-      
+
       // Check if admin or filtering by own reviews
       const isAdmin = session.user.userType === UserType.ADMIN;
       const isOwnReviews = validatedParams.data.reviewerId === session.user.id;
-      
+
       if (!isAdmin && !isOwnReviews) {
         return errorResponse('You can only view your own unapproved reviews', 403);
       }
-      
+
       isApproved = false;
     }
 
     // Get reviews
     const result = await CompanyReviewService.getCompanyReviews({
       ...validatedParams.data,
-      isApproved
+      isApproved,
     });
 
     // If requesting by company, also get statistics
     if (validatedParams.data.companyId || validatedParams.data.companySlug) {
-      const companyId = validatedParams.data.companyId || 
-        (await CompanyReviewService.getCompanyReviews({ 
-          companySlug: validatedParams.data.companySlug,
-          limit: 1 
-        })).reviews[0]?.companyId;
-      
+      const companyId =
+        validatedParams.data.companyId ||
+        (
+          await CompanyReviewService.getCompanyReviews({
+            companySlug: validatedParams.data.companySlug,
+            limit: 1,
+          })
+        ).reviews[0]?.companyId;
+
       if (companyId) {
         const statistics = await CompanyReviewService.getCompanyStatistics(companyId);
-        return successResponse({
-          ...result,
-          statistics
-        }, 'Reviews retrieved successfully');
+        return successResponse(
+          {
+            ...result,
+            statistics,
+          },
+          'Reviews retrieved successfully'
+        );
       }
     }
 
     return successResponse(result, 'Reviews retrieved successfully');
-
   } catch (error) {
     return serverErrorResponse('Failed to retrieve reviews', error);
   }
@@ -88,14 +94,48 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
-    // Check authentication
+    let user = null;
+
+    // Try to get session from NextAuth first (for web app)
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (session) {
+      user = session.user;
+    } else {
+      // If no session, try to verify JWT token from Authorization header (for mobile app)
+      const authHeader = req.headers.get('authorization');
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+
+        try {
+          const jwtSecret = process.env.JWT_SECRET;
+          if (!jwtSecret) {
+            throw new Error('JWT_SECRET not configured');
+          }
+
+          const decoded = jwt.verify(token, jwtSecret) as any;
+
+          // Validate JWT payload structure
+          if (decoded && decoded.id && decoded.userType) {
+            user = {
+              id: decoded.id,
+              userType: decoded.userType,
+              email: decoded.email,
+              name: decoded.name,
+            };
+          }
+        } catch (jwtError) {
+          return errorResponse('Invalid or expired token', 401);
+        }
+      }
+    }
+
+    // Check if user is authenticated
+    if (!user) {
       return unauthorizedResponse();
     }
 
     // Only candidates can create reviews
-    if (session.user.userType !== UserType.CANDIDATE) {
+    if (user.userType !== UserType.CANDIDATE) {
       return errorResponse('Only candidates can create reviews', 403);
     }
 
@@ -110,7 +150,7 @@ export async function POST(req: NextRequest) {
 
     // Check if user can review this company
     const canReviewResult = await CompanyReviewService.canReviewCompany(
-      session.user.id,
+      user.id,
       validated.data.companyId
     );
 
@@ -119,10 +159,7 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-      const review = await CompanyReviewService.createCompanyReview(
-        session.user.id,
-        validated.data
-      );
+      const review = await CompanyReviewService.createCompanyReview(user.id, validated.data);
 
       return successResponse({ review }, 'Review created successfully', 201);
     } catch (error: any) {
@@ -134,7 +171,6 @@ export async function POST(req: NextRequest) {
       }
       throw error;
     }
-
   } catch (error) {
     return serverErrorResponse('Failed to create review', error);
   }

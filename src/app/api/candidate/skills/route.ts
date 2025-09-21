@@ -1,20 +1,20 @@
 import { NextRequest } from 'next/server';
 import { withRole, AuthenticatedRequest } from '@/middleware/auth';
 import { CandidateSkillService } from '@/services/candidate/candidate-skill.service';
-import { 
-  successResponse, 
-  errorResponse, 
+import {
+  successResponse,
+  errorResponse,
   serverErrorResponse,
   validationErrorResponse,
-  conflictResponse
+  conflictResponse,
 } from '@/utils/api-response';
 import {
   createCandidateSkillSchema,
   bulkCreateCandidateSkillsSchema,
-  getCandidateSkillsQuerySchema
+  getCandidateSkillsQuerySchema,
 } from '@/lib/validations/candidate/skill.validation';
 import { UserType } from '@/generated/prisma';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 /**
  * GET /api/candidate/skills
@@ -24,7 +24,7 @@ export const GET = withRole([UserType.CANDIDATE], async (req: AuthenticatedReque
   try {
     // Get candidate record
     const candidate = await prisma.candidate.findUnique({
-      where: { userId: req.user!.id }
+      where: { userId: req.user!.id },
     });
 
     if (!candidate) {
@@ -34,7 +34,7 @@ export const GET = withRole([UserType.CANDIDATE], async (req: AuthenticatedReque
     // Parse query parameters
     const searchParams = new URL(req.url).searchParams;
     const queryParams = Object.fromEntries(searchParams.entries());
-    
+
     // Validate query parameters
     const validatedParams = getCandidateSkillsQuerySchema.safeParse(queryParams);
     if (!validatedParams.success) {
@@ -44,11 +44,10 @@ export const GET = withRole([UserType.CANDIDATE], async (req: AuthenticatedReque
     // Get skills
     const result = await CandidateSkillService.getCandidateSkills({
       candidateId: candidate.id,
-      includeSkillDetails: validatedParams.data.includeSkillDetails
+      includeSkillDetails: validatedParams.data.includeSkillDetails,
     });
 
     return successResponse(result, 'Skills retrieved successfully');
-
   } catch (error) {
     return serverErrorResponse('Failed to retrieve skills', error);
   }
@@ -62,7 +61,7 @@ export const POST = withRole([UserType.CANDIDATE], async (req: AuthenticatedRequ
   try {
     // Get candidate record
     const candidate = await prisma.candidate.findUnique({
-      where: { userId: req.user!.id }
+      where: { userId: req.user!.id },
     });
 
     if (!candidate) {
@@ -122,7 +121,6 @@ export const POST = withRole([UserType.CANDIDATE], async (req: AuthenticatedRequ
         throw error;
       }
     }
-
   } catch (error) {
     return serverErrorResponse('Failed to add skill', error);
   }

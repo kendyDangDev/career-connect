@@ -28,6 +28,13 @@ Welcome to the Career Connect API documentation. This directory contains compreh
 - Media upload and management
 - Company information updates
 
+### 🏢 [Company Jobs APIs](./company-jobs.md)
+- Get all active jobs of a specific company
+- Filter jobs by type, experience level, location
+- Get detailed job statistics for a company
+- Support pagination and sorting
+- Public API (no authentication required)
+
 ### 👔 [Employer APIs](./employer-job-management.md)
 - Job posting management
 - Job statistics and analytics
@@ -42,6 +49,20 @@ Welcome to the Career Connect API documentation. This directory contains compreh
 - Application statistics and analytics
 - Add notes to applications
 
+### 👤 [User Management APIs](./users-api.yaml)
+- User listing with pagination and filters
+- User profile management (CRUD operations)
+- User information updates
+- Password change functionality
+- User status management (Admin only)
+- Complete UserProfile management
+
+**Key Features:**
+- JWT Bearer token authentication
+- Role-based access control (RBAC)
+- Self-service profile updates
+- Admin override capabilities
+
 ### 👨‍💼 [Admin APIs](./admin-company-management.md)
 - Company verification management
 - Bulk company operations
@@ -54,7 +75,7 @@ Welcome to the Career Connect API documentation. This directory contains compreh
 - Skills management
 - Categories management
 
-### 👥 Admin User Management APIs *(Coming Soon)*
+### 👥 Admin User Management APIs *(See User Management APIs above)*
 - User administration
 - User role management
 - User statistics

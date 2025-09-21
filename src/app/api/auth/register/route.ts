@@ -4,7 +4,9 @@ import { registerSchema } from '@/lib/validations';
 import {
   hashPassword,
   generateToken,
+  generateNumericToken,
   sendVerificationEmail,
+  sendVerificationEmailWithCode,
   getEmailVerificationExpiry,
 } from '@/lib/auth-utils';
 import { registerRateLimiter } from '@/lib/rate-limiter';
@@ -55,8 +57,9 @@ export async function POST(request: NextRequest) {
     // Hash password
     const passwordHash = await hashPassword(password);
 
-    // Generate email verification token
+    // Generate email verification token and numeric code
     const emailToken = generateToken();
+    const verificationCode = generateNumericToken(6); // 6-digit verification code
 
     // Create user in transaction
     const result = await prisma.$transaction(async (tx) => {
@@ -86,11 +89,12 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      // Create email verification token
+      // Create email verification token with numeric code
       const verificationToken = await tx.emailVerificationToken.create({
         data: {
           userId: user.id,
           token: emailToken,
+          verificationCode, // Store the numeric code
           expires: getEmailVerificationExpiry(),
         },
       });
@@ -98,8 +102,8 @@ export async function POST(request: NextRequest) {
       return { user, profile, candidate, verificationToken };
     });
 
-    // Send verification email (don't wait for it to complete)
-    sendVerificationEmail(email, emailToken, firstName).catch((error) => {
+    // Send verification email with code (don't wait for it to complete)
+    sendVerificationEmailWithCode(email, verificationCode, emailToken, firstName).catch((error) => {
       console.error('Failed to send verification email:', error);
       // You might want to log this to an error tracking service
     });

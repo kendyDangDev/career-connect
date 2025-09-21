@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth-config";
 import { EmployerApplicationService } from "@/services/employer/application.service";
 import { BulkUpdateApplicationsDTO } from "@/types/employer/application";
 import { ErrorCode } from "@/lib/errors/application-errors";

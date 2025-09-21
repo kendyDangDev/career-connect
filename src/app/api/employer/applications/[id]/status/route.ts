@@ -1,30 +1,24 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { EmployerApplicationService } from "@/services/employer/application.service";
-import { UpdateApplicationStatusDTO } from "@/types/employer/application";
-import { ErrorCode } from "@/lib/errors/application-errors";
-import { ApplicationStatus } from "@/generated/prisma";
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth-config';
+import { EmployerApplicationService } from '@/services/employer/application.service';
+import { UpdateApplicationStatusDTO } from '@/types/employer/application';
+import { ErrorCode } from '@/lib/errors/application-errors';
+import { ApplicationStatus } from '@/generated/prisma';
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check role
-    if (session.user.role !== "EMPLOYER") {
+    if (session.user.role !== 'EMPLOYER') {
       return NextResponse.json(
-        { success: false, error: "Forbidden - Employer access only" },
+        { success: false, error: 'Forbidden - Employer access only' },
         { status: 403 }
       );
     }
@@ -33,7 +27,7 @@ export async function PATCH(
     const companyId = session.user.companyId;
     if (!companyId) {
       return NextResponse.json(
-        { success: false, error: "No company associated with user" },
+        { success: false, error: 'No company associated with user' },
         { status: 400 }
       );
     }
@@ -43,16 +37,13 @@ export async function PATCH(
 
     // Validate status
     if (!body.status || !Object.values(ApplicationStatus).includes(body.status)) {
-      return NextResponse.json(
-        { success: false, error: "Invalid status value" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'Invalid status value' }, { status: 400 });
     }
 
     // Validate rating if provided
     if (body.rating !== undefined && (body.rating < 1 || body.rating > 5)) {
       return NextResponse.json(
-        { success: false, error: "Rating must be between 1 and 5" },
+        { success: false, error: 'Rating must be between 1 and 5' },
         { status: 400 }
       );
     }
@@ -63,7 +54,7 @@ export async function PATCH(
       rating: body.rating,
       notes: body.notes,
       interviewScheduledAt: body.interviewScheduledAt,
-      notifyCandidate: body.notifyCandidate || false
+      notifyCandidate: body.notifyCandidate || false,
     };
 
     // Update application status
@@ -76,28 +67,27 @@ export async function PATCH(
 
     return NextResponse.json({
       success: true,
-      message: "Application status updated successfully"
+      message: 'Application status updated successfully',
     });
-
   } catch (error: any) {
-    console.error("Error updating application status:", error);
-    
-    if (error.message === "Application not found or access denied") {
+    console.error('Error updating application status:', error);
+
+    if (error.message === 'Application not found or access denied') {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: "Application not found or access denied",
-          code: ErrorCode.APPLICATION_NOT_FOUND
+        {
+          success: false,
+          error: 'Application not found or access denied',
+          code: ErrorCode.APPLICATION_NOT_FOUND,
         },
         { status: 404 }
       );
     }
 
     return NextResponse.json(
-      { 
-        success: false, 
-        error: "Failed to update application status",
-        code: ErrorCode.INTERNAL_ERROR
+      {
+        success: false,
+        error: 'Failed to update application status',
+        code: ErrorCode.INTERNAL_ERROR,
       },
       { status: 500 }
     );

@@ -35,15 +35,15 @@ export async function GET(request: NextRequest, { params }: Params) {
     }
 
     // Check if company is verified (optional - depends on business logic)
-    if (companyProfile.verificationStatus !== "VERIFIED") {
-      return NextResponse.json(
-        { 
-          success: false,
-          error: "Company profile is not available" 
-        },
-        { status: 403 }
-      );
-    }
+    // if (companyProfile.verificationStatus !== "VERIFIED") {
+    //   return NextResponse.json(
+    //     { 
+    //       success: false,
+    //       error: "Company profile is not available" 
+    //     },
+    //     { status: 403 }
+    //   );
+    // }
 
     return NextResponse.json({
       success: true,

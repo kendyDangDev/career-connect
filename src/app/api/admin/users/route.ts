@@ -46,6 +46,7 @@ export const GET = withRole(['ADMIN'], async (req: AuthenticatedRequest) => {
           userType: true,
           status: true,
           emailVerified: true,
+          phoneVerified: true,
           createdAt: true,
           updatedAt: true,
           profile: {

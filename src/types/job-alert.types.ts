@@ -1,10 +1,10 @@
-import { 
-  JobAlert, 
+import {
+  JobAlert,
   Candidate,
   JobType,
   ExperienceLevel,
   AlertFrequency,
-  Prisma
+  Prisma,
 } from '@/generated/prisma';
 
 // Request types
@@ -122,7 +122,7 @@ export function parseJobAlertJsonFields(jobAlert: JobAlert): ParsedJobAlert {
   return {
     ...jobAlert,
     locationIds: jobAlert.locationIds ? (jobAlert.locationIds as string[]) : [],
-    categoryIds: jobAlert.categoryIds ? (jobAlert.categoryIds as string[]) : []
+    categoryIds: jobAlert.categoryIds ? (jobAlert.categoryIds as string[]) : [],
   };
 }
 

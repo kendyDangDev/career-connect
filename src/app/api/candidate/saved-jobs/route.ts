@@ -1,21 +1,18 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { withRole, AuthenticatedRequest } from '@/middleware/auth';
 import { SavedJobService } from '@/services/saved-job.service';
-import { 
-  successResponse, 
-  errorResponse, 
+import {
+  successResponse,
+  errorResponse,
   paginatedResponse,
   parseQueryParams,
   serverErrorResponse,
   validationErrorResponse,
-  conflictResponse
+  conflictResponse,
 } from '@/utils/api-response';
-import { 
-  SavedJobFilters,
-  SaveJobRequest
-} from '@/types/saved-job.types';
+import { SavedJobFilters, SaveJobRequest } from '@/types/saved-job.types';
 import { UserType, JobType, WorkLocationType, ExperienceLevel } from '@/generated/prisma';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 /**
  * GET /api/candidate/saved-jobs
@@ -25,7 +22,7 @@ export const GET = withRole([UserType.CANDIDATE], async (req: AuthenticatedReque
   try {
     // Get candidate record
     const candidate = await prisma.candidate.findUnique({
-      where: { userId: req.user!.id }
+      where: { userId: req.user!.id },
     });
 
     if (!candidate) {
@@ -38,7 +35,7 @@ export const GET = withRole([UserType.CANDIDATE], async (req: AuthenticatedReque
       page: 1,
       limit: 20,
       sortBy: 'savedAt',
-      sortOrder: 'desc'
+      sortOrder: 'desc',
     });
 
     // Build filters
@@ -52,7 +49,7 @@ export const GET = withRole([UserType.CANDIDATE], async (req: AuthenticatedReque
       locationCity: params.locationCity,
       locationProvince: params.locationProvince,
       sortBy: params.sortBy,
-      sortOrder: params.sortOrder
+      sortOrder: params.sortOrder,
     };
 
     // Validate pagination
@@ -63,18 +60,11 @@ export const GET = withRole([UserType.CANDIDATE], async (req: AuthenticatedReque
     const { savedJobs, total } = await SavedJobService.getSavedJobs({
       candidateId: candidate.id,
       filters,
-      pagination: { page, limit }
+      pagination: { page, limit },
     });
 
     // Return paginated response
-    return paginatedResponse(
-      savedJobs,
-      page,
-      limit,
-      total,
-      'Saved jobs retrieved successfully'
-    );
-
+    return paginatedResponse(savedJobs, page, limit, total, 'Saved jobs retrieved successfully');
   } catch (error) {
     return serverErrorResponse('Failed to retrieve saved jobs', error);
   }
@@ -88,7 +78,7 @@ export const POST = withRole([UserType.CANDIDATE], async (req: AuthenticatedRequ
   try {
     // Get candidate record
     const candidate = await prisma.candidate.findUnique({
-      where: { userId: req.user!.id }
+      where: { userId: req.user!.id },
     });
 
     if (!candidate) {
@@ -96,12 +86,12 @@ export const POST = withRole([UserType.CANDIDATE], async (req: AuthenticatedRequ
     }
 
     // Parse request body
-    const body = await req.json() as SaveJobRequest;
+    const body = (await req.json()) as SaveJobRequest;
 
     // Validate request
     if (!body.jobId) {
       return validationErrorResponse({
-        jobId: 'Job ID is required'
+        jobId: 'Job ID is required',
       });
     }
 
@@ -109,14 +99,17 @@ export const POST = withRole([UserType.CANDIDATE], async (req: AuthenticatedRequ
     try {
       const savedJob = await SavedJobService.saveJob({
         candidateId: candidate.id,
-        jobId: body.jobId
+        jobId: body.jobId,
       });
 
-      return successResponse({
-        savedJob,
-        message: 'Job saved successfully'
-      }, 'Job saved successfully', 201);
-
+      return successResponse(
+        {
+          savedJob,
+          message: 'Job saved successfully',
+        },
+        'Job saved successfully',
+        201
+      );
     } catch (error: any) {
       // Handle specific errors
       if (error.message === 'Job already saved') {
@@ -127,7 +120,6 @@ export const POST = withRole([UserType.CANDIDATE], async (req: AuthenticatedRequ
       }
       throw error;
     }
-
   } catch (error) {
     return serverErrorResponse('Failed to save job', error);
   }

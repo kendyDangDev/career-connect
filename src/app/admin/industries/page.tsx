@@ -46,22 +46,22 @@ export default function IndustriesPage() {
   };
 
   const handleExport = async () => {
-    try {
-      const response = await fetch('/api/admin/system-categories/industries/export');
-      if (!response.ok) throw new Error('Export failed');
+    // try {
+    //   const response = await fetch('/api/admin/system-categories/industries/export');
+    //   if (!response.ok) throw new Error('Export failed');
 
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `industries-${new Date().toISOString().split('T')[0]}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Export error:', error);
-    }
+    //   const blob = await response.blob();
+    //   const url = window.URL.createObjectURL(blob);
+    //   const a = document.createElement('a');
+    //   a.href = url;
+    //   a.download = `industries-${new Date().toISOString().split('T')[0]}.csv`;
+    //   document.body.appendChild(a);
+    //   a.click();
+    //   window.URL.revokeObjectURL(url);
+    //   document.body.removeChild(a);
+    // } catch (error) {
+    //   console.error('Export error:', error);
+    // }
   };
 
   const handleImport = () => {

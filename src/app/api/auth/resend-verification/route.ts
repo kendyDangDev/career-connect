@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import {
   generateToken,
+  generateNumericToken,
   sendVerificationEmail,
+  sendVerificationEmailWithCode,
   getEmailVerificationExpiry,
 } from '@/lib/auth-utils';
 import { emailRateLimiter } from '@/lib/rate-limiter';
@@ -49,20 +51,22 @@ export async function POST(request: NextRequest) {
       where: { userId: user.id },
     });
 
-    // Generate new token
+    // Generate new token and verification code
     const token = generateToken();
+    const verificationCode = generateNumericToken(6); // 6-digit verification code
 
-    // Create new verification token
+    // Create new verification token with code
     await prisma.emailVerificationToken.create({
       data: {
         userId: user.id,
         token,
+        verificationCode, // Store the numeric code
         expires: getEmailVerificationExpiry(),
       },
     });
 
-    // Send verification email
-    await sendVerificationEmail(email, token, user.firstName || undefined);
+    // Send verification email with code
+    await sendVerificationEmailWithCode(email, verificationCode, token, user.firstName || undefined);
 
     return NextResponse.json(
       {

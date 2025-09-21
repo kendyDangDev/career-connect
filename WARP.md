@@ -8,6 +8,7 @@
 - **State Management:** React Query for API + Redux ToolKit for managing global UI state.
 - **CSS Framework:** Tailwind CSS + Radix UI + Shadcn/ui
 - **Target Users:** Job seekers, HR professionals, Employers
+- **Package Management**: pnpm
 
 ## Core Development Principles
 

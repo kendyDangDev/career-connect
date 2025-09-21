@@ -7,7 +7,7 @@ import {
   serverErrorResponse
 } from '@/utils/api-response';
 import { UserType } from '@/generated/prisma';
-import prisma from '@/lib/prisma';
+import {prisma} from '@/lib/prisma';
 
 interface Params {
   jobId: string;
@@ -19,11 +19,12 @@ interface Params {
  */
 export const GET = withRole([UserType.CANDIDATE], async (
   req: AuthenticatedRequest,
-  { params }: { params: Promise<Params> }
+  { params }: { params: Params | Promise<Params> }
 ) => {
   try {
     // Get the job ID from params
-    const { jobId } = await params;
+    const resolvedParams = await Promise.resolve(params);
+    const { jobId } = resolvedParams;
 
     if (!jobId) {
       return errorResponse('Job ID is required', 400);

@@ -1,17 +1,13 @@
-import prisma from '@/lib/prisma';
-import { 
-  SavedJob, 
-  Prisma,
-  JobStatus
-} from '@/generated/prisma';
-import { 
+import { prisma } from '@/lib/prisma';
+import { SavedJob, Prisma, JobStatus } from '@/generated/prisma';
+import {
   GetSavedJobsParams,
   SaveJobParams,
   UnsaveJobParams,
   CheckJobSavedParams,
   SavedJobWithRelations,
   SavedJobFilters,
-  PaginationParams
+  PaginationParams,
 } from '@/types/saved-job.types';
 
 export class SavedJobService {
@@ -21,7 +17,7 @@ export class SavedJobService {
   static async getSavedJobs({
     candidateId,
     filters = {},
-    pagination = {}
+    pagination = {},
   }: GetSavedJobsParams): Promise<{
     savedJobs: SavedJobWithRelations[];
     total: number;
@@ -36,7 +32,7 @@ export class SavedJobService {
       locationCity,
       locationProvince,
       sortBy = 'savedAt',
-      sortOrder = 'desc'
+      sortOrder = 'desc',
     } = filters;
 
     const { page = 1, limit = 20 } = pagination;
@@ -50,37 +46,34 @@ export class SavedJobService {
         ...(search && {
           OR: [
             { title: { contains: search, mode: 'insensitive' } },
-            { company: { companyName: { contains: search, mode: 'insensitive' } } }
-          ]
+            { company: { companyName: { contains: search, mode: 'insensitive' } } },
+          ],
         }),
-        ...(jobType && jobType.length > 0 && {
-          jobType: { in: jobType }
-        }),
-        ...(workLocationType && workLocationType.length > 0 && {
-          workLocationType: { in: workLocationType }
-        }),
-        ...(experienceLevel && experienceLevel.length > 0 && {
-          experienceLevel: { in: experienceLevel }
-        }),
+        ...(jobType &&
+          jobType.length > 0 && {
+            jobType: { in: jobType },
+          }),
+        ...(workLocationType &&
+          workLocationType.length > 0 && {
+            workLocationType: { in: workLocationType },
+          }),
+        ...(experienceLevel &&
+          experienceLevel.length > 0 && {
+            experienceLevel: { in: experienceLevel },
+          }),
         ...(salaryMin && {
-          OR: [
-            { salaryMax: { gte: salaryMin } },
-            { salaryNegotiable: true }
-          ]
+          OR: [{ salaryMax: { gte: salaryMin } }, { salaryNegotiable: true }],
         }),
         ...(salaryMax && {
-          OR: [
-            { salaryMin: { lte: salaryMax } },
-            { salaryNegotiable: true }
-          ]
+          OR: [{ salaryMin: { lte: salaryMax } }, { salaryNegotiable: true }],
         }),
         ...(locationCity && {
-          locationCity: { contains: locationCity, mode: 'insensitive' }
+          locationCity: { contains: locationCity, mode: 'insensitive' },
         }),
         ...(locationProvince && {
-          locationProvince: { contains: locationProvince, mode: 'insensitive' }
-        })
-      }
+          locationProvince: { contains: locationProvince, mode: 'insensitive' },
+        }),
+      },
     };
 
     // Build orderBy clause
@@ -116,28 +109,28 @@ export class SavedJobService {
                   companySlug: true,
                   logoUrl: true,
                   city: true,
-                  province: true
-                }
+                  province: true,
+                },
               },
               _count: {
                 select: {
                   applications: true,
-                  savedJobs: true
-                }
-              }
-            }
-          }
+                  savedJobs: true,
+                },
+              },
+            },
+          },
         },
         orderBy,
         skip,
-        take: limit
+        take: limit,
       }),
-      prisma.savedJob.count({ where })
+      prisma.savedJob.count({ where }),
     ]);
 
     return {
       savedJobs: savedJobs as SavedJobWithRelations[],
-      total
+      total,
     };
   }
 
@@ -147,7 +140,7 @@ export class SavedJobService {
   static async saveJob({ candidateId, jobId }: SaveJobParams): Promise<SavedJobWithRelations> {
     // Check if candidate exists
     const candidate = await prisma.candidate.findUnique({
-      where: { id: candidateId }
+      where: { id: candidateId },
     });
 
     if (!candidate) {
@@ -158,8 +151,8 @@ export class SavedJobService {
     const job = await prisma.job.findFirst({
       where: {
         id: jobId,
-        status: JobStatus.ACTIVE
-      }
+        status: JobStatus.ACTIVE,
+      },
     });
 
     if (!job) {
@@ -171,9 +164,9 @@ export class SavedJobService {
       where: {
         candidateId_jobId: {
           candidateId,
-          jobId
-        }
-      }
+          jobId,
+        },
+      },
     });
 
     if (existingSavedJob) {
@@ -184,7 +177,7 @@ export class SavedJobService {
     const savedJob = await prisma.savedJob.create({
       data: {
         candidateId,
-        jobId
+        jobId,
       },
       include: {
         job: {
@@ -196,18 +189,18 @@ export class SavedJobService {
                 companySlug: true,
                 logoUrl: true,
                 city: true,
-                province: true
-              }
+                province: true,
+              },
             },
             _count: {
               select: {
                 applications: true,
-                savedJobs: true
-              }
-            }
-          }
-        }
-      }
+                savedJobs: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     return savedJob as SavedJobWithRelations;
@@ -221,8 +214,8 @@ export class SavedJobService {
     const savedJob = await prisma.savedJob.findFirst({
       where: {
         id: savedJobId,
-        candidateId
-      }
+        candidateId,
+      },
     });
 
     if (!savedJob) {
@@ -232,8 +225,8 @@ export class SavedJobService {
     // Delete saved job
     await prisma.savedJob.delete({
       where: {
-        id: savedJobId
-      }
+        id: savedJobId,
+      },
     });
 
     return true;
@@ -251,21 +244,21 @@ export class SavedJobService {
       where: {
         candidateId_jobId: {
           candidateId,
-          jobId
-        }
-      }
+          jobId,
+        },
+      },
     });
 
     if (savedJob) {
       return {
         isSaved: true,
         savedAt: savedJob.createdAt,
-        savedJobId: savedJob.id
+        savedJobId: savedJob.id,
       };
     }
 
     return {
-      isSaved: false
+      isSaved: false,
     };
   }
 
@@ -277,9 +270,9 @@ export class SavedJobService {
       where: {
         candidateId,
         job: {
-          status: JobStatus.ACTIVE
-        }
-      }
+          status: JobStatus.ACTIVE,
+        },
+      },
     });
   }
 
@@ -287,26 +280,29 @@ export class SavedJobService {
    * Check if multiple jobs are saved
    */
   static async checkMultipleJobsSaved(
-    candidateId: string, 
+    candidateId: string,
     jobIds: string[]
   ): Promise<Record<string, boolean>> {
     const savedJobs = await prisma.savedJob.findMany({
       where: {
         candidateId,
         jobId: {
-          in: jobIds
-        }
+          in: jobIds,
+        },
       },
       select: {
-        jobId: true
-      }
+        jobId: true,
+      },
     });
 
-    const savedJobIds = new Set(savedJobs.map(sj => sj.jobId));
-    
-    return jobIds.reduce((acc, jobId) => {
-      acc[jobId] = savedJobIds.has(jobId);
-      return acc;
-    }, {} as Record<string, boolean>);
+    const savedJobIds = new Set(savedJobs.map((sj) => sj.jobId));
+
+    return jobIds.reduce(
+      (acc, jobId) => {
+        acc[jobId] = savedJobIds.has(jobId);
+        return acc;
+      },
+      {} as Record<string, boolean>
+    );
   }
 }

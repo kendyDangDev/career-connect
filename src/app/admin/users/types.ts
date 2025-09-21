@@ -10,6 +10,7 @@ export interface User {
   userType: UserType;
   status: UserStatus;
   emailVerified: boolean;
+  phoneVerified: boolean;
   createdAt: string;
   updatedAt: string;
   profile?: {

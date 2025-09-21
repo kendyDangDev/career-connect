@@ -9,6 +9,7 @@ declare module 'next-auth' {
     lastName?: string | null;
     userType: UserType;
     emailVerified: boolean;
+    phoneVerified: boolean;
     status: UserStatus;
     avatarUrl?: string | null;
   }
@@ -23,6 +24,7 @@ declare module 'next-auth' {
       lastName?: string | null;
       userType: UserType;
       emailVerified: boolean;
+      phoneVerified: boolean;
       status: UserStatus;
       avatarUrl?: string | null;
     };
@@ -33,6 +35,7 @@ declare module 'next-auth/jwt' {
   interface JWT {
     userType: UserType;
     emailVerified: boolean;
+    phoneVerified: boolean;
     status: UserStatus;
     firstName?: string | null;
     lastName?: string | null;

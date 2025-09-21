@@ -147,11 +147,12 @@ export default function VerifyEmailForm() {
         <CardDescription className="text-gray-600 text-base">
           {email ? (
             <>
-              Chúng tôi đã gửi mã xác thực đến email:<br />
-              <span className="font-medium text-gray-900">{email}</span>
+              Chúng tôi đã gửi mã xác thực <strong>6 chữ số</strong> đến email:<br />
+              <span className="font-medium text-gray-900">{email}</span><br />
+              <span className="text-sm text-gray-500">Vui lòng kiểm tra hộp thư đến và cả thư mục spam nếu cần</span>
             </>
           ) : (
-            'Vui lòng nhập mã xác thực được gửi đến email của bạn'
+            'Vui lòng nhập mã xác thực <strong>6 chữ số</strong> được gửi đến email của bạn'
           )}
         </CardDescription>
       </CardHeader>
@@ -178,9 +179,12 @@ export default function VerifyEmailForm() {
             </label>
             <Input
               {...form.register('token')}
-              placeholder="Nhập mã xác thực từ email"
-              className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-center text-lg tracking-widest"
+              placeholder="Nhập mã 6 chữ số từ email"
+              className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-center text-2xl tracking-[0.3em] font-mono"
               disabled={isLoading}
+              maxLength={6}
+              pattern="[0-9]{6}"
+              inputMode="numeric"
             />
             {form.formState.errors.token && (
               <p className="text-red-600 text-sm mt-1">

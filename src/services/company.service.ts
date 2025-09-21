@@ -1,11 +1,7 @@
-import { prisma } from "@/lib/prisma";
-import { 
-  CompanyUpdateDTO, 
-  CompanyResponse, 
-  PublicCompanyProfile 
-} from "@/types/company";
-import { generateCompanySlug } from "@/lib/utils/company-utils";
-import { Company, Prisma } from "@/generated/prisma";
+import { prisma } from '@/lib/prisma';
+import { CompanyUpdateDTO, CompanyResponse, PublicCompanyProfile } from '@/types/company';
+import { generateCompanySlug } from '@/lib/utils/company-utils';
+import { Company, Prisma } from '@/generated/prisma';
 
 export class CompanyService {
   /**
@@ -21,13 +17,13 @@ export class CompanyService {
             companyUsers: true,
             jobs: {
               where: {
-                status: "ACTIVE"
-              }
+                status: 'ACTIVE',
+              },
             },
-            companyFollowers: true
-          }
-        }
-      }
+            companyFollowers: true,
+          },
+        },
+      },
     });
 
     if (!company) return null;
@@ -36,7 +32,7 @@ export class CompanyService {
       ...company,
       employeeCount: company._count.companyUsers,
       activeJobCount: company._count.jobs,
-      followerCount: company._count.companyFollowers
+      followerCount: company._count.companyFollowers,
     };
   }
 
@@ -50,25 +46,25 @@ export class CompanyService {
         industry: {
           select: {
             id: true,
-            name: true
-          }
+            name: true,
+          },
         },
         _count: {
           select: {
             jobs: {
               where: {
-                status: "ACTIVE"
-              }
+                status: 'ACTIVE',
+              },
             },
             companyFollowers: true,
             companyReviews: {
               where: {
-                isApproved: true
-              }
-            }
-          }
-        }
-      }
+                isApproved: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!company) return null;
@@ -94,32 +90,29 @@ export class CompanyService {
       verificationStatus: company.verificationStatus,
       activeJobCount: company._count.jobs,
       followerCount: company._count.companyFollowers,
-      reviewStats
+      reviewStats,
     };
   }
 
   /**
    * Update company profile
    */
-  static async updateCompanyProfile(
-    companyId: string,
-    data: CompanyUpdateDTO
-  ): Promise<Company> {
+  static async updateCompanyProfile(companyId: string, data: CompanyUpdateDTO): Promise<Company> {
     const updateData: Prisma.CompanyUpdateInput = {
       ...data,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
 
     // If company name changes, update slug
     if (data.companyName) {
       updateData.companySlug = generateCompanySlug(data.companyName);
-      
+
       // Check if slug already exists
       const existingCompany = await prisma.company.findFirst({
         where: {
           companySlug: updateData.companySlug as string,
-          id: { not: companyId }
-        }
+          id: { not: companyId },
+        },
       });
 
       if (existingCompany) {
@@ -127,9 +120,9 @@ export class CompanyService {
         const count = await prisma.company.count({
           where: {
             companySlug: {
-              startsWith: updateData.companySlug as string
-            }
-          }
+              startsWith: updateData.companySlug as string,
+            },
+          },
         });
         updateData.companySlug = `${updateData.companySlug}-${count + 1}`;
       }
@@ -137,7 +130,7 @@ export class CompanyService {
 
     return await prisma.company.update({
       where: { id: companyId },
-      data: updateData
+      data: updateData,
     });
   }
 
@@ -150,7 +143,7 @@ export class CompanyService {
     fileUrl: string
   ): Promise<Company> {
     const updateData: Prisma.CompanyUpdateInput = {
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
 
     if (mediaType === 'logo') {
@@ -161,7 +154,7 @@ export class CompanyService {
 
     return await prisma.company.update({
       where: { id: companyId },
-      data: updateData
+      data: updateData,
     });
   }
 
@@ -175,35 +168,32 @@ export class CompanyService {
     const stats = await prisma.companyReview.aggregate({
       where: {
         companyId,
-        isApproved: true
+        isApproved: true,
       },
       _count: true,
       _avg: {
-        rating: true
-      }
+        rating: true,
+      },
     });
 
     return {
       totalReviews: stats._count,
-      averageRating: stats._avg.rating || 0
+      averageRating: stats._avg.rating || 0,
     };
   }
 
   /**
    * Check if user has permission to manage company
    */
-  static async checkUserCompanyPermission(
-    userId: string,
-    companyId: string
-  ): Promise<boolean> {
+  static async checkUserCompanyPermission(userId: string, companyId: string): Promise<boolean> {
     const companyUser = await prisma.companyUser.findFirst({
       where: {
         userId,
         companyId,
         role: {
-          in: ["ADMIN", "HR_MANAGER"]
-        }
-      }
+          in: ['ADMIN', 'HR_MANAGER'],
+        },
+      },
     });
 
     return !!companyUser;
@@ -213,65 +203,59 @@ export class CompanyService {
    * Get company statistics for dashboard
    */
   static async getCompanyStats(companyId: string) {
-    const [
-      activeJobs,
-      totalApplications,
-      newApplications,
-      followers,
-      views,
-      avgReviewRating
-    ] = await Promise.all([
-      // Active jobs count
-      prisma.job.count({
-        where: {
-          companyId,
-          status: "ACTIVE"
-        }
-      }),
-      
-      // Total applications
-      prisma.application.count({
-        where: {
-          job: { companyId }
-        }
-      }),
-      
-      // New applications (last 7 days)
-      prisma.application.count({
-        where: {
-          job: { companyId },
-          appliedAt: {
-            gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-          }
-        }
-      }),
-      
-      // Followers count
-      prisma.companyFollower.count({
-        where: { companyId }
-      }),
-      
-      // Job views (last 30 days)
-      prisma.jobView.count({
-        where: {
-          job: { companyId },
-          viewedAt: {
-            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-          }
-        }
-      }),
-      
-      // Average review rating
-      prisma.companyReview.aggregate({
-        where: {
-          companyId,
-          isApproved: true
-        },
-        _avg: {
-          rating: true
-        }
-      })
-    ]);
+    const [activeJobs, totalApplications, newApplications, followers, views, avgReviewRating] =
+      await Promise.all([
+        // Active jobs count
+        prisma.job.count({
+          where: {
+            companyId,
+            status: 'ACTIVE',
+          },
+        }),
+
+        // Total applications
+        prisma.application.count({
+          where: {
+            job: { companyId },
+          },
+        }),
+
+        // New applications (last 7 days)
+        prisma.application.count({
+          where: {
+            job: { companyId },
+            appliedAt: {
+              gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+            },
+          },
+        }),
+
+        // Followers count
+        prisma.companyFollower.count({
+          where: { companyId },
+        }),
+
+        // Job views (last 30 days)
+        prisma.jobView.count({
+          where: {
+            job: { companyId },
+            viewedAt: {
+              gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+            },
+          },
+        }),
+
+        // Average review rating
+        prisma.companyReview.aggregate({
+          where: {
+            companyId,
+            isApproved: true,
+          },
+          _avg: {
+            rating: true,
+          },
+        }),
+      ]);
 
     return {
       activeJobs,
@@ -279,7 +263,7 @@ export class CompanyService {
       newApplications,
       followers,
       views,
-      averageRating: avgReviewRating._avg.rating || 0
+      averageRating: avgReviewRating._avg.rating || 0,
     };
   }
 
@@ -293,14 +277,14 @@ export class CompanyService {
     phone?: string;
   }): Promise<Company> {
     const companySlug = generateCompanySlug(data.companyName);
-    
+
     // Check if slug exists
     const existingCount = await prisma.company.count({
       where: {
         companySlug: {
-          startsWith: companySlug
-        }
-      }
+          startsWith: companySlug,
+        },
+      },
     });
 
     const finalSlug = existingCount > 0 ? `${companySlug}-${existingCount + 1}` : companySlug;
@@ -315,11 +299,11 @@ export class CompanyService {
         companyUsers: {
           create: {
             userId: data.userId,
-            role: "ADMIN",
-            isPrimaryContact: true
-          }
-        }
-      }
+            role: 'ADMIN',
+            isPrimaryContact: true,
+          },
+        },
+      },
     });
 
     return company;

@@ -1,19 +1,19 @@
 import { NextRequest } from 'next/server';
 import { withRole, AuthenticatedRequest } from '@/middleware/auth';
 import { CandidateEducationService } from '@/services/candidate/candidate-education.service';
-import { 
-  successResponse, 
-  errorResponse, 
+import {
+  successResponse,
+  errorResponse,
   serverErrorResponse,
-  validationErrorResponse
+  validationErrorResponse,
 } from '@/utils/api-response';
 import {
   createCandidateEducationSchema,
   bulkCreateCandidateEducationSchema,
-  getCandidateEducationQuerySchema
+  getCandidateEducationQuerySchema,
 } from '@/lib/validations/candidate/education.validation';
 import { UserType } from '@/generated/prisma';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 /**
  * GET /api/candidate/education
@@ -23,7 +23,7 @@ export const GET = withRole([UserType.CANDIDATE], async (req: AuthenticatedReque
   try {
     // Get candidate record
     const candidate = await prisma.candidate.findUnique({
-      where: { userId: req.user!.id }
+      where: { userId: req.user!.id },
     });
 
     if (!candidate) {
@@ -33,7 +33,7 @@ export const GET = withRole([UserType.CANDIDATE], async (req: AuthenticatedReque
     // Parse query parameters
     const searchParams = new URL(req.url).searchParams;
     const queryParams = Object.fromEntries(searchParams.entries());
-    
+
     // Validate query parameters
     const validatedParams = getCandidateEducationQuerySchema.safeParse(queryParams);
     if (!validatedParams.success) {
@@ -45,17 +45,19 @@ export const GET = withRole([UserType.CANDIDATE], async (req: AuthenticatedReque
       candidateId: candidate.id,
       sortBy: validatedParams.data.sortBy,
       sortOrder: validatedParams.data.sortOrder,
-      includeDescription: validatedParams.data.includeDescription
+      includeDescription: validatedParams.data.includeDescription,
     });
 
     // Get statistics
     const stats = await CandidateEducationService.getCandidateEducationStatistics(candidate.id);
 
-    return successResponse({
-      ...result,
-      statistics: stats
-    }, 'Education records retrieved successfully');
-
+    return successResponse(
+      {
+        ...result,
+        statistics: stats,
+      },
+      'Education records retrieved successfully'
+    );
   } catch (error) {
     return serverErrorResponse('Failed to retrieve education records', error);
   }
@@ -69,7 +71,7 @@ export const POST = withRole([UserType.CANDIDATE], async (req: AuthenticatedRequ
   try {
     // Get candidate record
     const candidate = await prisma.candidate.findUnique({
-      where: { userId: req.user!.id }
+      where: { userId: req.user!.id },
     });
 
     if (!candidate) {
@@ -123,7 +125,6 @@ export const POST = withRole([UserType.CANDIDATE], async (req: AuthenticatedRequ
         throw error;
       }
     }
-
   } catch (error) {
     return serverErrorResponse('Failed to add education record', error);
   }

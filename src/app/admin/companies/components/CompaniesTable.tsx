@@ -193,7 +193,7 @@ export function CompaniesTable({
                 <SelectValue placeholder="Trạng thái" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tất cả</SelectItem>
+                <SelectItem value="all">Tất cả</SelectItem>
                 <SelectItem value={VerificationStatus.VERIFIED}>Đã xác minh</SelectItem>
                 <SelectItem value={VerificationStatus.PENDING}>Chờ xác minh</SelectItem>
                 <SelectItem value={VerificationStatus.REJECTED}>Bị từ chối</SelectItem>
@@ -209,7 +209,7 @@ export function CompaniesTable({
                 <SelectValue placeholder="Quy mô" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tất cả</SelectItem>
+                <SelectItem value="all">Tất cả</SelectItem>
                 <SelectItem value="STARTUP_1_10">Startup (1-10)</SelectItem>
                 <SelectItem value="SMALL_11_50">Nhỏ (11-50)</SelectItem>
                 <SelectItem value="MEDIUM_51_200">Vừa (51-200)</SelectItem>
@@ -227,7 +227,7 @@ export function CompaniesTable({
                 <SelectValue placeholder="Ngành nghề" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tất cả</SelectItem>
+                <SelectItem value="all">Tất cả</SelectItem>
                 {industries.map((industry) => (
                   <SelectItem key={industry.id} value={industry.id}>
                     {industry.name}

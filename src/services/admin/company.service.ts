@@ -42,7 +42,7 @@ export class AdminCompanyService {
     }
 
     if (status) {
-      where.verificationStatus = status;
+      where.verificationStatus = status ;
     }
 
     if (companySize) {

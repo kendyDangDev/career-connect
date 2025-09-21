@@ -129,7 +129,7 @@ export function useCompaniesData(options?: UseCompaniesDataOptions) {
 
   const handleStatusFilter = useCallback(
     (status: string) => {
-      updateParams({ status: status || null });
+      updateParams({ status: status === 'all'? null : status  || null});
     },
     [updateParams]
   );

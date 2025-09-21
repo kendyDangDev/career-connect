@@ -85,8 +85,8 @@ export const authOptions: NextAuthOptions = {
             lastName: user.lastName,
             userType: user.userType,
             emailVerified: user.emailVerified,
+            phoneVerified: user.phoneVerified,
             status: user.status,
-            // phoneVerified: user.phoneVerified,
             avatarUrl: user.avatarUrl,
           };
         } catch (error) {
@@ -174,7 +174,7 @@ export const authOptions: NextAuthOptions = {
       if (user && account) {
         token.userType = user.userType;
         token.emailVerified = !!user.emailVerified;
-        // token.phoneVerified = user.phoneVerified;
+        token.phoneVerified = user.phoneVerified;
         token.firstName = user.firstName;
         token.lastName = user.lastName;
         token.avatarUrl = user.avatarUrl;
@@ -189,7 +189,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.sub!;
         session.user.userType = token.userType as any;
         session.user.emailVerified = token.emailVerified as true;
-        // session.user.phoneVerified = token.phoneVerified as Date | null;
+        session.user.phoneVerified = token.phoneVerified as boolean;
         session.user.firstName = token.firstName as string | null;
         session.user.lastName = token.lastName as string | null;
         session.user.avatarUrl = token.avatarUrl as string | null;

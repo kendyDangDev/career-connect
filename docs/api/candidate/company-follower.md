@@ -28,7 +28,7 @@ Retrieve a paginated list of companies followed by the authenticated candidate.
 | -------------------- | -------- | ---------- | ------------------------------------------------------------------- |
 | page                 | number   | 1          | Page number for pagination                                          |
 | limit                | number   | 20         | Number of items per page (max: 100)                                 |
-| search               | string   | -          | Search by company name or description                               |
+| limit                | string   | -          | Search by company name or description                               |
 | industryId[]         | string[] | -          | Filter by industry IDs                                              |
 | companySize[]        | string[] | -          | Filter by company sizes (STARTUP, SMALL, MEDIUM, LARGE, ENTERPRISE) |
 | verificationStatus[] | string[] | -          | Filter by verification status (PENDING, VERIFIED, REJECTED)         |

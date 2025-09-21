@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth-config';
 import { UserType } from '@/generated/prisma';
 import { Permission, hasPermission, hasAnyPermission, hasAllPermissions } from '@/types/auth';
+import { verifyAccessToken, extractBearerToken, isTokenBlacklisted } from '@/lib/jwt-utils';
+import { prisma } from '@/lib/prisma';
 
 export interface AuthenticatedRequest extends NextRequest {
   user?: {
@@ -13,14 +15,61 @@ export interface AuthenticatedRequest extends NextRequest {
   ip?: string;
 }
 
-// Authentication middleware - checks if user is logged in
+/**
+ * Authentication middleware - checks if user is logged in
+ * Supports both session-based (cookie) and Bearer token authentication
+ */
 export function withAuth(
   handler: (req: AuthenticatedRequest) => Promise<NextResponse>
 ): (req: NextRequest) => Promise<NextResponse> {
   return async (req: NextRequest) => {
-    const session = await getServerSession(authOptions);
+    let user = null;
+    
+    // First, try to get user from Bearer token
+    const authHeader = req.headers.get('authorization');
+    const token = extractBearerToken(authHeader);
+    
+    if (token) {
+      // Check if token is blacklisted
+      if (!isTokenBlacklisted(token)) {
+        const decoded = verifyAccessToken(token);
+        if (decoded) {
+          // Verify user still exists and is active
+          const dbUser = await prisma.user.findUnique({
+            where: { id: decoded.id },
+            select: {
+              id: true,
+              email: true,
+              userType: true,
+              status: true,
+            },
+          });
+          
+          if (dbUser && dbUser.status === 'ACTIVE') {
+            user = {
+              id: dbUser.id,
+              email: dbUser.email,
+              userType: dbUser.userType as UserType,
+            };
+          }
+        }
+      }
+    }
+    
+    // If no Bearer token or invalid, try session-based auth
+    if (!user) {
+      const session = await getServerSession(authOptions);
+      if (session?.user) {
+        user = {
+          id: session.user.id,
+          email: session.user.email,
+          userType: session.user.userType,
+        };
+      }
+    }
 
-    if (!session?.user) {
+    // If still no user, return unauthorized
+    if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized - Please login to continue' },
         { status: 401 }
@@ -29,11 +78,7 @@ export function withAuth(
 
     // Add user to request object
     const authenticatedReq = req as AuthenticatedRequest;
-    authenticatedReq.user = {
-      id: session.user.id,
-      email: session.user.email,
-      userType: session.user.userType,
-    };
+    authenticatedReq.user = user;
 
     // Extract IP address from various possible headers
     authenticatedReq.ip =
@@ -49,86 +94,95 @@ export function withAuth(
 // Role-based authorization middleware
 export function withRole(
   allowedRoles: UserType[],
-  handler: (req: AuthenticatedRequest) => Promise<NextResponse>
-): (req: NextRequest) => Promise<NextResponse> {
-  return withAuth(async (req: AuthenticatedRequest) => {
-    if (!req.user || !allowedRoles.includes(req.user.userType)) {
-      return NextResponse.json(
-        { error: 'Forbidden - You do not have permission to access this resource' },
-        { status: 403 }
-      );
-    }
+  handler: (req: AuthenticatedRequest, context?: any) => Promise<NextResponse>
+): (req: NextRequest, context?: any) => Promise<NextResponse> {
+  return (req: NextRequest, context?: any) => {
+    return withAuth(async (req: AuthenticatedRequest) => {
+      if (!req.user || !allowedRoles.includes(req.user.userType)) {
+        return NextResponse.json(
+          { error: 'Forbidden - You do not have permission to access this resource' },
+          { status: 403 }
+        );
+      }
 
-    return handler(req);
-  });
+      return handler(req, context);
+    })(req);
+  };
 }
 
 // Permission-based authorization middleware
 export function withPermission(
   requiredPermission: Permission,
-  handler: (req: AuthenticatedRequest) => Promise<NextResponse>
-): (req: NextRequest) => Promise<NextResponse> {
-  return withAuth(async (req: AuthenticatedRequest) => {
-    if (!req.user || !hasPermission(req.user.userType, requiredPermission)) {
-      return NextResponse.json(
-        { error: 'Forbidden - You do not have the required permission' },
-        { status: 403 }
-      );
-    }
-
-    return handler(req);
-  });
+  handler: (req: AuthenticatedRequest, context?: any) => Promise<NextResponse>
+): (req: NextRequest, context?: any) => Promise<NextResponse> {
+  return (req: NextRequest, context?: any) => {
+    return withAuth(async (req: AuthenticatedRequest) => {
+      if (!req.user || !hasPermission(req.user.userType, requiredPermission)) {
+        return NextResponse.json(
+          { error: 'Forbidden - You do not have the required permission' },
+          { status: 403 }
+        );
+      }
+      return handler(req, context);
+    })(req);
+  };
 }
 
 // Multiple permissions authorization middleware (ANY)
 export function withAnyPermission(
   permissions: Permission[],
-  handler: (req: AuthenticatedRequest) => Promise<NextResponse>
-): (req: NextRequest) => Promise<NextResponse> {
-  return withAuth(async (req: AuthenticatedRequest) => {
-    if (!req.user || !hasAnyPermission(req.user.userType, permissions)) {
-      return NextResponse.json(
-        { error: 'Forbidden - You do not have any of the required permissions' },
-        { status: 403 }
-      );
-    }
+  handler: (req: AuthenticatedRequest, context?: any) => Promise<NextResponse>
+): (req: NextRequest, context?: any) => Promise<NextResponse> {
+  return (req: NextRequest, context?: any) => {
+    return withAuth(async (req: AuthenticatedRequest) => {
+      if (!req.user || !hasAnyPermission(req.user.userType, permissions)) {
+        return NextResponse.json(
+          { error: 'Forbidden - You do not have any of the required permissions' },
+          { status: 403 }
+        );
+      }
 
-    return handler(req);
-  });
+      return handler(req, context);
+    })(req);
+  };
 }
 
 // Multiple permissions authorization middleware (ALL)
 export function withAllPermissions(
   permissions: Permission[],
-  handler: (req: AuthenticatedRequest) => Promise<NextResponse>
-): (req: NextRequest) => Promise<NextResponse> {
-  return withAuth(async (req: AuthenticatedRequest) => {
-    if (!req.user || !hasAllPermissions(req.user.userType, permissions)) {
-      return NextResponse.json(
-        { error: 'Forbidden - You do not have all of the required permissions' },
-        { status: 403 }
-      );
-    }
+  handler: (req: AuthenticatedRequest, context?: any) => Promise<NextResponse>
+): (req: NextRequest, context?: any) => Promise<NextResponse> {
+  return (req: NextRequest, context?: any) => {
+    return withAuth(async (req: AuthenticatedRequest) => {
+      if (!req.user || !hasAllPermissions(req.user.userType, permissions)) {
+        return NextResponse.json(
+          { error: 'Forbidden - You do not have all of the required permissions' },
+          { status: 403 }
+        );
+      }
 
-    return handler(req);
-  });
+      return handler(req, context);
+    })(req);
+  };
 }
 
 // Helper function to check ownership before allowing access
 export function withOwnership(
   checkOwnership: (req: AuthenticatedRequest) => Promise<boolean>,
-  handler: (req: AuthenticatedRequest) => Promise<NextResponse>
-): (req: NextRequest) => Promise<NextResponse> {
-  return withAuth(async (req: AuthenticatedRequest) => {
-    const isOwner = await checkOwnership(req);
+  handler: (req: AuthenticatedRequest, context?: any) => Promise<NextResponse>
+): (req: NextRequest, context?: any) => Promise<NextResponse> {
+  return (req: NextRequest, context?: any) => {
+    return withAuth(async (req: AuthenticatedRequest) => {
+      const isOwner = await checkOwnership(req);
 
-    if (!isOwner && req.user?.userType !== 'ADMIN') {
-      return NextResponse.json(
-        { error: 'Forbidden - You can only access your own resources' },
-        { status: 403 }
-      );
-    }
+      if (!isOwner && req.user?.userType !== 'ADMIN') {
+        return NextResponse.json(
+          { error: 'Forbidden - You can only access your own resources' },
+          { status: 403 }
+        );
+      }
 
-    return handler(req);
-  });
+      return handler(req, context);
+    })(req);
+  };
 }

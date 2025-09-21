@@ -104,7 +104,7 @@ export const authRateLimiter = createRateLimiter({
 
 export const registerRateLimiter = createRateLimiter({
   windowMs: 60 * 60 * 1000, // 1 hour
-  maxRequests: 3, // 3 registrations per hour
+  // maxRequests: 3, // 3 registrations per hour
   message: 'Quá nhiều lần đăng ký. Vui lòng thử lại sau 1 giờ.',
 });
 

@@ -75,11 +75,11 @@ export function LocationDetail({
   const TypeIcon = locationTypeIcons[location.type];
 
   // Render child locations tree
-  const renderChildLocations = (children: Location[], level = 0): React.ReactNode => {
+  const renderChildLocations = (children: Location[],  = 0): React.ReactNode => {
     if (!children || children.length === 0) return null;
 
     return (
-      <ul className="space-y-2">
+      <ul className="space-y-2">level
         {children.map((child) => {
           const ChildIcon = locationTypeIcons[child.type];
           return (

@@ -14,10 +14,41 @@ type IconSymbolName = keyof typeof MAPPING;
  * - see SF Symbols in the [SF Symbols](https://developer.apple.com/sf-symbols/) app.
  */
 const MAPPING = {
+  // Tab navigation icons
   'house.fill': 'home',
-  'paperplane.fill': 'send',
-  'chevron.left.forwardslash.chevron.right': 'code',
+  'doc.text.fill': 'description',
+  'doc.text': 'description',
+  'magnifyingglass': 'search',
+  'bell.fill': 'notifications',
+  'bell': 'notifications-none',
+  'person.fill': 'person',
+  
+  // General icons
   'chevron.right': 'chevron-right',
+  'chevron.left.forwardslash.chevron.right': 'code',
+  'plus.circle.fill': 'add-circle',
+  'bookmark': 'bookmark-border',
+  'bookmark.fill': 'bookmark',
+  'briefcase.fill': 'work',
+  'briefcase': 'work-outline',
+  'envelope.fill': 'mail',
+  'info.circle.fill': 'info',
+  'person.circle': 'account-circle',
+  'person.2.fill': 'people',
+  'chart.bar.fill': 'bar-chart',
+  'lightbulb.fill': 'lightbulb',
+  'star.fill': 'star',
+  'lock': 'lock',
+  'globe': 'language',
+  'moon': 'dark-mode',
+  'questionmark.circle': 'help-circle',
+  'shield': 'security',
+  'info.circle': 'info-outline',
+  'arrow.right.square': 'logout',
+  'pencil': 'edit',
+  
+  // Additional mappings
+  'paperplane.fill': 'send',
 } as IconMapping;
 
 /**

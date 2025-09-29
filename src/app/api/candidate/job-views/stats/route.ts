@@ -1,40 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth-config';
+import { withPermission, AuthenticatedRequest } from '@/middleware/auth';
 import { JobViewService } from '@/services/candidate/job-view.service';
 
 /**
  * GET /api/candidate/job-views/stats
  * Get job view statistics for the authenticated candidate
  */
-export async function GET(request: NextRequest) {
+export const GET = withPermission('job.view', async (request: AuthenticatedRequest) => {
   try {
-    // Check authentication
-    const session = await getServerSession(authOptions);
-    
-    if (!session || !session.user) {
-      return NextResponse.json(
-        { 
-          error: 'Unauthorized',
-          message: 'Bạn cần đăng nhập để xem thống kê' 
-        },
-        { status: 401 }
-      );
-    }
-
-    // Check if user is a candidate
-    if (session.user.userType !== 'CANDIDATE') {
-      return NextResponse.json(
-        { 
-          error: 'Forbidden',
-          message: 'Chỉ ứng viên mới có thể xem thống kê việc làm đã xem' 
-        },
-        { status: 403 }
-      );
-    }
-
-    // Get job view statistics
-    const stats = await JobViewService.getJobViewStats(session.user.id);
+    // Get job view statistics using authenticated user
+    const stats = await JobViewService.getJobViewStats(request.user!.id);
 
     return NextResponse.json({
       success: true,
@@ -52,4 +27,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

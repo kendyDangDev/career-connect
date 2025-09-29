@@ -16,6 +16,7 @@ export const createUserCvSchema = z.object({
   templateId: z.string().optional(),
   cv_name: z.string().min(1, 'CV name is required'),
   cvData: z.any().optional(), // JSON field
+  description: z.string().max(500).optional().nullable(),
 });
 
 export const updateUserCvSchema = z.object({
@@ -40,28 +41,42 @@ export const updateCvSectionSchema = z.object({
 
 // Schema cho batch update sections
 export const batchUpdateSectionsSchema = z.object({
-  sections: z.array(z.object({
-    id: z.string(),
-    title: z.string().min(1).max(100).optional(),
-    content: z.any().optional(),
-    order: z.number().int().optional(),
-  }))
+  sections: z.array(
+    z.object({
+      id: z.string(),
+      title: z.string().min(1).max(100).optional(),
+      content: z.any().optional(),
+      order: z.number().int().optional(),
+    })
+  ),
 });
 
 // Schema cho query parameters
 export const cvQuerySchema = z.object({
   userId: z.string().optional(),
   templateId: z.string().optional(),
-  page: z.string().transform((val) => parseInt(val) || 1).optional(),
-  limit: z.string().transform((val) => parseInt(val) || 10).optional(),
+  page: z
+    .string()
+    .transform((val) => parseInt(val) || 1)
+    .optional(),
+  limit: z
+    .string()
+    .transform((val) => parseInt(val) || 10)
+    .optional(),
   sortBy: z.enum(['createdAt', 'updatedAt', 'cv_name']).optional(),
   sortOrder: z.enum(['asc', 'desc']).optional(),
 });
 
 export const sectionQuerySchema = z.object({
   cvId: z.string().optional(),
-  page: z.string().transform((val) => parseInt(val) || 1).optional(),
-  limit: z.string().transform((val) => parseInt(val) || 10).optional(),
+  page: z
+    .string()
+    .transform((val) => parseInt(val) || 1)
+    .optional(),
+  limit: z
+    .string()
+    .transform((val) => parseInt(val) || 10)
+    .optional(),
   sortBy: z.enum(['order', 'createdAt', 'updatedAt', 'title']).optional(),
   sortOrder: z.enum(['asc', 'desc']).optional(),
 });

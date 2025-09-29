@@ -75,18 +75,19 @@ export function LocationDetail({
   const TypeIcon = locationTypeIcons[location.type];
 
   // Render child locations tree
-  const renderChildLocations = (children: Location[],  = 0): React.ReactNode => {
+  const renderChildLocations = (children: Location[], level = 0): React.ReactNode => {
     if (!children || children.length === 0) return null;
 
     return (
-      <ul className="space-y-2">level
+      <ul className="space-y-2">
+        level
         {children.map((child) => {
           const ChildIcon = locationTypeIcons[child.type];
           return (
             <li key={child.id} style={{ paddingLeft: `${level * 1.5}rem` }}>
-              <div className="flex items-center justify-between rounded-lg border p-3 hover:bg-muted/50">
+              <div className="hover:bg-muted/50 flex items-center justify-between rounded-lg border p-3">
                 <div className="flex items-center gap-2">
-                  <ChildIcon className="h-4 w-4 text-muted-foreground" />
+                  <ChildIcon className="text-muted-foreground h-4 w-4" />
                   <span className="font-medium">{child.name}</span>
                   <Badge variant="outline" className="ml-2">
                     {locationTypeLabels[child.type]}
@@ -95,7 +96,7 @@ export function LocationDetail({
                     {child.isActive ? 'Hoạt động' : 'Không hoạt động'}
                   </Badge>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="text-muted-foreground flex items-center gap-2 text-sm">
                   {child._count && child._count.children > 0 && (
                     <span>{child._count.children} địa điểm con</span>
                   )}
@@ -113,12 +114,12 @@ export function LocationDetail({
   const buildLocationPath = () => {
     const path = [];
     let current: Location | null = location;
-    
+
     while (current) {
       path.unshift(current);
       current = current.parent || null;
     }
-    
+
     return path;
   };
 
@@ -126,17 +127,15 @@ export function LocationDetail({
 
   return (
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="flex max-h-[90vh] max-w-4xl flex-col overflow-hidden">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div>
-              <DialogTitle className="text-2xl flex items-center gap-2">
+              <DialogTitle className="flex items-center gap-2 text-2xl">
                 <TypeIcon className="h-6 w-6" />
                 {location.name}
               </DialogTitle>
-              <DialogDescription className="mt-1">
-                Chi tiết thông tin địa điểm
-              </DialogDescription>
+              <DialogDescription className="mt-1">Chi tiết thông tin địa điểm</DialogDescription>
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -156,11 +155,7 @@ export function LocationDetail({
                   </>
                 )}
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onEdit(location)}
-              >
+              <Button variant="outline" size="sm" onClick={() => onEdit(location)}>
                 <Edit className="mr-2 h-4 w-4" />
                 Chỉnh sửa
               </Button>
@@ -177,11 +172,11 @@ export function LocationDetail({
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 -mx-6 px-6">
+        <ScrollArea className="-mx-6 flex-1 px-6">
           <div className="space-y-6 py-4">
             {/* Location Path */}
             {locationPath.length > 1 && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="text-muted-foreground flex items-center gap-2 text-sm">
                 {locationPath.map((loc, index) => {
                   const LocIcon = locationTypeIcons[loc.type];
                   return (
@@ -200,7 +195,7 @@ export function LocationDetail({
             {/* Basic Information */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
                   <FileText className="h-5 w-5" />
                   Thông tin cơ bản
                 </CardTitle>
@@ -209,11 +204,11 @@ export function LocationDetail({
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-3">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Tên địa điểm</p>
+                      <p className="text-muted-foreground text-sm font-medium">Tên địa điểm</p>
                       <p className="mt-1 font-medium">{location.name}</p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Loại địa điểm</p>
+                      <p className="text-muted-foreground text-sm font-medium">Loại địa điểm</p>
                       <div className="mt-1">
                         <Badge variant="outline" className="gap-1">
                           <TypeIcon className="h-3 w-3" />
@@ -222,7 +217,7 @@ export function LocationDetail({
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Địa điểm cha</p>
+                      <p className="text-muted-foreground text-sm font-medium">Địa điểm cha</p>
                       <p className="mt-1">
                         {location.parent ? (
                           <span className="flex items-center gap-2">
@@ -237,7 +232,7 @@ export function LocationDetail({
                   </div>
                   <div className="space-y-3">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Trạng thái</p>
+                      <p className="text-muted-foreground text-sm font-medium">Trạng thái</p>
                       <div className="mt-1">
                         <Badge variant={location.isActive ? 'default' : 'secondary'}>
                           {location.isActive ? 'Hoạt động' : 'Không hoạt động'}
@@ -245,7 +240,7 @@ export function LocationDetail({
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Số địa điểm con</p>
+                      <p className="text-muted-foreground text-sm font-medium">Số địa điểm con</p>
                       <p className="mt-1 font-medium">{location._count?.children || 0}</p>
                     </div>
                   </div>
@@ -256,7 +251,7 @@ export function LocationDetail({
             {/* Coordinates */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
                   <Navigation className="h-5 w-5" />
                   Tọa độ địa lý
                 </CardTitle>
@@ -266,11 +261,15 @@ export function LocationDetail({
                   <div className="space-y-4">
                     <div className="grid gap-4 md:grid-cols-2">
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Vĩ độ (Latitude)</p>
+                        <p className="text-muted-foreground text-sm font-medium">
+                          Vĩ độ (Latitude)
+                        </p>
                         <p className="mt-1 font-mono">{location.latitude.toFixed(6)}°</p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Kinh độ (Longitude)</p>
+                        <p className="text-muted-foreground text-sm font-medium">
+                          Kinh độ (Longitude)
+                        </p>
                         <p className="mt-1 font-mono">{location.longitude.toFixed(6)}°</p>
                       </div>
                     </div>
@@ -303,7 +302,7 @@ export function LocationDetail({
                     </div>
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     Chưa có thông tin tọa độ cho địa điểm này
                   </p>
                 )}
@@ -314,24 +313,20 @@ export function LocationDetail({
             {location.children && location.children.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-lg">
                     <MapIcon className="h-5 w-5" />
                     Địa điểm con ({location.children.length})
                   </CardTitle>
-                  <CardDescription>
-                    Danh sách các địa điểm thuộc {location.name}
-                  </CardDescription>
+                  <CardDescription>Danh sách các địa điểm thuộc {location.name}</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  {renderChildLocations(location.children)}
-                </CardContent>
+                <CardContent>{renderChildLocations(location.children)}</CardContent>
               </Card>
             )}
 
             {/* System Information */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
                   <Hash className="h-5 w-5" />
                   Thông tin hệ thống
                 </CardTitle>
@@ -339,17 +334,24 @@ export function LocationDetail({
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-muted-foreground">ID</p>
-                    <code className="rounded bg-muted px-2 py-1 text-sm">{location.id}</code>
+                    <p className="text-muted-foreground text-sm font-medium">ID</p>
+                    <code className="bg-muted rounded px-2 py-1 text-sm">{location.id}</code>
                   </div>
                   <Separator />
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-muted-foreground">Ngày tạo</p>
+                    <p className="text-muted-foreground text-sm font-medium">Ngày tạo</p>
                     <div className="flex items-center gap-2 text-sm">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span>{format(new Date(location.createdAt), 'dd/MM/yyyy HH:mm', { locale: vi })}</span>
+                      <Calendar className="text-muted-foreground h-4 w-4" />
+                      <span>
+                        {format(new Date(location.createdAt), 'dd/MM/yyyy HH:mm', { locale: vi })}
+                      </span>
                       <span className="text-muted-foreground">
-                        ({formatDistanceToNow(new Date(location.createdAt), { locale: vi, addSuffix: true })})
+                        (
+                        {formatDistanceToNow(new Date(location.createdAt), {
+                          locale: vi,
+                          addSuffix: true,
+                        })}
+                        )
                       </span>
                     </div>
                   </div>

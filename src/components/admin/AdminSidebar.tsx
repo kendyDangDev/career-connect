@@ -27,7 +27,7 @@ import {
   Database,
   Shield,
   Palette,
-  Globe
+  Globe,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -140,7 +140,7 @@ const navItems: NavItem[] = [
       },
       {
         title: 'Người dùng',
-        href: '/admin/reports/users',
+        href: '/admin/users',
         icon: Users,
       },
       {
@@ -215,9 +215,7 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
 
   const toggleExpanded = (title: string) => {
     setExpandedItems((prev) =>
-      prev.includes(title)
-        ? prev.filter((item) => item !== title)
-        : [...prev, title]
+      prev.includes(title) ? prev.filter((item) => item !== title) : [...prev, title]
     );
   };
 
@@ -252,10 +250,7 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
             <Link href={item.href}>
               <Button
                 variant={active ? 'secondary' : 'ghost'}
-                className={cn(
-                  'w-full justify-center p-2 h-12',
-                  active && 'bg-secondary'
-                )}
+                className={cn('h-12 w-full justify-center p-2', active && 'bg-secondary')}
                 title={item.title}
               >
                 <item.icon className="h-5 w-5" />
@@ -264,10 +259,7 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
           ) : (
             <Button
               variant={active ? 'secondary' : 'ghost'}
-              className={cn(
-                'w-full justify-center p-2 h-12',
-                active && 'bg-secondary'
-              )}
+              className={cn('h-12 w-full justify-center p-2', active && 'bg-secondary')}
               onClick={() => {
                 setCollapsed(false);
                 toggleExpanded(item.title);
@@ -288,7 +280,7 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
             <Button
               variant={active ? 'secondary' : 'ghost'}
               className={cn(
-                'w-full justify-start gap-3 h-10',
+                'h-10 w-full justify-start gap-3',
                 level === 1 && 'pl-8',
                 level === 2 && 'pl-12',
                 active && 'bg-secondary'
@@ -307,7 +299,7 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
           <Button
             variant={active ? 'secondary' : 'ghost'}
             className={cn(
-              'w-full justify-start gap-3 h-10',
+              'h-10 w-full justify-start gap-3',
               level === 1 && 'pl-8',
               level === 2 && 'pl-12',
               active && 'bg-secondary'
@@ -317,16 +309,13 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
             <item.icon className="h-4 w-4 shrink-0" />
             <span className="flex-1 text-left">{item.title}</span>
             {item.badge && (
-              <Badge variant="secondary" className="ml-auto mr-2">
+              <Badge variant="secondary" className="mr-2 ml-auto">
                 {item.badge}
               </Badge>
             )}
             {hasChildren && (
               <ChevronRight
-                className={cn(
-                  'h-4 w-4 shrink-0 transition-transform',
-                  isExpanded && 'rotate-90'
-                )}
+                className={cn('h-4 w-4 shrink-0 transition-transform', isExpanded && 'rotate-90')}
               />
             )}
           </Button>
@@ -344,7 +333,7 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
   return (
     <aside
       className={cn(
-        'sticky top-16 h-[calc(100vh-4rem)] border-r bg-background transition-all duration-300',
+        'bg-background sticky top-16 h-[calc(100vh-4rem)] border-r transition-all duration-300',
         collapsed ? 'w-16' : 'w-64',
         className
       )}
@@ -358,11 +347,7 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
             onClick={() => setCollapsed(!collapsed)}
             className="h-8 w-8"
           >
-            {collapsed ? (
-              <ChevronRight className="h-4 w-4" />
-            ) : (
-              <ChevronLeft className="h-4 w-4" />
-            )}
+            {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </Button>
         </div>
 
@@ -370,9 +355,7 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
 
         {/* Navigation */}
         <ScrollArea className="flex-1 px-2 py-2">
-          <nav className="space-y-1">
-            {navItems.map((item) => renderNavItem(item))}
-          </nav>
+          <nav className="space-y-1">{navItems.map((item) => renderNavItem(item))}</nav>
         </ScrollArea>
 
         {/* Footer */}
@@ -380,9 +363,7 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
           <>
             <Separator />
             <div className="p-4">
-              <p className="text-xs text-muted-foreground text-center">
-                © 2024 Career Connect
-              </p>
+              <p className="text-muted-foreground text-center text-xs">© 2024 Career Connect</p>
             </div>
           </>
         )}

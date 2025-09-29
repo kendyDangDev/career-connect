@@ -24,11 +24,11 @@ export function withAuth(
 ): (req: NextRequest) => Promise<NextResponse> {
   return async (req: NextRequest) => {
     let user = null;
-    
+
     // First, try to get user from Bearer token
     const authHeader = req.headers.get('authorization');
     const token = extractBearerToken(authHeader);
-    
+
     if (token) {
       // Check if token is blacklisted
       if (!isTokenBlacklisted(token)) {
@@ -44,7 +44,7 @@ export function withAuth(
               status: true,
             },
           });
-          
+
           if (dbUser && dbUser.status === 'ACTIVE') {
             user = {
               id: dbUser.id,
@@ -55,7 +55,7 @@ export function withAuth(
         }
       }
     }
-    
+
     // If no Bearer token or invalid, try session-based auth
     if (!user) {
       const session = await getServerSession(authOptions);

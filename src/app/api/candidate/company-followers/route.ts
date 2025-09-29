@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { withRole, AuthenticatedRequest } from '@/middleware/auth';
 import { CompanyFollowerService } from '@/services/candidate/company-follower.service';
 import { 
@@ -16,6 +16,9 @@ import {
 } from '@/types/company-follower.types';
 import { UserType, CompanySize, VerificationStatus } from '@/generated/prisma';
 import { prisma } from '@/lib/prisma';
+
+
+
 
 /**
  * GET /api/candidate/company-followers
@@ -80,14 +83,14 @@ export const GET = withRole([UserType.CANDIDATE], async (req: AuthenticatedReque
 
 /**
  * POST /api/candidate/company-followers
- * Follow a company for the authenticated candidate
+ * Follow a company for the authenticated candidate 
  */
 export const POST = withRole([UserType.CANDIDATE], async (req: AuthenticatedRequest) => {
   try {
     // Get candidate record
     const candidate = await prisma.candidate.findUnique({
       where: { userId: req.user!.id }
-    });
+  });
 
     if (!candidate) {
       return errorResponse('Candidate profile not found', 404);

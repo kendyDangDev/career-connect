@@ -10,10 +10,7 @@ import {
   buildOrderBy,
   buildSearchWhere,
 } from '@/lib/api-utils';
-import {
-  createUserCvSchema,
-  cvQuerySchema,
-} from '@/lib/validations/cv.validation';
+import { createUserCvSchema, cvQuerySchema } from '@/lib/validations/cv.validation';
 
 // GET: List all CVs with pagination and filtering
 export async function GET(request: NextRequest) {
@@ -26,7 +23,7 @@ export async function GET(request: NextRequest) {
     // Parse query parameters
     const { searchParams } = new URL(request.url);
     const queryParams = Object.fromEntries(searchParams.entries());
-    
+
     // Validate query parameters
     const validatedQuery = cvQuerySchema.parse(queryParams);
     const {
@@ -40,14 +37,14 @@ export async function GET(request: NextRequest) {
 
     // Build where clause
     const where: any = {};
-    
+
     // Filter by userId - if admin, they can view all, otherwise only their own
     if (userId) {
       where.userId = userId;
     } else {
       where.userId = user.id; // Default to current user's CVs
     }
-    
+
     if (templateId) {
       where.templateId = templateId;
     }
@@ -99,10 +96,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await parseRequestBody(request);
-    
+
     // Validate request body
     const validatedData = createUserCvSchema.parse(body);
-    
+
     // Create CV with user association
     const cv = await prisma.userCv.create({
       data: {

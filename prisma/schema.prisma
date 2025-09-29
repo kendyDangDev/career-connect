@@ -140,7 +140,7 @@ model Candidate {
   availabilityStatus    AvailabilityStatus    @default(AVAILABLE) @map("availability_status")
   preferredWorkType     PreferredWorkType?    @map("preferred_work_type")
   preferredLocationType PreferredLocationType? @map("preferred_location_type")
-  cvFileUrl             String?               @map("cv_file_url")
+  cvFileUrl             String?               @map("cv_file_url") // Legacy field - will be deprecated
   coverLetter           String?               @map("cover_letter") @db.Text
   createdAt             DateTime              @default(now()) @map("created_at")
   updatedAt             DateTime              @updatedAt @map("updated_at")
@@ -156,6 +156,7 @@ model Candidate {
   savedJobs       SavedJob[]
   companyFollowers CompanyFollower[]
   jobAlerts       JobAlert[]
+  cvs             CandidateCv[]
 
   @@map("candidates")
 }
@@ -224,6 +225,27 @@ model CandidateCertification {
   candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
 
   @@map("candidate_certifications")
+}
+
+model CandidateCv {
+  id           String    @id @default(cuid())
+  candidateId  String    @map("candidate_id")
+  cvName       String    @map("cv_name")
+  fileUrl      String    @map("file_url")
+  fileSize     Int       @map("file_size") // in bytes
+  mimeType     String    @map("mime_type")
+  isPrimary    Boolean   @default(false) @map("is_primary")
+  description  String?   @db.Text
+  uploadedAt   DateTime  @default(now()) @map("uploaded_at")
+  lastViewedAt DateTime? @map("last_viewed_at")
+  viewCount    Int       @default(0) @map("view_count")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@map("candidate_cvs")
+  @@index([candidateId, isPrimary], name: "idx_candidate_cvs_primary")
 }
 
 // Company Models

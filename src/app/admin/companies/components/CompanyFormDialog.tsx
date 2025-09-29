@@ -1,12 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -186,16 +181,14 @@ export function CompanyFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {mode === 'create' ? 'Thêm công ty mới' : 'Chỉnh sửa công ty'}
-          </DialogTitle>
+          <DialogTitle>{mode === 'create' ? 'Thêm công ty mới' : 'Chỉnh sửa công ty'}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {/* Company Name */}
               <FormField
                 control={form.control}
@@ -225,9 +218,9 @@ export function CompanyFormDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Không chọn</SelectItem>
+                        <SelectItem value="all">Không chọn</SelectItem>
                         {loadingIndustries ? (
-                          <SelectItem value="" disabled>
+                          <SelectItem value="all" disabled>
                             Đang tải...
                           </SelectItem>
                         ) : (
@@ -258,7 +251,7 @@ export function CompanyFormDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Không chọn</SelectItem>
+                        <SelectItem value="all">Không chọn</SelectItem>
                         {companySizeOptions.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
                             {option.label}
@@ -455,11 +448,7 @@ export function CompanyFormDialog({
                 Hủy
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading
-                  ? 'Đang xử lý...'
-                  : mode === 'create'
-                  ? 'Thêm mới'
-                  : 'Cập nhật'}
+                {loading ? 'Đang xử lý...' : mode === 'create' ? 'Thêm mới' : 'Cập nhật'}
               </Button>
             </div>
           </form>

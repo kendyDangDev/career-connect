@@ -6,8 +6,9 @@ import { z } from 'zod';
 // Validation schema for job application
 const applyJobSchema = z.object({
   jobId: z.string().cuid(),
-  coverLetter: z.string().min(50).optional(),
-  cvFileUrl: z.string().url().optional(),
+  coverLetter: z.string().min(50, 'Cover letter must be at least 50 characters'),
+  cvFileUrl: z.string().url('Invalid CV file URL').optional(),
+  cvId: z.string().cuid('Invalid CV ID').optional(),
 });
 
 // POST - Apply for a job (requires 'application.create' permission - CANDIDATE only)

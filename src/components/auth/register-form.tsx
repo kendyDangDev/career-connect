@@ -54,7 +54,7 @@ const registerSchema = z
       ),
     phone: z
       .string()
-      .optional()
+      .nullish()
       .refine(
         (val) => !val || /^(\+84|84|0)[35789][0-9]{8}$/.test(val),
         'Số điện thoại không hợp lệ (VD: 0901234567)'
@@ -116,8 +116,8 @@ export default function RegisterForm() {
       confirmPassword: '',
       firstName: '',
       lastName: '',
-      phone: '',
-      dateOfBirth: '',
+      phone: null,
+      dateOfBirth: null,
       acceptTerms: false,
       acceptPrivacy: false,
     },
@@ -158,10 +158,13 @@ export default function RegisterForm() {
             fieldErrors[detail.field] = detail.message;
           });
 
+          console.log(result.details);
+
           // Set form errors
           Object.entries(fieldErrors).forEach(([field, message]) => {
             form.setError(field as keyof RegisterFormData, { message });
           });
+          console.log(fieldErrors);
         } else {
           setError(result.error || 'Đã có lỗi xảy ra');
         }

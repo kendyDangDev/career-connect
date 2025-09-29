@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth-config';
+import { withPermission, AuthenticatedRequest } from '@/middleware/auth';
 import { JobViewService } from '@/services/candidate/job-view.service';
 import { JobViewsQuery } from '@/types/candidate/job-view.types';
 
@@ -8,31 +7,8 @@ import { JobViewsQuery } from '@/types/candidate/job-view.types';
  * GET /api/candidate/job-views
  * Get list of job views for the authenticated candidate
  */
-export async function GET(request: NextRequest) {
+export const GET = withPermission('job.view', async (request: AuthenticatedRequest) => {
   try {
-    // Check authentication
-    const session = await getServerSession(authOptions);
-    
-    if (!session || !session.user) {
-      return NextResponse.json(
-        { 
-          error: 'Unauthorized',
-          message: 'Bạn cần đăng nhập để xem lịch sử xem việc làm' 
-        },
-        { status: 401 }
-      );
-    }
-
-    // Check if user is a candidate
-    if (session.user.userType !== 'CANDIDATE') {
-      return NextResponse.json(
-        { 
-          error: 'Forbidden',
-          message: 'Chỉ ứng viên mới có thể xem lịch sử xem việc làm' 
-        },
-        { status: 403 }
-      );
-    }
 
     // Get query parameters
     const searchParams = request.nextUrl.searchParams;
@@ -46,12 +22,12 @@ export async function GET(request: NextRequest) {
     };
 
     // Validate pagination
-    if (query.page < 1) query.page = 1;
-    if (query.limit < 1) query.limit = 10;
-    if (query.limit > 50) query.limit = 50; // Max limit
+    if (query.page! < 1) query.page = 1;
+    if (query.limit! < 1) query.limit = 10;
+    if (query.limit! > 50) query.limit = 50; // Max limit
 
-    // Get job views
-    const result = await JobViewService.getJobViews(session.user.id, query);
+    // Get job views using authenticated user
+    const result = await JobViewService.getJobViews(request.user!.id, query);
 
     return NextResponse.json({
       success: true,
@@ -69,4 +45,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

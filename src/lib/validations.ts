@@ -55,13 +55,14 @@ export const registerSchema = Joi.object({
     }),
 
   phone: Joi.string()
+    .allow('')
     .pattern(/^(\+84|84|0)[35789][0-9]{8}$/)
     .optional()
     .messages({
       'string.pattern.base': 'Số điện thoại không hợp lệ (VD: 0901234567)',
     }),
 
-  dateOfBirth: Joi.date().max('now').min('1900-01-01').optional().messages({
+  dateOfBirth: Joi.date().max('now').min('1900-01-01').allow('').optional().messages({
     'date.max': 'Ngày sinh không được là ngày trong tương lai',
     'date.min': 'Ngày sinh không hợp lệ',
   }),

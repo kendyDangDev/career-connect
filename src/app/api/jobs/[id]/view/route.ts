@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth-config';
+import { withAuth, AuthenticatedRequest } from '@/middleware/auth';
 import { JobViewService } from '@/services/candidate/job-view.service';
 import { JobViewInput } from '@/types/candidate/job-view.types';
+import { verifyAccessToken, extractBearerToken } from '@/lib/jwt-utils';
+import { prisma } from '@/lib/prisma';
 
 /**
  * POST /api/jobs/[id]/view
  * Record a job view when user views a job
+ * Supports both authenticated and anonymous users
  */
 export async function POST(
   request: NextRequest,
@@ -15,9 +17,25 @@ export async function POST(
   try {
     const jobId = params.id;
     
-    // Get user session (optional - can track anonymous views)
-    const session = await getServerSession(authOptions);
-    const userId = session?.user?.id || null;
+    // Try to get user from Bearer token (for React Native)
+    let userId: string | null = null;
+    const authHeader = request.headers.get('authorization');
+    const token = extractBearerToken(authHeader);
+    
+    if (token) {
+      const decoded = verifyAccessToken(token);
+      if (decoded) {
+        // Verify user still exists
+        const dbUser = await prisma.user.findUnique({
+          where: { id: decoded.id },
+          select: { id: true, status: true }
+        });
+        
+        if (dbUser && dbUser.status === 'ACTIVE') {
+          userId = dbUser.id;
+        }
+      }
+    }
 
     // Get client information
     const ipAddress = 
@@ -80,17 +98,14 @@ export async function POST(
  * GET /api/jobs/[id]/view
  * Check if current user has viewed this job
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export const GET = withAuth(async (request: AuthenticatedRequest) => {
   try {
-    const jobId = params.id;
+    // Extract jobId from URL path
+    const url = new URL(request.url);
+    const pathSegments = url.pathname.split('/');
+    const jobId = pathSegments[pathSegments.length - 2]; // /api/jobs/[id]/view
     
-    // Check authentication
-    const session = await getServerSession(authOptions);
-    
-    if (!session || !session.user) {
+    if (!request.user) {
       return NextResponse.json({
         success: true,
         data: {
@@ -102,7 +117,7 @@ export async function GET(
 
     // Check if user has viewed this job
     const hasViewed = await JobViewService.hasUserViewedJob(
-      session.user.id, 
+      request.user.id, 
       jobId
     );
 
@@ -110,7 +125,7 @@ export async function GET(
       success: true,
       data: {
         hasViewed,
-        userId: session.user.id,
+        userId: request.user.id,
         jobId
       }
     });
@@ -126,4 +141,4 @@ export async function GET(
       { status: 500 }
     );
   }
-}
+});

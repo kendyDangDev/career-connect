@@ -63,9 +63,13 @@ export default function LoginForm() {
         if (session?.user) {
           // Redirect based on user type
 
-          console.log(session.user)
+          console.log(session.user);
           const redirectUrl =
-            session.user.userType === 'EMPLOYER' ? '/employer/dashboard' : ('ADMIN' ? '/admin':'/candidate/dashboard');
+            session.user.userType === 'EMPLOYER'
+              ? '/employer/dashboard'
+              : session.user.userType === 'ADMIN'
+                ? '/admin'
+                : '/candidate/dashboard';
           router.push(redirectUrl);
           router.refresh();
         } else {

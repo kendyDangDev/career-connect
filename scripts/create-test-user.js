@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 async function createTestUser() {
   try {
     // Hash mật khẩu test
-    const password = '123456'; // Mật khẩu test đơn giản
+    const password = 'SecurePassword123!'; // Mật khẩu test đơn giản
     const hashedPassword = await bcryptjs.hash(password, 12);
 
     // Tạo user test
@@ -17,7 +17,7 @@ async function createTestUser() {
         firstName: 'Test',
         lastName: 'User',
         userType: 'CANDIDATE',
-        emailVerified: new Date(),
+        emailVerified: true,
         status: 'ACTIVE',
       },
     });
@@ -38,12 +38,12 @@ async function createTestUser() {
 
     console.log('Test user created successfully:', {
       email: 'test@example.com',
-      password: '123456',
-      id: user.id
+      password: 'SecurePassword123!',
+      id: user.id,
     });
 
     // Tạo user employer test
-    const employerPassword = '123456';
+    const employerPassword = 'SecurePassword123!';
     const hashedEmployerPassword = await bcryptjs.hash(employerPassword, 12);
 
     const employer = await prisma.user.create({
@@ -53,7 +53,7 @@ async function createTestUser() {
         firstName: 'Employer',
         lastName: 'Test',
         userType: 'EMPLOYER',
-        emailVerified: new Date(),
+        emailVerified: true,
         status: 'ACTIVE',
       },
     });
@@ -67,13 +67,41 @@ async function createTestUser() {
 
     console.log('Test employer created successfully:', {
       email: 'employer@example.com',
-      password: '123456',
-      id: employer.id
+      password: 'SecurePassword123!',
+      id: employer.id,
     });
 
+    // Tạo user admin test
+    const adminPassword = 'SecurePassword123!';
+    const hashedAdminPassword = await bcryptjs.hash(adminPassword, 12);
+
+    const admin = await prisma.user.create({
+      data: {
+        email: 'admin@example.com',
+        passwordHash: hashedEmployerPassword,
+        firstName: 'Admin',
+        lastName: 'Test',
+        userType: 'ADMIN',
+        emailVerified: true,
+        status: 'ACTIVE',
+      },
+    });
+
+    // Tạo profile cho employer
+    await prisma.userProfile.create({
+      data: {
+        userId: admin.id,
+      },
+    });
+
+    console.log('Test admin created successfully:', {
+      email: 'admin@example.com',
+      password: 'SecurePassword123!',
+      id: employer.id,
+    });
   } catch (error) {
     console.error('Error creating test user:', error);
-    
+
     if (error.code === 'P2002') {
       console.log('User với email này đã tồn tại. Kiểm tra lại database.');
     }

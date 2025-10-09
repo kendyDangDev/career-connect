@@ -116,7 +116,7 @@ const JobDetailHeader: React.FC<JobDetailHeaderProps> = ({
   return (
     <View className="bg-white">
       {/* Top Navigation Bar */}
-      <View className="flex-row items-center justify-between px-4 pt-12 pb-4">
+      <View className="flex-row items-center justify-between px-4 pt-4 pb-4">
         <TouchableOpacity
           onPress={onBackPress}
           className="p-2 -ml-2"

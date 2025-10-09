@@ -14,7 +14,11 @@ import "../global.css";
 import { initializeReanimatedWithFixes } from "../utils/reanimatedFix";
 
 // import { AuthDebugInfo } from "@/components/AuthDebugInfo";
-import { AuthProvider, useAuthContext, useSafeAuthContext } from "@/contexts/AuthContext";
+import {
+  AuthProvider,
+  useAuthContext,
+  useSafeAuthContext,
+} from "@/contexts/AuthContext";
 import { AlertProvider, useAlertService } from "@/contexts/AlertContext";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { suppressRNWebWarnings } from "../utils/suppressWarnings";
@@ -25,7 +29,7 @@ const queryClient = new QueryClient();
 function NavigationWrapper() {
   // Initialize Alert service with context
   useAlertService();
-  
+
   return (
     <>
       <RootLayoutNav />
@@ -62,12 +66,12 @@ function RootLayoutNav() {
 
     const inAuthGroup = segments[0] === "(auth)";
     const inTabsGroup = segments[0] === "(tabs)";
-    const currentPath = segments.join('/');
+    const currentPath = segments.join("/");
 
-    // console.log('[Navigation] Auth check:', { 
-    //   isAuthenticated, 
-    //   isLoading, 
-    //   inAuthGroup, 
+    // console.log('[Navigation] Auth check:', {
+    //   isAuthenticated,
+    //   isLoading,
+    //   inAuthGroup,
     //   inTabsGroup,
     //   segments,
     //   currentPath,
@@ -91,9 +95,8 @@ function RootLayoutNav() {
       }
     }
   }, [isAuthenticated, segments, isLoading, router]);
-
   return (
-    <Stack>
+    <Stack screenOptions={{ headerShown: false, animation: "fade" }}>
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="+not-found" />

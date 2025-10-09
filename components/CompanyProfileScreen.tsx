@@ -1,31 +1,56 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  ScrollView, 
-  View, 
-  RefreshControl,
+import { useAlert } from "@/contexts/AlertContext";
+import { useRouter } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
+import {
   ActivityIndicator,
+  Linking,
+  RefreshControl,
+  ScrollView,
   Text,
   TouchableOpacity,
-  Linking
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { useAlert } from '@/contexts/AlertContext';
-import CompanyHeader from './company/CompanyHeader';
-import CompanyAboutSection from './company/CompanyAboutSection';
-import CompanyJobsSection from './company/CompanyJobsSection';
-import CompanyGallerySection from './company/CompanyGallerySection';
-import CompanyBenefitsSection from './company/CompanyBenefitsSection';
-import CompanyMapSection from './company/CompanyMapSection';
-import CompanyReviewsSection from './company/CompanyReviewsSection';
-import companyService from '../services/companyService';
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import companyService from "../services/companyService";
+import CompanyAboutSection from "./company/CompanyAboutSection";
+import CompanyBenefitsSection from "./company/CompanyBenefitsSection";
+import CompanyGallerySection from "./company/CompanyGallerySection";
+import CompanyHeader from "./company/CompanyHeader";
+import CompanyJobsSection from "./company/CompanyJobsSection";
+import CompanyMapSection from "./company/CompanyMapSection";
+import CompanyReviewsSection from "./company/CompanyReviewsSection";
 
+// Skeleton Loading Components
+const SkeletonBox: React.FC<{
+  width?: string;
+  height?: string;
+  className?: string;
+}> = ({ width = "w-full", height = "h-4", className = "" }) => (
+  <View
+    className={`${width} ${height} bg-gray-200 rounded animate-pulse ${className}`}
+  />
+);
+
+const JobsSkeleton: React.FC = () => (
+  <View className="bg-white mx-4 mb-4 p-4 rounded-xl">
+    <SkeletonBox width="w-32" height="h-6" className="mb-4" />
+    {[1, 2, 3].map((item) => (
+      <View key={item} className="mb-4 last:mb-0">
+        <SkeletonBox width="w-3/4" height="h-5" className="mb-2" />
+        <SkeletonBox width="w-1/2" height="h-4" className="mb-2" />
+        <SkeletonBox width="w-1/4" height="h-4" />
+      </View>
+    ))}
+  </View>
+);
 
 interface CompanyProfileScreenProps {
   companySlug: string;
 }
 
-const CompanyProfileScreen: React.FC<CompanyProfileScreenProps> = ({ companySlug }) => {
+const CompanyProfileScreen: React.FC<CompanyProfileScreenProps> = ({
+  companySlug,
+}) => {
   const router = useRouter();
   const alert = useAlert();
   const [company, setCompany] = useState<any>(null);
@@ -35,117 +60,193 @@ const CompanyProfileScreen: React.FC<CompanyProfileScreenProps> = ({ companySlug
   const [error, setError] = useState<string | null>(null);
   const [isFollowing, setIsFollowing] = useState(false);
 
+  // Chi tiết loading states cho từng phần
+  const [isLoadingJobs, setIsLoadingJobs] = useState(true);
+  const [isLoadingFollowStatus, setIsLoadingFollowStatus] = useState(true);
+
   const fetchFollowStatus = useCallback(async (companyId: string) => {
     try {
-      console.log('[CompanyProfileScreen] Fetching follow status for company:', companyId);
-      const followStatusResponse = await companyService.checkFollowStatus(companyId);
-      
+      setIsLoadingFollowStatus(true);
+      console.log(
+        "[CompanyProfileScreen] Fetching follow status for company:",
+        companyId
+      );
+      const followStatusResponse =
+        await companyService.checkFollowStatus(companyId);
+
       if (followStatusResponse.success && followStatusResponse.data) {
         setIsFollowing(followStatusResponse.data.isFollowing);
-        console.log('[CompanyProfileScreen] Follow status:', followStatusResponse.data.isFollowing);
+        console.log(
+          "[CompanyProfileScreen] Follow status:",
+          followStatusResponse.data.isFollowing
+        );
       } else {
         // If not authenticated or error, default to not following
         setIsFollowing(false);
-        console.log('[CompanyProfileScreen] Not authenticated or error, setting isFollowing to false');
+        console.log(
+          "[CompanyProfileScreen] Not authenticated or error, setting isFollowing to false"
+        );
       }
     } catch (error) {
-      console.error('[CompanyProfileScreen] Error checking follow status:', error);
+      console.error(
+        "[CompanyProfileScreen] Error checking follow status:",
+        error
+      );
       setIsFollowing(false);
+    } finally {
+      setIsLoadingFollowStatus(false);
     }
   }, []);
 
-  const fetchCompanyData = useCallback(async (showRefresh = false) => {
-    try {
-      if (showRefresh) {
-        setIsRefreshing(true);
-      } else {
-        setIsLoading(true);
-      }
-      setError(null);
-
-      // Fetch company profile
-      const profileResponse = await companyService.getPublicCompanyProfile(companySlug);
-      
-      if (profileResponse.success && profileResponse.data) {
-        setCompany(profileResponse.data);
-        
-        // Fetch company jobs using company slug instead of ID
-        const jobsResponse = await companyService.getCompanyJobs(companySlug);
-        if (jobsResponse.success && jobsResponse.data) {
-          setJobs(jobsResponse.data.jobs);
+  // Fetch company profile (chính, hiển thị UI ngay)
+  const fetchCompanyProfile = useCallback(
+    async (showRefresh = false) => {
+      try {
+        if (showRefresh) {
+          setIsRefreshing(true);
+        } else {
+          setIsLoading(true);
         }
+        setError(null);
 
-        // Check follow status for the company
-        await fetchFollowStatus(profileResponse.data.id);
-      } 
+        console.log("[CompanyProfileScreen] Fetching company profile...");
+        const profileResponse =
+          await companyService.getPublicCompanyProfile(companySlug);
+
+        if (profileResponse.success && profileResponse.data) {
+          setCompany(profileResponse.data);
+          console.log(
+            "[CompanyProfileScreen] Company profile loaded, UI can render now"
+          );
+          return profileResponse.data;
+        } else {
+          throw new Error("Failed to fetch company profile");
+        }
+      } catch (err) {
+        console.error("Error fetching company profile:", err);
+        setError("Company not found or failed to load");
+        return null;
+      } finally {
+        setIsLoading(false);
+        setIsRefreshing(false);
+      }
+    },
+    [companySlug]
+  );
+
+  // Fetch company jobs (phụ, load sau)
+  const fetchCompanyJobs = useCallback(async () => {
+    try {
+      setIsLoadingJobs(true);
+      console.log("[CompanyProfileScreen] Fetching company jobs...");
+      const jobsResponse = await companyService.getCompanyJobs(companySlug);
+      if (jobsResponse.success && jobsResponse.data) {
+        setJobs(jobsResponse.data.jobs);
+        console.log(
+          "[CompanyProfileScreen] Company jobs loaded:",
+          jobsResponse.data.jobs.length
+        );
+      }
     } catch (err) {
-      console.error('Error fetching company data:', err);
-      setError(null); // Don't show error when using mock data
+      console.error("Error fetching company jobs:", err);
+      // Không set error cho jobs vì nó không quan trọng bằng company profile
     } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
+      setIsLoadingJobs(false);
     }
-  }, [companySlug, fetchFollowStatus]);
+  }, [companySlug]);
+
+  // Load tất cả dữ liệu (gọi khi khởi tạo và refresh)
+  const fetchAllData = useCallback(
+    async (showRefresh = false) => {
+      // 1. Load company profile trước (blocking - cần thiết để hiển thị UI)
+      const companyData = await fetchCompanyProfile(showRefresh);
+
+      if (companyData) {
+        // 2. Load jobs và follow status song song (non-blocking)
+        Promise.all([
+          fetchCompanyJobs(),
+          fetchFollowStatus(companyData.id),
+        ]).catch((err) => {
+          console.error("Error in parallel data loading:", err);
+        });
+      }
+    },
+    [fetchCompanyProfile, fetchCompanyJobs, fetchFollowStatus]
+  );
 
   useEffect(() => {
-    fetchCompanyData();
-  }, [fetchCompanyData]);
+    fetchAllData();
+  }, [fetchAllData]);
 
   const handleBackPress = () => {
     router.back();
   };
 
   const handleFollowPress = async () => {
-    if (!company) return;
+    if (!company || isLoadingFollowStatus) return;
 
     try {
-      console.log('[CompanyProfileScreen] Toggling follow for company:', company.id, 'Currently following:', isFollowing);
-      
-      const response = await companyService.toggleFollowCompany(company.id, isFollowing);
+      setIsLoadingFollowStatus(true);
+      console.log(
+        "[CompanyProfileScreen] Toggling follow for company:",
+        company.id,
+        "Currently following:",
+        isFollowing
+      );
+
+      const response = await companyService.toggleFollowCompany(
+        company.id,
+        isFollowing
+      );
       if (response.success) {
-        console.log('[CompanyProfileScreen] Follow toggle successful, refreshing follow status');
-        
-        // Refresh follow status from server to ensure accuracy
-        await fetchFollowStatus(company.id);
-        
-        // Update follower count locally
+        console.log(
+          "[CompanyProfileScreen] Follow toggle successful, refreshing follow status"
+        );
+
+        // Update follow status and follower count immediately for better UX
+        setIsFollowing(!isFollowing);
         setCompany((prev: any) => ({
           ...prev,
-          followerCount: isFollowing 
-            ? Math.max(0, prev.followerCount - 1)  // Prevent negative numbers
-            : prev.followerCount + 1
+          followerCount: isFollowing
+            ? Math.max(0, prev.followerCount - 1) // Prevent negative numbers
+            : prev.followerCount + 1,
         }));
 
         // Show success message
         alert.success(
-          'Success', 
-          isFollowing ? 'Unfollowed successfully' : 'Followed successfully'
+          "Success",
+          isFollowing ? "Unfollowed successfully" : "Followed successfully"
         );
       } else {
-        console.log('[CompanyProfileScreen] Follow toggle failed:', response.message);
+        console.log(
+          "[CompanyProfileScreen] Follow toggle failed:",
+          response.message
+        );
         alert.warning(
-          'Action Required',
-          response.message || 'Please login to follow this company',
-          () => router.push('/(auth)/login')
+          "Action Required",
+          response.message || "Please login to follow this company",
+          () => router.push("/(auth)/login")
         );
       }
     } catch (error) {
-      console.error('[CompanyProfileScreen] Error toggling follow:', error);
-      alert.error('Error', 'Failed to update follow status. Please try again.');
+      console.error("[CompanyProfileScreen] Error toggling follow:", error);
+      alert.error("Error", "Failed to update follow status. Please try again.");
+    } finally {
+      setIsLoadingFollowStatus(false);
     }
   };
 
   const handleWebsitePress = async () => {
     if (!company?.websiteUrl) return;
-    
+
     try {
       const canOpen = await Linking.canOpenURL(company.websiteUrl);
       if (canOpen) {
         await Linking.openURL(company.websiteUrl);
       }
     } catch (error) {
-      console.error('Error opening website:', error);
-      alert.error('Error', 'Could not open website');
+      console.error("Error opening website:", error);
+      alert.error("Error", "Could not open website");
     }
   };
 
@@ -155,8 +256,8 @@ const CompanyProfileScreen: React.FC<CompanyProfileScreenProps> = ({ companySlug
   };
 
   const onRefresh = useCallback(() => {
-    fetchCompanyData(true);
-  }, [fetchCompanyData]);
+    fetchAllData(true);
+  }, [fetchAllData]);
 
   if (isLoading) {
     return (
@@ -179,9 +280,7 @@ const CompanyProfileScreen: React.FC<CompanyProfileScreenProps> = ({ companySlug
           <Text className="text-lg font-semibold text-gray-900 mb-2">
             Company Not Found
           </Text>
-          <Text className="text-gray-600 text-center mb-6">
-            {error}
-          </Text>
+          <Text className="text-gray-600 text-center mb-6">{error}</Text>
           <TouchableOpacity
             onPress={handleBackPress}
             className="bg-blue-600 px-6 py-3 rounded-xl"
@@ -196,7 +295,7 @@ const CompanyProfileScreen: React.FC<CompanyProfileScreenProps> = ({ companySlug
   if (!company) return null;
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-gray-50" edges={["top"]}>
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
@@ -204,7 +303,7 @@ const CompanyProfileScreen: React.FC<CompanyProfileScreenProps> = ({ companySlug
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={onRefresh}
-            colors={['#2563EB']}
+            colors={["#2563EB"]}
             tintColor="#2563EB"
           />
         }
@@ -235,14 +334,15 @@ const CompanyProfileScreen: React.FC<CompanyProfileScreenProps> = ({ companySlug
         )}
 
         {/* Open Positions */}
-        <CompanyJobsSection
-          jobs={jobs}
-          onSeeAllPress={handleSeeAllJobs}
-        />
+        {isLoadingJobs ? (
+          <JobsSkeleton />
+        ) : (
+          <CompanyJobsSection jobs={jobs} onSeeAllPress={handleSeeAllJobs} />
+        )}
 
         {/* Company Reviews */}
         <CompanyReviewsSection
-          companyId={company.id || company._id || ''}
+          companyId={company.id || company._id || ""}
           companySlug={company.slug || companySlug}
           companyName={company.companyName}
         />

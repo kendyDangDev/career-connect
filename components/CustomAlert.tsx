@@ -215,16 +215,13 @@ const CustomAlert: React.FC<CustomAlertProps> = ({ visible, config, onDismiss })
     >
       <TouchableWithoutFeedback onPress={config.cancelable ? onDismiss : undefined}>
         <View 
-          className="flex-1 justify-center items-center bg-black/70 px-6"
+          className="flex-1 justify-center items-center bg-black/70 px-6 "
           style={{
-            zIndex: 999999,
+            // zIndex: 999999,
             elevation: Platform.OS === 'android' ? 1000 : undefined,
             ...(Platform.OS === 'web' && {
-              position: 'fixed' as any,
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
+              position: 'absolute' as any,
+              inset: 0,
             }),
           }}
         >
@@ -234,7 +231,7 @@ const CustomAlert: React.FC<CustomAlertProps> = ({ visible, config, onDismiss })
               className={`relative p-6 rounded-3xl ${getAlertWrapperColor()}`} 
               style={{ 
                 minWidth: isWeb ? 400 : '100%',
-                zIndex: 10000,
+                // zIndex: 10000,
                 elevation: Platform.OS === 'android' ? 1001 : undefined,
               }}
             >
@@ -249,7 +246,7 @@ const CustomAlert: React.FC<CustomAlertProps> = ({ visible, config, onDismiss })
                 style={{
                   opacity: fadeAnim,
                   transform: [{ scale: scaleAnim }],
-                  zIndex: 10001,
+                  // zIndex: 10001,
                   elevation: Platform.OS === 'android' ? 1002 : undefined,
                 }}
                 className={`bg-white rounded-2xl w-full shadow-2xl border border-gray-100 mt-8`}

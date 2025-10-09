@@ -39,7 +39,7 @@ interface BottomNavigationEnhancedProps {
 const tabs: TabItem[] = [
   { id: "home", title: "Trang chủ", icon: Home },
   { id: "job-list", title: "Việc làm", icon: Briefcase },
-  { id: "create-cv", title: "CV", icon: Plus, isSpecial: true },
+  { id: "cv-management", title: "CV", icon: Plus, isSpecial: true },
   { id: "notifications", title: "Thông báo", icon: Bell },
   { id: "profile", title: "Tài khoản", icon: User },
   ...(__DEV__ ? [{ id: "debug", title: "Debug", icon: Settings }] : []),
@@ -55,10 +55,13 @@ const BottomNavigationEnhanced: React.FC<BottomNavigationEnhancedProps> = ({
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = Dimensions.get("window");
   const animatedValues = useRef(
-    tabs.reduce((acc, tab) => {
-      acc[tab.id] = new Animated.Value(tab.id === activeTab ? 1 : 0);
-      return acc;
-    }, {} as { [key: string]: Animated.Value })
+    tabs.reduce(
+      (acc, tab) => {
+        acc[tab.id] = new Animated.Value(tab.id === activeTab ? 1 : 0);
+        return acc;
+      },
+      {} as { [key: string]: Animated.Value }
+    )
   ).current;
 
   useEffect(() => {
@@ -102,11 +105,7 @@ const BottomNavigationEnhanced: React.FC<BottomNavigationEnhancedProps> = ({
             end={{ x: 1, y: 1 }}
             style={styles.specialTab}
           >
-            <IconComponent
-              size={28}
-              color="#FFFFFF"
-              strokeWidth={2.5}
-            />
+            <IconComponent size={28} color="#FFFFFF" strokeWidth={2.5} />
           </LinearGradient>
           {showLabels && (
             <Text className="text-xs mt-2 text-gray-600 font-medium">
@@ -152,7 +151,7 @@ const BottomNavigationEnhanced: React.FC<BottomNavigationEnhancedProps> = ({
               color={isActive ? "#2563EB" : "#6B7280"}
               strokeWidth={isActive ? 2.5 : 2}
             />
-            
+
             {/* Animated Badge */}
             {badgeCount > 0 && (
               <Animated.View
@@ -176,7 +175,7 @@ const BottomNavigationEnhanced: React.FC<BottomNavigationEnhancedProps> = ({
               </Animated.View>
             )}
           </View>
-          
+
           {showLabels && (
             <Animated.Text
               style={[

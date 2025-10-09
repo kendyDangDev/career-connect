@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,10 +9,10 @@ import {
   ActivityIndicator,
   ScrollView,
   Switch,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useAlert } from '@/contexts/AlertContext';
-import * as DocumentPicker from 'expo-document-picker';
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+
+import * as DocumentPicker from "expo-document-picker";
 import {
   X,
   Upload,
@@ -20,17 +20,17 @@ import {
   CheckCircle,
   AlertCircle,
   FileUp,
-} from 'lucide-react-native';
+} from "lucide-react-native";
 // Constants for file validation
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 // Helper function to format file size
 const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 Bytes';
+  if (bytes === 0) return "0 Bytes";
   const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const sizes = ["Bytes", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 };
 
 interface CVUploadModalProps {
@@ -46,6 +46,64 @@ interface CVUploadModalProps {
   currentCVCount: number;
 }
 
+// Component thông báo nội bộ
+const InlineNotification: React.FC<{
+  visible: boolean;
+  type: "success" | "error";
+  title: string;
+  message: string;
+  onClose: () => void;
+  onAction?: () => void;
+}> = ({ visible, type, title, message, onClose, onAction }) => {
+  if (!visible) return null;
+
+  return (
+    <View className="absolute top-0 left-0 right-0 bottom-0 z-50 bg-black/50 justify-center items-center p-4">
+      <View className="bg-white rounded-lg p-6 max-w-sm w-full">
+        <View
+          className={`w-12 h-12 rounded-full items-center justify-center mb-4 self-center ${
+            type === "success" ? "bg-green-100" : "bg-red-100"
+          }`}
+        >
+          {type === "success" ? (
+            <CheckCircle size={24} color="#22C55E" />
+          ) : (
+            <AlertCircle size={24} color="#EF4444" />
+          )}
+        </View>
+
+        <Text className="text-lg font-semibold text-gray-900 text-center mb-2">
+          {title}
+        </Text>
+
+        <Text className="text-gray-600 text-center mb-6">{message}</Text>
+
+        <View className="flex-row justify-center">
+          {type === "success" && onAction ? (
+            <TouchableOpacity
+              className="bg-green-500 px-6 py-3 rounded-lg flex-1 mr-2"
+              onPress={onAction}
+            >
+              <Text className="text-white font-medium text-center">OK</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              className={`px-6 py-3 rounded-lg flex-1 ${
+                type === "success" ? "bg-green-500" : "bg-red-500"
+              }`}
+              onPress={onClose}
+            >
+              <Text className="text-white font-medium text-center">
+                {type === "success" ? "OK" : "Đóng"}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+    </View>
+  );
+};
+
 const CVUploadModal: React.FC<CVUploadModalProps> = ({
   visible,
   onClose,
@@ -53,26 +111,48 @@ const CVUploadModal: React.FC<CVUploadModalProps> = ({
   canUploadMore,
   currentCVCount,
 }) => {
-  const alert = useAlert();
   const [selectedFile, setSelectedFile] = useState<any>(null);
-  const [cvName, setCvName] = useState('');
-  const [description, setDescription] = useState('');
+  const [cvName, setCvName] = useState("");
+  const [description, setDescription] = useState("");
   const [isPrimary, setIsPrimary] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // State cho InlineNotification
+  const [notification, setNotification] = useState<{
+    visible: boolean;
+    type: "success" | "error";
+    title: string;
+    message: string;
+    onAction?: () => void;
+  }>({ visible: false, type: "error", title: "", message: "" });
+
+  // Helper function để hiển thị notification
+  const showNotification = (
+    type: "success" | "error",
+    title: string,
+    message: string,
+    onAction?: () => void
+  ) => {
+    setNotification({ visible: true, type, title, message, onAction });
+  };
+
+  const hideNotification = () => {
+    setNotification({ visible: false, type: "error", title: "", message: "" });
+  };
+
   // Debug: Log state changes
   useEffect(() => {
-    console.log('CVUploadModal - selectedFile changed:', selectedFile);
+    console.log("CVUploadModal - selectedFile changed:", selectedFile);
   }, [selectedFile]);
 
   useEffect(() => {
-    console.log('CVUploadModal - cvName changed:', cvName);
+    console.log("CVUploadModal - cvName changed:", cvName);
   }, [cvName]);
 
   useEffect(() => {
-    console.log('CVUploadModal - modal visible:', visible);
+    console.log("CVUploadModal - modal visible:", visible);
     // Chỉ reset form khi modal được mở lần đầu sau khi đóng thành công
     if (!visible) {
       // Modal đang đóng - không làm gì
@@ -83,20 +163,23 @@ const CVUploadModal: React.FC<CVUploadModalProps> = ({
   const pickDocument = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        type: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+        type: [
+          "application/pdf",
+          "application/msword",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ],
         copyToCacheDirectory: true,
       });
-
-      console.log('DocumentPicker result:', result);
 
       // Kiểm tra nếu user đã chọn file (không bị cancel)
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const selectedAsset = result.assets[0];
-        
+
         // Validate file size
         if (selectedAsset.size && selectedAsset.size > MAX_FILE_SIZE) {
-          alert.error(
-            'File quá lớn',
+          showNotification(
+            "error",
+            "File quá lớn",
             `File không được vượt quá ${formatFileSize(MAX_FILE_SIZE)}. File của bạn có dung lượng ${formatFileSize(selectedAsset.size)}.`
           );
           return;
@@ -104,32 +187,44 @@ const CVUploadModal: React.FC<CVUploadModalProps> = ({
 
         // Validate file type
         const mimeType = selectedAsset.mimeType;
-        const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-        
+        const allowedTypes = [
+          "application/pdf",
+          "application/msword",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ];
+
         if (mimeType && !allowedTypes.includes(mimeType)) {
-          alert.error(
-            'Định dạng file không hỗ trợ',
-            'Vui lòng chọn file PDF, DOC hoặc DOCX.'
+          showNotification(
+            "error",
+            "Định dạng file không hỗ trợ",
+            "Vui lòng chọn file PDF, DOC hoặc DOCX."
           );
           return;
         }
 
         setSelectedFile(selectedAsset);
-        console.log('Selected file structure:', JSON.stringify(selectedAsset, null, 2));
-        
+        console.log(
+          "Selected file structure:",
+          JSON.stringify(selectedAsset, null, 2)
+        );
+
         // Auto-fill CV name from filename
         if (!cvName && selectedAsset.name) {
-          const nameWithoutExt = selectedAsset.name.replace(/\.[^/.]+$/, '');
+          const nameWithoutExt = selectedAsset.name.replace(/\.[^/.]+$/, "");
           setCvName(nameWithoutExt);
         }
         setErrors({});
       } else {
         // User cancelled selection
-        console.log('User cancelled document selection');
+        console.log("User cancelled document selection");
       }
     } catch (err) {
-      console.error('Error picking document:', err);
-      alert.error('Lỗi', 'Không thể chọn file. Vui lòng thử lại.');
+      console.error("Error picking document:", err);
+      showNotification(
+        "error",
+        "Lỗi",
+        "Không thể chọn file. Vui lòng thử lại."
+      );
     }
   };
 
@@ -137,15 +232,15 @@ const CVUploadModal: React.FC<CVUploadModalProps> = ({
     const newErrors: Record<string, string> = {};
 
     if (!selectedFile) {
-      newErrors.file = 'Vui lòng chọn file CV';
+      newErrors.file = "Vui lòng chọn file CV";
     }
     if (!cvName.trim()) {
-      newErrors.cvName = 'Vui lòng nhập tên CV';
+      newErrors.cvName = "Vui lòng nhập tên CV";
     } else if (cvName.length > 100) {
-      newErrors.cvName = 'Tên CV không được vượt quá 100 ký tự';
+      newErrors.cvName = "Tên CV không được vượt quá 100 ký tự";
     }
     if (description.length > 500) {
-      newErrors.description = 'Mô tả không được vượt quá 500 ký tự';
+      newErrors.description = "Mô tả không được vượt quá 500 ký tự";
     }
 
     setErrors(newErrors);
@@ -190,7 +285,7 @@ const CVUploadModal: React.FC<CVUploadModalProps> = ({
       }
     } catch (error) {
       clearInterval(progressInterval);
-      console.error('Upload error:', error);
+      console.error("Upload error:", error);
     } finally {
       setIsUploading(false);
     }
@@ -198,8 +293,8 @@ const CVUploadModal: React.FC<CVUploadModalProps> = ({
 
   const resetForm = () => {
     setSelectedFile(null);
-    setCvName('');
-    setDescription('');
+    setCvName("");
+    setDescription("");
     setIsPrimary(false);
     setUploadProgress(0);
     setErrors({});
@@ -207,14 +302,10 @@ const CVUploadModal: React.FC<CVUploadModalProps> = ({
 
   const handleClose = () => {
     if (isUploading) {
-      alert.confirm(
-        'Đang tải lên',
-        'File đang được tải lên. Bạn có chắc muốn hủy?',
-        () => {
-          resetForm();
-          onClose();
-        },
-        () => {}
+      showNotification(
+        "error",
+        "Đang tải lên",
+        "File đang được tải lên. Bạn có chắc muốn hủy?"
       );
     } else {
       // Chỉ reset form khi user thực sự muốn đóng modal (không phải do re-render)
@@ -238,7 +329,7 @@ const CVUploadModal: React.FC<CVUploadModalProps> = ({
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <LinearGradient
-            colors={['#4A90E2', '#357ABD']}
+            colors={["#4A90E2", "#357ABD"]}
             style={styles.modalHeader}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
@@ -249,13 +340,17 @@ const CVUploadModal: React.FC<CVUploadModalProps> = ({
             </TouchableOpacity>
           </LinearGradient>
 
-          <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+          <ScrollView
+            style={styles.modalBody}
+            showsVerticalScrollIndicator={false}
+          >
             {/* Upload limit warning */}
             {!canUploadMore && (
               <View style={styles.warningBox}>
                 <AlertCircle size={20} color="#F39C12" />
                 <Text style={styles.warningText}>
-                  Bạn đã đạt giới hạn 5 CV. Vui lòng xóa CV cũ trước khi tải lên CV mới.
+                  Bạn đã đạt giới hạn 5 CV. Vui lòng xóa CV cũ trước khi tải lên
+                  CV mới.
                 </Text>
               </View>
             )}
@@ -265,15 +360,26 @@ const CVUploadModal: React.FC<CVUploadModalProps> = ({
               <Text style={styles.sectionTitle}>Chọn file CV</Text>
               {/* Debug button - remove after testing */}
               {__DEV__ && (
-                <TouchableOpacity 
-                  style={{ backgroundColor: '#f0f0f0', padding: 8, borderRadius: 4, marginBottom: 8 }}
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: "#f0f0f0",
+                    padding: 8,
+                    borderRadius: 4,
+                    marginBottom: 8,
+                  }}
                   onPress={() => {
-                    console.log('DEBUG - Current selectedFile:', selectedFile);
-                    console.log('DEBUG - Current cvName:', cvName);
-                    alert.info('Debug', `File: ${selectedFile ? 'Selected' : 'None'}\nName: ${cvName}`);
+                    console.log("DEBUG - Current selectedFile:", selectedFile);
+                    console.log("DEBUG - Current cvName:", cvName);
+                    showNotification(
+                      "success",
+                      "Debug",
+                      `File: ${selectedFile ? "Selected" : "None"}\nName: ${cvName}`
+                    );
                   }}
                 >
-                  <Text style={{ fontSize: 12, color: '#666' }}>DEBUG: Check State</Text>
+                  <Text style={{ fontSize: 12, color: "#666" }}>
+                    DEBUG: Check State
+                  </Text>
                 </TouchableOpacity>
               )}
               <TouchableOpacity
@@ -306,7 +412,9 @@ const CVUploadModal: React.FC<CVUploadModalProps> = ({
                   </View>
                 )}
               </TouchableOpacity>
-              {errors.file && <Text style={styles.errorText}>{errors.file}</Text>}
+              {errors.file && (
+                <Text style={styles.errorText}>{errors.file}</Text>
+              )}
             </View>
 
             {/* CV Name input */}
@@ -321,14 +429,20 @@ const CVUploadModal: React.FC<CVUploadModalProps> = ({
                 editable={!isUploading}
               />
               <Text style={styles.charCount}>{cvName.length}/100</Text>
-              {errors.cvName && <Text style={styles.errorText}>{errors.cvName}</Text>}
+              {errors.cvName && (
+                <Text style={styles.errorText}>{errors.cvName}</Text>
+              )}
             </View>
 
             {/* Description input */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Mô tả</Text>
               <TextInput
-                style={[styles.input, styles.textArea, errors.description && styles.inputError]}
+                style={[
+                  styles.input,
+                  styles.textArea,
+                  errors.description && styles.inputError,
+                ]}
                 placeholder="Mô tả ngắn về CV này..."
                 value={description}
                 onChangeText={setDescription}
@@ -339,7 +453,9 @@ const CVUploadModal: React.FC<CVUploadModalProps> = ({
                 textAlignVertical="top"
               />
               <Text style={styles.charCount}>{description.length}/500</Text>
-              {errors.description && <Text style={styles.errorText}>{errors.description}</Text>}
+              {errors.description && (
+                <Text style={styles.errorText}>{errors.description}</Text>
+              )}
             </View>
 
             {/* Primary CV toggle */}
@@ -363,8 +479,8 @@ const CVUploadModal: React.FC<CVUploadModalProps> = ({
                   <Switch
                     value={isPrimary}
                     onValueChange={setIsPrimary}
-                    trackColor={{ false: '#E0E0E0', true: '#4A90E2' }}
-                    thumbColor={isPrimary ? '#357ABD' : '#F4F3F4'}
+                    trackColor={{ false: "#E0E0E0", true: "#4A90E2" }}
+                    thumbColor={isPrimary ? "#357ABD" : "#F4F3F4"}
                     disabled={isUploading}
                   />
                 </View>
@@ -376,10 +492,15 @@ const CVUploadModal: React.FC<CVUploadModalProps> = ({
               <View style={styles.progressSection}>
                 <View style={styles.progressBar}>
                   <View
-                    style={[styles.progressFill, { width: `${uploadProgress}%` }]}
+                    style={[
+                      styles.progressFill,
+                      { width: `${uploadProgress}%` },
+                    ]}
                   />
                 </View>
-                <Text style={styles.progressText}>Đang tải lên... {uploadProgress}%</Text>
+                <Text style={styles.progressText}>
+                  Đang tải lên... {uploadProgress}%
+                </Text>
               </View>
             )}
           </ScrollView>
@@ -414,6 +535,16 @@ const CVUploadModal: React.FC<CVUploadModalProps> = ({
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* InlineNotification */}
+        <InlineNotification
+          visible={notification.visible}
+          type={notification.type}
+          title={notification.title}
+          message={notification.message}
+          onClose={hideNotification}
+          onAction={notification.onAction}
+        />
       </View>
     </Modal>
   );
@@ -422,19 +553,22 @@ const CVUploadModal: React.FC<CVUploadModalProps> = ({
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "flex-end",
+    position: "absolute",
+    width: "100%",
+    height: "100%",
   },
   modalContent: {
-    backgroundColor: '#FFF',
+    backgroundColor: "#FFF",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    maxHeight: '90%',
+    maxHeight: "90%",
   },
   modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderTopLeftRadius: 20,
@@ -442,8 +576,8 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#FFF',
+    fontWeight: "600",
+    color: "#FFF",
   },
   closeButton: {
     padding: 4,
@@ -457,34 +591,34 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#2C3E50',
+    fontWeight: "600",
+    color: "#2C3E50",
     marginBottom: 8,
   },
   filePicker: {
     borderWidth: 2,
-    borderColor: '#E0E0E0',
-    borderStyle: 'dashed',
+    borderColor: "#E0E0E0",
+    borderStyle: "dashed",
     borderRadius: 12,
     padding: 20,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: "#F8F9FA",
   },
   filePickerEmpty: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   filePickerText: {
     fontSize: 14,
-    color: '#34495E',
+    color: "#34495E",
     marginTop: 8,
   },
   filePickerHint: {
     fontSize: 12,
-    color: '#95A5A6',
+    color: "#95A5A6",
     marginTop: 4,
   },
   selectedFile: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   fileInfo: {
     flex: 1,
@@ -493,55 +627,55 @@ const styles = StyleSheet.create({
   },
   fileName: {
     fontSize: 14,
-    fontWeight: '500',
-    color: '#2C3E50',
+    fontWeight: "500",
+    color: "#2C3E50",
   },
   fileSize: {
     fontSize: 12,
-    color: '#7F8C8D',
+    color: "#7F8C8D",
     marginTop: 2,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: "#E0E0E0",
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 14,
-    color: '#2C3E50',
-    backgroundColor: '#FFF',
+    color: "#2C3E50",
+    backgroundColor: "#FFF",
   },
   textArea: {
     minHeight: 80,
     paddingTop: 10,
   },
   inputError: {
-    borderColor: '#E74C3C',
+    borderColor: "#E74C3C",
   },
   charCount: {
     fontSize: 11,
-    color: '#95A5A6',
-    textAlign: 'right',
+    color: "#95A5A6",
+    textAlign: "right",
     marginTop: 4,
   },
   errorText: {
     fontSize: 12,
-    color: '#E74C3C',
+    color: "#E74C3C",
     marginTop: 4,
   },
   toggleSection: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   toggleHint: {
     fontSize: 12,
-    color: '#7F8C8D',
+    color: "#7F8C8D",
     marginTop: 2,
   },
   warningBox: {
-    flexDirection: 'row',
-    backgroundColor: '#FFF3CD',
+    flexDirection: "row",
+    backgroundColor: "#FFF3CD",
     borderRadius: 8,
     padding: 12,
     marginBottom: 16,
@@ -549,58 +683,58 @@ const styles = StyleSheet.create({
   warningText: {
     flex: 1,
     fontSize: 13,
-    color: '#856404',
+    color: "#856404",
     marginLeft: 8,
   },
   infoBox: {
-    backgroundColor: '#E3F2FD',
+    backgroundColor: "#E3F2FD",
     borderRadius: 8,
     padding: 12,
   },
   infoText: {
     fontSize: 13,
-    color: '#1976D2',
+    color: "#1976D2",
   },
   progressSection: {
     marginTop: 16,
   },
   progressBar: {
     height: 4,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: "#E0E0E0",
     borderRadius: 2,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   progressFill: {
-    height: '100%',
-    backgroundColor: '#4A90E2',
+    height: "100%",
+    backgroundColor: "#4A90E2",
   },
   progressText: {
     fontSize: 12,
-    color: '#7F8C8D',
-    textAlign: 'center',
+    color: "#7F8C8D",
+    textAlign: "center",
     marginTop: 8,
   },
   modalFooter: {
-    flexDirection: 'row',
+    flexDirection: "row",
     padding: 20,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E8E8E8',
+    borderTopColor: "#E8E8E8",
   },
   button: {
     flex: 1,
     paddingVertical: 12,
     borderRadius: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   cancelButton: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: "#F5F5F5",
     marginRight: 8,
   },
   uploadButton: {
-    backgroundColor: '#4A90E2',
+    backgroundColor: "#4A90E2",
     marginLeft: 8,
   },
   buttonDisabled: {
@@ -608,13 +742,13 @@ const styles = StyleSheet.create({
   },
   cancelButtonText: {
     fontSize: 14,
-    fontWeight: '500',
-    color: '#34495E',
+    fontWeight: "500",
+    color: "#34495E",
   },
   uploadButtonText: {
     fontSize: 14,
-    fontWeight: '500',
-    color: '#FFF',
+    fontWeight: "500",
+    color: "#FFF",
     marginLeft: 6,
   },
 });

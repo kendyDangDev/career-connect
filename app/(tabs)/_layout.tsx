@@ -1,6 +1,12 @@
 import AnimatedTabBar from "@/components/AnimatedTabBar";
 import { Tabs } from "expo-router";
-import { Bell, Book, Briefcase, Clipboard, Home, User } from "lucide-react-native";
+import {
+  Briefcase,
+  Home,
+  Mail,
+  MessageCircle,
+  User,
+} from "lucide-react-native";
 import React from "react";
 
 export default function TabLayout() {
@@ -14,7 +20,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Trang chủ",
+          title: "Trang Chủ",
           tabBarIcon: ({ color, size }) => (
             <Home size={size || 24} color={color} />
           ),
@@ -23,31 +29,40 @@ export default function TabLayout() {
       <Tabs.Screen
         name="jobs"
         options={{
-          title: "Việc làm",
+          title: "Việc Làm",
           tabBarIcon: ({ color, size }) => (
             <Briefcase size={size || 24} color={color} />
           ),
         }}
       />
-        {/* <Tabs.Screen
-          name="create-cv"
-          options={{
-            title: "Tạo CV",
-            tabBarIcon: ({ color, size }) => (
-              <Book size={size || 24} color={color} />
-            ),
-          }}
-        /> */}
       <Tabs.Screen
-        name="notifications"
+        name="cv-management"
         options={{
-          title: "Thông báo",
+          title: "CV Của Tôi",
           tabBarIcon: ({ color, size }) => (
-            <Bell size={size || 24} color={color} />
+            <Mail size={size || 24} color={color} />
           ),
         }}
       />
-            <Tabs.Screen
+      <Tabs.Screen
+        name="chat"
+        options={{
+          title: "Tin nhắn",
+          tabBarIcon: ({ color, size }) => (
+            <MessageCircle size={size || 24} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="notifications"
+        options={{
+          title: "Thông Báo",
+          tabBarIcon: ({ color, size }) => (
+            <User size={size || 24} color={color} />
+          ),
+        }}
+      />
+      {/* <Tabs.Screen
         name="saved-jobs"
         options={{
           title: "Yêu thích",
@@ -55,7 +70,7 @@ export default function TabLayout() {
             <Clipboard size={size || 24} color={color} />
           ),
         }}
-      />
+      /> */}
       <Tabs.Screen
         name="profile"
         options={{

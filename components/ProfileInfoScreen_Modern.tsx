@@ -124,7 +124,9 @@ const ProfileInfoScreen: React.FC = () => {
       lastName: user.lastName || "",
       phone: user.phone || "",
       email: user.email,
-      dateOfBirth: profile?.dateOfBirth ? new Date(profile.dateOfBirth) : new Date(),
+      dateOfBirth: profile?.dateOfBirth
+        ? new Date(profile.dateOfBirth)
+        : new Date(),
       gender: (profile?.gender as Gender) || ("PREFER_NOT_TO_SAY" as Gender),
       address: profile?.address || "",
       city: profile?.city || "",
@@ -152,7 +154,10 @@ const ProfileInfoScreen: React.FC = () => {
         phone: formData.phone,
       };
 
-      const userResponse = await userService.updateUser(authUser.id, userUpdateData);
+      const userResponse = await userService.updateUser(
+        authUser.id,
+        userUpdateData
+      );
       if ("error" in userResponse) {
         alert.error("Lỗi", userResponse.error);
         return;
@@ -172,7 +177,10 @@ const ProfileInfoScreen: React.FC = () => {
         portfolioUrl: formData.portfolioUrl,
       };
 
-      const profileResponse = await userService.updateUserProfile(authUser.id, profileUpdateData);
+      const profileResponse = await userService.updateUserProfile(
+        authUser.id,
+        profileUpdateData
+      );
       if ("error" in profileResponse) {
         alert.error("Lỗi", profileResponse.error);
         return;
@@ -194,7 +202,8 @@ const ProfileInfoScreen: React.FC = () => {
   };
 
   const handleImagePicker = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
       alert.error("Lỗi", "Bạn cần cấp quyền truy cập thư viện ảnh");
       return;
@@ -208,9 +217,14 @@ const ProfileInfoScreen: React.FC = () => {
     });
 
     if (!result.canceled && result.assets[0] && authUser?.id) {
-      const uploadResponse = await userService.uploadAvatar(authUser.id, result.assets[0].uri);
+      const uploadResponse = await userService.uploadAvatar(
+        authUser.id,
+        result.assets[0].uri
+      );
       if ("avatarUrl" in uploadResponse) {
-        setUserData((prev) => prev ? { ...prev, avatarUrl: uploadResponse.avatarUrl } : null);
+        setUserData((prev) =>
+          prev ? { ...prev, avatarUrl: uploadResponse.avatarUrl } : null
+        );
       }
     }
   };
@@ -251,7 +265,7 @@ const ProfileInfoScreen: React.FC = () => {
               colors={["#3b82f6", "#1d4ed8", "#1e40af"]}
               className="h-64 w-full"
             />
-            
+
             {/* Header Controls */}
             <View className="absolute top-12 left-0 right-0 flex-row items-center justify-between px-4 z-10">
               <TouchableOpacity
@@ -261,7 +275,7 @@ const ProfileInfoScreen: React.FC = () => {
               >
                 <ArrowLeft size={20} color="white" />
               </TouchableOpacity>
-              
+
               <Text className="text-lg font-semibold text-white">
                 Thông tin cá nhân
               </Text>
@@ -289,26 +303,32 @@ const ProfileInfoScreen: React.FC = () => {
             </View>
 
             {/* Profile Card */}
-            <View className="bg-white mx-4 rounded-3xl -mt-32 mb-6" style={{ 
-              elevation: 8, 
-              shadowColor: '#000', 
-              shadowOffset: { width: 0, height: 4 }, 
-              shadowOpacity: 0.1, 
-              shadowRadius: 12 
-            }}>
+            <View
+              className="bg-white mx-4 rounded-3xl -mt-32 mb-6"
+              style={{
+                elevation: 8,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.1,
+                shadowRadius: 12,
+              }}
+            >
               <View className="items-center pt-8 pb-6">
                 <TouchableOpacity
                   onPress={isEditing ? handleImagePicker : undefined}
                   className="relative mb-4"
                   disabled={!isEditing}
                 >
-                  <View className="w-28 h-28 rounded-full border-4 border-white" style={{ 
-                    elevation: 6, 
-                    shadowColor: '#000', 
-                    shadowOffset: { width: 0, height: 3 }, 
-                    shadowOpacity: 0.15, 
-                    shadowRadius: 8 
-                  }}>
+                  <View
+                    className="w-28 h-28 rounded-full border-4 border-white"
+                    style={{
+                      elevation: 6,
+                      shadowColor: "#000",
+                      shadowOffset: { width: 0, height: 3 },
+                      shadowOpacity: 0.15,
+                      shadowRadius: 8,
+                    }}
+                  >
                     {userData?.avatarUrl ? (
                       <Image
                         source={{ uri: userData.avatarUrl }}
@@ -325,30 +345,34 @@ const ProfileInfoScreen: React.FC = () => {
                     )}
                   </View>
                   {isEditing && (
-                    <View className="absolute bottom-2 right-2 bg-blue-600 rounded-full p-2" style={{ elevation: 4 }}>
+                    <View
+                      className="absolute bottom-2 right-2 bg-blue-600 rounded-full p-2"
+                      style={{ elevation: 4 }}
+                    >
                       <Camera size={14} color="white" />
                     </View>
                   )}
                 </TouchableOpacity>
-                
+
                 <Text className="text-2xl font-bold text-gray-900 mb-1">
-                  {userData?.firstName && userData?.lastName 
+                  {userData?.firstName && userData?.lastName
                     ? `${userData.firstName} ${userData.lastName}`
-                    : "Người dùng"
-                  }
+                    : "Người dùng"}
                 </Text>
                 <Text className="text-gray-600 mb-4">{userData?.email}</Text>
-                
+
                 {/* Stats Row */}
                 <View className="flex-row justify-around w-full px-8 py-4 bg-gray-50 mx-4 rounded-2xl">
                   <View className="items-center">
                     <View className="w-12 h-12 bg-blue-100 rounded-full items-center justify-center mb-2">
                       <UserCheck size={20} color="#3b82f6" />
                     </View>
-                    <Text className="text-lg font-bold text-gray-900">100%</Text>
+                    <Text className="text-lg font-bold text-gray-900">
+                      100%
+                    </Text>
                     <Text className="text-xs text-gray-500">Hoàn thành</Text>
                   </View>
-                  
+
                   <View className="items-center">
                     <View className="w-12 h-12 bg-green-100 rounded-full items-center justify-center mb-2">
                       <Award size={20} color="#059669" />
@@ -356,7 +380,7 @@ const ProfileInfoScreen: React.FC = () => {
                     <Text className="text-lg font-bold text-gray-900">5</Text>
                     <Text className="text-xs text-gray-500">Chứng chỉ</Text>
                   </View>
-                  
+
                   <View className="items-center">
                     <View className="w-12 h-12 bg-purple-100 rounded-full items-center justify-center mb-2">
                       <Briefcase size={20} color="#7c3aed" />
@@ -370,13 +394,16 @@ const ProfileInfoScreen: React.FC = () => {
           </View>
 
           {/* Basic Information Section */}
-          <View className="bg-white mx-4 rounded-2xl p-6 mb-4" style={{ 
-            elevation: 4, 
-            shadowColor: '#000', 
-            shadowOffset: { width: 0, height: 2 }, 
-            shadowOpacity: 0.08, 
-            shadowRadius: 8 
-          }}>
+          <View
+            className="bg-white mx-4 rounded-2xl p-6 mb-4"
+            style={{
+              elevation: 4,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.08,
+              shadowRadius: 8,
+            }}
+          >
             <View className="flex-row items-center mb-6">
               <View className="w-10 h-10 bg-blue-100 rounded-full items-center justify-center mr-3">
                 <User size={20} color="#3b82f6" />
@@ -390,13 +417,17 @@ const ProfileInfoScreen: React.FC = () => {
             <View className="space-y-4">
               {/* First Name */}
               <View>
-                <Text className="text-sm font-medium text-gray-700 mb-2">Họ</Text>
+                <Text className="text-sm font-medium text-gray-700 mb-2">
+                  Họ
+                </Text>
                 {isEditing ? (
                   <View className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
                     <TextInput
                       className="text-gray-900 text-base"
                       value={formData.firstName}
-                      onChangeText={(text) => setFormData({ ...formData, firstName: text })}
+                      onChangeText={(text) =>
+                        setFormData({ ...formData, firstName: text })
+                      }
                       placeholder="Nhập họ"
                       placeholderTextColor="#9CA3AF"
                     />
@@ -412,13 +443,17 @@ const ProfileInfoScreen: React.FC = () => {
 
               {/* Last Name */}
               <View>
-                <Text className="text-sm font-medium text-gray-700 mb-2">Tên</Text>
+                <Text className="text-sm font-medium text-gray-700 mb-2">
+                  Tên
+                </Text>
                 {isEditing ? (
                   <View className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
                     <TextInput
                       className="text-gray-900 text-base"
                       value={formData.lastName}
-                      onChangeText={(text) => setFormData({ ...formData, lastName: text })}
+                      onChangeText={(text) =>
+                        setFormData({ ...formData, lastName: text })
+                      }
                       placeholder="Nhập tên"
                       placeholderTextColor="#9CA3AF"
                     />
@@ -434,14 +469,18 @@ const ProfileInfoScreen: React.FC = () => {
 
               {/* Phone */}
               <View>
-                <Text className="text-sm font-medium text-gray-700 mb-2">Số điện thoại</Text>
+                <Text className="text-sm font-medium text-gray-700 mb-2">
+                  Số điện thoại
+                </Text>
                 {isEditing ? (
                   <View className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 flex-row items-center">
                     <Phone size={16} color="#6B7280" />
                     <TextInput
                       className="text-gray-900 text-base ml-3 flex-1"
                       value={formData.phone}
-                      onChangeText={(text) => setFormData({ ...formData, phone: text })}
+                      onChangeText={(text) =>
+                        setFormData({ ...formData, phone: text })
+                      }
                       placeholder="Nhập số điện thoại"
                       placeholderTextColor="#9CA3AF"
                       keyboardType="phone-pad"
@@ -459,7 +498,9 @@ const ProfileInfoScreen: React.FC = () => {
 
               {/* Email */}
               <View>
-                <Text className="text-sm font-medium text-gray-700 mb-2">Email</Text>
+                <Text className="text-sm font-medium text-gray-700 mb-2">
+                  Email
+                </Text>
                 <View className="bg-blue-50 rounded-xl px-4 py-3 flex-row items-center">
                   <Mail size={16} color="#3b82f6" />
                   <Text className="ml-3 text-base text-gray-900">
@@ -470,7 +511,9 @@ const ProfileInfoScreen: React.FC = () => {
 
               {/* Date of Birth */}
               <View>
-                <Text className="text-sm font-medium text-gray-700 mb-2">Ngày sinh</Text>
+                <Text className="text-sm font-medium text-gray-700 mb-2">
+                  Ngày sinh
+                </Text>
                 {isEditing ? (
                   <TouchableOpacity
                     onPress={() => setShowDatePicker(true)}
@@ -493,7 +536,9 @@ const ProfileInfoScreen: React.FC = () => {
 
               {/* Gender */}
               <View>
-                <Text className="text-sm font-medium text-gray-700 mb-2">Giới tính</Text>
+                <Text className="text-sm font-medium text-gray-700 mb-2">
+                  Giới tính
+                </Text>
                 {isEditing ? (
                   <TouchableOpacity
                     onPress={() => setShowGenderPicker(true)}
@@ -516,32 +561,37 @@ const ProfileInfoScreen: React.FC = () => {
           </View>
 
           {/* Address Information Section */}
-          <View className="bg-white mx-4 rounded-2xl p-6 mb-4" style={{ 
-            elevation: 4, 
-            shadowColor: '#000', 
-            shadowOffset: { width: 0, height: 2 }, 
-            shadowOpacity: 0.08, 
-            shadowRadius: 8 
-          }}>
+          <View
+            className="bg-white mx-4 rounded-2xl p-6 mb-4"
+            style={{
+              elevation: 4,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.08,
+              shadowRadius: 8,
+            }}
+          >
             <View className="flex-row items-center mb-6">
               <View className="w-10 h-10 bg-green-100 rounded-full items-center justify-center mr-3">
                 <MapPin size={20} color="#059669" />
               </View>
-              <Text className="text-xl font-bold text-gray-900">
-                Địa chỉ
-              </Text>
+              <Text className="text-xl font-bold text-gray-900">Địa chỉ</Text>
             </View>
 
             <View className="space-y-4">
               {/* Address */}
               <View>
-                <Text className="text-sm font-medium text-gray-700 mb-2">Địa chỉ</Text>
+                <Text className="text-sm font-medium text-gray-700 mb-2">
+                  Địa chỉ
+                </Text>
                 {isEditing ? (
                   <View className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
                     <TextInput
                       className="text-gray-900 text-base"
                       value={formData.address}
-                      onChangeText={(text) => setFormData({ ...formData, address: text })}
+                      onChangeText={(text) =>
+                        setFormData({ ...formData, address: text })
+                      }
                       placeholder="Nhập địa chỉ"
                       placeholderTextColor="#9CA3AF"
                       multiline
@@ -560,13 +610,17 @@ const ProfileInfoScreen: React.FC = () => {
 
               {/* City */}
               <View>
-                <Text className="text-sm font-medium text-gray-700 mb-2">Thành phố</Text>
+                <Text className="text-sm font-medium text-gray-700 mb-2">
+                  Thành phố
+                </Text>
                 {isEditing ? (
                   <View className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
                     <TextInput
                       className="text-gray-900 text-base"
                       value={formData.city}
-                      onChangeText={(text) => setFormData({ ...formData, city: text })}
+                      onChangeText={(text) =>
+                        setFormData({ ...formData, city: text })
+                      }
                       placeholder="Nhập thành phố"
                       placeholderTextColor="#9CA3AF"
                     />
@@ -582,13 +636,17 @@ const ProfileInfoScreen: React.FC = () => {
 
               {/* Province */}
               <View>
-                <Text className="text-sm font-medium text-gray-700 mb-2">Tỉnh/Thành</Text>
+                <Text className="text-sm font-medium text-gray-700 mb-2">
+                  Tỉnh/Thành
+                </Text>
                 {isEditing ? (
                   <View className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
                     <TextInput
                       className="text-gray-900 text-base"
                       value={formData.province}
-                      onChangeText={(text) => setFormData({ ...formData, province: text })}
+                      onChangeText={(text) =>
+                        setFormData({ ...formData, province: text })
+                      }
                       placeholder="Nhập tỉnh/thành"
                       placeholderTextColor="#9CA3AF"
                     />
@@ -604,7 +662,9 @@ const ProfileInfoScreen: React.FC = () => {
 
               {/* Country */}
               <View>
-                <Text className="text-sm font-medium text-gray-700 mb-2">Quốc gia</Text>
+                <Text className="text-sm font-medium text-gray-700 mb-2">
+                  Quốc gia
+                </Text>
                 <View className="bg-gray-50 rounded-xl px-4 py-3">
                   <Text className="text-base text-gray-900">
                     {formData.country}
@@ -615,13 +675,16 @@ const ProfileInfoScreen: React.FC = () => {
           </View>
 
           {/* Professional Information Section */}
-          <View className="bg-white mx-4 rounded-2xl p-6 mb-4" style={{ 
-            elevation: 4, 
-            shadowColor: '#000', 
-            shadowOffset: { width: 0, height: 2 }, 
-            shadowOpacity: 0.08, 
-            shadowRadius: 8 
-          }}>
+          <View
+            className="bg-white mx-4 rounded-2xl p-6 mb-4"
+            style={{
+              elevation: 4,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.08,
+              shadowRadius: 8,
+            }}
+          >
             <View className="flex-row items-center mb-6">
               <View className="w-10 h-10 bg-purple-100 rounded-full items-center justify-center mr-3">
                 <Briefcase size={20} color="#7c3aed" />
@@ -634,13 +697,17 @@ const ProfileInfoScreen: React.FC = () => {
             <View className="space-y-4">
               {/* Bio */}
               <View>
-                <Text className="text-sm font-medium text-gray-700 mb-2">Giới thiệu</Text>
+                <Text className="text-sm font-medium text-gray-700 mb-2">
+                  Giới thiệu
+                </Text>
                 {isEditing ? (
                   <View className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3">
                     <TextInput
                       className="text-gray-900 text-base"
                       value={formData.bio}
-                      onChangeText={(text) => setFormData({ ...formData, bio: text })}
+                      onChangeText={(text) =>
+                        setFormData({ ...formData, bio: text })
+                      }
                       placeholder="Giới thiệu về bản thân"
                       placeholderTextColor="#9CA3AF"
                       multiline
@@ -659,14 +726,18 @@ const ProfileInfoScreen: React.FC = () => {
 
               {/* Website */}
               <View>
-                <Text className="text-sm font-medium text-gray-700 mb-2">Website</Text>
+                <Text className="text-sm font-medium text-gray-700 mb-2">
+                  Website
+                </Text>
                 {isEditing ? (
                   <View className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 flex-row items-center">
                     <Globe size={16} color="#6B7280" />
                     <TextInput
                       className="text-gray-900 text-base ml-3 flex-1"
                       value={formData.websiteUrl}
-                      onChangeText={(text) => setFormData({ ...formData, websiteUrl: text })}
+                      onChangeText={(text) =>
+                        setFormData({ ...formData, websiteUrl: text })
+                      }
                       placeholder="https://example.com"
                       placeholderTextColor="#9CA3AF"
                       keyboardType="url"
@@ -681,21 +752,27 @@ const ProfileInfoScreen: React.FC = () => {
                   </View>
                 ) : (
                   <View className="bg-gray-50 rounded-xl px-4 py-3">
-                    <Text className="text-base text-gray-400">Chưa cập nhật</Text>
+                    <Text className="text-base text-gray-400">
+                      Chưa cập nhật
+                    </Text>
                   </View>
                 )}
               </View>
 
               {/* LinkedIn */}
               <View>
-                <Text className="text-sm font-medium text-gray-700 mb-2">LinkedIn</Text>
+                <Text className="text-sm font-medium text-gray-700 mb-2">
+                  LinkedIn
+                </Text>
                 {isEditing ? (
                   <View className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 flex-row items-center">
                     <Linkedin size={16} color="#0077B5" />
                     <TextInput
                       className="text-gray-900 text-base ml-3 flex-1"
                       value={formData.linkedinUrl}
-                      onChangeText={(text) => setFormData({ ...formData, linkedinUrl: text })}
+                      onChangeText={(text) =>
+                        setFormData({ ...formData, linkedinUrl: text })
+                      }
                       placeholder="https://linkedin.com/in/username"
                       placeholderTextColor="#9CA3AF"
                       keyboardType="url"
@@ -710,21 +787,27 @@ const ProfileInfoScreen: React.FC = () => {
                   </View>
                 ) : (
                   <View className="bg-gray-50 rounded-xl px-4 py-3">
-                    <Text className="text-base text-gray-400">Chưa cập nhật</Text>
+                    <Text className="text-base text-gray-400">
+                      Chưa cập nhật
+                    </Text>
                   </View>
                 )}
               </View>
 
               {/* GitHub */}
               <View>
-                <Text className="text-sm font-medium text-gray-700 mb-2">GitHub</Text>
+                <Text className="text-sm font-medium text-gray-700 mb-2">
+                  GitHub
+                </Text>
                 {isEditing ? (
                   <View className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 flex-row items-center">
                     <Github size={16} color="#333" />
                     <TextInput
                       className="text-gray-900 text-base ml-3 flex-1"
                       value={formData.githubUrl}
-                      onChangeText={(text) => setFormData({ ...formData, githubUrl: text })}
+                      onChangeText={(text) =>
+                        setFormData({ ...formData, githubUrl: text })
+                      }
                       placeholder="https://github.com/username"
                       placeholderTextColor="#9CA3AF"
                       keyboardType="url"
@@ -739,21 +822,27 @@ const ProfileInfoScreen: React.FC = () => {
                   </View>
                 ) : (
                   <View className="bg-gray-50 rounded-xl px-4 py-3">
-                    <Text className="text-base text-gray-400">Chưa cập nhật</Text>
+                    <Text className="text-base text-gray-400">
+                      Chưa cập nhật
+                    </Text>
                   </View>
                 )}
               </View>
 
               {/* Portfolio */}
               <View>
-                <Text className="text-sm font-medium text-gray-700 mb-2">Portfolio</Text>
+                <Text className="text-sm font-medium text-gray-700 mb-2">
+                  Portfolio
+                </Text>
                 {isEditing ? (
                   <View className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 flex-row items-center">
                     <Link size={16} color="#6B7280" />
                     <TextInput
                       className="text-gray-900 text-base ml-3 flex-1"
                       value={formData.portfolioUrl}
-                      onChangeText={(text) => setFormData({ ...formData, portfolioUrl: text })}
+                      onChangeText={(text) =>
+                        setFormData({ ...formData, portfolioUrl: text })
+                      }
                       placeholder="https://portfolio.dev"
                       placeholderTextColor="#9CA3AF"
                       keyboardType="url"
@@ -768,7 +857,9 @@ const ProfileInfoScreen: React.FC = () => {
                   </View>
                 ) : (
                   <View className="bg-gray-50 rounded-xl px-4 py-3">
-                    <Text className="text-base text-gray-400">Chưa cập nhật</Text>
+                    <Text className="text-base text-gray-400">
+                      Chưa cập nhật
+                    </Text>
                   </View>
                 )}
               </View>
@@ -792,7 +883,7 @@ const ProfileInfoScreen: React.FC = () => {
                   </Text>
                 )}
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 onPress={() => {
                   setIsEditing(false);
@@ -812,18 +903,16 @@ const ProfileInfoScreen: React.FC = () => {
 
         {/* Date Picker Modal */}
         {showDatePicker && Platform.OS === "ios" && (
-          <Modal
-            visible={showDatePicker}
-            transparent
-            animationType="slide"
-          >
+          <Modal visible={showDatePicker} transparent animationType="slide">
             <View className="flex-1 justify-end bg-black/50">
               <View className="bg-white">
                 <View className="flex-row justify-between items-center px-4 py-3 border-b border-gray-200">
                   <TouchableOpacity onPress={() => setShowDatePicker(false)}>
                     <Text className="text-blue-600 text-base">Hủy</Text>
                   </TouchableOpacity>
-                  <Text className="font-semibold text-base">Chọn ngày sinh</Text>
+                  <Text className="font-semibold text-base">
+                    Chọn ngày sinh
+                  </Text>
                   <TouchableOpacity onPress={() => setShowDatePicker(false)}>
                     <Text className="text-blue-600 text-base font-semibold">
                       Xong
@@ -862,11 +951,7 @@ const ProfileInfoScreen: React.FC = () => {
         )}
 
         {/* Gender Picker Modal */}
-        <Modal
-          visible={showGenderPicker}
-          transparent
-          animationType="slide"
-        >
+        <Modal visible={showGenderPicker} transparent animationType="slide">
           <TouchableOpacity
             className="flex-1 justify-end bg-black/50"
             activeOpacity={1}

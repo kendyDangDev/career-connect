@@ -10,7 +10,6 @@ import ApplyButton from "./ApplyButton";
 import { JobDetailLoadingState, JobDetailErrorState } from "./JobStates";
 import { Job } from "../types/job";
 import jobService from "../services/jobService";
-import { mockJob } from "../utils/mockData";
 import JobApplyModal from "./job/JobApplyModal";
 
 interface JobDetailScreenProps {
@@ -45,9 +44,6 @@ const JobDetailScreen: React.FC<JobDetailScreenProps> = ({
       }
     } catch (err) {
       console.error("Error fetching job details:", err);
-      // Use mock data as fallback for testing
-      console.log("Using mock job data as fallback");
-      setJob(mockJob);
       setError(null);
     } finally {
       setLoading(false);

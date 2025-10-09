@@ -2,7 +2,14 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import savedJobService from "@/services/savedJobService";
 import { SavedJob, SavedJobsFilters } from "@/types/savedJob.types";
 import { useRouter } from "expo-router";
-import { AlertCircle, Bookmark, Filter, Search, X } from "lucide-react-native";
+import {
+  AlertCircle,
+  ArrowLeft,
+  Bookmark,
+  Filter,
+  Search,
+  X,
+} from "lucide-react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -22,18 +29,18 @@ const SavedJobsScreen: React.FC = () => {
   const router = useRouter();
 
   const alert = useAlert();
-  
+
   // Safely access auth context
   let user = null;
   let isAuthenticated = false;
-  
+
   try {
     const authContext = useAuthContext();
     user = authContext.user;
     isAuthenticated = authContext.isAuthenticated;
   } catch (error) {
     // Context not available, use default values
-    console.log('[SavedJobsScreen] AuthContext not available, using defaults');
+    console.log("[SavedJobsScreen] AuthContext not available, using defaults");
   }
 
   // State management
@@ -119,22 +126,22 @@ const SavedJobsScreen: React.FC = () => {
           page,
           search: searchQuery || undefined,
           jobType:
-            (selectedJobTypes || [] ).length > 0
+            (selectedJobTypes || []).length > 0
               ? (selectedJobTypes as SavedJobsFilters["jobType"])
               : undefined,
           workLocationType:
-            (selectedWorkLocations || [] ).length > 0
+            (selectedWorkLocations || []).length > 0
               ? (selectedWorkLocations as SavedJobsFilters["workLocationType"])
               : undefined,
           experienceLevel:
-            (selectedExperienceLevels || [] ).length > 0
+            (selectedExperienceLevels || []).length > 0
               ? (selectedExperienceLevels as SavedJobsFilters["experienceLevel"])
               : undefined,
           sortBy,
           sortOrder,
         });
 
-        console.log( "log nè:", await response.data)
+        console.log("log nè:", await response.data);
 
         if (response.success) {
           console.log(response);
@@ -175,7 +182,7 @@ const SavedJobsScreen: React.FC = () => {
   useEffect(() => {
     // Debug authentication status
 
-      loadSavedJobs(1);
+    loadSavedJobs(1);
   }, []);
 
   // Reload when filters change
@@ -189,7 +196,7 @@ const SavedJobsScreen: React.FC = () => {
     selectedExperienceLevels,
     selectedSort,
     loadSavedJobs,
-    ]);
+  ]);
 
   // Handle refresh
   const handleRefresh = () => {
@@ -223,7 +230,7 @@ const SavedJobsScreen: React.FC = () => {
   // Handle job press
   const handleJobPress = (job: SavedJob) => {
     // Navigate to job detail screen
-    router.push(`/jobs/${job.job.id}`);
+    router.push(`/job/${job.job.id}`);
   };
 
   // Apply filters
@@ -480,10 +487,15 @@ const SavedJobsScreen: React.FC = () => {
   return (
     <View className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="bg-white px-4 pt-12 pb-4 shadow-sm">
-        <Text className="text-2xl font-bold text-gray-900 mb-4">
-          Việc làm đã lưu
-        </Text>
+      <View className="bg-white px-4 pt-4 pb-4 shadow-sm z-0">
+        <View className="flex-row items-center gap-2 mb-4">
+          <TouchableOpacity onPress={() => router.back()} className="">
+            <ArrowLeft size={24} color="#111827" />
+          </TouchableOpacity>
+          <Text className="text-2xl font-bold text-gray-900">
+            Việc làm đã lưu
+          </Text>
+        </View>
 
         {/* Search Bar */}
         <View className="flex-row items-center bg-gray-100 rounded-lg px-3 py-2 mb-3">

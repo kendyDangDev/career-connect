@@ -4,6 +4,7 @@ import { Image, Text, TouchableOpacity, View } from "react-native";
 import { Job } from "../types/job";
 import JobApplyModal from "./job/JobApplyModal";
 import { savedJobService } from "../services/savedJobService";
+import jobViewService from "../services/jobViewService";
 
 interface JobCardProps {
   job: Job;
@@ -36,6 +37,27 @@ const JobCard: React.FC<JobCardProps> = ({ job, onPress, onSavePress, initialSav
       setIsCheckingStatus(false);
     }
   }, [job?.id]);
+
+  const handleJobView = useCallback(async () => {
+    if (!job?.id) return;
+    
+    try {
+      console.log('[JobCard] Recording job view for:', job.id);
+      await jobViewService.recordJobView(job.id);
+      console.log('[JobCard] Job view recorded successfully');
+    } catch (error) {
+      console.error('[JobCard] Error recording job view:', error);
+      // Don't throw error - this shouldn't block user navigation
+    }
+  }, [job?.id]);
+
+  const handleCardPress = useCallback(async () => {
+    // Record job view first
+    await handleJobView();
+    
+    // Then call the parent's onPress handler
+    onPress?.();
+  }, [handleJobView, onPress]);
 
   // Check saved status on mount if not provided as prop
   useEffect(() => {
@@ -147,7 +169,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onPress, onSavePress, initialSav
   return (
     <>
       <TouchableOpacity
-        onPress={onPress}
+        onPress={handleCardPress}
         className="bg-white rounded-2xl mx-4 mb-4 p-4 shadow-sm border border-gray-100"
         activeOpacity={0.7}
       >

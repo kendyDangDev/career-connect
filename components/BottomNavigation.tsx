@@ -4,10 +4,16 @@ import {
   Briefcase,
   Home,
   Settings,
-  User
+  User,
 } from "lucide-react-native";
 import React from "react";
-import { Dimensions, Text, TouchableOpacity, View, Platform } from "react-native";
+import {
+  Dimensions,
+  Text,
+  TouchableOpacity,
+  View,
+  Platform,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface TabItem {
@@ -75,17 +81,17 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({
                     color={isActive ? "#2563EB" : "#6B7280"}
                     strokeWidth={isActive ? 2.5 : 2}
                   />
-                  
+
                   {/* Badge */}
                   {badgeCount > 0 && (
                     <View className="absolute -top-2 -right-2 bg-red-500 rounded-full min-w-[18px] h-[18px] items-center justify-center px-1">
                       <Text className="text-white text-xs font-bold">
-                        {badgeCount > 99 ? '99+' : badgeCount}
+                        {badgeCount > 99 ? "99+" : badgeCount}
                       </Text>
                     </View>
                   )}
                 </View>
-                
+
                 {/* Label */}
                 <Text
                   className={`text-xs mt-1 font-medium ${
@@ -95,7 +101,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({
                 >
                   {tab.title}
                 </Text>
-                
+
                 {/* Active Indicator */}
                 {isActive && (
                   <View className="absolute -top-2 w-12 h-1 bg-blue-600 rounded-full" />

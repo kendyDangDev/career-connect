@@ -6,6 +6,7 @@ import {
   Bell,
   Bookmark,
   Briefcase,
+  Building2,
   ChevronRight,
   Edit2,
   FileText,
@@ -15,6 +16,7 @@ import {
   Lock,
   LogOut,
   Moon,
+  NotebookTabs,
   Shield,
   User,
 } from "lucide-react-native";
@@ -123,14 +125,14 @@ export default function ProfileScreen() {
       icon: <FileText size={20} color="#6B7280" />,
       value: "3",
       showArrow: true,
-      onPress:() =>{
-        router.push("/cv-management")
-      }
-        },
+      onPress: () => {
+        router.push("/cv-management");
+      },
+    },
     {
       id: "6",
       title: "Công việc đã xem",
-      icon: <Bookmark size={20} color="#6B7280" />,
+      icon: <NotebookTabs size={20} color="#6B7280" />,
       value: "12",
       showArrow: true,
       onPress: () => {
@@ -153,11 +155,14 @@ export default function ProfileScreen() {
       icon: <Briefcase size={20} color="#6B7280" />,
       value: "5",
       showArrow: true,
+      onPress: () => {
+        router.push("/applied-jobs");
+      },
     },
     {
       id: "5",
       title: "Công ty đang theo dõi",
-      icon: <Briefcase size={20} color="#6B7280" />,
+      icon: <Building2 size={20} color="#6B7280" />,
       value: "5",
       showArrow: true,
       onPress: () => {

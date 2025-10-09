@@ -18,7 +18,6 @@ import savedJobService from "@/services/savedJobService";
 import { router } from "expo-router";
 import jobService from "../services/jobService";
 import { Job, JobFilters } from "../types/job";
-import { mockJobList } from "../utils/mockData";
 import StatsSection from "./StatsSection";
 import { useAlert } from "@/contexts/AlertContext";
 
@@ -75,21 +74,6 @@ const HomePage: React.FC<HomePageProps> = ({
       console.error("Error fetching jobs:", error);
       // Use mock data as fallback
       console.log("Using mock data as fallback");
-      const filteredMockJobs = mockJobList.filter((job) => {
-        if (
-          searchQuery &&
-          !job.title.toLowerCase().includes(searchQuery.toLowerCase())
-        ) {
-          return false;
-        }
-        return true;
-      });
-      setJobs(filteredMockJobs);
-      setPagination({
-        page: 1,
-        totalPages: 1,
-        total: filteredMockJobs.length,
-      });
     }
   };
 
@@ -169,11 +153,13 @@ const HomePage: React.FC<HomePageProps> = ({
 
   // Handle favorite press
   const handleFavoritePress = async (jobId: string, isFavorited: boolean) => {
-    const {saved} = await savedJobService.toggleSaveJob(jobId)
-    if(saved){
+    // const {saved} = await savedJobService.toggleSaveJob(jobId)
+
+    console.log("saved:", isFavorited)
+    if(isFavorited){
       alert.success("Thành công", "Đã lưu công việc")
     }else{
-      alert.success("Thành công", "Đã bỏ lưu công việc")
+      alert.success("", "Đã bỏ lưu công việc")
     }
   };
 
@@ -182,7 +168,7 @@ const HomePage: React.FC<HomePageProps> = ({
     <JobCard
       job={item}
       onPress={() => handleJobPress(item)}
-      onFavoritePress={handleFavoritePress}
+      onSavePress={handleFavoritePress}
     />
   );
 

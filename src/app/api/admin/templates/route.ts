@@ -5,14 +5,14 @@ import {
   CreateTemplateSchema,
   TemplateQuerySchema,
 } from '@/lib/validations/template.validation';
-import { withAdminAuth } from '@/lib/auth/admin-middleware';
+import { withAdmin, withOptionalAuth, AuthenticatedRequest, createAuditLog, successResponse, validationErrorResponse } from '@/lib/middleware';
 import { prisma } from '@/lib/prisma';
 
 /**
  * GET /api/admin/templates
  * Get all templates with pagination and filters
  */
-export const GET = (async (request: NextRequest) => {
+export const GET = withOptionalAuth(async (request: AuthenticatedRequest) => {
   try {
     // Parse query parameters
     const { searchParams } = new URL(request.url);
@@ -24,20 +24,10 @@ export const GET = (async (request: NextRequest) => {
     // Get templates from service
     const result = await TemplateService.getTemplates(validatedQuery);
 
-    return NextResponse.json({
-      success: true,
-      ...result,
-    });
+    return successResponse(result);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Invalid query parameters',
-          details: error.issues,
-        },
-        { status: 400 }
-      );
+      return validationErrorResponse('Invalid query parameters', error.issues);
     }
 
     console.error('GET /api/admin/templates error:', error);
@@ -56,7 +46,7 @@ export const GET = (async (request: NextRequest) => {
  * POST /api/admin/templates
  * Create a new template
  */
-export const POST = withAdminAuth(async (request: NextRequest) => {
+export const POST = withAdmin(async (request: AuthenticatedRequest) => {
   try {
     // Parse request body
     const body = await request.json();
@@ -88,37 +78,20 @@ export const POST = withAdminAuth(async (request: NextRequest) => {
     const template = await TemplateService.createTemplate(validatedData);
 
     // Log audit
-    const userId = (request as any).userId;
-    await prisma.auditLog.create({
-      data: {
-        userId,
-        action: 'CREATE_TEMPLATE',
-        tableName: 'templates',
-        recordId: template.id,
-        newValues: template as any,
-        ipAddress: request.headers.get('x-forwarded-for') || 'unknown',
-        userAgent: request.headers.get('user-agent') || 'unknown',
-      },
-    });
-
-    return NextResponse.json(
-      {
-        success: true,
-        data: template,
-        message: 'Template created successfully',
-      },
-      { status: 201 }
+    await createAuditLog(
+      request.user!.id,
+      'CREATE_TEMPLATE',
+      'templates',
+      template.id,
+      undefined,
+      template as any,
+      request
     );
+
+    return successResponse(template, 'Template created successfully', 201);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Invalid input data',
-          details: error.issues,
-        },
-        { status: 400 }
-      );
+      return validationErrorResponse('Invalid input data', error.issues);
     }
 
     console.error('POST /api/admin/templates error:', error);

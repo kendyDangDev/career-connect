@@ -1,13 +1,14 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { withRole, AuthenticatedRequest } from '@/lib/middleware';
+import { UserType } from '@/generated/prisma';
 import {
-  createAdminHandler,
   createAuditLog,
   successResponse,
   errorResponse,
   paginatedResponse,
   checkRateLimit
-} from '@/middleware/admin-auth';
+} from '@/lib/middleware';
 import {
   createCategorySchema,
   categoryQuerySchema,
@@ -42,7 +43,7 @@ function buildCategoryTree(categories: any[]): any[] {
 }
 
 // GET /api/admin/system-categories/categories
-export const GET = createAdminHandler(async (req, context) => {
+export const GET = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) => {
   try {
     // Parse query parameters
     const { searchParams } = new URL(req.url);
@@ -144,10 +145,10 @@ export const GET = createAdminHandler(async (req, context) => {
 });
 
 // POST /api/admin/system-categories/categories
-export const POST = createAdminHandler(async (req, context) => {
+export const POST = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) => {
   try {
     // Check rate limit
-    if (!checkRateLimit(context.user.id, 10, 60000)) {
+    if (!checkRateLimit(req.user!.id, 10, 60000)) {
       return errorResponse(
         'RATE_LIMIT',
         'Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau.',
@@ -242,7 +243,7 @@ export const POST = createAdminHandler(async (req, context) => {
 
     // Create audit log
     await createAuditLog(
-      context.user.id,
+      req.user!.id,
       'CREATE',
       'categories',
       category.id,
@@ -274,3 +275,4 @@ export const POST = createAdminHandler(async (req, context) => {
     );
   }
 });
+

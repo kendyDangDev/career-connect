@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { withRole, AuthenticatedRequest } from '@/middleware/auth';
+import { withRole, AuthenticatedRequest } from '@/lib/middleware';
 import { CandidateEducationService } from '@/services/candidate/candidate-education.service';
 import {
   successResponse,
@@ -129,3 +129,4 @@ export const POST = withRole([UserType.CANDIDATE], async (req: AuthenticatedRequ
     return serverErrorResponse('Failed to add education record', error);
   }
 });
+

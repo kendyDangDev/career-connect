@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireCompanyAuth, canPostJobs } from "@/lib/middleware/company-auth";
+import { withCompanyAuth, canPostJobs, CompanyAuthenticatedRequest } from "@/lib/middleware/company-auth";
 import { EmployerJobService } from "@/services/employer/job.service";
 import { UpdateJobDTO } from "@/types/employer/job";
 import { validateJobData, sanitizeJobData } from "@/lib/utils/job-utils";
@@ -10,14 +10,8 @@ interface Params {
   };
 }
 
-export async function GET(request: NextRequest, { params }: Params) {
+export const GET = withCompanyAuth(async (request: CompanyAuthenticatedRequest, { params }: Params) => {
   try {
-    // Verify authentication and get company info
-    const authResult = await requireCompanyAuth(request);
-    
-    if (authResult instanceof NextResponse) {
-      return authResult;
-    }
 
     const { id } = params;
 
@@ -32,7 +26,7 @@ export async function GET(request: NextRequest, { params }: Params) {
     }
 
     // Get job detail
-    const job = await EmployerJobService.getJobDetail(id, authResult.companyId);
+    const job = await EmployerJobService.getJobDetail(id, request.company!.id);
 
     if (!job) {
       return NextResponse.json(
@@ -59,19 +53,12 @@ export async function GET(request: NextRequest, { params }: Params) {
       { status: 500 }
     );
   }
-}
+});
 
-export async function PUT(request: NextRequest, { params }: Params) {
+export const PUT = withCompanyAuth(async (request: CompanyAuthenticatedRequest, { params }: Params) => {
   try {
-    // Verify authentication and permissions
-    const authResult = await requireCompanyAuth(request);
-    
-    if (authResult instanceof NextResponse) {
-      return authResult;
-    }
-
     // Check if user can post jobs
-    if (!canPostJobs(authResult.companyRole)) {
+    if (!canPostJobs(request.company!.role)) {
       return NextResponse.json(
         { 
           success: false,
@@ -115,7 +102,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
     // Update job
     const updatedJob = await EmployerJobService.updateJob(
       id,
-      authResult.companyId,
+      request.company!.id,
       sanitizedData
     );
 
@@ -130,7 +117,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
     }
 
     // Get updated job with details
-    const jobDetail = await EmployerJobService.getJobDetail(id, authResult.companyId);
+    const jobDetail = await EmployerJobService.getJobDetail(id, request.company!.id);
 
     return NextResponse.json({
       success: true,
@@ -148,19 +135,12 @@ export async function PUT(request: NextRequest, { params }: Params) {
       { status: 500 }
     );
   }
-}
+});
 
-export async function DELETE(request: NextRequest, { params }: Params) {
+export const DELETE = withCompanyAuth(async (request: CompanyAuthenticatedRequest, { params }: Params) => {
   try {
-    // Verify authentication and permissions
-    const authResult = await requireCompanyAuth(request);
-    
-    if (authResult instanceof NextResponse) {
-      return authResult;
-    }
-
     // Check if user can manage jobs
-    if (!canPostJobs(authResult.companyRole)) {
+    if (!canPostJobs(request.company!.role)) {
       return NextResponse.json(
         { 
           success: false,
@@ -183,7 +163,7 @@ export async function DELETE(request: NextRequest, { params }: Params) {
     }
 
     // Check if job has active applications
-    const job = await EmployerJobService.getJobDetail(id, authResult.companyId);
+    const job = await EmployerJobService.getJobDetail(id, request.company!.id);
     if (!job) {
       return NextResponse.json(
         { 
@@ -205,7 +185,7 @@ export async function DELETE(request: NextRequest, { params }: Params) {
     }
 
     // Delete job (soft delete)
-    const deleted = await EmployerJobService.deleteJob(id, authResult.companyId);
+    const deleted = await EmployerJobService.deleteJob(id, request.company!.id);
 
     if (!deleted) {
       return NextResponse.json(
@@ -232,4 +212,4 @@ export async function DELETE(request: NextRequest, { params }: Params) {
       { status: 500 }
     );
   }
-}
+});

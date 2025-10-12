@@ -271,8 +271,10 @@ export default function ChatDemo() {
                             <p className="text-sm">{message.content}</p>
                           </div>
                           <p className="mt-1 px-2 text-xs text-gray-500">
-                            {message.sender.name || 'Unknown'} •{' '}
-                            {new Date(message.createdAt).toLocaleTimeString()}
+                            {message.sender.name ||
+                              `${message.sender?.firstName} ${message.sender?.lastName}` ||
+                              'Unknown'}{' '}
+                            • {new Date(message.createdAt).toLocaleTimeString()}
                           </p>
                         </div>
                       </div>

@@ -250,8 +250,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
       // Show notification if message is not from current user
       if (session?.user && message.senderId !== session.user.id) {
-        toast.info(`New message from ${message.sender.name}`, {
-          description: message.content.slice(0, 50) + (message.content.length > 50 ? '...' : ''),
+        const content = message.content || '';
+        toast.info(`New message from ${message.sender?.name || 'Unknown User'}`, {
+          description: content.slice(0, 50) + (content.length > 50 ? '...' : ''),
         });
       }
     });
@@ -361,7 +362,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       }
 
       const data = await response.json();
-      setMessages(data.messages || []);
+      setMessages(data.data.messages || []);
     } catch (error) {
       console.error('Error loading messages:', error);
       setError('Failed to load messages');

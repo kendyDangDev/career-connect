@@ -1,9 +1,11 @@
 import { prisma } from "@/lib/prisma";
-import { createAdminHandler, errorResponse, successResponse } from "@/middleware/admin-auth";
+import { withRole, AuthenticatedRequest } from '@/lib/middleware';
+import { UserType } from '@/generated/prisma';
+import { errorResponse, successResponse } from '@/lib/middleware';
 import { LocationType } from "@/types";
 
 // GET popular cities (for quick selection)
-export const  GET =  createAdminHandler(async (req, context) => {
+export const GET = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) => {
     try {
       // Get top cities by job count or pre-defined list
       const popularCities = await prisma.location.findMany({
@@ -36,4 +38,5 @@ export const  GET =  createAdminHandler(async (req, context) => {
         500
       );
     }
-  })
+});
+

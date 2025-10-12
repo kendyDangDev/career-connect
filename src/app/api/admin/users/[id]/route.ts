@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { withRole, AuthenticatedRequest } from '@/middleware/auth';
+import { withAdmin, AuthenticatedRequest } from '@/lib/middleware/auth';
+import { createAuditLog, successResponse } from '@/lib/middleware/utils';
 import { UserStatus } from '@/generated/prisma';
 import * as bcrypt from 'bcryptjs';
 
 // GET - Get single user by ID (ADMIN only)
-export const GET = withRole(
-  ['ADMIN'],
+export const GET = withAdmin(
   async (req: AuthenticatedRequest, { params }: { params: { id: string } }) => {
     try {
       const userId = params.id;
@@ -67,21 +67,17 @@ export const GET = withRole(
       }
 
       // Create audit log
-      await prisma.auditLog.create({
-        data: {
-          userId: req.user!.id,
-          action: 'VIEW_USER',
-          tableName: 'users',
-          recordId: userId,
-          ipAddress: req.ip || 'unknown',
-          userAgent: req.headers.get('user-agent') || 'unknown',
-        },
-      });
+      await createAuditLog(
+        req.user!.id,
+        'VIEW_USER',
+        'users',
+        userId,
+        undefined,
+        undefined,
+        req
+      );
 
-      return NextResponse.json({
-        success: true,
-        data: user,
-      });
+      return successResponse(user);
     } catch (error) {
       console.error('Get user error:', error);
       return NextResponse.json({ error: 'Failed to fetch user' }, { status: 500 });
@@ -90,8 +86,7 @@ export const GET = withRole(
 );
 
 // PUT - Update user (ADMIN only)
-export const PUT = withRole(
-  ['ADMIN'],
+export const PUT = withAdmin(
   async (req: AuthenticatedRequest, { params }: { params: { id: string } }) => {
     try {
       const userId = params.id;
@@ -166,24 +161,17 @@ export const PUT = withRole(
       });
 
       // Create audit log
-      await prisma.auditLog.create({
-        data: {
-          userId: req.user!.id,
-          action: 'UPDATE_USER',
-          tableName: 'users',
-          recordId: userId,
-          oldValues: existingUser,
-          newValues: updateData,
-          ipAddress: req.ip || 'unknown',
-          userAgent: req.headers.get('user-agent') || 'unknown',
-        },
-      });
+      await createAuditLog(
+        req.user!.id,
+        'UPDATE_USER',
+        'users',
+        userId,
+        existingUser,
+        updateData,
+        req
+      );
 
-      return NextResponse.json({
-        success: true,
-        message: 'User updated successfully',
-        data: updatedUser,
-      });
+      return successResponse(updatedUser, 'User updated successfully');
     } catch (error) {
       console.error('Update user error:', error);
       return NextResponse.json({ error: 'Failed to update user' }, { status: 500 });
@@ -192,8 +180,7 @@ export const PUT = withRole(
 );
 
 // DELETE - Delete user (ADMIN only)
-export const DELETE = withRole(
-  ['ADMIN'],
+export const DELETE = withAdmin(
   async (req: AuthenticatedRequest, { params }: { params: { id: string } }) => {
     try {
       const userId = params.id;
@@ -239,22 +226,17 @@ export const DELETE = withRole(
       });
 
       // Create audit log
-      await prisma.auditLog.create({
-        data: {
-          userId: req.user!.id,
-          action: 'DELETE_USER',
-          tableName: 'users',
-          recordId: userId,
-          oldValues: existingUser,
-          ipAddress: req.ip || 'unknown',
-          userAgent: req.headers.get('user-agent') || 'unknown',
-        },
-      });
+      await createAuditLog(
+        req.user!.id,
+        'DELETE_USER',
+        'users',
+        userId,
+        existingUser,
+        undefined,
+        req
+      );
 
-      return NextResponse.json({
-        success: true,
-        message: 'User deleted successfully',
-      });
+      return successResponse(null, 'User deleted successfully');
     } catch (error) {
       console.error('Delete user error:', error);
       return NextResponse.json({ error: 'Failed to delete user' }, { status: 500 });

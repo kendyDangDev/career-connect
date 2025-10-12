@@ -1,6 +1,6 @@
 export const runtime = 'nodejs';
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth, AuthenticatedRequest } from '@/middleware/auth';
+import { withAuth, AuthenticatedRequest } from '@/lib/middleware';
 import { prisma } from '@/lib/prisma';
 
 /**
@@ -154,3 +154,4 @@ export async function OPTIONS(request: NextRequest) {
   
   return response;
 }
+

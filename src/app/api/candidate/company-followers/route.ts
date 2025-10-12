@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withRole, AuthenticatedRequest } from '@/middleware/auth';
+import { withRole, AuthenticatedRequest } from '@/lib/middleware';
 import { CompanyFollowerService } from '@/services/candidate/company-follower.service';
 import { 
   successResponse, 
@@ -133,3 +133,4 @@ export const POST = withRole([UserType.CANDIDATE], async (req: AuthenticatedRequ
     return serverErrorResponse('Failed to follow company', error);
   }
 });
+

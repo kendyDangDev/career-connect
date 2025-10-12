@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { authenticate } from '@/middleware/auth.middleware';
+import { withAuth, AuthenticatedRequest } from '@/lib/middleware/auth';
 import { getUsersQuerySchema } from '@/lib/validations/user.validation';
 
 // GET /api/users - List users with pagination and filters
-export async function GET(req: NextRequest) {
-  // Require authentication (any logged-in user can list basic users). Adjust if needed.
-  const authResult = await authenticate(req);
-  if (authResult) return authResult;
+export const GET = withAuth(async (req: AuthenticatedRequest) => {
 
   try {
     const { searchParams } = new URL(req.url);
@@ -65,4 +62,5 @@ export async function GET(req: NextRequest) {
     console.error('GET /api/users error', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
-}
+});
+

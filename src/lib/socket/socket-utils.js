@@ -44,6 +44,11 @@ const saveMessageToDatabase = async (conversationId, messageData, authToken) => 
     const port = process.env.PORT || '3000';
     const baseUrl = `http://${hostname}:${port}`;
 
+    console.log('Making API call to save message:', {
+      url: `${baseUrl}/api/chat/conversations/${conversationId}/messages`,
+      token: authToken?.substring(0, 50) + '...',
+      messageData,
+    });
 
     const response = await fetch(`${baseUrl}/api/chat/conversations/${conversationId}/messages`, {
       method: 'POST',
@@ -53,7 +58,7 @@ const saveMessageToDatabase = async (conversationId, messageData, authToken) => 
       },
       body: JSON.stringify({
         content: messageData.content,
-        type: messageData.type,
+        messageType: messageData.type, // API expects 'messageType'
         replyToId: messageData.replyToId,
       }),
     });
@@ -64,8 +69,16 @@ const saveMessageToDatabase = async (conversationId, messageData, authToken) => 
     }
 
     const result = await response.json();
-    return result.message;
+
+    // API response structure: { success: true, data: { message: {...} }, message: "success text" }
+    // We need the actual message object from data.message, not the success text from message
+    if (result.data && result.data.message) {
+      return result.data.message;
+    }
+
+    throw new Error('API did not return a valid message object');
   } catch (error) {
+    console.error('Error in saveMessageToDatabase:', error);
     throw error;
   }
 };
@@ -74,19 +87,26 @@ const saveMessageToDatabase = async (conversationId, messageData, authToken) => 
  * Transform database message to frontend format
  */
 const transformMessage = (dbMessage) => {
+  if (!dbMessage) {
+    throw new Error('No message data to transform');
+  }
+
+  // Handle different possible response structures
+  const sender = dbMessage.sender || {};
+
   return {
     id: dbMessage.id,
     conversationId: dbMessage.conversationId,
     senderId: dbMessage.senderId,
-    content: dbMessage.content,
-    type: dbMessage.type,
+    content: dbMessage.content || '', // Ensure content is never undefined
+    type: dbMessage.type || dbMessage.messageType || 'TEXT',
     createdAt: dbMessage.createdAt,
     sender: {
-      id: dbMessage.sender.id,
-      name: dbMessage.sender.firstName
-        ? `${dbMessage.sender.firstName} ${dbMessage.sender.lastName || ''}`.trim()
-        : dbMessage.sender.email,
-      avatar: dbMessage.sender.avatarUrl,
+      id: sender.id || dbMessage.senderId,
+      name: sender.firstName
+        ? `${sender.firstName} ${sender.lastName || ''}`.trim()
+        : sender.email || 'Unknown User',
+      avatar: sender.avatarUrl || null,
     },
     attachments: dbMessage.attachments || [],
   };

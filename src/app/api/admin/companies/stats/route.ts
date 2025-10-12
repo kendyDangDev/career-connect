@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdminAuth } from "@/lib/middleware/admin-auth";
+import { withAdmin } from "@/lib/middleware";
 import { AdminCompanyService } from "@/services/admin/company.service";
 
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
-    const authResult = await requireAdminAuth(request);
+    const authResult = await withAdmin(request);
     
     if (authResult instanceof NextResponse) {
       return authResult;
@@ -30,3 +30,4 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+

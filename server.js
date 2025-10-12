@@ -29,9 +29,10 @@ app.prepare().then(() => {
   const io = new Server(server, {
     cors: {
       origin:
-        process.env.NODE_ENV === 'production'
-          ? process.env.NEXTAUTH_URL
-          : ['http://localhost:3000'],
+        // process.env.NODE_ENV === 'production'
+        //   ? process.env.NEXTAUTH_URL
+        //   : ['http://localhost:3000'],
+        '*',
       methods: ['GET', 'POST'],
       credentials: true,
     },

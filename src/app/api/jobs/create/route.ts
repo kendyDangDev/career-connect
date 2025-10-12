@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { withPermission, AuthenticatedRequest } from '@/middleware/auth';
+import { withPermission, AuthenticatedRequest } from '@/lib/middleware/auth';
 import { z } from 'zod';
 
 // Validation schema for creating a job

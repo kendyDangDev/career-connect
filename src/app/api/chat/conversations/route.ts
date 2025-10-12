@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth-config';
 import { prisma } from '@/lib/prisma';
+import { verifyAccessToken, extractBearerToken } from '@/lib/jwt-utils';
 import { z } from 'zod';
 
 // Validation schemas
@@ -20,10 +21,48 @@ const conversationQuerySchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
+  const origin = request.headers.get('origin');
+
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    let userId = null;
+
+    // First, try to get user from Bearer token (React Native)
+    const authHeader = request.headers.get('authorization');
+    const token = extractBearerToken(authHeader);
+
+    if (token) {
+      const decoded = verifyAccessToken(token);
+      if (decoded) {
+        // Verify user still exists and is active
+        const dbUser = await prisma.user.findUnique({
+          where: { id: decoded.id },
+          select: { id: true, status: true },
+        });
+
+        if (dbUser && dbUser.status === 'ACTIVE') {
+          userId = dbUser.id;
+        }
+      }
+    }
+
+    // If no Bearer token or invalid, try NextAuth session (Web)
+    if (!userId) {
+      const session = await getServerSession(authOptions);
+      if (session?.user?.id) {
+        userId = session.user.id;
+      }
+    }
+
+    if (!userId) {
+      const response = NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+      // Add CORS headers for React Native
+      if (origin) {
+        response.headers.set('Access-Control-Allow-Origin', origin);
+        response.headers.set('Access-Control-Allow-Credentials', 'true');
+      }
+
+      return response;
     }
 
     const { searchParams } = new URL(request.url);
@@ -39,7 +78,7 @@ export async function GET(request: NextRequest) {
       where: {
         participants: {
           some: {
-            userId: session.user.id,
+            userId: userId,
             leftAt: null,
           },
         },
@@ -74,7 +113,7 @@ export async function GET(request: NextRequest) {
               },
             },
             readBy: {
-              where: { userId: session.user.id },
+              where: { userId: userId },
             },
           },
         },
@@ -120,10 +159,10 @@ export async function GET(request: NextRequest) {
         const unreadCount = await prisma.message.count({
           where: {
             conversationId: conversation.id,
-            senderId: { not: session.user.id },
+            senderId: { not: userId },
             readBy: {
               none: {
-                userId: session.user.id,
+                userId: userId,
               },
             },
           },
@@ -141,7 +180,7 @@ export async function GET(request: NextRequest) {
       where: {
         participants: {
           some: {
-            userId: session.user.id,
+            userId: userId,
             leftAt: null,
           },
         },
@@ -149,7 +188,8 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
+      success: true,
       conversations: conversationsWithUnread,
       pagination: {
         page: query.page,
@@ -158,17 +198,72 @@ export async function GET(request: NextRequest) {
         totalPages: Math.ceil(total / query.limit),
       },
     });
+
+    // Add CORS headers for React Native
+    if (origin) {
+      response.headers.set('Access-Control-Allow-Origin', origin);
+      response.headers.set('Access-Control-Allow-Credentials', 'true');
+    }
+
+    return response;
   } catch (error) {
     console.error('Error fetching conversations:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+
+    const response = NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+
+    // Add CORS headers for React Native
+    if (origin) {
+      response.headers.set('Access-Control-Allow-Origin', origin);
+      response.headers.set('Access-Control-Allow-Credentials', 'true');
+    }
+
+    return response;
   }
 }
 
 export async function POST(request: NextRequest) {
+  const origin = request.headers.get('origin');
+
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    let userId = null;
+
+    // First, try to get user from Bearer token (React Native)
+    const authHeader = request.headers.get('authorization');
+    const token = extractBearerToken(authHeader);
+
+    if (token) {
+      const decoded = verifyAccessToken(token);
+      if (decoded) {
+        // Verify user still exists and is active
+        const dbUser = await prisma.user.findUnique({
+          where: { id: decoded.id },
+          select: { id: true, status: true },
+        });
+
+        if (dbUser && dbUser.status === 'ACTIVE') {
+          userId = dbUser.id;
+        }
+      }
+    }
+
+    // If no Bearer token or invalid, try NextAuth session (Web)
+    if (!userId) {
+      const session = await getServerSession(authOptions);
+      if (session?.user?.id) {
+        userId = session.user.id;
+      }
+    }
+
+    if (!userId) {
+      const response = NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+      // Add CORS headers for React Native
+      if (origin) {
+        response.headers.set('Access-Control-Allow-Origin', origin);
+        response.headers.set('Access-Control-Allow-Credentials', 'true');
+      }
+
+      return response;
     }
 
     const body = await request.json();
@@ -177,8 +272,8 @@ export async function POST(request: NextRequest) {
     const data = createConversationSchema.parse(body);
 
     // Validate participants
-    if (!data.participantIds.includes(session.user.id)) {
-      data.participantIds.push(session.user.id);
+    if (!data.participantIds.includes(userId)) {
+      data.participantIds.push(userId);
     }
 
     const participants = await prisma.user.findMany({
@@ -189,7 +284,15 @@ export async function POST(request: NextRequest) {
     });
 
     if (participants.length !== data.participantIds.length) {
-      return NextResponse.json({ error: 'Some participants not found' }, { status: 400 });
+      const response = NextResponse.json({ error: 'Some participants not found' }, { status: 400 });
+
+      // Add CORS headers for React Native
+      if (origin) {
+        response.headers.set('Access-Control-Allow-Origin', origin);
+        response.headers.set('Access-Control-Allow-Credentials', 'true');
+      }
+
+      return response;
     }
 
     // For DIRECT conversations, check if one already exists
@@ -222,7 +325,15 @@ export async function POST(request: NextRequest) {
       });
 
       if (existingConversation) {
-        return NextResponse.json({ conversation: existingConversation });
+        const response = NextResponse.json({ success: true, conversation: existingConversation });
+
+        // Add CORS headers for React Native
+        if (origin) {
+          response.headers.set('Access-Control-Allow-Origin', origin);
+          response.headers.set('Access-Control-Allow-Credentials', 'true');
+        }
+
+        return response;
       }
     }
 
@@ -234,9 +345,9 @@ export async function POST(request: NextRequest) {
         applicationId: data.applicationId,
         jobId: data.jobId,
         participants: {
-          create: data.participantIds.map((userId, index) => ({
-            userId,
-            role: userId === session.user.id ? 'ADMIN' : 'MEMBER',
+          create: data.participantIds.map((participantId, index) => ({
+            userId: participantId,
+            role: participantId === userId ? 'ADMIN' : 'MEMBER',
           })),
         },
       },
@@ -286,17 +397,51 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ conversation }, { status: 201 });
+    const response = NextResponse.json({ success: true, conversation }, { status: 201 });
+
+    // Add CORS headers for React Native
+    if (origin) {
+      response.headers.set('Access-Control-Allow-Origin', origin);
+      response.headers.set('Access-Control-Allow-Credentials', 'true');
+    }
+
+    return response;
   } catch (error) {
     console.error('Error creating conversation:', error);
 
+    let response;
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
+      response = NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
         { status: 400 }
       );
+    } else {
+      response = NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    // Add CORS headers for React Native
+    if (origin) {
+      response.headers.set('Access-Control-Allow-Origin', origin);
+      response.headers.set('Access-Control-Allow-Credentials', 'true');
+    }
+
+    return response;
   }
+}
+
+// Handle OPTIONS for CORS preflight
+export async function OPTIONS(request: NextRequest) {
+  const origin = request.headers.get('origin');
+
+  const response = new NextResponse(null, { status: 200 });
+
+  if (origin) {
+    response.headers.set('Access-Control-Allow-Origin', origin);
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    response.headers.set('Access-Control-Allow-Credentials', 'true');
+    response.headers.set('Access-Control-Max-Age', '86400');
+  }
+
+  return response;
 }

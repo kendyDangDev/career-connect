@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { withRole, AuthenticatedRequest } from '@/middleware/auth';
+import { withRole, AuthenticatedRequest } from '@/lib/middleware';
 import { CandidateCertificationService } from '@/services/candidate/candidate-certification.service';
 import { 
   successResponse, 
@@ -13,7 +13,7 @@ import {
   getCandidateCertificationQuerySchema
 } from '@/lib/validations/candidate/certification.validation';
 import { UserType } from '@/generated/prisma';
-import prisma from '@/lib/prisma';
+import {prisma} from '@/lib/prisma';
 
 /**
  * GET /api/candidate/certifications
@@ -147,3 +147,4 @@ export const POST = withRole([UserType.CANDIDATE], async (req: AuthenticatedRequ
     return serverErrorResponse('Failed to add certification record', error);
   }
 });
+

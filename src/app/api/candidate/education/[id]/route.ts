@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { withRole, AuthenticatedRequest } from '@/middleware/auth';
+import { withRole, AuthenticatedRequest } from '@/lib/middleware/auth';
 import { CandidateEducationService } from '@/services/candidate/candidate-education.service';
 import {
   successResponse,

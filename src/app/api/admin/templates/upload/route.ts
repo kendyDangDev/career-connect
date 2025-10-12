@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TemplateService } from '@/services/template.service';
-import { withAdminAuth } from '@/lib/auth/admin-middleware';
+import { withAdmin } from '@/lib/middleware';
 import { prisma } from '@/lib/prisma';
 
 /**
  * POST /api/admin/templates/upload
  * Upload a preview image for a template
  */
-export const POST = withAdminAuth(async (request: NextRequest) => {
+export const POST = withAdmin(async (request: NextRequest) => {
   try {
     // Get form data
     const formData = await request.formData();
@@ -122,3 +122,4 @@ export const POST = withAdminAuth(async (request: NextRequest) => {
     );
   }
 });
+

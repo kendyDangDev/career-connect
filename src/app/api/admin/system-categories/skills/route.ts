@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { withRole, AuthenticatedRequest } from '@/lib/middleware';
+import { UserType } from '@/generated/prisma';
 import {
-  createAdminHandler,
   createAuditLog,
   successResponse,
   errorResponse,
   paginatedResponse,
   checkRateLimit
-} from '@/middleware/admin-auth';
+} from '@/lib/middleware';
 import {
   createSkillSchema,
   skillQuerySchema,
@@ -17,7 +18,7 @@ import {
 import { Skill, SkillCategory } from '@/types/system-categories';
 
 // GET /api/admin/system-categories/skills
-export const GET = createAdminHandler(async (req, context) => {
+export const GET = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) => {
   try {
     // Parse query parameters
     const { searchParams } = new URL(req.url);
@@ -99,10 +100,10 @@ export const GET = createAdminHandler(async (req, context) => {
 });
 
 // POST /api/admin/system-categories/skills
-export const POST = createAdminHandler(async (req, context) => {
+export const POST = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) => {
   try {
     // Check rate limit
-    if (!checkRateLimit(context.user.id, 10, 60000)) {
+    if (!checkRateLimit(req.user!.id, 10, 60000)) {
       return errorResponse(
         'RATE_LIMIT',
         'Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau.',
@@ -151,7 +152,7 @@ export const POST = createAdminHandler(async (req, context) => {
 
     // Create audit log
     await createAuditLog(
-      context.user.id,
+      req.user!.id,
       'CREATE',
       'skills',
       skill.id,
@@ -185,11 +186,10 @@ export const POST = createAdminHandler(async (req, context) => {
 });
 
 // Import skills from file
-export async function POST_IMPORT(req: NextRequest) {
-  return createAdminHandler(async (req, context) => {
+export const POST_IMPORT = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) => {
     try {
       // Check rate limit
-      if (!checkRateLimit(context.user.id, 1, 300000)) { // 1 request per 5 minutes
+      if (!checkRateLimit(req.user!.id, 1, 300000)) { // 1 request per 5 minutes
         return errorResponse(
           'RATE_LIMIT',
           'Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau.',
@@ -318,7 +318,7 @@ export async function POST_IMPORT(req: NextRequest) {
 
       // Create audit log
       await createAuditLog(
-        context.user.id,
+        req.user!.id,
         'IMPORT_SKILLS',
         'skills',
         'bulk_import',
@@ -339,5 +339,5 @@ export async function POST_IMPORT(req: NextRequest) {
         500
       );
     }
-  })(req);
-}
+});
+

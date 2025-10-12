@@ -16,23 +16,40 @@ const setupSocketHandlers = (io) => {
         throw new Error('No token provided');
       }
 
-      // Verify JWT token
-      const decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET, {
-        issuer: 'career-connect-chat',
-      });
+      // Verify JWT token - try both possible formats
+      let decoded = null;
+      let userId = null;
 
-      if (!decoded.userId) {
-        throw new Error('Invalid token');
+      try {
+        // First try with NEXTAUTH_SECRET for socket tokens
+        decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET);
+        userId = decoded.userId || decoded.id;
+      } catch (error) {
+        console.log('NEXTAUTH_SECRET verification failed, trying JWT_SECRET');
+        try {
+          // Try with JWT_SECRET for mobile app tokens
+          const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+          decoded = jwt.verify(token, JWT_SECRET);
+          userId = decoded.id || decoded.userId;
+        } catch (jwtError) {
+          throw new Error('Invalid token - failed both verification methods');
+        }
       }
 
-      socket.userId = decoded.userId;
+      if (!userId) {
+        throw new Error('Invalid token structure - no user ID found');
+      }
+
+      socket.userId = userId;
       socket.user = {
-        id: decoded.userId,
+        id: userId,
         email: decoded.email,
         firstName: decoded.firstName,
         lastName: decoded.lastName,
         userType: decoded.userType,
       };
+
+      console.log('Socket authenticated for user:', userId);
 
       next();
     } catch (error) {
@@ -43,7 +60,6 @@ const setupSocketHandlers = (io) => {
 
   // Connection handler
   io.on('connection', (socket) => {
-
     // Join user to their personal room
     socket.join(`user:${socket.userId}`);
 
@@ -90,7 +106,6 @@ const setupSocketHandlers = (io) => {
       try {
         const { conversationId, content, type = 'TEXT' } = data;
 
-
         if (!conversationId || !content) {
           const error = { error: 'Missing required fields' };
           socket.emit('error', error);
@@ -122,11 +137,22 @@ const setupSocketHandlers = (io) => {
 
         // Save message to database
         try {
+          // Create internal JWT token for API authentication
+          const { createInternalToken } = require('./socket-utils');
+          const internalToken = createInternalToken(socket.userId, socket.user);
+
+          console.log('Attempting to save message with internal token');
+          console.log('Message data:', { content, type });
+
           const savedMessage = await saveMessageToDatabase(
             conversationId,
             { content, type },
-            socket.handshake.auth.token
+            internalToken
           );
+
+          if (!savedMessage) {
+            throw new Error('saveMessageToDatabase returned null/undefined');
+          }
 
           // Transform to frontend format
           const message = transformMessage(savedMessage);
@@ -138,23 +164,31 @@ const setupSocketHandlers = (io) => {
           socket.emit('message:new', message);
 
           // Send acknowledgment with the real message
+          console.log('Sending success callback with message:', message.id);
           if (callback) callback({ success: true, message });
         } catch (dbError) {
           console.error('Failed to save message to database:', dbError);
+          console.error('Error details:', {
+            message: dbError.message,
+            stack: dbError.stack,
+            conversationId,
+            userId: socket.userId,
+            userData: socket.user,
+          });
 
           // Fallback: create temporary message for real-time experience
           const tempMessage = {
             id: `temp_${Date.now()}_${Math.random().toString(36).substring(2)}`,
             conversationId,
             senderId: socket.userId,
-            content,
-            type,
+            content: content || '', // Ensure content is never undefined
+            type: type || 'TEXT',
             createdAt: new Date().toISOString(),
             sender: {
               id: socket.userId,
               name: socket.user?.firstName
                 ? `${socket.user.firstName} ${socket.user.lastName || ''}`.trim()
-                : socket.user?.email,
+                : socket.user?.email || 'Unknown User',
               avatar: null,
             },
             attachments: [],
@@ -168,15 +202,24 @@ const setupSocketHandlers = (io) => {
           if (callback)
             callback({
               success: true,
-              warning: 'Message sent but may not be permanently saved',
+              warning: 'Message sent but may not be permanently saved. Error: ' + dbError.message,
               message: tempMessage,
             });
         }
       } catch (error) {
-        console.error('Error sending message:', error);
-        const errorResponse = { error: 'Failed to send message' };
+        console.error('Critical error in message handling:', error);
+        const errorResponse = {
+          error: 'Failed to send message',
+          details: error.message,
+        };
         socket.emit('error', errorResponse);
-        if (callback) callback(errorResponse);
+
+        // Always call callback to prevent timeout
+        if (callback) {
+          callback(errorResponse);
+        } else {
+          console.warn('No callback provided for message send');
+        }
       }
     });
 
@@ -208,7 +251,6 @@ const setupSocketHandlers = (io) => {
 
     // Handle disconnect
     socket.on('disconnect', () => {
-
       // Notify others that user went offline
       socket.broadcast.emit('user:offline', {
         userId: socket.userId,

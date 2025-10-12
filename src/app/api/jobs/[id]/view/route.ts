@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth, AuthenticatedRequest } from '@/middleware/auth';
+import { withAuth, AuthenticatedRequest } from '@/lib/middleware/auth';
 import { JobViewService } from '@/services/candidate/job-view.service';
 import { JobViewInput } from '@/types/candidate/job-view.types';
 import { verifyAccessToken, extractBearerToken } from '@/lib/jwt-utils';

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withPermission, AuthenticatedRequest } from '@/middleware/auth';
+import { withPermission, AuthenticatedRequest } from '@/lib/middleware/auth';
 import { JobViewService } from '@/services/candidate/job-view.service';
 import { JobViewsQuery } from '@/types/candidate/job-view.types';
 

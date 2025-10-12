@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdminAuth, logAdminAction } from "@/lib/middleware/admin-auth";
+import { withAdmin, AuthenticatedRequest, createAuditLog, successResponse, errorResponse } from "@/middleware";
 import { AdminCompanyService } from "@/services/admin/company.service";
 import { AdminCompanyUpdateDTO } from "@/types/admin/company";
 
@@ -9,44 +9,23 @@ interface Params {
   };
 }
 
-export async function GET(request: NextRequest, { params }: Params) {
+export const GET = withAdmin(async (request: AuthenticatedRequest, { params }: Params) => {
   try {
-    // Verify admin authentication
-    const authResult = await requireAdminAuth(request);
-    
-    if (authResult instanceof NextResponse) {
-      return authResult;
-    }
 
     const { id } = params;
 
     if (!id) {
-      return NextResponse.json(
-        { 
-          success: false,
-          error: "Company ID is required" 
-        },
-        { status: 400 }
-      );
+      return errorResponse('INVALID_REQUEST', 'Company ID is required', 400);
     }
 
     // Get company detail
     const company = await AdminCompanyService.getCompanyDetail(id);
 
     if (!company) {
-      return NextResponse.json(
-        { 
-          success: false,
-          error: "Company not found" 
-        },
-        { status: 404 }
-      );
+      return errorResponse('NOT_FOUND', 'Company not found', 404);
     }
 
-    return NextResponse.json({
-      success: true,
-      data: company
-    });
+    return successResponse(company);
 
   } catch (error) {
     console.error("Error fetching company detail:", error);
@@ -58,16 +37,10 @@ export async function GET(request: NextRequest, { params }: Params) {
       { status: 500 }
     );
   }
-}
+});
 
-export async function PUT(request: NextRequest, { params }: Params) {
+export const PUT = withAdmin(async (request: AuthenticatedRequest, { params }: Params) => {
   try {
-    // Verify admin authentication
-    const authResult = await requireAdminAuth(request);
-    
-    if (authResult instanceof NextResponse) {
-      return authResult;
-    }
 
     const { id } = params;
 
@@ -110,8 +83,8 @@ export async function PUT(request: NextRequest, { params }: Params) {
     }
 
     // Log admin action
-    await logAdminAction(
-      authResult.userId,
+    await createAuditLog(
+      request.user!.id,
       "UPDATE_COMPANY",
       "companies",
       id,
@@ -120,11 +93,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
       request
     );
 
-    return NextResponse.json({
-      success: true,
-      message: "Company updated successfully",
-      data: updatedCompany
-    });
+    return successResponse(updatedCompany, "Company updated successfully");
 
   } catch (error) {
     console.error("Error updating company:", error);
@@ -136,16 +105,10 @@ export async function PUT(request: NextRequest, { params }: Params) {
       { status: 500 }
     );
   }
-}
+});
 
-export async function DELETE(request: NextRequest, { params }: Params) {
+export const DELETE = withAdmin(async (request: AuthenticatedRequest, { params }: Params) => {
   try {
-    // Verify admin authentication
-    const authResult = await requireAdminAuth(request);
-    
-    if (authResult instanceof NextResponse) {
-      return authResult;
-    }
 
     const { id } = params;
 
@@ -179,8 +142,8 @@ export async function DELETE(request: NextRequest, { params }: Params) {
     await AdminCompanyService.deleteCompany(id, hardDelete);
 
     // Log admin action
-    await logAdminAction(
-      authResult.userId,
+    await createAuditLog(
+      request.user!.id,
       hardDelete ? "HARD_DELETE_COMPANY" : "SOFT_DELETE_COMPANY",
       "companies",
       id,
@@ -189,10 +152,7 @@ export async function DELETE(request: NextRequest, { params }: Params) {
       request
     );
 
-    return NextResponse.json({
-      success: true,
-      message: `Company ${hardDelete ? 'permanently deleted' : 'deactivated'} successfully`
-    });
+    return successResponse(null, `Company ${hardDelete ? 'permanently deleted' : 'deactivated'} successfully`);
 
   } catch (error) {
     console.error("Error deleting company:", error);
@@ -204,4 +164,4 @@ export async function DELETE(request: NextRequest, { params }: Params) {
       { status: 500 }
     );
   }
-}
+});

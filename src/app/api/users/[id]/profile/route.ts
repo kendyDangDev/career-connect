@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { authenticate, getUserFromRequest } from '@/middleware/auth.middleware';
+import { authenticate, getUserFromRequest } from '@/lib/middleware/auth';
 import { userProfileSchema } from '@/lib/validations/user.validation';
 
 // GET /api/users/[id]/profile - Get user profile
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const profile = await prisma.userProfile.findUnique({
       where: { userId: params.id },
@@ -28,27 +25,18 @@ export async function GET(
     });
 
     if (!profile) {
-      return NextResponse.json(
-        { error: 'Profile not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
     return NextResponse.json({ data: profile });
   } catch (error) {
     console.error('GET /api/users/[id]/profile error', error);
-    return NextResponse.json(
-      { error: 'Internal Server Error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 
 // PUT /api/users/[id]/profile - Create or update user profile
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   const authResult = await authenticate(req);
   if (authResult) return authResult;
 
@@ -65,12 +53,12 @@ export async function PUT(
   try {
     const body = await req.json();
     const parse = userProfileSchema.safeParse(body);
-    
+
     if (!parse.success) {
       return NextResponse.json(
-        { 
-          error: 'Invalid profile data', 
-          details: parse.error.flatten() 
+        {
+          error: 'Invalid profile data',
+          details: parse.error.flatten(),
         },
         { status: 400 }
       );
@@ -82,10 +70,7 @@ export async function PUT(
     });
 
     if (!userExists) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Upsert profile (create if doesn't exist, update if exists)
@@ -112,32 +97,23 @@ export async function PUT(
       },
     });
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       data: profile,
-      message: 'Profile updated successfully' 
+      message: 'Profile updated successfully',
     });
   } catch (error: any) {
     console.error('PUT /api/users/[id]/profile error', error);
-    
+
     if (error.code === 'P2002') {
-      return NextResponse.json(
-        { error: 'Profile already exists for this user' },
-        { status: 409 }
-      );
+      return NextResponse.json({ error: 'Profile already exists for this user' }, { status: 409 });
     }
-    
-    return NextResponse.json(
-      { error: 'Internal Server Error' },
-      { status: 500 }
-    );
+
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 
 // DELETE /api/users/[id]/profile - Delete user profile (Admin only)
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   const authResult = await authenticate(req);
   if (authResult) return authResult;
 
@@ -145,10 +121,7 @@ export async function DELETE(
 
   // Only admin can delete profiles
   if (currentUser.userType !== 'ADMIN') {
-    return NextResponse.json(
-      { error: 'Unauthorized - Admin access required' },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: 'Unauthorized - Admin access required' }, { status: 403 });
   }
 
   try {
@@ -156,22 +129,16 @@ export async function DELETE(
       where: { userId: params.id },
     });
 
-    return NextResponse.json({ 
-      message: 'Profile deleted successfully' 
+    return NextResponse.json({
+      message: 'Profile deleted successfully',
     });
   } catch (error: any) {
     console.error('DELETE /api/users/[id]/profile error', error);
-    
+
     if (error.code === 'P2025') {
-      return NextResponse.json(
-        { error: 'Profile not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
-    
-    return NextResponse.json(
-      { error: 'Internal Server Error' },
-      { status: 500 }
-    );
+
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

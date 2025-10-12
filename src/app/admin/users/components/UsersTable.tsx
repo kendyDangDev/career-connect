@@ -320,19 +320,19 @@ export const UsersTable: React.FC<UsersTableProps> = ({
       {/* Pagination */}
       <div className="flex items-center justify-between px-2">
         <div className="text-muted-foreground text-sm">
-          Hiển thị {(pagination.page - 1) * pagination.limit + 1}-
-          {Math.min(pagination.page * pagination.limit, pagination.totalCount)} trong{' '}
-          {pagination.totalCount} người dùng
+          Hiển thị {(pagination?.page - 1) * pagination?.limit + 1}-
+          {Math.min(pagination?.page * pagination?.limit, pagination?.totalCount)} trong{' '}
+          {pagination?.totalCount} người dùng
         </div>
         <div className="flex items-center space-x-6">
           <div className="flex items-center space-x-2">
             <p className="text-sm font-medium">Hiển thị</p>
             <Select
-              value={pagination.limit.toString()}
+              value={pagination?.limit.toString()}
               onValueChange={(value) => onPageSizeChange(parseInt(value))}
             >
               <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue placeholder={pagination.limit} />
+                <SelectValue placeholder={pagination?.limit} />
               </SelectTrigger>
               <SelectContent side="top">
                 {[5, 10, 25, 50].map((size) => (
@@ -348,7 +348,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
               variant="outline"
               size="sm"
               onClick={() => onPageChange(pagination.page - 1)}
-              disabled={!pagination.hasPreviousPage}
+              disabled={!pagination?.hasPreviousPage}
             >
               Trước
             </Button>
@@ -356,7 +356,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
               variant="outline"
               size="sm"
               onClick={() => onPageChange(pagination.page + 1)}
-              disabled={!pagination.hasNextPage}
+              disabled={!pagination?.hasNextPage}
             >
               Sau
             </Button>

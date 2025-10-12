@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdminAuth } from '@/lib/middleware/admin-auth';
+import {
+  withAdmin,
+  AuthenticatedRequest,
+  createAuditLog,
+  successResponse,
+  withAnyPermission,
+} from '@/lib/middleware';
 import { AdminCompanyService } from '@/services/admin/company.service';
 import { CompanyListParams } from '@/types/admin/company';
 
-export async function GET(request: NextRequest) {
+export const GET = async (request: AuthenticatedRequest) => {
   try {
-    // Verify admin authentication
-    // const authResult = await requireAdminAuth(request);
-
-    // if (authResult instanceof NextResponse) {
-    //   return authResult;
-    // }
-
     // Parse query parameters
     const searchParams = request.nextUrl.searchParams;
     const params: CompanyListParams = {
@@ -34,10 +33,7 @@ export async function GET(request: NextRequest) {
     // Get companies list
     const result = await AdminCompanyService.getCompanies(params);
 
-    return NextResponse.json({
-      success: true,
-      data: result,
-    });
+    return successResponse(result);
   } catch (error) {
     console.error('Error fetching companies list:', error);
     return NextResponse.json(
@@ -48,17 +44,10 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+};
 
-export async function POST(request: NextRequest) {
+export const POST = withAdmin(async (request: AuthenticatedRequest) => {
   try {
-    // Verify admin authentication
-    const authResult = await requireAdminAuth(request);
-
-    if (authResult instanceof NextResponse) {
-      return authResult;
-    }
-
     // Parse request body
     const body = await request.json();
     const { action, companyIds } = body;
@@ -80,9 +69,8 @@ export async function POST(request: NextRequest) {
       const updatedCount = await AdminCompanyService.bulkUpdateStatus(companyIds, status);
 
       // Log admin action
-      const { logAdminAction } = await import('@/lib/middleware/admin-auth');
-      await logAdminAction(
-        authResult.userId,
+      await createAuditLog(
+        request.user!.id,
         `BULK_UPDATE_STATUS_${status}`,
         'companies',
         companyIds.join(','),
@@ -117,4 +105,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth, AuthenticatedRequest } from '@/middleware/auth';
+import { withAuth, AuthenticatedRequest } from '@/lib/middleware/auth';
 import { ApplicationService } from '@/services/application.service';
 import { UserType } from '@/generated/prisma';
 import { prisma } from '@/lib/prisma';
@@ -97,3 +97,4 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
     return serverErrorResponse('Failed to retrieve application statistics', error);
   }
 });
+

@@ -1,22 +1,23 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { withRole, AuthenticatedRequest } from '@/lib/middleware';
+import { UserType } from '@/generated/prisma';
 import {
-  createAdminHandler,
   createAuditLog,
   successResponse,
   errorResponse,
   checkRateLimit
-} from '@/middleware/admin-auth';
+} from '@/lib/middleware';
 import {
   bulkOperationSchema,
   bulkUpdateStatusSchema
 } from '@/lib/validations/system-categories';
 
 // POST /api/admin/system-categories/industries/bulk/update-status
-export const POST = createAdminHandler(async (req, context) => {
+export const POST = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) => {
   try {
     // Check rate limit
-    if (!checkRateLimit(context.user.id, 5, 60000)) {
+    if (!checkRateLimit(req.user!.id, 5, 60000)) {
       return errorResponse(
         'RATE_LIMIT',
         'Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau.',
@@ -59,7 +60,7 @@ export const POST = createAdminHandler(async (req, context) => {
     // Create audit logs for each updated industry
     for (const industry of industries) {
       await createAuditLog(
-        context.user.id,
+        req.user!.id,
         'UPDATE_STATUS',
         'industries',
         industry.id,
@@ -96,10 +97,10 @@ export const POST = createAdminHandler(async (req, context) => {
 });
 
 // DELETE /api/admin/system-categories/industries/bulk
-export const DELETE = createAdminHandler(async (req, context) => {
+export const DELETE = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) => {
   try {
     // Check rate limit
-    if (!checkRateLimit(context.user.id, 3, 60000)) {
+    if (!checkRateLimit(req.user!.id, 3, 60000)) {
       return errorResponse(
         'RATE_LIMIT',
         'Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau.',
@@ -162,7 +163,7 @@ export const DELETE = createAdminHandler(async (req, context) => {
     // Create audit logs for each deleted industry
     for (const industry of industries) {
       await createAuditLog(
-        context.user.id,
+        req.user!.id,
         'BULK_DELETE',
         'industries',
         industry.id,
@@ -197,3 +198,4 @@ export const DELETE = createAdminHandler(async (req, context) => {
     );
   }
 });
+

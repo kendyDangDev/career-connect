@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { authenticate, getUserFromRequest } from '@/middleware/auth.middleware';
+import { authenticate, getUserFromRequest } from '@/lib/middleware/auth';
 import { updateUserSchema, updateUserStatusSchema, changePasswordSchema } from '@/lib/validations/user.validation';
 import { hashPassword, verifyPassword } from '@/lib/auth-utils';
 

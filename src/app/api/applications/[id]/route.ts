@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth, AuthenticatedRequest } from '@/middleware/auth';
+import { withAuth, AuthenticatedRequest } from '@/lib/middleware/auth';
 import { ApplicationService } from '@/services/application.service';
 import { UserType } from '@/generated/prisma';
 import { prisma } from '@/lib/prisma';

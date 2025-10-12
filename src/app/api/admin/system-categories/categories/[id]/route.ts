@@ -1,12 +1,13 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { withRole, AuthenticatedRequest } from '@/lib/middleware/auth';
+import { UserType } from '@/generated/prisma';
 import {
-  createAdminHandler,
   createAuditLog,
   successResponse,
   errorResponse,
   checkRateLimit
-} from '@/middleware/admin-auth';
+} from '@/lib/middleware/utils';
 import {
   updateCategorySchema,
   idParamSchemaJoi,
@@ -17,7 +18,7 @@ import {
 import { Category } from '@/types/system-categories';
 
 // GET /api/admin/system-categories/categories/[id]
-export const GET = createAdminHandler(async (req, context) => {
+export const GET = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) => {
   try {
     // Extract ID from URL
     const url = new URL(req.url);
@@ -85,10 +86,10 @@ export const GET = createAdminHandler(async (req, context) => {
 });
 
 // PUT /api/admin/system-categories/categories/[id]
-export const PUT = createAdminHandler(async (req, context) => {
+export const PUT = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) => {
   try {
     // Check rate limit
-    if (!checkRateLimit(context.user.id, 10, 60000)) {
+    if (!checkRateLimit(req.user!.id, 10, 60000)) {
       return errorResponse(
         'RATE_LIMIT',
         'Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau.',
@@ -247,7 +248,7 @@ export const PUT = createAdminHandler(async (req, context) => {
 
     // Create audit log
     await createAuditLog(
-      context.user.id,
+      req.user!.id,
       'UPDATE',
       'categories',
       id!,
@@ -280,10 +281,10 @@ export const PUT = createAdminHandler(async (req, context) => {
 });
 
 // DELETE /api/admin/system-categories/categories/[id]
-export const DELETE = createAdminHandler(async (req, context) => {
+export const DELETE = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) => {
   try {
     // Check rate limit
-    if (!checkRateLimit(context.user.id, 5, 60000)) {
+    if (!checkRateLimit(req.user!.id, 5, 60000)) {
       return errorResponse(
         'RATE_LIMIT',
         'Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau.',
@@ -340,7 +341,7 @@ export const DELETE = createAdminHandler(async (req, context) => {
 
     // Create audit log
     await createAuditLog(
-      context.user.id,
+      req.user!.id,
       'DELETE',
       'categories',
       id!,

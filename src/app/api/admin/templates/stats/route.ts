@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TemplateService } from '@/services/template.service';
-import { withAdminAuth } from '@/lib/auth/admin-middleware';
+import { withAdmin } from '@/lib/middleware';
 
 /**
  * GET /api/admin/templates/stats
  * Get template statistics
  */
-export const GET = withAdminAuth(async (request: NextRequest) => {
+export const GET = withAdmin(async (request: NextRequest) => {
   try {
     const statistics = await TemplateService.getTemplateStatistics();
 
@@ -26,3 +26,4 @@ export const GET = withAdminAuth(async (request: NextRequest) => {
     );
   }
 });
+

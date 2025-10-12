@@ -36,10 +36,20 @@ export const initSocketIO = (server: NetServer) => {
       origin:
         process.env.NODE_ENV === 'production'
           ? process.env.NEXTAUTH_URL
-          : ['http://localhost:3000', 'http://192.168.1.100:3000'], // Cho mobile app
+          : [
+              'http://localhost:3000',
+              'http://192.168.1.100:3000',
+              'http://192.168.0.106:3000',
+              'https://192.168.0.106:3000'
+            ], // Cho mobile app
       methods: ['GET', 'POST'],
       credentials: true,
+      allowEIO3: true
     },
+    transports: ['websocket', 'polling'],
+    allowUpgrades: true,
+    pingTimeout: 60000,
+    pingInterval: 25000,
   });
 
   // Middleware xác thực
@@ -100,7 +110,7 @@ export const initSocketIO = (server: NetServer) => {
 
     // Handle sending messages
     socket.on(
-      'send_message',
+      'message:send',
       async (data: {
         conversationId: string;
         content: string;
@@ -191,7 +201,7 @@ export const initSocketIO = (server: NetServer) => {
           });
 
           // Broadcast to all users in the conversation
-          socket.to(`conversation:${data.conversationId}`).emit('new_message', message);
+          socket.to(`conversation:${data.conversationId}`).emit('message:new', message);
 
           // Send notifications to offline participants
           if (conversation) {
@@ -223,16 +233,18 @@ export const initSocketIO = (server: NetServer) => {
     );
 
     // Handle typing indicators
-    socket.on('typing_start', (conversationId: string) => {
-      socket.to(`conversation:${conversationId}`).emit('user_typing', {
+    socket.on('user:typing', (data: { conversationId: string }) => {
+      socket.to(`conversation:${data.conversationId}`).emit('user:typing', {
         userId: socket.userId,
         user: socket.user,
+        conversationId: data.conversationId
       });
     });
 
-    socket.on('typing_stop', (conversationId: string) => {
-      socket.to(`conversation:${conversationId}`).emit('user_stop_typing', {
+    socket.on('user:stop-typing', (data: { conversationId: string }) => {
+      socket.to(`conversation:${data.conversationId}`).emit('user:stop-typing', {
         userId: socket.userId,
+        conversationId: data.conversationId
       });
     });
 

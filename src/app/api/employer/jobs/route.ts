@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireCompanyAuth, canPostJobs } from "@/lib/middleware/company-auth";
+import { withCompanyAuth, canPostJobs, CompanyAuthenticatedRequest } from "@/lib/middleware/company-auth";
 import { EmployerJobService } from "@/services/employer/job.service";
 import { JobListParams, CreateJobDTO } from "@/types/employer/job";
 import { validateJobData, sanitizeJobData } from "@/lib/utils/job-utils";
 
-export async function GET(request: NextRequest) {
+export const GET = withCompanyAuth(async (request: CompanyAuthenticatedRequest) => {
   try {
-    // Verify authentication and get company info
-    const authResult = await requireCompanyAuth(request);
-    
-    if (authResult instanceof NextResponse) {
-      return authResult;
-    }
 
     // Parse query parameters
     const searchParams = request.nextUrl.searchParams;
@@ -33,7 +27,7 @@ export async function GET(request: NextRequest) {
     if (params.limit < 1 || params.limit > 100) params.limit = 10;
 
     // Get jobs list
-    const result = await EmployerJobService.getCompanyJobs(authResult.companyId, params);
+    const result = await EmployerJobService.getCompanyJobs(request.company!.id, params);
 
     return NextResponse.json({
       success: true,
@@ -50,19 +44,12 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
 
-export async function POST(request: NextRequest) {
+export const POST = withCompanyAuth(async (request: CompanyAuthenticatedRequest) => {
   try {
-    // Verify authentication and permissions
-    const authResult = await requireCompanyAuth(request);
-    
-    if (authResult instanceof NextResponse) {
-      return authResult;
-    }
-
     // Check if user can post jobs
-    if (!canPostJobs(authResult.companyRole)) {
+    if (!canPostJobs(request.company!.role)) {
       return NextResponse.json(
         { 
           success: false,
@@ -73,7 +60,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if company is verified
-    if (authResult.company.verificationStatus !== "VERIFIED") {
+    if (request.company!.verificationStatus !== "VERIFIED") {
       return NextResponse.json(
         { 
           success: false,
@@ -106,13 +93,13 @@ export async function POST(request: NextRequest) {
 
     // Create job
     const job = await EmployerJobService.createJob(
-      authResult.companyId,
-      authResult.userId,
+      request.company!.id,
+      request.user!.id,
       sanitizedData
     );
 
     // Get created job with details
-    const jobDetail = await EmployerJobService.getJobDetail(job.id, authResult.companyId);
+    const jobDetail = await EmployerJobService.getJobDetail(job.id, request.company!.id);
 
     return NextResponse.json({
       success: true,
@@ -130,4 +117,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { withRole, AuthenticatedRequest } from '@/middleware/auth';
+import { withAdmin, AuthenticatedRequest } from '@/lib/middleware/auth';
+import { createAuditLog, paginatedResponse } from '@/lib/middleware/utils';
 import { UserType, UserStatus } from '@/generated/prisma';
 
 // GET - List all users (ADMIN only)
-export const GET = withRole(['ADMIN'], async (req: AuthenticatedRequest) => {
+export const GET = withAdmin(async (req: AuthenticatedRequest) => {
   try {
     const { searchParams } = new URL(req.url);
 
@@ -87,32 +88,17 @@ export const GET = withRole(['ADMIN'], async (req: AuthenticatedRequest) => {
     const hasPreviousPage = page > 1;
 
     // Create audit log for viewing user list
-    await prisma.auditLog.create({
-      data: {
-        userId: req.user!.id,
-        action: 'VIEW_USER_LIST',
-        tableName: 'users',
-        recordId: 'all',
-        newValues: { filters: { userType, status, search } },
-        ipAddress: req.ip || 'unknown',
-        userAgent: req.headers.get('user-agent') || 'unknown',
-      },
-    });
+    await createAuditLog(
+      req.user!.id,
+      'VIEW_USER_LIST',
+      'users',
+      'all',
+      undefined,
+      { filters: { userType, status, search } },
+      req
+    );
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        users,
-        pagination: {
-          page,
-          limit,
-          totalCount,
-          totalPages,
-          hasNextPage,
-          hasPreviousPage,
-        },
-      },
-    });
+    return paginatedResponse(users, totalCount, page, limit);
   } catch (error) {
     console.error('List users error:', error);
     return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 });
@@ -120,7 +106,7 @@ export const GET = withRole(['ADMIN'], async (req: AuthenticatedRequest) => {
 });
 
 // PATCH - Update user status/role (ADMIN only)
-export const PATCH = withRole(['ADMIN'], async (req: AuthenticatedRequest) => {
+export const PATCH = withAdmin(async (req: AuthenticatedRequest) => {
   try {
     const body = await req.json();
     const { userId, updates } = body;
@@ -171,18 +157,15 @@ export const PATCH = withRole(['ADMIN'], async (req: AuthenticatedRequest) => {
     });
 
     // Create audit log
-    await prisma.auditLog.create({
-      data: {
-        userId: req.user!.id,
-        action: 'UPDATE_USER',
-        tableName: 'users',
-        recordId: userId,
-        oldValues: currentUser,
-        newValues: updates,
-        ipAddress: req.ip || 'unknown',
-        userAgent: req.headers.get('user-agent') || 'unknown',
-      },
-    });
+    await createAuditLog(
+      req.user!.id,
+      'UPDATE_USER',
+      'users',
+      userId,
+      currentUser,
+      updates,
+      req
+    );
 
     return NextResponse.json({
       success: true,

@@ -62,15 +62,20 @@ module.exports = {
             transform: 'translate(0px, 0px) scale(1)',
           },
         },
+        shimmer: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(200%)' },
+        },
       },
       animation: {
         blob: 'blob 7s infinite',
+        shimmer: 'shimmer 3s infinite',
       },
       animationDelay: {
-        '2000': '2s',
-        '4000': '4s',
+        2000: '2s',
+        4000: '4s',
       },
     },
   },
   plugins: [],
-}
+};

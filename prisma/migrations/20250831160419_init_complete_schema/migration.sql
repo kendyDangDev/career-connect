@@ -44,7 +44,7 @@ CREATE TYPE "public"."WorkLocationType" AS ENUM ('ONSITE', 'REMOTE', 'HYBRID');
 CREATE TYPE "public"."ExperienceLevel" AS ENUM ('ENTRY', 'MID', 'SENIOR', 'LEAD', 'EXECUTIVE');
 
 -- CreateEnum
-CREATE TYPE "public"."JobStatus" AS ENUM ('DRAFT', 'ACTIVE', 'PAUSED', 'CLOSED', 'EXPIRED');
+CREATE TYPE "public"."JobStatus" AS ENUM ('PENDING', 'ACTIVE', 'CLOSED', 'EXPIRED');
 
 -- CreateEnum
 CREATE TYPE "public"."RequiredLevel" AS ENUM ('NICE_TO_HAVE', 'PREFERRED', 'REQUIRED');

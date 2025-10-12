@@ -35,10 +35,7 @@ export class CompanyJobService {
     // First, find the company
     const company = await prisma.company.findFirst({
       where: {
-        OR: [
-          { id: companySlugOrId },
-          { companySlug: companySlugOrId }
-        ]
+        OR: [{ id: companySlugOrId }, { companySlug: companySlugOrId }],
       },
       select: {
         id: true,
@@ -60,19 +57,19 @@ export class CompanyJobService {
             id: true,
             name: true,
             slug: true,
-          }
+          },
         },
         _count: {
           select: {
             jobs: {
               where: {
                 status: JobStatus.ACTIVE,
-              }
+              },
             },
             companyFollowers: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     if (!company) {
@@ -82,9 +79,7 @@ export class CompanyJobService {
     // Build where conditions for jobs
     const where: Prisma.JobWhereInput = {
       companyId: company.id,
-      status: includeExpired 
-        ? { in: [JobStatus.ACTIVE, JobStatus.EXPIRED] }
-        : JobStatus.ACTIVE,
+      status: includeExpired ? { in: [JobStatus.ACTIVE, JobStatus.EXPIRED] } : JobStatus.ACTIVE,
     };
 
     // Apply filters
@@ -106,15 +101,12 @@ export class CompanyJobService {
 
     // If not including expired, filter out jobs past deadline
     if (!includeExpired) {
-      where.OR = [
-        { applicationDeadline: null },
-        { applicationDeadline: { gte: new Date() } }
-      ];
+      where.OR = [{ applicationDeadline: null }, { applicationDeadline: { gte: new Date() } }];
     }
 
     // Build orderBy
     const orderBy: Prisma.JobOrderByWithRelationInput = {};
-    
+
     // Handle special sorting cases
     if (sortBy === 'salary') {
       orderBy.salaryMax = sortOrder;
@@ -151,7 +143,7 @@ export class CompanyJobService {
           createdAt: true,
           updatedAt: true,
           publishedAt: true,
-          
+
           // Include skills
           jobSkills: {
             select: {
@@ -163,11 +155,11 @@ export class CompanyJobService {
                   name: true,
                   slug: true,
                   category: true,
-                }
-              }
-            }
+                },
+              },
+            },
           },
-          
+
           // Include categories
           jobCategories: {
             select: {
@@ -176,24 +168,24 @@ export class CompanyJobService {
                   id: true,
                   name: true,
                   slug: true,
-                }
-              }
-            }
+                },
+              },
+            },
           },
-          
+
           // Count applications and saved
           _count: {
             select: {
               applications: true,
               savedJobs: true,
-            }
-          }
+            },
+          },
         },
         orderBy,
         skip: (page - 1) * limit,
         take: limit,
       }),
-      prisma.job.count({ where })
+      prisma.job.count({ where }),
     ]);
 
     // Get job statistics for the company
@@ -209,14 +201,13 @@ export class CompanyJobService {
 
     const stats = {
       active: 0,
-      paused: 0,
       closed: 0,
       expired: 0,
-      draft: 0,
+      pending: 0,
       total: 0,
     };
 
-    jobStats.forEach(stat => {
+    jobStats.forEach((stat) => {
       const status = stat.status.toLowerCase() as keyof typeof stats;
       if (status in stats) {
         stats[status] = stat._count.status;
@@ -231,7 +222,7 @@ export class CompanyJobService {
           totalJobs: stats.total,
           activeJobs: stats.active,
           totalFollowers: company._count.companyFollowers,
-        }
+        },
       },
       jobs,
       pagination: {
@@ -258,71 +249,71 @@ export class CompanyJobService {
       totalViews,
       jobsByType,
       jobsByLocation,
-      recentJobs
+      recentJobs,
     ] = await Promise.all([
       // Total jobs count
       prisma.job.count({
-        where: { companyId }
+        where: { companyId },
       }),
-      
+
       // Active jobs count
       prisma.job.count({
-        where: { 
+        where: {
           companyId,
-          status: JobStatus.ACTIVE
-        }
+          status: JobStatus.ACTIVE,
+        },
       }),
-      
+
       // Total applications
       prisma.application.count({
         where: {
-          job: { companyId }
-        }
+          job: { companyId },
+        },
       }),
-      
+
       // Total job views
       prisma.jobView.count({
         where: {
-          job: { companyId }
-        }
+          job: { companyId },
+        },
       }),
-      
+
       // Jobs by type
       prisma.job.groupBy({
         by: ['jobType'],
-        where: { 
+        where: {
           companyId,
-          status: JobStatus.ACTIVE
+          status: JobStatus.ACTIVE,
         },
         _count: {
-          jobType: true
-        }
+          jobType: true,
+        },
       }),
-      
+
       // Jobs by location
       prisma.job.groupBy({
         by: ['locationCity'],
-        where: { 
+        where: {
           companyId,
           status: JobStatus.ACTIVE,
-          locationCity: { not: null }
+          locationCity: { not: null },
         },
         _count: {
-          locationCity: true
+          locationCity: true,
         },
         orderBy: {
           _count: {
-            locationCity: 'desc'
-          }
+            locationCity: 'desc',
+          },
         },
-        take: 5
+        take: 5,
       }),
-      
+
       // Recent jobs
       prisma.job.findMany({
-        where: { 
+        where: {
           companyId,
-          status: JobStatus.ACTIVE
+          status: JobStatus.ACTIVE,
         },
         select: {
           id: true,
@@ -332,10 +323,10 @@ export class CompanyJobService {
           applicationCount: true,
         },
         orderBy: {
-          createdAt: 'desc'
+          createdAt: 'desc',
         },
-        take: 5
-      })
+        take: 5,
+      }),
     ]);
 
     return {
@@ -343,13 +334,13 @@ export class CompanyJobService {
       activeJobs,
       totalApplications,
       totalViews,
-      jobsByType: jobsByType.map(item => ({
+      jobsByType: jobsByType.map((item) => ({
         type: item.jobType,
-        count: item._count.jobType
+        count: item._count.jobType,
       })),
-      topLocations: jobsByLocation.map(item => ({
+      topLocations: jobsByLocation.map((item) => ({
         city: item.locationCity,
-        count: item._count.locationCity
+        count: item._count.locationCity,
       })),
       recentJobs,
       averageApplicationsPerJob: totalJobs > 0 ? Math.round(totalApplications / totalJobs) : 0,

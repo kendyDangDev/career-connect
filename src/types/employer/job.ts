@@ -1,13 +1,13 @@
-import { 
-  Job, 
-  JobType, 
-  WorkLocationType, 
-  ExperienceLevel, 
+import {
+  Job,
+  JobType,
+  WorkLocationType,
+  ExperienceLevel,
   JobStatus,
   RequiredLevel,
   Skill,
-  Category
-} from "@/generated/prisma";
+  Category,
+} from '@/generated/prisma';
 
 // DTO for creating a new job
 export interface CreateJobDTO {
@@ -104,7 +104,7 @@ export interface JobListResponse {
   stats?: {
     totalJobs: number;
     activeJobs: number;
-    draftJobs: number;
+    pendingJobs: number;
     closedJobs: number;
   };
 }
@@ -125,28 +125,56 @@ export interface JobListParams {
 
 // Job statistics
 export interface JobStatistics {
+  // Basic stats
   totalViews: number;
-  uniqueViews: number;
-  viewsLastWeek: number;
-  viewsLastMonth: number;
   totalApplications: number;
-  applicationsLastWeek: number;
-  applicationsLastMonth: number;
-  applicationsByStatus: {
+  totalSaved: number;
+  conversionRate: string;
+
+  // Weekly comparison
+  viewsChange: string;
+  viewsChangeType: 'increase' | 'decrease';
+  applicationsChange: string;
+  applicationsChangeType: 'increase' | 'decrease';
+  savedChange: string;
+  savedChangeType: 'increase' | 'decrease';
+  conversionChange: string;
+  conversionChangeType: 'increase' | 'decrease';
+
+  // Detailed weekly stats
+  currentWeek: {
+    views: number;
+    applications: number;
+    saved: number;
+    conversionRate: string;
+  };
+  previousWeek: {
+    views: number;
+    applications: number;
+    saved: number;
+    conversionRate: string;
+  };
+
+  // Legacy fields (for backward compatibility)
+  uniqueViews?: number;
+  viewsLastWeek?: number;
+  viewsLastMonth?: number;
+  applicationsLastWeek?: number;
+  applicationsLastMonth?: number;
+  applicationsByStatus?: {
     status: string;
     count: number;
   }[];
-  viewsByDate: {
+  viewsByDate?: {
     date: string;
     views: number;
   }[];
-  applicationsByDate: {
+  applicationsByDate?: {
     date: string;
     applications: number;
   }[];
-  conversionRate: number;
-  averageTimeToApply: number;
-  topReferrers: {
+  averageTimeToApply?: number;
+  topReferrers?: {
     source: string;
     count: number;
   }[];
@@ -170,27 +198,27 @@ export const jobValidationSchema = {
   title: {
     min: 10,
     max: 200,
-    pattern: /^[a-zA-Z0-9\s\-.,()&/]+$/
+    pattern: /^[a-zA-Z0-9\s\-.,()&/]+$/,
   },
   description: {
     min: 50,
-    max: 10000
+    max: 10000,
   },
   requirements: {
     min: 50,
-    max: 5000
+    max: 5000,
   },
   benefits: {
-    max: 3000
+    max: 3000,
   },
   salary: {
     min: 0,
-    max: 999999999
+    max: 999999999,
   },
   applicationDeadline: {
     minDays: 3, // At least 3 days from now
-    maxDays: 365 // Maximum 1 year from now
-  }
+    maxDays: 365, // Maximum 1 year from now
+  },
 };
 
 // Job template structure

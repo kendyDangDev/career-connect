@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   ChartBarIcon,
-  TrendingUpIcon,
-  TrendingDownIcon,
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
   UsersIcon,
   EyeIcon,
   BriefcaseIcon,
@@ -13,7 +13,6 @@ import {
   ArrowDownIcon,
   InformationCircleIcon,
 } from '@heroicons/react/24/outline';
-import { useAdminDashboard } from '@/hooks/useJobManagement';
 
 const LoadingSpinner: React.FC<{ size?: 'sm' | 'md' | 'lg' }> = ({ size = 'md' }) => {
   const sizeClasses = {
@@ -109,8 +108,8 @@ const MetricCard: React.FC<{
             trend === 'up' ? 'text-green-600' : trend === 'down' ? 'text-red-600' : 'text-gray-600'
           }`}
         >
-          {trend === 'up' && <TrendingUpIcon className="h-4 w-4" />}
-          {trend === 'down' && <TrendingDownIcon className="h-4 w-4" />}
+          {trend === 'up' && <ArrowTrendingUpIcon className="h-4 w-4" />}
+          {trend === 'down' && <ArrowTrendingDownIcon className="h-4 w-4" />}
         </div>
       )}
     </div>
@@ -268,7 +267,7 @@ const AnalyticsPage: React.FC = () => {
         <StatCard
           title="Tỷ lệ chuyển đổi"
           value={`${mockData.conversionRate}%`}
-          icon={TrendingUpIcon}
+          icon={ArrowTrendingUpIcon}
           change="+2.3%"
           changeType="increase"
           color="orange"

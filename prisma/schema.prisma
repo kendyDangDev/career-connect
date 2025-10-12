@@ -281,7 +281,7 @@ model Job {
   locationProvince    String?           @map("location_province")
   locationCountry     String?           @default("Vietnam") @map("location_country")
   applicationDeadline DateTime?         @map("application_deadline")
-  status              JobStatus         @default(DRAFT)
+  status              JobStatus         @default(PENDING)
   viewCount           Int               @default(0) @map("view_count")
   applicationCount    Int               @default(0) @map("application_count")
   featured            Boolean           @default(false)
@@ -847,9 +847,8 @@ enum ExperienceLevel {
 }
 
 enum JobStatus {
-  DRAFT
+  PENDING
   ACTIVE
-  PAUSED
   CLOSED
   EXPIRED
 }

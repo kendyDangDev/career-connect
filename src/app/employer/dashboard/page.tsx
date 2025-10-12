@@ -122,7 +122,6 @@ function EmployerDashboardContent() {
             {[
               { title: 'Senior Frontend Developer', applications: 23, status: 'active' },
               { title: 'Product Manager', applications: 15, status: 'active' },
-              { title: 'UX Designer', applications: 31, status: 'paused' },
             ].map((job, i) => (
               <div key={i} className="flex items-center justify-between rounded-lg border p-4">
                 <div>
@@ -137,7 +136,7 @@ function EmployerDashboardContent() {
                         : 'bg-yellow-100 text-yellow-800'
                     }`}
                   >
-                    {job.status === 'active' ? 'Active' : 'Paused'}
+                    {job.status === 'active' ? 'Active' : 'Closed'}
                   </span>
                   <Can permission="job.edit">
                     <Button size="sm" variant="outline">

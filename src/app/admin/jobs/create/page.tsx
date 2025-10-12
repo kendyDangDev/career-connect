@@ -2,16 +2,17 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  PlusIcon, 
-  XMarkIcon, 
+import {
+  PlusIcon,
+  XMarkIcon,
   ExclamationCircleIcon,
   CheckCircleIcon,
   EyeIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
 } from '@heroicons/react/24/outline';
-import { useJobMutations } from '@/hooks/useJobManagement';
+import { useJobMutations } from '@/hooks/useJobManagementWithNotification';
 import { CreateJobDTO } from '@/types/employer/job';
+import { useNotifications } from '@/contexts/NotificationContext';
 
 interface FormField {
   name: string;
@@ -28,9 +29,11 @@ interface FormErrors {
 }
 
 const LoadingSpinner: React.FC<{ size?: 'sm' | 'md' }> = ({ size = 'md' }) => (
-  <div className={`animate-spin rounded-full border-2 border-gray-300 border-t-blue-600 ${
-    size === 'sm' ? 'h-4 w-4' : 'h-6 w-6'
-  }`} />
+  <div
+    className={`animate-spin rounded-full border-2 border-gray-300 border-t-blue-600 ${
+      size === 'sm' ? 'h-4 w-4' : 'h-6 w-6'
+    }`}
+  />
 );
 
 const CreateJobPage: React.FC = () => {
@@ -45,7 +48,7 @@ const CreateJobPage: React.FC = () => {
     featured: false,
     urgent: false,
     skills: [],
-    categories: []
+    categories: [],
   });
 
   const [formErrors, setFormErrors] = useState<FormErrors>({});
@@ -63,70 +66,124 @@ const CreateJobPage: React.FC = () => {
     {
       id: 0,
       title: 'Thông tin cơ bản',
-      description: 'Tiêu đề và mô tả công việc'
+      description: 'Tiêu đề và mô tả công việc',
     },
     {
-      id: 1, 
+      id: 1,
       title: 'Yêu cầu & Quyền lợi',
-      description: 'Chi tiết yêu cầu và quyền lợi'
+      description: 'Chi tiết yêu cầu và quyền lợi',
     },
     {
       id: 2,
       title: 'Lương & Địa điểm',
-      description: 'Thông tin lương và nơi làm việc'
+      description: 'Thông tin lương và nơi làm việc',
     },
     {
       id: 3,
       title: 'Kỹ năng & Danh mục',
-      description: 'Kỹ năng yêu cầu và phân loại'
+      description: 'Kỹ năng yêu cầu và phân loại',
     },
     {
       id: 4,
       title: 'Xem trước & Xuất bản',
-      description: 'Kiểm tra và xuất bản'
-    }
+      description: 'Kiểm tra và xuất bản',
+    },
   ];
 
   // Form fields configuration for each step
   const formFields: { [key: number]: FormField[] } = {
     0: [
-      { name: 'title', label: 'Tiêu đề công việc', type: 'text', required: true, placeholder: 'VD: Senior Frontend Developer' },
-      { name: 'description', label: 'Mô tả công việc', type: 'textarea', required: true, rows: 6, placeholder: 'Mô tả chi tiết về công việc, trách nhiệm, môi trường làm việc...' },
-      { name: 'jobType', label: 'Loại công việc', type: 'select', required: true, options: [
-        { value: 'FULL_TIME', label: 'Toàn thời gian' },
-        { value: 'PART_TIME', label: 'Bán thời gian' },
-        { value: 'CONTRACT', label: 'Hợp đồng' },
-        { value: 'INTERNSHIP', label: 'Thực tập' }
-      ]},
-      { name: 'experienceLevel', label: 'Cấp độ kinh nghiệm', type: 'select', required: true, options: [
-        { value: 'ENTRY', label: 'Mới ra trường' },
-        { value: 'MID', label: 'Trung cấp (2-5 năm)' },
-        { value: 'SENIOR', label: 'Cao cấp (5+ năm)' },
-        { value: 'LEAD', label: 'Trưởng nhóm' },
-        { value: 'EXECUTIVE', label: 'Điều hành' }
-      ]}
+      {
+        name: 'title',
+        label: 'Tiêu đề công việc',
+        type: 'text',
+        required: true,
+        placeholder: 'VD: Senior Frontend Developer',
+      },
+      {
+        name: 'description',
+        label: 'Mô tả công việc',
+        type: 'textarea',
+        required: true,
+        rows: 6,
+        placeholder: 'Mô tả chi tiết về công việc, trách nhiệm, môi trường làm việc...',
+      },
+      {
+        name: 'jobType',
+        label: 'Loại công việc',
+        type: 'select',
+        required: true,
+        options: [
+          { value: 'FULL_TIME', label: 'Toàn thời gian' },
+          { value: 'PART_TIME', label: 'Bán thời gian' },
+          { value: 'CONTRACT', label: 'Hợp đồng' },
+          { value: 'INTERNSHIP', label: 'Thực tập' },
+        ],
+      },
+      {
+        name: 'experienceLevel',
+        label: 'Cấp độ kinh nghiệm',
+        type: 'select',
+        required: true,
+        options: [
+          { value: 'ENTRY', label: 'Mới ra trường' },
+          { value: 'MID', label: 'Trung cấp (2-5 năm)' },
+          { value: 'SENIOR', label: 'Cao cấp (5+ năm)' },
+          { value: 'LEAD', label: 'Trưởng nhóm' },
+          { value: 'EXECUTIVE', label: 'Điều hành' },
+        ],
+      },
     ],
     1: [
-      { name: 'requirements', label: 'Yêu cầu ứng viên', type: 'textarea', required: true, rows: 6, placeholder: 'Chi tiết về yêu cầu kinh nghiệm, kỹ năng, trình độ học vấn...' },
-      { name: 'benefits', label: 'Quyền lợi', type: 'textarea', rows: 4, placeholder: 'Lương thưởng, phúc lợi, cơ hội phát triển...' }
+      {
+        name: 'requirements',
+        label: 'Yêu cầu ứng viên',
+        type: 'textarea',
+        required: true,
+        rows: 6,
+        placeholder: 'Chi tiết về yêu cầu kinh nghiệm, kỹ năng, trình độ học vấn...',
+      },
+      {
+        name: 'benefits',
+        label: 'Quyền lợi',
+        type: 'textarea',
+        rows: 4,
+        placeholder: 'Lương thưởng, phúc lợi, cơ hội phát triển...',
+      },
     ],
     2: [
       { name: 'salaryMin', label: 'Lương tối thiểu', type: 'number', placeholder: 'VD: 15000000' },
       { name: 'salaryMax', label: 'Lương tối đa', type: 'number', placeholder: 'VD: 25000000' },
-      { name: 'currency', label: 'Đơn vị tiền tệ', type: 'select', options: [
-        { value: 'VND', label: 'VND' },
-        { value: 'USD', label: 'USD' }
-      ]},
+      {
+        name: 'currency',
+        label: 'Đơn vị tiền tệ',
+        type: 'select',
+        options: [
+          { value: 'VND', label: 'VND' },
+          { value: 'USD', label: 'USD' },
+        ],
+      },
       { name: 'salaryNegotiable', label: 'Lương thỏa thuận', type: 'checkbox' },
-      { name: 'workLocationType', label: 'Hình thức làm việc', type: 'select', required: true, options: [
-        { value: 'ONSITE', label: 'Tại văn phòng' },
-        { value: 'REMOTE', label: 'Từ xa' },
-        { value: 'HYBRID', label: 'Lai ghép' }
-      ]},
+      {
+        name: 'workLocationType',
+        label: 'Hình thức làm việc',
+        type: 'select',
+        required: true,
+        options: [
+          { value: 'ONSITE', label: 'Tại văn phòng' },
+          { value: 'REMOTE', label: 'Từ xa' },
+          { value: 'HYBRID', label: 'Lai ghép' },
+        ],
+      },
       { name: 'locationCity', label: 'Thành phố', type: 'text', placeholder: 'VD: Hà Nội' },
-      { name: 'locationProvince', label: 'Tỉnh/Thành phố', type: 'text', placeholder: 'VD: Hà Nội' },
-      { name: 'applicationDeadline', label: 'Hạn nộp hồ sơ', type: 'date' }
-    ]
+      {
+        name: 'locationProvince',
+        label: 'Tỉnh/Thành phố',
+        type: 'text',
+        placeholder: 'VD: Hà Nội',
+      },
+      { name: 'applicationDeadline', label: 'Hạn nộp hồ sơ', type: 'date' },
+    ],
   };
 
   // Validation
@@ -134,7 +191,7 @@ const CreateJobPage: React.FC = () => {
     const errors: FormErrors = {};
     const fields = formFields[step] || [];
 
-    fields.forEach(field => {
+    fields.forEach((field) => {
       if (field.required) {
         const value = formData[field.name as keyof CreateJobDTO];
         if (!value || (typeof value === 'string' && value.trim() === '')) {
@@ -171,47 +228,47 @@ const CreateJobPage: React.FC = () => {
 
   // Handlers
   const handleInputChange = (name: string, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
 
     // Clear error when user starts typing
     if (formErrors[name]) {
-      setFormErrors(prev => ({
+      setFormErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: '',
       }));
     }
   };
 
   const handleNext = () => {
     if (validateStep(activeStep)) {
-      setActiveStep(prev => Math.min(prev + 1, steps.length - 1));
+      setActiveStep((prev) => Math.min(prev + 1, steps.length - 1));
     }
   };
 
   const handlePrevious = () => {
-    setActiveStep(prev => Math.max(prev - 1, 0));
+    setActiveStep((prev) => Math.max(prev - 1, 0));
   };
 
   const handleSkillAdd = (skill: string) => {
-    if (skill && !selectedSkills.find(s => s.name === skill)) {
+    if (skill && !selectedSkills.find((s) => s.name === skill)) {
       const newSkill = {
         skillId: `temp-${Date.now()}`, // Temporary ID - should be replaced with real skill ID
         name: skill,
-        requiredLevel: 'PREFERRED' as const
+        requiredLevel: 'PREFERRED' as const,
       };
-      setSelectedSkills(prev => [...prev, newSkill]);
+      setSelectedSkills((prev) => [...prev, newSkill]);
       setSkillInput('');
     }
   };
 
   const handleSkillRemove = (index: number) => {
-    setSelectedSkills(prev => prev.filter((_, i) => i !== index));
+    setSelectedSkills((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (status: 'DRAFT' | 'ACTIVE' = 'DRAFT') => {
+  const handleSubmit = async (status: 'PENDING' | 'ACTIVE' = 'PENDING') => {
     // Final validation
     let isValid = true;
     for (let i = 0; i < 3; i++) {
@@ -226,13 +283,13 @@ const CreateJobPage: React.FC = () => {
 
     // Prepare final data
     const jobData: CreateJobDTO = {
-      ...formData as Required<CreateJobDTO>,
-      skills: selectedSkills.map(skill => ({
+      ...(formData as Required<CreateJobDTO>),
+      skills: selectedSkills.map((skill) => ({
         skillId: skill.skillId,
         requiredLevel: skill.requiredLevel,
-        minYearsExperience: skill.minYearsExperience || 0
+        minYearsExperience: skill.minYearsExperience || 0,
       })),
-      categories: formData.categories || []
+      categories: formData.categories || [],
     };
 
     try {
@@ -247,7 +304,9 @@ const CreateJobPage: React.FC = () => {
     const error = formErrors[field.name];
 
     const baseClasses = `w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-      error ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-blue-500'
+      error
+        ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+        : 'border-gray-300 focus:border-blue-500'
     }`;
 
     switch (field.type) {
@@ -257,39 +316,44 @@ const CreateJobPage: React.FC = () => {
         return (
           <input
             type={field.type}
-            value={value as string || ''}
-            onChange={(e) => handleInputChange(field.name, field.type === 'number' ? +e.target.value : e.target.value)}
+            value={(value as string) || ''}
+            onChange={(e) =>
+              handleInputChange(
+                field.name,
+                field.type === 'number' ? +e.target.value : e.target.value
+              )
+            }
             placeholder={field.placeholder}
             className={baseClasses}
           />
         );
-      
+
       case 'textarea':
         return (
           <textarea
-            value={value as string || ''}
+            value={(value as string) || ''}
             onChange={(e) => handleInputChange(field.name, e.target.value)}
             placeholder={field.placeholder}
             rows={field.rows || 3}
             className={baseClasses}
           />
         );
-      
+
       case 'select':
         return (
           <select
-            value={value as string || ''}
+            value={(value as string) || ''}
             onChange={(e) => handleInputChange(field.name, e.target.value)}
             className={baseClasses}
           >
-            {field.options?.map(option => (
+            {field.options?.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
             ))}
           </select>
         );
-      
+
       case 'checkbox':
         return (
           <div className="flex items-center">
@@ -297,12 +361,12 @@ const CreateJobPage: React.FC = () => {
               type="checkbox"
               checked={!!value}
               onChange={(e) => handleInputChange(field.name, e.target.checked)}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <label className="ml-2 text-sm text-gray-700">{field.label}</label>
           </div>
         );
-      
+
       default:
         return null;
     }
@@ -315,18 +379,18 @@ const CreateJobPage: React.FC = () => {
       case 2:
         return (
           <div className="space-y-6">
-            {formFields[activeStep]?.map(field => (
+            {formFields[activeStep]?.map((field) => (
               <div key={field.name}>
                 {field.type !== 'checkbox' && (
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
                     {field.label}
-                    {field.required && <span className="text-red-500 ml-1">*</span>}
+                    {field.required && <span className="ml-1 text-red-500">*</span>}
                   </label>
                 )}
                 {renderFormField(field)}
                 {formErrors[field.name] && (
                   <div className="mt-1 flex items-center text-sm text-red-600">
-                    <ExclamationCircleIcon className="h-4 w-4 mr-1" />
+                    <ExclamationCircleIcon className="mr-1 h-4 w-4" />
                     {formErrors[field.name]}
                   </div>
                 )}
@@ -339,22 +403,22 @@ const CreateJobPage: React.FC = () => {
         return (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
                 Kỹ năng yêu cầu
               </label>
-              <div className="flex gap-2 mb-3">
+              <div className="mb-3 flex gap-2">
                 <input
                   type="text"
                   value={skillInput}
                   onChange={(e) => setSkillInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSkillAdd(skillInput)}
                   placeholder="Nhập kỹ năng và nhấn Enter"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => handleSkillAdd(skillInput)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
                 >
                   <PlusIcon className="h-4 w-4" />
                 </button>
@@ -363,7 +427,7 @@ const CreateJobPage: React.FC = () => {
                 {selectedSkills.map((skill, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
+                    className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800"
                   >
                     {skill.name}
                     <button
@@ -383,52 +447,64 @@ const CreateJobPage: React.FC = () => {
       case 4:
         return (
           <div className="space-y-6">
-            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+            <div className="rounded-md border border-yellow-200 bg-yellow-50 p-4">
               <div className="flex items-center">
-                <DocumentTextIcon className="h-5 w-5 text-yellow-600 mr-2" />
+                <DocumentTextIcon className="mr-2 h-5 w-5 text-yellow-600" />
                 <h3 className="text-lg font-medium text-yellow-800">Xem trước việc làm</h3>
               </div>
-              <p className="text-yellow-700 mt-2">
+              <p className="mt-2 text-yellow-700">
                 Hãy kiểm tra lại tất cả thông tin trước khi xuất bản việc làm
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div>
-                <h4 className="font-medium text-gray-900 mb-3">Thông tin cơ bản</h4>
+                <h4 className="mb-3 font-medium text-gray-900">Thông tin cơ bản</h4>
                 <div className="space-y-2 text-sm">
-                  <div><span className="text-gray-500">Tiêu đề:</span> {formData.title}</div>
-                  <div><span className="text-gray-500">Loại:</span> {formData.jobType}</div>
-                  <div><span className="text-gray-500">Kinh nghiệm:</span> {formData.experienceLevel}</div>
-                  <div><span className="text-gray-500">Địa điểm:</span> {formData.locationCity}, {formData.locationProvince}</div>
+                  <div>
+                    <span className="text-gray-500">Tiêu đề:</span> {formData.title}
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Loại:</span> {formData.jobType}
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Kinh nghiệm:</span> {formData.experienceLevel}
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Địa điểm:</span> {formData.locationCity},{' '}
+                    {formData.locationProvince}
+                  </div>
                 </div>
               </div>
 
               <div>
-                <h4 className="font-medium text-gray-900 mb-3">Lương & Quyền lợi</h4>
+                <h4 className="mb-3 font-medium text-gray-900">Lương & Quyền lợi</h4>
                 <div className="space-y-2 text-sm">
                   <div>
                     <span className="text-gray-500">Mức lương:</span>{' '}
-                    {formData.salaryNegotiable ? 'Thỏa thuận' : 
-                     `${formData.salaryMin?.toLocaleString()} - ${formData.salaryMax?.toLocaleString()} ${formData.currency}`}
+                    {formData.salaryNegotiable
+                      ? 'Thỏa thuận'
+                      : `${formData.salaryMin?.toLocaleString()} - ${formData.salaryMax?.toLocaleString()} ${formData.currency}`}
                   </div>
-                  <div><span className="text-gray-500">Kỹ năng:</span> {selectedSkills.length} kỹ năng</div>
+                  <div>
+                    <span className="text-gray-500">Kỹ năng:</span> {selectedSkills.length} kỹ năng
+                  </div>
                 </div>
               </div>
             </div>
 
             <div className="flex justify-center space-x-4">
               <button
-                onClick={() => handleSubmit('DRAFT')}
+                onClick={() => handleSubmit('PENDING')}
                 disabled={mutations.loading}
-                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                className="rounded-md border border-gray-300 px-6 py-2 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
               >
                 {mutations.loading ? <LoadingSpinner size="sm" /> : 'Lưu nháp'}
               </button>
               <button
                 onClick={() => handleSubmit('ACTIVE')}
                 disabled={mutations.loading}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                className="rounded-md bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
               >
                 {mutations.loading ? <LoadingSpinner size="sm" /> : 'Xuất bản ngay'}
               </button>
@@ -442,7 +518,7 @@ const CreateJobPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Tạo việc làm mới</h1>
@@ -450,16 +526,16 @@ const CreateJobPage: React.FC = () => {
       </div>
 
       {/* Progress Steps */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
         <nav className="flex items-center justify-between">
           {steps.map((step, index) => (
             <div key={step.id} className="flex items-center">
               <div className="flex items-center">
-                <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                  index <= activeStep 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-200 text-gray-600'
-                }`}>
+                <div
+                  className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                    index <= activeStep ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
+                  }`}
+                >
                   {index < activeStep ? (
                     <CheckCircleIcon className="h-5 w-5" />
                   ) : (
@@ -467,18 +543,22 @@ const CreateJobPage: React.FC = () => {
                   )}
                 </div>
                 <div className="ml-3">
-                  <p className={`text-sm font-medium ${
-                    index <= activeStep ? 'text-gray-900' : 'text-gray-500'
-                  }`}>
+                  <p
+                    className={`text-sm font-medium ${
+                      index <= activeStep ? 'text-gray-900' : 'text-gray-500'
+                    }`}
+                  >
                     {step.title}
                   </p>
                   <p className="text-xs text-gray-500">{step.description}</p>
                 </div>
               </div>
               {index < steps.length - 1 && (
-                <div className={`hidden md:block w-16 h-0.5 mx-4 ${
-                  index < activeStep ? 'bg-blue-600' : 'bg-gray-200'
-                }`} />
+                <div
+                  className={`mx-4 hidden h-0.5 w-16 md:block ${
+                    index < activeStep ? 'bg-blue-600' : 'bg-gray-200'
+                  }`}
+                />
               )}
             </div>
           ))}
@@ -486,23 +566,19 @@ const CreateJobPage: React.FC = () => {
       </div>
 
       {/* Form Content */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
         <div className="mb-6">
           <h2 className="text-lg font-medium text-gray-900">{steps[activeStep].title}</h2>
           <p className="text-gray-600">{steps[activeStep].description}</p>
         </div>
 
         {mutations.error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+          <div className="mb-6 rounded-md border border-red-200 bg-red-50 p-4">
             <div className="flex">
               <ExclamationCircleIcon className="h-5 w-5 text-red-400" />
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">
-                  Có lỗi xảy ra
-                </h3>
-                <div className="mt-2 text-sm text-red-700">
-                  {mutations.error}
-                </div>
+                <h3 className="text-sm font-medium text-red-800">Có lỗi xảy ra</h3>
+                <div className="mt-2 text-sm text-red-700">{mutations.error}</div>
               </div>
             </div>
           </div>
@@ -515,15 +591,15 @@ const CreateJobPage: React.FC = () => {
           <button
             onClick={handlePrevious}
             disabled={activeStep === 0}
-            className="px-4 py-2 text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="rounded-md bg-gray-100 px-4 py-2 text-gray-600 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Quay lại
           </button>
-          
+
           {activeStep < steps.length - 1 ? (
             <button
               onClick={handleNext}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="rounded-md bg-blue-600 px-6 py-2 text-white hover:bg-blue-700"
             >
               Tiếp theo
             </button>

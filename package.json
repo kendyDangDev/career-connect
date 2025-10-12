@@ -49,6 +49,7 @@
     "cloudinary": "^2.7.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "framer-motion": "^12.23.24",
     "joi": "^18.0.1",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.542.0",

@@ -687,7 +687,7 @@ async function seedDatabase() {
           applicationCount: getRandomNumber(5, 50),
           featured: Math.random() < 0.2,
           urgent: Math.random() < 0.1,
-          publishedAt: getRandomDate(new Date(2024, 0, 1), new Date()),
+          publishedAt: getRandomDate(new Date(2025, 0, 1), new Date()),
         },
       });
       jobs.push(job);
@@ -748,7 +748,7 @@ async function seedDatabase() {
             'HIRED',
             'REJECTED',
           ]),
-          appliedAt: getRandomDate(new Date(2024, 0, 1), new Date()),
+          appliedAt: getRandomDate(new Date(2025, 0, 1), new Date()),
           rating: getRandomNumber(1, 5),
         },
       });
@@ -789,7 +789,7 @@ async function seedDatabase() {
           userId: user.id,
           ipAddress: `192.168.1.${getRandomNumber(1, 255)}`,
           userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          viewedAt: getRandomDate(new Date(2024, 0, 1), new Date()),
+          viewedAt: getRandomDate(new Date(2025, 0, 1), new Date()),
         },
       });
     }

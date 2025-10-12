@@ -243,7 +243,7 @@ export async function sendPasswordResetEmail(
         <p style="color: #6b7280; font-size: 14px;">
           Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.
           <br>
-          © 2024 Career Connect. All rights reserved.
+          © 2025 Career Connect. All rights reserved.
         </p>
       </div>
     `,

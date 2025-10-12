@@ -55,29 +55,45 @@ export function AdminHeader({ user, className }: AdminHeaderProps) {
   return (
     <header
       className={cn(
-        'bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur',
+        'sticky top-0 z-50 w-full backdrop-blur-xl',
+        'bg-gradient-to-r from-white/80 via-white/95 to-white/80',
+        'dark:from-gray-950/80 dark:via-gray-950/95 dark:to-gray-950/80',
+        'border-b border-gray-200/50 dark:border-gray-800/50',
+        'shadow-lg shadow-gray-200/20 dark:shadow-gray-900/20',
         className
       )}
     >
       <div className="flex h-16 items-center gap-4 px-4">
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <Link href="/admin" className="flex items-center gap-2 font-semibold">
-            <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-lg">
-              CC
+          <Link href="/admin" className="flex items-center gap-3 font-semibold group">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative bg-gradient-to-br from-purple-600 to-blue-600 text-white flex h-10 w-10 items-center justify-center rounded-xl shadow-xl transform group-hover:scale-110 transition-transform">
+                <span className="text-sm font-bold">CC</span>
+              </div>
             </div>
-            <span className="hidden md:inline-block">Career Connect</span>
+            <span className="hidden md:inline-block bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent font-bold text-lg">
+              Career Connect
+            </span>
           </Link>
         </div>
 
         {/* Search Bar */}
         <form onSubmit={handleSearch} className="mx-auto max-w-md flex-1">
-          <div className="relative">
-            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+          <div className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-lg blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <Search className="text-purple-500 absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 z-10" />
             <Input
               type="search"
-              placeholder="Tìm kiếm..."
-              className="w-full pr-4 pl-9"
+              placeholder="Tìm kiếm trong hệ thống..."
+              className={cn(
+                'relative w-full pr-4 pl-10 h-10',
+                'bg-gradient-to-r from-gray-50 to-white dark:from-gray-900 dark:to-gray-950',
+                'border-gray-200/50 dark:border-gray-800/50',
+                'focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20',
+                'placeholder:text-gray-400 dark:placeholder:text-gray-600'
+              )}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -90,13 +106,19 @@ export function AdminHeader({ user, className }: AdminHeaderProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="relative"
+            className={cn(
+              'relative rounded-lg transition-all duration-200',
+              'hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10',
+              'hover:shadow-md hover:scale-110'
+            )}
             onClick={() => router.push('/admin/notifications')}
           >
-            <Bell className="h-5 w-5" />
+            <Bell className="h-5 w-5 text-purple-600 dark:text-purple-400" />
             <Badge
-              variant="destructive"
-              className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full p-0 text-[10px]"
+              className={cn(
+                'absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full p-0 text-[10px]',
+                'bg-gradient-to-r from-red-500 to-pink-500 text-white border-0'
+              )}
             >
               3
             </Badge>
@@ -106,13 +128,19 @@ export function AdminHeader({ user, className }: AdminHeaderProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="relative"
+            className={cn(
+              'relative rounded-lg transition-all duration-200',
+              'hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10',
+              'hover:shadow-md hover:scale-110'
+            )}
             onClick={() => router.push('/admin/messages')}
           >
-            <MessageSquare className="h-5 w-5" />
+            <MessageSquare className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             <Badge
-              variant="destructive"
-              className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full p-0 text-[10px]"
+              className={cn(
+                'absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full p-0 text-[10px]',
+                'bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0'
+              )}
             >
               5
             </Badge>
@@ -121,42 +149,82 @@ export function AdminHeader({ user, className }: AdminHeaderProps) {
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-auto p-0 pl-2">
+              <Button 
+                variant="ghost" 
+                className={cn(
+                  'relative h-auto p-2 rounded-lg transition-all duration-200',
+                  'hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10',
+                  'hover:shadow-md'
+                )}
+              >
                 <div className="flex items-center gap-3">
                   <div className="hidden text-right md:block">
-                    <p className="text-sm leading-none font-medium">{user?.name || 'Admin'}</p>
-                    <p className="text-muted-foreground mt-1 text-xs">
+                    <p className="text-sm leading-none font-semibold bg-gradient-to-r from-gray-700 to-gray-900 dark:from-gray-200 dark:to-gray-100 bg-clip-text text-transparent">
+                      {user?.name || 'Admin'}
+                    </p>
+                    <p className="text-gray-500 dark:text-gray-400 mt-1 text-xs">
                       {user?.email || 'admin@careerconnect.com'}
                     </p>
                   </div>
-                  <Avatar className="h-9 w-9">
-                    <AvatarImage src={user?.image || ''} alt={user?.name || 'Admin'} />
-                    <AvatarFallback>{getInitials(user?.name)}</AvatarFallback>
-                  </Avatar>
-                  <ChevronDown className="text-muted-foreground h-4 w-4" />
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full blur opacity-25"></div>
+                    <Avatar className="h-9 w-9 border-2 border-white dark:border-gray-800 shadow-lg">
+                      <AvatarImage src={user?.image || ''} alt={user?.name || 'Admin'} />
+                      <AvatarFallback className="bg-gradient-to-br from-purple-600 to-blue-600 text-white font-semibold">
+                        {getInitials(user?.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                  <ChevronDown className="text-purple-500 dark:text-purple-400 h-4 w-4" />
                 </div>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm leading-none font-medium">{user?.name || 'Admin'}</p>
-                  <p className="text-muted-foreground text-xs leading-none">
-                    {user?.email || 'admin@careerconnect.com'}
-                  </p>
+            <DropdownMenuContent 
+              className={cn(
+                'w-56 rounded-xl',
+                'bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl',
+                'border border-gray-200/50 dark:border-gray-800/50',
+                'shadow-2xl shadow-gray-200/20 dark:shadow-gray-900/20'
+              )} 
+              align="end" 
+              forceMount
+            >
+              <DropdownMenuLabel className="font-normal p-3">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-10 w-10 border-2 border-purple-500/20">
+                    <AvatarImage src={user?.image || ''} alt={user?.name || 'Admin'} />
+                    <AvatarFallback className="bg-gradient-to-br from-purple-600 to-blue-600 text-white">
+                      {getInitials(user?.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm leading-none font-semibold">{user?.name || 'Admin'}</p>
+                    <p className="text-muted-foreground text-xs leading-none">
+                      {user?.email || 'admin@careerconnect.com'}
+                    </p>
+                  </div>
                 </div>
               </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push('/admin/profile')}>
-                <User className="mr-2 h-4 w-4" />
-                <span>Hồ sơ</span>
+              <DropdownMenuSeparator className="bg-gradient-to-r from-transparent via-purple-500/20 to-transparent" />
+              <DropdownMenuItem 
+                onClick={() => router.push('/admin/profile')}
+                className="mx-2 rounded-lg cursor-pointer hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10 transition-all"
+              >
+                <User className="mr-2 h-4 w-4 text-purple-600 dark:text-purple-400" />
+                <span>Hồ sơ của tôi</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push('/admin/settings')}>
-                <Settings className="mr-2 h-4 w-4" />
+              <DropdownMenuItem 
+                onClick={() => router.push('/admin/settings')}
+                className="mx-2 rounded-lg cursor-pointer hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10 transition-all"
+              >
+                <Settings className="mr-2 h-4 w-4 text-blue-600 dark:text-blue-400" />
                 <span>Cài đặt</span>
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
+              <DropdownMenuSeparator className="bg-gradient-to-r from-transparent via-purple-500/20 to-transparent" />
+              <DropdownMenuItem 
+                onClick={handleSignOut} 
+                className="mx-2 rounded-lg cursor-pointer hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 dark:text-red-400 transition-all"
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Đăng xuất</span>
               </DropdownMenuItem>

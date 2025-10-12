@@ -137,7 +137,7 @@ export class EmployerJobService {
     const stats = {
       totalJobs: 0,
       activeJobs: 0,
-      draftJobs: 0,
+      pendingJobs: 0,
       closedJobs: 0
     };
 
@@ -147,8 +147,8 @@ export class EmployerJobService {
         case JobStatus.ACTIVE:
           stats.activeJobs = _count;
           break;
-        case JobStatus.DRAFT:
-          stats.draftJobs = _count;
+        case JobStatus.PENDING:
+          stats.pendingJobs = _count;
           break;
         case JobStatus.CLOSED:
         case JobStatus.EXPIRED:
@@ -242,7 +242,7 @@ export class EmployerJobService {
         slug,
         companyId,
         recruiterId,
-        status: JobStatus.DRAFT,
+        status: JobStatus.PENDING,
         // Create skill relations
         ...(skills && skills.length > 0 && {
           jobSkills: {
@@ -472,7 +472,7 @@ export class EmployerJobService {
         locationProvince: originalJob.locationProvince,
         locationCountry: originalJob.locationCountry,
         applicationDeadline: originalJob.applicationDeadline,
-        status: data?.status || JobStatus.DRAFT,
+        status: data?.status || JobStatus.PENDING,
         featured: false, // Reset featured status
         urgent: false, // Reset urgent status
         companyId,

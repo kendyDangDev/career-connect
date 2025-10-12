@@ -1,4 +1,13 @@
-import { JobListParams, JobListResponse, CreateJobDTO, UpdateJobDTO, JobDetail, JobStatistics, UpdateJobStatusDTO, DuplicateJobDTO } from '@/types/employer/job';
+import {
+  JobListParams,
+  JobListResponse,
+  CreateJobDTO,
+  UpdateJobDTO,
+  JobDetail,
+  JobStatistics,
+  UpdateJobStatusDTO,
+  DuplicateJobDTO,
+} from '@/types/employer/job';
 
 export interface AdminJobListParams extends JobListParams {
   companyId?: string;
@@ -12,7 +21,7 @@ export interface AdminJobListParams extends JobListParams {
 export interface AdminJobStatsSummary {
   totalJobs: number;
   activeJobs: number;
-  draftJobs: number;
+  pendingJobs: number;
   closedJobs: number;
   expiredJobs: number;
   totalApplications: number;
@@ -37,13 +46,13 @@ export interface AdminJobStatsSummary {
 
 export class AdminJobService {
   private static readonly BASE_URL = '/api';
-  private static readonly EMPLOYER_API_URL = '/api/employer/jobs';
+  private static readonly EMPLOYER_API_URL = '/api/admin/jobs';
 
   /**
    * Generic API request handler with error handling
    */
   private static async request<T>(
-    url: string, 
+    url: string,
     options: RequestInit = {}
   ): Promise<{ data: T; success: boolean; message?: string }> {
     try {
@@ -73,7 +82,7 @@ export class AdminJobService {
    */
   static async getJobsList(params: AdminJobListParams = {}): Promise<JobListResponse> {
     const searchParams = new URLSearchParams();
-    
+
     // Add all parameters to search params
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
@@ -92,9 +101,7 @@ export class AdminJobService {
    * Get job details by ID
    */
   static async getJobDetail(jobId: string): Promise<JobDetail> {
-    const response = await this.request<JobDetail>(
-      `${this.BASE_URL}/jobs/${jobId}`
-    );
+    const response = await this.request<JobDetail>(`${this.BASE_URL}/admin/jobs/${jobId}`);
 
     return response.data;
   }
@@ -102,14 +109,18 @@ export class AdminJobService {
   /**
    * Create a new job
    */
-  static async createJob(jobData: CreateJobDTO): Promise<{ id: string; slug: string; title: string; status: string }> {
-    const response = await this.request<{ id: string; slug: string; title: string; status: string }>(
-      `${this.EMPLOYER_API_URL}`,
-      {
-        method: 'POST',
-        body: JSON.stringify(jobData),
-      }
-    );
+  static async createJob(
+    jobData: CreateJobDTO
+  ): Promise<{ id: string; slug: string; title: string; status: string }> {
+    const response = await this.request<{
+      id: string;
+      slug: string;
+      title: string;
+      status: string;
+    }>(`${this.EMPLOYER_API_URL}`, {
+      method: 'POST',
+      body: JSON.stringify(jobData),
+    });
 
     return response.data;
   }
@@ -118,13 +129,10 @@ export class AdminJobService {
    * Update existing job
    */
   static async updateJob(jobId: string, updateData: UpdateJobDTO): Promise<JobDetail> {
-    const response = await this.request<JobDetail>(
-      `${this.EMPLOYER_API_URL}/${jobId}`,
-      {
-        method: 'PUT',
-        body: JSON.stringify(updateData),
-      }
-    );
+    const response = await this.request<JobDetail>(`${this.EMPLOYER_API_URL}/${jobId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updateData),
+    });
 
     return response.data;
   }
@@ -132,7 +140,10 @@ export class AdminJobService {
   /**
    * Update job status
    */
-  static async updateJobStatus(jobId: string, statusData: UpdateJobStatusDTO): Promise<{ success: boolean; message: string }> {
+  static async updateJobStatus(
+    jobId: string,
+    statusData: UpdateJobStatusDTO
+  ): Promise<{ success: boolean; message: string }> {
     const response = await this.request<{ success: boolean; message: string }>(
       `${this.EMPLOYER_API_URL}/${jobId}/status`,
       {
@@ -148,13 +159,10 @@ export class AdminJobService {
    * Duplicate a job
    */
   static async duplicateJob(jobId: string, duplicateData?: DuplicateJobDTO): Promise<JobDetail> {
-    const response = await this.request<JobDetail>(
-      `${this.EMPLOYER_API_URL}/${jobId}/duplicate`,
-      {
-        method: 'POST',
-        body: JSON.stringify(duplicateData || {}),
-      }
-    );
+    const response = await this.request<JobDetail>(`${this.EMPLOYER_API_URL}/${jobId}/duplicate`, {
+      method: 'POST',
+      body: JSON.stringify(duplicateData || {}),
+    });
 
     return response.data;
   }
@@ -178,7 +186,7 @@ export class AdminJobService {
    */
   static async getJobStatistics(jobId: string): Promise<JobStatistics> {
     const response = await this.request<JobStatistics>(
-      `${this.EMPLOYER_API_URL}/${jobId}/statistics`
+      `${this.EMPLOYER_API_URL}/admin/${jobId}/statistics`
     );
 
     return response.data;
@@ -199,8 +207,8 @@ export class AdminJobService {
    * Bulk update job status
    */
   static async bulkUpdateJobStatus(
-    jobIds: string[], 
-    status: string, 
+    jobIds: string[],
+    status: string,
     reason?: string
   ): Promise<{ success: boolean; message: string; updated: number }> {
     const response = await this.request<{ success: boolean; message: string; updated: number }>(
@@ -217,7 +225,9 @@ export class AdminJobService {
   /**
    * Bulk delete jobs
    */
-  static async bulkDeleteJobs(jobIds: string[]): Promise<{ success: boolean; message: string; deleted: number }> {
+  static async bulkDeleteJobs(
+    jobIds: string[]
+  ): Promise<{ success: boolean; message: string; deleted: number }> {
     const response = await this.request<{ success: boolean; message: string; deleted: number }>(
       `${this.EMPLOYER_API_URL}/bulk/delete`,
       {
@@ -232,17 +242,19 @@ export class AdminJobService {
   /**
    * Get public jobs (for preview/testing)
    */
-  static async getPublicJobs(params: { 
-    page?: number; 
-    limit?: number; 
-    search?: string;
-    jobType?: string;
-    experienceLevel?: string;
-    locationCity?: string;
-    categoryId?: string;
-  } = {}): Promise<{ jobs: any[]; pagination: any; success: boolean }> {
+  static async getPublicJobs(
+    params: {
+      page?: number;
+      limit?: number;
+      search?: string;
+      jobType?: string;
+      experienceLevel?: string;
+      locationCity?: string;
+      categoryId?: string;
+    } = {}
+  ): Promise<{ jobs: any[]; pagination: any; success: boolean }> {
     const searchParams = new URLSearchParams();
-    
+
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         searchParams.append(key, String(value));
@@ -259,24 +271,26 @@ export class AdminJobService {
   /**
    * Get job templates for quick job creation
    */
-  static async getJobTemplates(): Promise<{
-    id: string;
-    name: string;
-    description: string;
-    content: any;
-    category: string;
-    isDefault: boolean;
-  }[]> {
-    const response = await this.request<{
+  static async getJobTemplates(): Promise<
+    {
       id: string;
       name: string;
       description: string;
       content: any;
       category: string;
       isDefault: boolean;
-    }[]>(
-      `${this.BASE_URL}/admin/job-templates`
-    );
+    }[]
+  > {
+    const response = await this.request<
+      {
+        id: string;
+        name: string;
+        description: string;
+        content: any;
+        category: string;
+        isDefault: boolean;
+      }[]
+    >(`${this.BASE_URL}/admin/job-templates`);
 
     return response.data;
   }
@@ -289,24 +303,24 @@ export class AdminJobService {
     format: 'csv' | 'excel' = 'csv'
   ): Promise<Blob> {
     const searchParams = new URLSearchParams();
-    
+
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         searchParams.append(key, String(value));
       }
     });
-    
+
     searchParams.append('format', format);
 
-    const response = await fetch(
-      `${this.EMPLOYER_API_URL}/export?${searchParams.toString()}`,
-      {
-        method: 'GET',
-        headers: {
-          'Accept': format === 'csv' ? 'text/csv' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        },
-      }
-    );
+    const response = await fetch(`${this.EMPLOYER_API_URL}/export?${searchParams.toString()}`, {
+      method: 'GET',
+      headers: {
+        Accept:
+          format === 'csv'
+            ? 'text/csv'
+            : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      },
+    });
 
     if (!response.ok) {
       throw new Error('Export failed');
@@ -336,13 +350,10 @@ export class AdminJobService {
     page?: number;
     limit?: number;
   }): Promise<JobListResponse> {
-    const response = await this.request<JobListResponse>(
-      `${this.BASE_URL}/admin/jobs/search`,
-      {
-        method: 'POST',
-        body: JSON.stringify(query),
-      }
-    );
+    const response = await this.request<JobListResponse>(`${this.BASE_URL}/admin/jobs/search`, {
+      method: 'POST',
+      body: JSON.stringify(query),
+    });
 
     return response.data;
   }
@@ -360,7 +371,7 @@ export class AdminJobService {
     topSkills: { skill: string; count: number }[];
     locationStats: { location: string; count: number }[];
   }> {
-    const url = jobId 
+    const url = jobId
       ? `${this.BASE_URL}/admin/jobs/${jobId}/analytics?timeRange=${timeRange}`
       : `${this.BASE_URL}/admin/jobs/analytics?timeRange=${timeRange}`;
 

@@ -1,5 +1,5 @@
-import { jobValidationSchema } from "@/types/employer/job";
-import { JobStatus } from "@/generated/prisma";
+import { jobValidationSchema } from '@/types/employer/job';
+import { JobStatus } from '@/generated/prisma';
 
 /**
  * Generate slug from job title
@@ -11,7 +11,7 @@ export function generateJobSlug(title: string, companyName?: string): string {
     .replace(/[^\w\s-]/g, '') // Remove special characters
     .replace(/[\s_-]+/g, '-') // Replace spaces, underscores with hyphens
     .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
-  
+
   // Add company name if provided
   if (companyName) {
     const companySlug = companyName
@@ -22,7 +22,7 @@ export function generateJobSlug(title: string, companyName?: string): string {
       .replace(/^-+|-+$/g, '');
     return `${baseSlug}-${companySlug}`;
   }
-  
+
   return baseSlug;
 }
 
@@ -37,7 +37,7 @@ export function validateJobData(data: any): {
 
   // Validate title
   if (!data.title) {
-    errors.title = "Title is required";
+    errors.title = 'Title is required';
   } else {
     if (data.title.length < jobValidationSchema.title.min) {
       errors.title = `Title must be at least ${jobValidationSchema.title.min} characters`;
@@ -49,7 +49,7 @@ export function validateJobData(data: any): {
 
   // Validate description
   if (!data.description) {
-    errors.description = "Description is required";
+    errors.description = 'Description is required';
   } else {
     const plainText = stripHtml(data.description);
     if (plainText.length < jobValidationSchema.description.min) {
@@ -62,7 +62,7 @@ export function validateJobData(data: any): {
 
   // Validate requirements
   if (!data.requirements) {
-    errors.requirements = "Requirements are required";
+    errors.requirements = 'Requirements are required';
   } else {
     const plainText = stripHtml(data.requirements);
     if (plainText.length < jobValidationSchema.requirements.min) {
@@ -85,19 +85,19 @@ export function validateJobData(data: any): {
   if (data.salaryMin !== undefined && data.salaryMin !== null) {
     const salaryMin = parseFloat(data.salaryMin);
     if (isNaN(salaryMin) || salaryMin < jobValidationSchema.salary.min) {
-      errors.salaryMin = "Invalid minimum salary";
+      errors.salaryMin = 'Invalid minimum salary';
     }
   }
 
   if (data.salaryMax !== undefined && data.salaryMax !== null) {
     const salaryMax = parseFloat(data.salaryMax);
     if (isNaN(salaryMax) || salaryMax > jobValidationSchema.salary.max) {
-      errors.salaryMax = "Invalid maximum salary";
+      errors.salaryMax = 'Invalid maximum salary';
     }
   }
 
   if (data.salaryMin && data.salaryMax && parseFloat(data.salaryMin) > parseFloat(data.salaryMax)) {
-    errors.salary = "Minimum salary cannot be greater than maximum salary";
+    errors.salary = 'Minimum salary cannot be greater than maximum salary';
   }
 
   // Validate application deadline
@@ -118,13 +118,13 @@ export function validateJobData(data: any): {
   }
 
   // Validate required fields
-  if (!data.jobType) errors.jobType = "Job type is required";
-  if (!data.workLocationType) errors.workLocationType = "Work location type is required";
-  if (!data.experienceLevel) errors.experienceLevel = "Experience level is required";
+  if (!data.jobType) errors.jobType = 'Job type is required';
+  if (!data.workLocationType) errors.workLocationType = 'Work location type is required';
+  if (!data.experienceLevel) errors.experienceLevel = 'Experience level is required';
 
   return {
     isValid: Object.keys(errors).length === 0,
-    errors
+    errors,
   };
 }
 
@@ -143,47 +143,36 @@ export function canChangeJobStatus(
   newStatus: JobStatus
 ): { allowed: boolean; reason?: string } {
   // Draft can go to Active or remain Draft
-  if (currentStatus === JobStatus.DRAFT) {
-    if (newStatus === JobStatus.ACTIVE || newStatus === JobStatus.DRAFT) {
+  if (currentStatus === JobStatus.PENDING) {
+    if (newStatus === JobStatus.ACTIVE || newStatus === JobStatus.PENDING) {
       return { allowed: true };
     }
-    return { 
-      allowed: false, 
-      reason: "Draft jobs can only be published or remain as draft" 
+    return {
+      allowed: false,
+      reason: 'Draft jobs can only be published or remain as draft',
     };
   }
 
-  // Active can go to Paused, Closed, or Expired
+  // Active can go to Closed, or Expired
   if (currentStatus === JobStatus.ACTIVE) {
-    if ([JobStatus.PAUSED, JobStatus.CLOSED, JobStatus.EXPIRED].includes(newStatus)) {
+    if ([JobStatus.CLOSED, JobStatus.EXPIRED].includes(newStatus)) {
       return { allowed: true };
     }
-    return { 
-      allowed: false, 
-      reason: "Active jobs can only be paused, closed, or marked as expired" 
-    };
-  }
-
-  // Paused can go back to Active or to Closed
-  if (currentStatus === JobStatus.PAUSED) {
-    if (newStatus === JobStatus.ACTIVE || newStatus === JobStatus.CLOSED) {
-      return { allowed: true };
-    }
-    return { 
-      allowed: false, 
-      reason: "Paused jobs can only be reactivated or closed" 
+    return {
+      allowed: false,
+      reason: 'Active jobs can only be closed, or marked as expired',
     };
   }
 
   // Closed and Expired are final states
   if (currentStatus === JobStatus.CLOSED || currentStatus === JobStatus.EXPIRED) {
-    return { 
-      allowed: false, 
-      reason: `${currentStatus} jobs cannot be changed to another status` 
+    return {
+      allowed: false,
+      reason: `${currentStatus} jobs cannot be changed to another status`,
     };
   }
 
-  return { allowed: false, reason: "Invalid status transition" };
+  return { allowed: false, reason: 'Invalid status transition' };
 }
 
 /**
@@ -193,9 +182,17 @@ export function sanitizeJobData(data: any): any {
   const sanitized: any = {};
 
   // String fields
-  const stringFields = ['title', 'description', 'requirements', 'benefits', 
-    'locationCity', 'locationProvince', 'locationCountry', 'currency'];
-  stringFields.forEach(field => {
+  const stringFields = [
+    'title',
+    'description',
+    'requirements',
+    'benefits',
+    'locationCity',
+    'locationProvince',
+    'locationCountry',
+    'currency',
+  ];
+  stringFields.forEach((field) => {
     if (data[field] !== undefined) {
       sanitized[field] = data[field]?.trim() || null;
     }
@@ -203,7 +200,7 @@ export function sanitizeJobData(data: any): any {
 
   // Enum fields
   const enumFields = ['jobType', 'workLocationType', 'experienceLevel', 'status'];
-  enumFields.forEach(field => {
+  enumFields.forEach((field) => {
     if (data[field] !== undefined) {
       sanitized[field] = data[field];
     }
@@ -219,7 +216,7 @@ export function sanitizeJobData(data: any): any {
 
   // Boolean fields
   const booleanFields = ['salaryNegotiable', 'featured', 'urgent'];
-  booleanFields.forEach(field => {
+  booleanFields.forEach((field) => {
     if (data[field] !== undefined) {
       sanitized[field] = Boolean(data[field]);
     }
@@ -227,7 +224,9 @@ export function sanitizeJobData(data: any): any {
 
   // Date fields
   if (data.applicationDeadline !== undefined) {
-    sanitized.applicationDeadline = data.applicationDeadline ? new Date(data.applicationDeadline) : null;
+    sanitized.applicationDeadline = data.applicationDeadline
+      ? new Date(data.applicationDeadline)
+      : null;
   }
 
   // Array fields
@@ -253,23 +252,24 @@ export function calculateJobMetrics(job: any): {
   const now = new Date();
   const createdAt = new Date(job.createdAt);
   const publishedAt = job.publishedAt ? new Date(job.publishedAt) : createdAt;
-  
+
   const daysActive = Math.floor((now.getTime() - publishedAt.getTime()) / (1000 * 60 * 60 * 24));
-  
+
   let daysUntilDeadline = null;
   if (job.applicationDeadline) {
     const deadline = new Date(job.applicationDeadline);
     daysUntilDeadline = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
   }
-  
+
   const applicationRate = daysActive > 0 ? job.applicationCount / daysActive : 0;
-  const viewToApplicationRate = job.viewCount > 0 ? (job.applicationCount / job.viewCount) * 100 : 0;
-  
+  const viewToApplicationRate =
+    job.viewCount > 0 ? (job.applicationCount / job.viewCount) * 100 : 0;
+
   return {
     daysActive,
     daysUntilDeadline,
     applicationRate: Math.round(applicationRate * 100) / 100,
-    viewToApplicationRate: Math.round(viewToApplicationRate * 100) / 100
+    viewToApplicationRate: Math.round(viewToApplicationRate * 100) / 100,
   };
 }
 
@@ -283,14 +283,14 @@ export function formatSalaryRange(
   negotiable: boolean = false
 ): string {
   if (negotiable && !salaryMin && !salaryMax) {
-    return "Thương lượng";
+    return 'Thương lượng';
   }
 
   const formatter = new Intl.NumberFormat('vi-VN', {
     style: 'currency',
     currency: currency,
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0
+    maximumFractionDigits: 0,
   });
 
   if (salaryMin && salaryMax) {
@@ -301,5 +301,5 @@ export function formatSalaryRange(
     return `Đến ${formatter.format(salaryMax)}`;
   }
 
-  return "Thương lượng";
+  return 'Thương lượng';
 }

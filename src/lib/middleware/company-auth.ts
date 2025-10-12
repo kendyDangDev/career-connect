@@ -20,9 +20,9 @@ export function withCompanyAuth(
 ): (req: NextRequest, context?: any) => Promise<NextResponse> {
   return (req: NextRequest, context?: any) => {
     return withAuth(async (req: AuthenticatedRequest) => {
-      if (req.user?.userType !== 'EMPLOYER') {
+      if (req.user?.userType !== 'EMPLOYER' && req.user?.userType !== 'ADMIN') {
         return NextResponse.json(
-          { error: 'Forbidden - Only employers can access this resource' },
+          { error: "Forbidden - You can't access this resource" },
           { status: 403 }
         );
       }
@@ -30,17 +30,17 @@ export function withCompanyAuth(
       // Get company user relationship
       const companyUser = await prisma.companyUser.findFirst({
         where: {
-          userId: req.user.id
+          userId: req.user.id,
         },
         include: {
           company: {
             select: {
               id: true,
               companyName: true,
-              verificationStatus: true
-            }
-          }
-        }
+              verificationStatus: true,
+            },
+          },
+        },
       });
 
       if (!companyUser) {
@@ -108,10 +108,7 @@ export function withVerifiedCompany(
 /**
  * Check if user has specific company role
  */
-export function hasCompanyRole(
-  userRole: CompanyRole,
-  requiredRoles: CompanyRole[]
-): boolean {
+export function hasCompanyRole(userRole: CompanyRole, requiredRoles: CompanyRole[]): boolean {
   return requiredRoles.includes(userRole);
 }
 
@@ -129,7 +126,7 @@ export function canPostJobs(userRole: CompanyRole): boolean {
   return hasCompanyRole(userRole, [
     CompanyRole.ADMIN,
     CompanyRole.HR_MANAGER,
-    CompanyRole.RECRUITER
+    CompanyRole.RECRUITER,
   ]);
 }
 
@@ -140,7 +137,7 @@ export function canViewCandidates(userRole: CompanyRole): boolean {
   return hasCompanyRole(userRole, [
     CompanyRole.ADMIN,
     CompanyRole.HR_MANAGER,
-    CompanyRole.RECRUITER
+    CompanyRole.RECRUITER,
   ]);
 }
 
@@ -151,8 +148,8 @@ export async function getCompanyByUserId(userId: string) {
   const companyUser = await prisma.companyUser.findFirst({
     where: { userId },
     include: {
-      company: true
-    }
+      company: true,
+    },
   });
 
   return companyUser?.company || null;
@@ -167,28 +164,21 @@ export async function requireCompanyAuth(request: NextRequest) {
     // Get authorization header
     const authHeader = request.headers.get('authorization');
     if (!authHeader) {
-      return NextResponse.json(
-        { error: 'Authorization header required' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Authorization header required' }, { status: 401 });
     }
 
     // For now, this is a simplified implementation
     // In a real app, you would validate the JWT token here
     const token = authHeader.replace('Bearer ', '');
-    
+
     // This should be replaced with actual JWT validation
     // For demonstration, we'll assume the token contains user info
-    
+
     return NextResponse.json(
       { error: 'This function is deprecated. Use withCompanyAuth middleware instead.' },
       { status: 500 }
     );
-    
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Authentication failed' },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: 'Authentication failed' }, { status: 401 });
   }
 }

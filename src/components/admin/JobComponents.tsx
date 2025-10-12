@@ -1,61 +1,60 @@
 import React from 'react';
-import { 
-  ExclamationTriangleIcon, 
-  CheckCircleIcon, 
+import {
+  ExclamationTriangleIcon,
+  CheckCircleIcon,
   XCircleIcon,
   InformationCircleIcon,
-  XMarkIcon
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
 
 // Loading Spinner Component
-export const LoadingSpinner: React.FC<{ 
+export const LoadingSpinner: React.FC<{
   size?: 'sm' | 'md' | 'lg';
   className?: string;
 }> = ({ size = 'md', className = '' }) => {
   const sizeClasses = {
     sm: 'h-4 w-4',
     md: 'h-6 w-6',
-    lg: 'h-8 w-8'
+    lg: 'h-8 w-8',
   };
 
   return (
-    <div 
-      className={`animate-spin rounded-full border-2 border-gray-300 border-t-blue-600 ${sizeClasses[size]} ${className}`} 
+    <div
+      className={`animate-spin rounded-full border-2 border-gray-300 border-t-blue-600 ${sizeClasses[size]} ${className}`}
     />
   );
 };
 
 // Status Badge Component
-export const StatusBadge: React.FC<{ 
+export const StatusBadge: React.FC<{
   status: string;
   size?: 'sm' | 'md' | 'lg';
 }> = ({ status, size = 'md' }) => {
   const styles = {
     ACTIVE: 'bg-green-100 text-green-800 border-green-200',
-    DRAFT: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    PENDING: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     CLOSED: 'bg-red-100 text-red-800 border-red-200',
     EXPIRED: 'bg-gray-100 text-gray-800 border-gray-200',
-    PENDING: 'bg-blue-100 text-blue-800 border-blue-200'
+    PENDING: 'bg-blue-100 text-blue-800 border-blue-200',
   };
 
   const labels = {
     ACTIVE: 'Đang tuyển',
-    DRAFT: 'Nháp',
+    PENDING: 'Đang chờ duyệt',
     CLOSED: 'Đã đóng',
     EXPIRED: 'Hết hạn',
-    PENDING: 'Chờ duyệt'
   };
 
   const sizeClasses = {
     sm: 'px-2 py-0.5 text-xs',
     md: 'px-2.5 py-0.5 text-xs',
-    lg: 'px-3 py-1 text-sm'
+    lg: 'px-3 py-1 text-sm',
   };
 
   return (
-    <span 
-      className={`inline-flex items-center rounded-full font-medium border ${
-        styles[status as keyof typeof styles] || styles.DRAFT
+    <span
+      className={`inline-flex items-center rounded-full border font-medium ${
+        styles[status as keyof typeof styles] || styles.PENDING
       } ${sizeClasses[size]}`}
     >
       {labels[status as keyof typeof labels] || status}
@@ -75,47 +74,38 @@ export const Alert: React.FC<{
     success: {
       container: 'bg-green-50 border-green-200 text-green-800',
       icon: CheckCircleIcon,
-      iconColor: 'text-green-400'
+      iconColor: 'text-green-400',
     },
     error: {
       container: 'bg-red-50 border-red-200 text-red-800',
       icon: XCircleIcon,
-      iconColor: 'text-red-400'
+      iconColor: 'text-red-400',
     },
     warning: {
       container: 'bg-yellow-50 border-yellow-200 text-yellow-800',
       icon: ExclamationTriangleIcon,
-      iconColor: 'text-yellow-400'
+      iconColor: 'text-yellow-400',
     },
     info: {
       container: 'bg-blue-50 border-blue-200 text-blue-800',
       icon: InformationCircleIcon,
-      iconColor: 'text-blue-400'
-    }
+      iconColor: 'text-blue-400',
+    },
   };
 
   const config = typeStyles[type];
   const Icon = config.icon;
 
   return (
-    <div className={`border rounded-md p-4 ${config.container} ${className}`}>
+    <div className={`rounded-md border p-4 ${config.container} ${className}`}>
       <div className="flex">
         <Icon className={`h-5 w-5 ${config.iconColor}`} />
         <div className="ml-3 flex-1">
-          {title && (
-            <h3 className="text-sm font-medium">
-              {title}
-            </h3>
-          )}
-          <p className={`text-sm ${title ? 'mt-1' : ''}`}>
-            {message}
-          </p>
+          {title && <h3 className="text-sm font-medium">{title}</h3>}
+          <p className={`text-sm ${title ? 'mt-1' : ''}`}>{message}</p>
         </div>
         {onClose && (
-          <button
-            onClick={onClose}
-            className={`ml-auto ${config.iconColor} hover:opacity-75`}
-          >
+          <button onClick={onClose} className={`ml-auto ${config.iconColor} hover:opacity-75`}>
             <XMarkIcon className="h-4 w-4" />
           </button>
         )}
@@ -134,14 +124,14 @@ export const EmptyState: React.FC<{
     onClick: () => void;
   };
 }> = ({ icon: Icon, title, description, action }) => (
-  <div className="text-center py-12">
-    {Icon && <Icon className="h-12 w-12 text-gray-400 mx-auto mb-4" />}
-    <h3 className="text-lg font-medium text-gray-900 mb-2">{title}</h3>
-    <p className="text-gray-500 mb-6 max-w-sm mx-auto">{description}</p>
+  <div className="py-12 text-center">
+    {Icon && <Icon className="mx-auto mb-4 h-12 w-12 text-gray-400" />}
+    <h3 className="mb-2 text-lg font-medium text-gray-900">{title}</h3>
+    <p className="mx-auto mb-6 max-w-sm text-gray-500">{description}</p>
     {action && (
       <button
         onClick={action.onClick}
-        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
       >
         {action.label}
       </button>
@@ -157,15 +147,8 @@ export const Pagination: React.FC<{
   itemsPerPage: number;
   onPageChange: (page: number) => void;
   className?: string;
-}> = ({ 
-  currentPage, 
-  totalPages, 
-  totalItems, 
-  itemsPerPage, 
-  onPageChange, 
-  className = '' 
-}) => {
-  const startItem = ((currentPage - 1) * itemsPerPage) + 1;
+}> = ({ currentPage, totalPages, totalItems, itemsPerPage, onPageChange, className = '' }) => {
+  const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
   const getPageNumbers = () => {
@@ -217,12 +200,12 @@ export const Pagination: React.FC<{
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Trước
         </button>
 
-        {getPageNumbers().map((page, index) => (
+        {getPageNumbers().map((page, index) =>
           page === '...' ? (
             <span key={`ellipsis-${index}`} className="px-3 py-2 text-sm text-gray-500">
               ...
@@ -231,21 +214,21 @@ export const Pagination: React.FC<{
             <button
               key={page}
               onClick={() => onPageChange(page as number)}
-              className={`relative inline-flex items-center px-3 py-2 text-sm font-medium border rounded-md ${
+              className={`relative inline-flex items-center rounded-md border px-3 py-2 text-sm font-medium ${
                 currentPage === page
-                  ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                  : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-50'
+                  ? 'z-10 border-blue-500 bg-blue-50 text-blue-600'
+                  : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
               }`}
             >
               {page}
             </button>
           )
-        ))}
+        )}
 
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Sau
         </button>
@@ -267,40 +250,35 @@ export const Modal: React.FC<{
     sm: 'max-w-md',
     md: 'max-w-lg',
     lg: 'max-w-2xl',
-    xl: 'max-w-4xl'
+    xl: 'max-w-4xl',
   };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <div className="flex min-h-screen items-center justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
         {/* Overlay */}
-        <div 
-          className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+        <div
+          className="bg-opacity-75 fixed inset-0 bg-gray-500 transition-opacity"
           onClick={onClose}
         />
 
         {/* Modal */}
-        <div className={`inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle w-full ${sizeClasses[size]} ${className}`}>
+        <div
+          className={`inline-block w-full transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:align-middle ${sizeClasses[size]} ${className}`}
+        >
           {/* Header */}
           <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900">
-                {title}
-              </h3>
-              <button
-                onClick={onClose}
-                className="text-gray-400 hover:text-gray-600"
-              >
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-medium text-gray-900">{title}</h3>
+              <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
                 <XMarkIcon className="h-6 w-6" />
               </button>
             </div>
-            
+
             {/* Content */}
-            <div>
-              {children}
-            </div>
+            <div>{children}</div>
           </div>
         </div>
       </div>
@@ -326,29 +304,29 @@ export const ConfirmDialog: React.FC<{
   message,
   confirmLabel = 'Xác nhận',
   cancelLabel = 'Hủy',
-  type = 'danger'
+  type = 'danger',
 }) => {
   const typeStyles = {
     danger: 'bg-red-600 hover:bg-red-700 focus:ring-red-500',
     warning: 'bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500',
-    info: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
+    info: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onCancel} title={title} size="sm">
       <div className="space-y-4">
         <p className="text-gray-600">{message}</p>
-        
+
         <div className="flex justify-end space-x-3">
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
           >
             {cancelLabel}
           </button>
           <button
             onClick={onConfirm}
-            className={`px-4 py-2 text-sm font-medium text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 ${typeStyles[type]}`}
+            className={`rounded-md px-4 py-2 text-sm font-medium text-white shadow-sm focus:ring-2 focus:ring-offset-2 focus:outline-none ${typeStyles[type]}`}
           >
             {confirmLabel}
           </button>
@@ -367,9 +345,7 @@ export const SkeletonLoader: React.FC<{
     {Array.from({ length: lines }).map((_, index) => (
       <div
         key={index}
-        className={`bg-gray-300 rounded h-4 mb-3 ${
-          index === lines - 1 ? 'w-3/4' : 'w-full'
-        }`}
+        className={`mb-3 h-4 rounded bg-gray-300 ${index === lines - 1 ? 'w-3/4' : 'w-full'}`}
       />
     ))}
   </div>
@@ -399,11 +375,11 @@ export const DataTable: React.FC<{
   sortOrder,
   onSort,
   emptyMessage = 'Không có dữ liệu',
-  className = ''
+  className = '',
 }) => {
   if (loading) {
     return (
-      <div className="border border-gray-200 rounded-lg p-4">
+      <div className="rounded-lg border border-gray-200 p-4">
         <SkeletonLoader lines={5} />
       </div>
     );
@@ -411,7 +387,7 @@ export const DataTable: React.FC<{
 
   if (data.length === 0) {
     return (
-      <div className="border border-gray-200 rounded-lg p-8 text-center">
+      <div className="rounded-lg border border-gray-200 p-8 text-center">
         <p className="text-gray-500">{emptyMessage}</p>
       </div>
     );
@@ -425,7 +401,7 @@ export const DataTable: React.FC<{
             {columns.map((column) => (
               <th
                 key={column.key}
-                className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
+                className={`px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase ${
                   column.sortable && onSort ? 'cursor-pointer hover:bg-gray-100' : ''
                 } ${column.className || ''}`}
                 onClick={() => column.sortable && onSort?.(column.key)}
@@ -433,24 +409,22 @@ export const DataTable: React.FC<{
                 <div className="flex items-center">
                   {column.header}
                   {column.sortable && sortBy === column.key && (
-                    <span className="ml-1 text-gray-400">
-                      {sortOrder === 'asc' ? '↑' : '↓'}
-                    </span>
+                    <span className="ml-1 text-gray-400">{sortOrder === 'asc' ? '↑' : '↓'}</span>
                   )}
                 </div>
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="divide-y divide-gray-200 bg-white">
           {data.map((row, index) => (
             <tr key={index} className="hover:bg-gray-50">
               {columns.map((column) => (
-                <td key={column.key} className={`px-6 py-4 whitespace-nowrap ${column.className || ''}`}>
-                  {column.render
-                    ? column.render(row[column.key], row, index)
-                    : row[column.key]
-                  }
+                <td
+                  key={column.key}
+                  className={`px-6 py-4 whitespace-nowrap ${column.className || ''}`}
+                >
+                  {column.render ? column.render(row[column.key], row, index) : row[column.key]}
                 </td>
               ))}
             </tr>
@@ -487,10 +461,12 @@ export const FormField: React.FC<{
   options,
   rows = 3,
   disabled,
-  className = ''
+  className = '',
 }) => {
   const baseInputClasses = `w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed ${
-    error ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-blue-500'
+    error
+      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+      : 'border-gray-300 focus:border-blue-500'
   }`;
 
   const renderInput = () => {
@@ -507,7 +483,7 @@ export const FormField: React.FC<{
             className={baseInputClasses}
           />
         );
-      
+
       case 'select':
         return (
           <select
@@ -517,14 +493,14 @@ export const FormField: React.FC<{
             disabled={disabled}
             className={baseInputClasses}
           >
-            {options?.map(option => (
+            {options?.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
             ))}
           </select>
         );
-      
+
       case 'checkbox':
         return (
           <div className="flex items-center">
@@ -534,12 +510,12 @@ export const FormField: React.FC<{
               checked={!!value}
               onChange={(e) => onChange(e.target.checked)}
               disabled={disabled}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50"
             />
             <label className="ml-2 text-sm text-gray-700">{label}</label>
           </div>
         );
-      
+
       default:
         return (
           <input
@@ -559,23 +535,19 @@ export const FormField: React.FC<{
     return (
       <div className={className}>
         {renderInput()}
-        {error && (
-          <p className="mt-1 text-sm text-red-600">{error}</p>
-        )}
+        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
       </div>
     );
   }
 
   return (
     <div className={className}>
-      <label className="block text-sm font-medium text-gray-700 mb-2">
+      <label className="mb-2 block text-sm font-medium text-gray-700">
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span className="ml-1 text-red-500">*</span>}
       </label>
       {renderInput()}
-      {error && (
-        <p className="mt-1 text-sm text-red-600">{error}</p>
-      )}
+      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
     </div>
   );
 };

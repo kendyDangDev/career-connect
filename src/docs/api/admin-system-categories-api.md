@@ -19,24 +19,25 @@ All endpoints require Admin authentication via NextAuth session.
 
 ### Authorization Errors
 
-| Status Code | Error Code | Description |
-|------------|------------|-------------|
-| 401 | `UNAUTHORIZED` | User is not authenticated |
-| 403 | `FORBIDDEN` | User does not have admin privileges |
+| Status Code | Error Code     | Description                         |
+| ----------- | -------------- | ----------------------------------- |
+| 401         | `UNAUTHORIZED` | User is not authenticated           |
+| 403         | `FORBIDDEN`    | User does not have admin privileges |
 
 ## Rate Limiting
 
 API endpoints implement rate limiting to prevent abuse:
 
-| Operation Type | Limit | Time Window |
-|---------------|-------|-------------|
-| GET requests | No limit | - |
-| POST/PUT requests | 10 requests | 60 seconds |
-| DELETE requests | 5 requests | 60 seconds |
-| Bulk operations | 3 requests | 60 seconds |
-| Import operations | 1 request | 5 minutes |
+| Operation Type    | Limit       | Time Window |
+| ----------------- | ----------- | ----------- |
+| GET requests      | No limit    | -           |
+| POST/PUT requests | 10 requests | 60 seconds  |
+| DELETE requests   | 5 requests  | 60 seconds  |
+| Bulk operations   | 3 requests  | 60 seconds  |
+| Import operations | 1 request   | 5 minutes   |
 
 Rate limit error response:
+
 ```json
 {
   "success": false,
@@ -49,19 +50,25 @@ Rate limit error response:
 ## Common Response Formats
 
 ### Success Response
+
 ```json
 {
   "success": true,
-  "data": { /* resource data */ },
+  "data": {
+    /* resource data */
+  },
   "message": "Success message"
 }
 ```
 
 ### Paginated Response
+
 ```json
 {
   "success": true,
-  "data": [ /* array of resources */ ],
+  "data": [
+    /* array of resources */
+  ],
   "meta": {
     "total": 100,
     "page": 1,
@@ -72,6 +79,7 @@ Rate limit error response:
 ```
 
 ### Error Response
+
 ```json
 {
   "success": false,
@@ -85,24 +93,24 @@ Rate limit error response:
 
 ### Pagination Parameters
 
-| Parameter | Type | Default | Max | Description |
-|-----------|------|---------|-----|-------------|
-| `page` | integer | 1 | - | Current page number |
-| `limit` | integer | 10 | 100 | Number of items per page |
+| Parameter | Type    | Default | Max | Description              |
+| --------- | ------- | ------- | --- | ------------------------ |
+| `page`    | integer | 1       | -   | Current page number      |
+| `limit`   | integer | 10      | 100 | Number of items per page |
 
 ### Sorting Parameters
 
-| Parameter | Type | Default | Values | Description |
-|-----------|------|---------|--------|-------------|
-| `sortBy` | string | createdAt | name, createdAt, sortOrder | Field to sort by |
-| `sortOrder` | string | desc | asc, desc | Sort direction |
+| Parameter   | Type   | Default   | Values                     | Description      |
+| ----------- | ------ | --------- | -------------------------- | ---------------- |
+| `sortBy`    | string | createdAt | name, createdAt, sortOrder | Field to sort by |
+| `sortOrder` | string | desc      | asc, desc                  | Sort direction   |
 
 ### Filtering Parameters
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `search` | string | Search in name and description fields |
-| `isActive` | boolean | Filter by active status |
+| Parameter  | Type    | Description                           |
+| ---------- | ------- | ------------------------------------- |
+| `search`   | string  | Search in name and description fields |
+| `isActive` | boolean | Filter by active status               |
 
 ---
 
@@ -118,16 +126,16 @@ Retrieve paginated list of job categories with optional hierarchy.
 
 #### Query Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `page` | integer | No | Page number (default: 1) |
-| `limit` | integer | No | Items per page (default: 10, max: 100) |
-| `search` | string | No | Search in name and description |
-| `isActive` | boolean | No | Filter by active status |
-| `parentId` | string | No | Filter by parent category ID (use "null" for root categories) |
-| `includeChildren` | boolean | No | Include full category tree |
-| `sortBy` | string | No | Sort field (name, createdAt, sortOrder) |
-| `sortOrder` | string | No | Sort direction (asc, desc) |
+| Parameter         | Type    | Required | Description                                                   |
+| ----------------- | ------- | -------- | ------------------------------------------------------------- |
+| `page`            | integer | No       | Page number (default: 1)                                      |
+| `limit`           | integer | No       | Items per page (default: 10, max: 100)                        |
+| `search`          | string  | No       | Search in name and description                                |
+| `isActive`        | boolean | No       | Filter by active status                                       |
+| `parentId`        | string  | No       | Filter by parent category ID (use "null" for root categories) |
+| `includeChildren` | boolean | No       | Include full category tree                                    |
+| `sortBy`          | string  | No       | Sort field (name, createdAt, sortOrder)                       |
+| `sortOrder`       | string  | No       | Sort direction (asc, desc)                                    |
 
 #### Response
 
@@ -144,8 +152,8 @@ Retrieve paginated list of job categories with optional hierarchy.
       "iconUrl": "https://example.com/icon.png",
       "sortOrder": 1,
       "isActive": true,
-      "createdAt": "2024-01-15T10:00:00Z",
-      "updatedAt": "2024-01-15T10:00:00Z",
+      "createdAt": "2025-01-15T10:00:00Z",
+      "updatedAt": "2025-01-15T10:00:00Z",
       "parent": null,
       "_count": {
         "children": 5,
@@ -183,9 +191,9 @@ Retrieve detailed information about a specific category including its children.
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | string | Yes | Category ID |
+| Parameter | Type   | Required | Description |
+| --------- | ------ | -------- | ----------- |
+| `id`      | string | Yes      | Category ID |
 
 #### Response
 
@@ -201,8 +209,8 @@ Retrieve detailed information about a specific category including its children.
     "iconUrl": "https://example.com/icon.png",
     "sortOrder": 1,
     "isActive": true,
-    "createdAt": "2024-01-15T10:00:00Z",
-    "updatedAt": "2024-01-15T10:00:00Z",
+    "createdAt": "2025-01-15T10:00:00Z",
+    "updatedAt": "2025-01-15T10:00:00Z",
     "parent": null,
     "children": [
       {
@@ -244,13 +252,13 @@ Create a new job category.
 
 #### Field Validation
 
-| Field | Type | Required | Validation Rules |
-|-------|------|----------|-----------------|
-| `name` | string | Yes | Min 2, max 100 characters, unique within same level |
-| `parentId` | string | No | Must be valid existing category ID |
-| `description` | string | No | Max 500 characters |
-| `iconUrl` | string | No | Valid URL format |
-| `sortOrder` | integer | No | Min 0 |
+| Field         | Type    | Required | Validation Rules                                    |
+| ------------- | ------- | -------- | --------------------------------------------------- |
+| `name`        | string  | Yes      | Min 2, max 100 characters, unique within same level |
+| `parentId`    | string  | No       | Must be valid existing category ID                  |
+| `description` | string  | No       | Max 500 characters                                  |
+| `iconUrl`     | string  | No       | Valid URL format                                    |
+| `sortOrder`   | integer | No       | Min 0                                               |
 
 #### Business Rules
 
@@ -272,8 +280,8 @@ Create a new job category.
     "iconUrl": "https://example.com/mobile-icon.png",
     "sortOrder": 2,
     "isActive": true,
-    "createdAt": "2024-01-20T10:00:00Z",
-    "updatedAt": "2024-01-20T10:00:00Z",
+    "createdAt": "2025-01-20T10:00:00Z",
+    "updatedAt": "2025-01-20T10:00:00Z",
     "parent": {
       "id": "cm123abc",
       "name": "Information Technology"
@@ -296,9 +304,9 @@ Update an existing category.
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | string | Yes | Category ID |
+| Parameter | Type   | Required | Description |
+| --------- | ------ | -------- | ----------- |
+| `id`      | string | Yes      | Category ID |
 
 #### Request Body
 
@@ -324,7 +332,9 @@ Update an existing category.
 ```json
 {
   "success": true,
-  "data": { /* updated category object */ },
+  "data": {
+    /* updated category object */
+  },
   "message": "Cập nhật danh mục thành công"
 }
 ```
@@ -337,9 +347,9 @@ Delete a category if it's not in use.
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | string | Yes | Category ID |
+| Parameter | Type   | Required | Description |
+| --------- | ------ | -------- | ----------- |
+| `id`      | string | Yes      | Category ID |
 
 #### Business Rules
 
@@ -372,14 +382,14 @@ Retrieve paginated list of industries.
 
 #### Query Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `page` | integer | No | Page number (default: 1) |
-| `limit` | integer | No | Items per page (default: 10, max: 100) |
-| `search` | string | No | Search in name and description |
-| `isActive` | boolean | No | Filter by active status |
-| `sortBy` | string | No | Sort field (name, createdAt, sortOrder) |
-| `sortOrder` | string | No | Sort direction (asc, desc) |
+| Parameter   | Type    | Required | Description                             |
+| ----------- | ------- | -------- | --------------------------------------- |
+| `page`      | integer | No       | Page number (default: 1)                |
+| `limit`     | integer | No       | Items per page (default: 10, max: 100)  |
+| `search`    | string  | No       | Search in name and description          |
+| `isActive`  | boolean | No       | Filter by active status                 |
+| `sortBy`    | string  | No       | Sort field (name, createdAt, sortOrder) |
+| `sortOrder` | string  | No       | Sort direction (asc, desc)              |
 
 #### Response
 
@@ -395,8 +405,8 @@ Retrieve paginated list of industries.
       "iconUrl": "https://example.com/tech-icon.png",
       "sortOrder": 1,
       "isActive": true,
-      "createdAt": "2024-01-15T10:00:00Z",
-      "updatedAt": "2024-01-15T10:00:00Z",
+      "createdAt": "2025-01-15T10:00:00Z",
+      "updatedAt": "2025-01-15T10:00:00Z",
       "_count": {
         "companies": 250
       }
@@ -419,9 +429,9 @@ Retrieve detailed information about a specific industry.
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | string | Yes | Industry ID |
+| Parameter | Type   | Required | Description |
+| --------- | ------ | -------- | ----------- |
+| `id`      | string | Yes      | Industry ID |
 
 #### Response
 
@@ -436,8 +446,8 @@ Retrieve detailed information about a specific industry.
     "iconUrl": "https://example.com/tech-icon.png",
     "sortOrder": 1,
     "isActive": true,
-    "createdAt": "2024-01-15T10:00:00Z",
-    "updatedAt": "2024-01-15T10:00:00Z",
+    "createdAt": "2025-01-15T10:00:00Z",
+    "updatedAt": "2025-01-15T10:00:00Z",
     "_count": {
       "companies": 250
     }
@@ -464,12 +474,12 @@ Create a new industry.
 
 #### Field Validation
 
-| Field | Type | Required | Validation Rules |
-|-------|------|----------|-----------------|
-| `name` | string | Yes | Min 2, max 100 characters, unique |
-| `description` | string | No | Max 500 characters |
-| `iconUrl` | string | No | Valid URL format |
-| `sortOrder` | integer | No | Min 0 |
+| Field         | Type    | Required | Validation Rules                  |
+| ------------- | ------- | -------- | --------------------------------- |
+| `name`        | string  | Yes      | Min 2, max 100 characters, unique |
+| `description` | string  | No       | Max 500 characters                |
+| `iconUrl`     | string  | No       | Valid URL format                  |
+| `sortOrder`   | integer | No       | Min 0                             |
 
 #### Response
 
@@ -484,8 +494,8 @@ Create a new industry.
     "iconUrl": "https://example.com/health-icon.png",
     "sortOrder": 2,
     "isActive": true,
-    "createdAt": "2024-01-20T10:00:00Z",
-    "updatedAt": "2024-01-20T10:00:00Z",
+    "createdAt": "2025-01-20T10:00:00Z",
+    "updatedAt": "2025-01-20T10:00:00Z",
     "_count": {
       "companies": 0
     }
@@ -503,9 +513,9 @@ Update an existing industry.
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | string | Yes | Industry ID |
+| Parameter | Type   | Required | Description |
+| --------- | ------ | -------- | ----------- |
+| `id`      | string | Yes      | Industry ID |
 
 #### Request Body
 
@@ -524,7 +534,9 @@ Update an existing industry.
 ```json
 {
   "success": true,
-  "data": { /* updated industry object */ },
+  "data": {
+    /* updated industry object */
+  },
   "message": "Cập nhật ngành nghề thành công"
 }
 ```
@@ -537,9 +549,9 @@ Delete an industry if it's not in use.
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | string | Yes | Industry ID |
+| Parameter | Type   | Required | Description |
+| --------- | ------ | -------- | ----------- |
+| `id`      | string | Yes      | Industry ID |
 
 #### Business Rules
 
@@ -574,10 +586,10 @@ Update active status for multiple industries.
 
 #### Field Validation
 
-| Field | Type | Required | Validation Rules |
-|-------|------|----------|-----------------|
-| `ids` | array | Yes | Array of valid industry IDs, max 100 items |
-| `isActive` | boolean | Yes | Active status to set |
+| Field      | Type    | Required | Validation Rules                           |
+| ---------- | ------- | -------- | ------------------------------------------ |
+| `ids`      | array   | Yes      | Array of valid industry IDs, max 100 items |
+| `isActive` | boolean | Yes      | Active status to set                       |
 
 #### Response
 
@@ -608,9 +620,9 @@ Delete multiple industries at once.
 
 #### Field Validation
 
-| Field | Type | Required | Validation Rules |
-|-------|------|----------|-----------------|
-| `ids` | array | Yes | Array of valid industry IDs, max 50 items |
+| Field | Type  | Required | Validation Rules                          |
+| ----- | ----- | -------- | ----------------------------------------- |
+| `ids` | array | Yes      | Array of valid industry IDs, max 50 items |
 
 #### Business Rules
 
@@ -644,15 +656,15 @@ Retrieve paginated list of skills with category statistics.
 
 #### Query Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `page` | integer | No | Page number (default: 1) |
-| `limit` | integer | No | Items per page (default: 10, max: 100) |
-| `search` | string | No | Search in name and description |
-| `isActive` | boolean | No | Filter by active status |
-| `category` | enum | No | Filter by category (TECHNICAL, SOFT, LANGUAGE, TOOL) |
-| `sortBy` | string | No | Sort field (name, createdAt) |
-| `sortOrder` | string | No | Sort direction (asc, desc) |
+| Parameter   | Type    | Required | Description                                          |
+| ----------- | ------- | -------- | ---------------------------------------------------- |
+| `page`      | integer | No       | Page number (default: 1)                             |
+| `limit`     | integer | No       | Items per page (default: 10, max: 100)               |
+| `search`    | string  | No       | Search in name and description                       |
+| `isActive`  | boolean | No       | Filter by active status                              |
+| `category`  | enum    | No       | Filter by category (TECHNICAL, SOFT, LANGUAGE, TOOL) |
+| `sortBy`    | string  | No       | Sort field (name, createdAt)                         |
+| `sortOrder` | string  | No       | Sort direction (asc, desc)                           |
 
 #### Response
 
@@ -668,8 +680,8 @@ Retrieve paginated list of skills with category statistics.
       "description": "JavaScript programming language",
       "iconUrl": "https://example.com/js-icon.png",
       "isActive": true,
-      "createdAt": "2024-01-15T10:00:00Z",
-      "updatedAt": "2024-01-15T10:00:00Z",
+      "createdAt": "2025-01-15T10:00:00Z",
+      "updatedAt": "2025-01-15T10:00:00Z",
       "_count": {
         "candidateSkills": 500,
         "jobSkills": 200
@@ -699,9 +711,9 @@ Retrieve detailed information about a specific skill.
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | string | Yes | Skill ID |
+| Parameter | Type   | Required | Description |
+| --------- | ------ | -------- | ----------- |
+| `id`      | string | Yes      | Skill ID    |
 
 #### Response
 
@@ -716,8 +728,8 @@ Retrieve detailed information about a specific skill.
     "description": "JavaScript programming language",
     "iconUrl": "https://example.com/js-icon.png",
     "isActive": true,
-    "createdAt": "2024-01-15T10:00:00Z",
-    "updatedAt": "2024-01-15T10:00:00Z",
+    "createdAt": "2025-01-15T10:00:00Z",
+    "updatedAt": "2025-01-15T10:00:00Z",
     "_count": {
       "candidateSkills": 500,
       "jobSkills": 200
@@ -745,21 +757,21 @@ Create a new skill.
 
 #### Field Validation
 
-| Field | Type | Required | Validation Rules |
-|-------|------|----------|-----------------|
-| `name` | string | Yes | Min 2, max 100 characters, unique |
-| `category` | enum | Yes | One of: TECHNICAL, SOFT, LANGUAGE, TOOL |
-| `description` | string | No | Max 500 characters |
-| `iconUrl` | string | No | Valid URL format |
+| Field         | Type   | Required | Validation Rules                        |
+| ------------- | ------ | -------- | --------------------------------------- |
+| `name`        | string | Yes      | Min 2, max 100 characters, unique       |
+| `category`    | enum   | Yes      | One of: TECHNICAL, SOFT, LANGUAGE, TOOL |
+| `description` | string | No       | Max 500 characters                      |
+| `iconUrl`     | string | No       | Valid URL format                        |
 
 #### Skill Categories
 
-| Category | Description |
-|----------|-------------|
+| Category    | Description                                           |
+| ----------- | ----------------------------------------------------- |
 | `TECHNICAL` | Technical/hard skills (programming, frameworks, etc.) |
-| `SOFT` | Soft skills (communication, teamwork, etc.) |
-| `LANGUAGE` | Language proficiencies |
-| `TOOL` | Tools and software proficiency |
+| `SOFT`      | Soft skills (communication, teamwork, etc.)           |
+| `LANGUAGE`  | Language proficiencies                                |
+| `TOOL`      | Tools and software proficiency                        |
 
 #### Response
 
@@ -774,8 +786,8 @@ Create a new skill.
     "description": "Python programming language",
     "iconUrl": "https://example.com/python-icon.png",
     "isActive": true,
-    "createdAt": "2024-01-20T10:00:00Z",
-    "updatedAt": "2024-01-20T10:00:00Z",
+    "createdAt": "2025-01-20T10:00:00Z",
+    "updatedAt": "2025-01-20T10:00:00Z",
     "_count": {
       "candidateSkills": 0,
       "jobSkills": 0
@@ -794,9 +806,9 @@ Update an existing skill.
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | string | Yes | Skill ID |
+| Parameter | Type   | Required | Description |
+| --------- | ------ | -------- | ----------- |
+| `id`      | string | Yes      | Skill ID    |
 
 #### Request Body
 
@@ -815,7 +827,9 @@ Update an existing skill.
 ```json
 {
   "success": true,
-  "data": { /* updated skill object */ },
+  "data": {
+    /* updated skill object */
+  },
   "message": "Cập nhật kỹ năng thành công"
 }
 ```
@@ -828,9 +842,9 @@ Delete a skill if it's not in use.
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | string | Yes | Skill ID |
+| Parameter | Type   | Required | Description |
+| --------- | ------ | -------- | ----------- |
+| `id`      | string | Yes      | Skill ID    |
 
 #### Business Rules
 
@@ -860,9 +874,9 @@ Content-Type: `multipart/form-data`
 
 #### Form Data
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `file` | File | Yes | CSV or JSON file containing skills |
+| Field  | Type | Required | Description                        |
+| ------ | ---- | -------- | ---------------------------------- |
+| `file` | File | Yes      | CSV or JSON file containing skills |
 
 #### CSV Format
 
@@ -927,17 +941,17 @@ Retrieve paginated list of locations with optional hierarchy.
 
 #### Query Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `page` | integer | No | Page number (default: 1) |
-| `limit` | integer | No | Items per page (default: 10, max: 100) |
-| `search` | string | No | Search in name |
-| `isActive` | boolean | No | Filter by active status |
-| `type` | enum | No | Filter by type (COUNTRY, PROVINCE, CITY, DISTRICT) |
-| `parentId` | string | No | Filter by parent location ID (use "null" for root) |
-| `includeChildren` | boolean | No | Include full location tree |
-| `sortBy` | string | No | Sort field (name, createdAt) |
-| `sortOrder` | string | No | Sort direction (asc, desc) |
+| Parameter         | Type    | Required | Description                                        |
+| ----------------- | ------- | -------- | -------------------------------------------------- |
+| `page`            | integer | No       | Page number (default: 1)                           |
+| `limit`           | integer | No       | Items per page (default: 10, max: 100)             |
+| `search`          | string  | No       | Search in name                                     |
+| `isActive`        | boolean | No       | Filter by active status                            |
+| `type`            | enum    | No       | Filter by type (COUNTRY, PROVINCE, CITY, DISTRICT) |
+| `parentId`        | string  | No       | Filter by parent location ID (use "null" for root) |
+| `includeChildren` | boolean | No       | Include full location tree                         |
+| `sortBy`          | string  | No       | Sort field (name, createdAt)                       |
+| `sortOrder`       | string  | No       | Sort direction (asc, desc)                         |
 
 #### Response
 
@@ -953,8 +967,8 @@ Retrieve paginated list of locations with optional hierarchy.
       "latitude": 14.058324,
       "longitude": 108.277199,
       "isActive": true,
-      "createdAt": "2024-01-15T10:00:00Z",
-      "updatedAt": "2024-01-15T10:00:00Z",
+      "createdAt": "2025-01-15T10:00:00Z",
+      "updatedAt": "2025-01-15T10:00:00Z",
       "parent": null,
       "_count": {
         "children": 63
@@ -995,9 +1009,9 @@ Retrieve detailed information about a specific location.
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | string | Yes | Location ID |
+| Parameter | Type   | Required | Description |
+| --------- | ------ | -------- | ----------- |
+| `id`      | string | Yes      | Location ID |
 
 #### Response
 
@@ -1012,8 +1026,8 @@ Retrieve detailed information about a specific location.
     "latitude": 21.028511,
     "longitude": 105.804817,
     "isActive": true,
-    "createdAt": "2024-01-15T10:00:00Z",
-    "updatedAt": "2024-01-15T10:00:00Z",
+    "createdAt": "2025-01-15T10:00:00Z",
+    "updatedAt": "2025-01-15T10:00:00Z",
     "parent": {
       "id": "loc123abc",
       "name": "Vietnam",
@@ -1056,22 +1070,22 @@ Create a new location.
 
 #### Field Validation
 
-| Field | Type | Required | Validation Rules |
-|-------|------|----------|-----------------|
-| `name` | string | Yes | Min 2, max 100 characters |
-| `type` | enum | Yes | One of: COUNTRY, PROVINCE, CITY, DISTRICT |
-| `parentId` | string | Conditional | Required for non-COUNTRY types |
-| `latitude` | number | No | Valid latitude (-90 to 90) |
-| `longitude` | number | No | Valid longitude (-180 to 180) |
+| Field       | Type   | Required    | Validation Rules                          |
+| ----------- | ------ | ----------- | ----------------------------------------- |
+| `name`      | string | Yes         | Min 2, max 100 characters                 |
+| `type`      | enum   | Yes         | One of: COUNTRY, PROVINCE, CITY, DISTRICT |
+| `parentId`  | string | Conditional | Required for non-COUNTRY types            |
+| `latitude`  | number | No          | Valid latitude (-90 to 90)                |
+| `longitude` | number | No          | Valid longitude (-180 to 180)             |
 
 #### Location Type Hierarchy
 
-| Type | Required Parent Type |
-|------|---------------------|
-| `COUNTRY` | None (root level) |
-| `PROVINCE` | COUNTRY |
-| `CITY` | PROVINCE |
-| `DISTRICT` | CITY |
+| Type       | Required Parent Type |
+| ---------- | -------------------- |
+| `COUNTRY`  | None (root level)    |
+| `PROVINCE` | COUNTRY              |
+| `CITY`     | PROVINCE             |
+| `DISTRICT` | CITY                 |
 
 #### Response
 
@@ -1086,8 +1100,8 @@ Create a new location.
     "latitude": 10.7756587,
     "longitude": 106.7004238,
     "isActive": true,
-    "createdAt": "2024-01-20T10:00:00Z",
-    "updatedAt": "2024-01-20T10:00:00Z",
+    "createdAt": "2025-01-20T10:00:00Z",
+    "updatedAt": "2025-01-20T10:00:00Z",
     "parent": {
       "id": "loc789ghi",
       "name": "TP. Hồ Chí Minh",
@@ -1110,9 +1124,9 @@ Update an existing location.
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | string | Yes | Location ID |
+| Parameter | Type   | Required | Description |
+| --------- | ------ | -------- | ----------- |
+| `id`      | string | Yes      | Location ID |
 
 #### Request Body
 
@@ -1135,7 +1149,9 @@ Update an existing location.
 ```json
 {
   "success": true,
-  "data": { /* updated location object */ },
+  "data": {
+    /* updated location object */
+  },
   "message": "Cập nhật địa điểm thành công"
 }
 ```
@@ -1148,9 +1164,9 @@ Delete a location if it's not in use.
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | string | Yes | Location ID |
+| Parameter | Type   | Required | Description |
+| --------- | ------ | -------- | ----------- |
+| `id`      | string | Yes      | Location ID |
 
 #### Business Rules
 
@@ -1218,40 +1234,40 @@ Retrieve list of popular cities for quick selection.
 
 ### General Errors
 
-| Error Code | HTTP Status | Description |
-|------------|-------------|-------------|
-| `UNAUTHORIZED` | 401 | User is not authenticated |
-| `FORBIDDEN` | 403 | User lacks required permissions |
-| `NOT_FOUND` | 404 | Resource not found |
-| `VALIDATION_ERROR` | 400 | Invalid request data |
-| `DUPLICATE_NAME` | 400 | Name already exists |
-| `IN_USE` | 400 | Resource cannot be deleted as it's in use |
-| `RATE_LIMIT` | 429 | Too many requests |
+| Error Code         | HTTP Status | Description                               |
+| ------------------ | ----------- | ----------------------------------------- |
+| `UNAUTHORIZED`     | 401         | User is not authenticated                 |
+| `FORBIDDEN`        | 403         | User lacks required permissions           |
+| `NOT_FOUND`        | 404         | Resource not found                        |
+| `VALIDATION_ERROR` | 400         | Invalid request data                      |
+| `DUPLICATE_NAME`   | 400         | Name already exists                       |
+| `IN_USE`           | 400         | Resource cannot be deleted as it's in use |
+| `RATE_LIMIT`       | 429         | Too many requests                         |
 
 ### Category-Specific Errors
 
-| Error Code | HTTP Status | Description |
-|------------|-------------|-------------|
-| `INVALID_PARENT` | 400 | Parent category/location does not exist |
-| `MAX_DEPTH_EXCEEDED` | 400 | Maximum nesting depth exceeded |
-| `CIRCULAR_REFERENCE` | 400 | Action would create circular reference |
-| `SELF_PARENT` | 400 | Cannot set item as its own parent |
+| Error Code           | HTTP Status | Description                             |
+| -------------------- | ----------- | --------------------------------------- |
+| `INVALID_PARENT`     | 400         | Parent category/location does not exist |
+| `MAX_DEPTH_EXCEEDED` | 400         | Maximum nesting depth exceeded          |
+| `CIRCULAR_REFERENCE` | 400         | Action would create circular reference  |
+| `SELF_PARENT`        | 400         | Cannot set item as its own parent       |
 
 ### Location-Specific Errors
 
-| Error Code | HTTP Status | Description |
-|------------|-------------|-------------|
-| `INVALID_TYPE_HIERARCHY` | 400 | Invalid location type hierarchy |
-| `PARENT_REQUIRED` | 400 | Parent location is required for this type |
+| Error Code               | HTTP Status | Description                               |
+| ------------------------ | ----------- | ----------------------------------------- |
+| `INVALID_TYPE_HIERARCHY` | 400         | Invalid location type hierarchy           |
+| `PARENT_REQUIRED`        | 400         | Parent location is required for this type |
 
 ### Import-Specific Errors
 
-| Error Code | HTTP Status | Description |
-|------------|-------------|-------------|
-| `NO_FILE` | 400 | No file provided |
-| `INVALID_FILE_TYPE` | 400 | Unsupported file type |
-| `INVALID_JSON` | 400 | Invalid JSON format |
-| `INVALID_CSV_HEADERS` | 400 | Required CSV headers missing |
+| Error Code            | HTTP Status | Description                  |
+| --------------------- | ----------- | ---------------------------- |
+| `NO_FILE`             | 400         | No file provided             |
+| `INVALID_FILE_TYPE`   | 400         | Unsupported file type        |
+| `INVALID_JSON`        | 400         | Invalid JSON format          |
+| `INVALID_CSV_HEADERS` | 400         | Required CSV headers missing |
 
 ---
 
@@ -1315,38 +1331,38 @@ All CREATE, UPDATE, and DELETE operations are automatically logged with the foll
 const rootCategory = await fetch('/api/admin/system-categories/categories', {
   method: 'POST',
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   },
   body: JSON.stringify({
     name: 'Engineering',
-    description: 'Engineering positions'
-  })
+    description: 'Engineering positions',
+  }),
 });
 
 // 2. Create sub-category
 const subCategory = await fetch('/api/admin/system-categories/categories', {
   method: 'POST',
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   },
   body: JSON.stringify({
     name: 'Software Engineering',
     parentId: rootCategory.data.id,
-    description: 'Software development positions'
-  })
+    description: 'Software development positions',
+  }),
 });
 
 // 3. Create leaf category
 const leafCategory = await fetch('/api/admin/system-categories/categories', {
   method: 'POST',
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   },
   body: JSON.stringify({
     name: 'Frontend Development',
     parentId: subCategory.data.id,
-    description: 'Frontend engineering positions'
-  })
+    description: 'Frontend engineering positions',
+  }),
 });
 ```
 
@@ -1354,14 +1370,15 @@ const leafCategory = await fetch('/api/admin/system-categories/categories', {
 
 ```javascript
 // Get all technical skills containing "Java"
-const response = await fetch('/api/admin/system-categories/skills?' + 
-  new URLSearchParams({
-    search: 'Java',
-    category: 'TECHNICAL',
-    isActive: true,
-    page: 1,
-    limit: 20
-  })
+const response = await fetch(
+  '/api/admin/system-categories/skills?' +
+    new URLSearchParams({
+      search: 'Java',
+      category: 'TECHNICAL',
+      isActive: true,
+      page: 1,
+      limit: 20,
+    })
 );
 
 const result = await response.json();
@@ -1375,23 +1392,23 @@ console.log(`Found ${result.meta.total} Java-related technical skills`);
 const updateResponse = await fetch('/api/admin/system-categories/industries/bulk/update-status', {
   method: 'POST',
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   },
   body: JSON.stringify({
     ids: ['ind1', 'ind2', 'ind3'],
-    isActive: false
-  })
+    isActive: false,
+  }),
 });
 
 // Delete unused industries
 const deleteResponse = await fetch('/api/admin/system-categories/industries/bulk', {
   method: 'DELETE',
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   },
   body: JSON.stringify({
-    ids: ['ind4', 'ind5']
-  })
+    ids: ['ind4', 'ind5'],
+  }),
 });
 ```
 
@@ -1399,14 +1416,15 @@ const deleteResponse = await fetch('/api/admin/system-categories/industries/bulk
 
 ```javascript
 // Get all provinces of a country with their cities
-const response = await fetch('/api/admin/system-categories/locations?' + 
-  new URLSearchParams({
-    type: 'PROVINCE',
-    parentId: 'vietnam_country_id',
-    includeChildren: true,
-    sortBy: 'name',
-    sortOrder: 'asc'
-  })
+const response = await fetch(
+  '/api/admin/system-categories/locations?' +
+    new URLSearchParams({
+      type: 'PROVINCE',
+      parentId: 'vietnam_country_id',
+      includeChildren: true,
+      sortBy: 'name',
+      sortOrder: 'asc',
+    })
 );
 
 const provinces = await response.json();
@@ -1440,7 +1458,8 @@ For API support, bug reports, or feature requests, please contact:
 
 ## Changelog
 
-### Version 1.0.0 (2024-01-20)
+### Version 1.0.0 (2025-01-20)
+
 - Initial release of System Categories API
 - Support for Categories, Industries, Skills, and Locations
 - Hierarchical data structures for Categories and Locations

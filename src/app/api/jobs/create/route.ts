@@ -19,11 +19,15 @@ const createJobSchema = z.object({
   locationCity: z.string().optional(),
   locationProvince: z.string().optional(),
   applicationDeadline: z.string().datetime().optional(),
-  skills: z.array(z.object({
-    skillId: z.string(),
-    requiredLevel: z.enum(['NICE_TO_HAVE', 'PREFERRED', 'REQUIRED']),
-    minYearsExperience: z.number().optional(),
-  })).optional(),
+  skills: z
+    .array(
+      z.object({
+        skillId: z.string(),
+        requiredLevel: z.enum(['NICE_TO_HAVE', 'PREFERRED', 'REQUIRED']),
+        minYearsExperience: z.number().optional(),
+      })
+    )
+    .optional(),
   categoryIds: z.array(z.string()).optional(),
 });
 
@@ -31,7 +35,7 @@ const createJobSchema = z.object({
 export const POST = withPermission('job.create', async (req: AuthenticatedRequest) => {
   try {
     const body = await req.json();
-    
+
     // Validate input
     const validationResult = createJobSchema.safeParse(body);
     if (!validationResult.success) {
@@ -42,18 +46,18 @@ export const POST = withPermission('job.create', async (req: AuthenticatedReques
     }
 
     const data = validationResult.data;
-    
+
     // Get the company ID for the current user
     const companyUser = await prisma.companyUser.findFirst({
       where: {
         userId: req.user!.id,
         role: {
-          in: ['ADMIN', 'RECRUITER', 'HR_MANAGER']
-        }
+          in: ['ADMIN', 'RECRUITER', 'HR_MANAGER'],
+        },
       },
       include: {
-        company: true
-      }
+        company: true,
+      },
     });
 
     if (!companyUser) {
@@ -70,7 +74,7 @@ export const POST = withPermission('job.create', async (req: AuthenticatedReques
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '');
-      
+
       // Ensure unique slug
       let slug = baseSlug;
       let counter = 1;
@@ -98,15 +102,17 @@ export const POST = withPermission('job.create', async (req: AuthenticatedReques
           salaryNegotiable: data.salaryNegotiable,
           locationCity: data.locationCity,
           locationProvince: data.locationProvince,
-          applicationDeadline: data.applicationDeadline ? new Date(data.applicationDeadline) : undefined,
-          status: 'DRAFT',
+          applicationDeadline: data.applicationDeadline
+            ? new Date(data.applicationDeadline)
+            : undefined,
+          status: 'PENDING',
         },
       });
 
       // Add job skills if provided
       if (data.skills && data.skills.length > 0) {
         await tx.jobSkill.createMany({
-          data: data.skills.map(skill => ({
+          data: data.skills.map((skill) => ({
             jobId: newJob.id,
             skillId: skill.skillId,
             requiredLevel: skill.requiredLevel,
@@ -118,7 +124,7 @@ export const POST = withPermission('job.create', async (req: AuthenticatedReques
       // Add job categories if provided
       if (data.categoryIds && data.categoryIds.length > 0) {
         await tx.jobCategory.createMany({
-          data: data.categoryIds.map(categoryId => ({
+          data: data.categoryIds.map((categoryId) => ({
             jobId: newJob.id,
             categoryId,
           })),
@@ -141,22 +147,21 @@ export const POST = withPermission('job.create', async (req: AuthenticatedReques
       },
     });
 
-    return NextResponse.json({
-      success: true,
-      message: 'Job created successfully',
-      data: {
-        id: job.id,
-        slug: job.slug,
-        title: job.title,
-        status: job.status,
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Job created successfully',
+        data: {
+          id: job.id,
+          slug: job.slug,
+          title: job.title,
+          status: job.status,
+        },
       },
-    }, { status: 201 });
-
+      { status: 201 }
+    );
   } catch (error) {
     console.error('Create job error:', error);
-    return NextResponse.json(
-      { error: 'Failed to create job' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to create job' }, { status: 500 });
   }
 });

@@ -30,6 +30,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import ApplicationsTab from '@/components/admin/ApplicationsTab';
 
 const LoadingSpinner: React.FC<{ size?: 'sm' | 'md' | 'lg' }> = ({ size = 'md' }) => {
   const sizeClasses = {
@@ -121,7 +122,7 @@ const JobDetailPage: React.FC = () => {
   });
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  const { job, loading, error } = useJobDetail(jobId);
+  const { job, loading, error, refetch } = useJobDetail(jobId);
   const { statistics, loading: statsLoading } = useJobAnalytics(jobId);
   const jobMutations = useJobMutations();
   const { confirmWarning, confirmUnsavedChanges } = useConfirm();
@@ -740,10 +741,7 @@ const JobDetailPage: React.FC = () => {
 
           {/* Applications Tab */}
           {activeTab === 'applications' && (
-            <div className="py-8 text-center">
-              <UserGroupIcon className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-              <p className="text-gray-500">Danh sách ứng viên sẽ được hiển thị tại đây</p>
-            </div>
+            <ApplicationsTab jobId={jobId} onApplicationUpdate={refetch} />
           )}
 
           {/* Settings Tab */}

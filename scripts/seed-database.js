@@ -740,6 +740,8 @@ async function seedDatabase() {
           userId: candidate.id,
           coverLetter:
             'Tôi rất quan tâm đến vị trí này và tin rằng kỹ năng của tôi phù hợp với yêu cầu công việc.',
+          cvFileUrl:
+            'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1760330983/career-connect/candidates/cvs/cmgnrwmoe0004ulfgwjtuht8i/Do-Dang-Thang-TopCV_1760330980293_5b4da3f4.pdf.pdf',
           status: getRandomElement([
             'APPLIED',
             'SCREENING',

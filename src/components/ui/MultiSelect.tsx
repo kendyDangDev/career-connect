@@ -44,8 +44,6 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
     option.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  console.log('SKILL:', options);
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -73,14 +71,11 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <Button
-        type="button"
-        variant="outline"
+      <div
         role="combobox"
         aria-expanded={open}
-        className="h-auto min-h-[40px] w-full justify-between"
-        disabled={disabled}
-        onClick={() => setOpen(!open)}
+        className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:ring-ring flex h-auto min-h-[40px] w-full cursor-pointer items-center justify-between rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+        onClick={() => !disabled && setOpen(!open)}
       >
         <div className="flex flex-1 flex-wrap gap-1">
           {selected.length <= maxDisplay ? (
@@ -90,12 +85,12 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
                 className="inline-flex items-center rounded-md bg-blue-100 px-2 py-1 text-xs text-blue-800"
               >
                 {option.name}
-                <button
-                  className="ml-1 rounded-full p-0.5 hover:bg-blue-200"
+                <span
+                  className="ml-1 cursor-pointer rounded-full p-0.5 hover:bg-blue-200"
                   onClick={(e) => handleRemove(option.id, e)}
                 >
                   <X className="h-3 w-3" />
-                </button>
+                </span>
               </span>
             ))
           ) : (
@@ -104,7 +99,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
           {selected.length === 0 && <span className="text-sm text-gray-500">{placeholder}</span>}
         </div>
         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-      </Button>
+      </div>
 
       {open && (
         <div className="absolute z-50 mt-1 w-full rounded-md border border-gray-200 bg-white shadow-lg">

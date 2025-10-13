@@ -7,7 +7,128 @@ import {
   RequiredLevel,
   Skill,
   Category,
+  ApplicationStatus,
 } from '@/generated/prisma';
+
+// Job statistics interface
+export interface JobStatistics {
+  totalViews: number;
+  totalApplications: number;
+  totalSaved: number;
+  conversionRate: string;
+  viewsChange: string;
+  viewsChangeType: 'increase' | 'decrease';
+  applicationsChange: string;
+  applicationsChangeType: 'increase' | 'decrease';
+  savedChange: string;
+  savedChangeType: 'increase' | 'decrease';
+  conversionChange: string;
+  conversionChangeType: 'increase' | 'decrease';
+  currentWeek: {
+    views: number;
+    applications: number;
+    saved: number;
+    conversionRate: string;
+  };
+  previousWeek: {
+    views: number;
+    applications: number;
+    saved: number;
+    conversionRate: string;
+  };
+}
+
+// Application detail interface
+export interface ApplicationDetail {
+  id: string;
+  status: ApplicationStatus;
+  appliedAt: Date;
+  statusUpdatedAt: Date;
+  coverLetter?: string | null;
+  cvFileUrl?: string | null;
+  recruiterNotes?: string | null;
+  rating?: number | null;
+  interviewScheduledAt?: Date | null;
+  candidate: {
+    id: string;
+    currentPosition?: string | null;
+    experienceYears?: number | null;
+    expectedSalaryMin?: number | null;
+    expectedSalaryMax?: number | null;
+    currency?: string | null;
+    availabilityStatus: string;
+    preferredWorkType?: string | null;
+    preferredLocationType?: string | null;
+    user: {
+      id: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      phone?: string | null;
+      avatarUrl?: string | null;
+      profile?: {
+        dateOfBirth?: Date | null;
+        gender?: string | null;
+        address?: string | null;
+        city?: string | null;
+        province?: string | null;
+        bio?: string | null;
+        websiteUrl?: string | null;
+        linkedinUrl?: string | null;
+        githubUrl?: string | null;
+        portfolioUrl?: string | null;
+      } | null;
+    };
+    skills: {
+      proficiencyLevel: string;
+      yearsExperience?: number | null;
+      skill: {
+        id: string;
+        name: string;
+        category: string;
+      };
+    }[];
+    experience: {
+      id: string;
+      companyName: string;
+      positionTitle: string;
+      employmentType: string;
+      startDate: Date;
+      endDate?: Date | null;
+      isCurrent: boolean;
+      description?: string | null;
+      achievements?: string | null;
+    }[];
+    education: {
+      id: string;
+      institutionName: string;
+      degreeType: string;
+      fieldOfStudy: string;
+      startDate: Date;
+      endDate?: Date | null;
+      gpa?: number | null;
+      description?: string | null;
+    }[];
+    certifications: {
+      id: string;
+      certificationName: string;
+      issuingOrganization: string;
+      issueDate: Date;
+      expiryDate?: Date | null;
+      credentialUrl?: string | null;
+    }[];
+    cvs: {
+      id: string;
+      cvName: string;
+      fileUrl: string;
+      fileSize: number;
+      mimeType: string;
+      isPrimary: boolean;
+      uploadedAt: Date;
+      viewCount: number;
+    }[];
+  };
+}
 
 // DTO for creating a new job
 export interface CreateJobDTO {
@@ -65,6 +186,8 @@ export interface JobDetail extends Job {
     savedJobs: number;
     jobViews: number;
   };
+  applications?: ApplicationDetail[];
+  statistics?: JobStatistics;
 }
 
 // Job list item

@@ -9,21 +9,21 @@ export default function ExpiredJobsPage() {
       status={JobStatus.EXPIRED}
       title="Tin hết hạn"
       description="Các tin tuyển dụng đã quá hạn nộp hồ sơ hoặc đã ngừng hiển thị"
-      bgColor="bg-gray-50"
-      borderColor="border-gray-200"
-      textColor="text-gray-900"
+      bgColor="bg-red-50"
+      borderColor="border-red-200"
+      textColor="text-red-900"
       bulkActions={[
-        { 
-          label: 'Gia hạn', 
-          action: 'UPDATE_STATUS', 
+        {
+          label: 'Gia hạn',
+          action: 'UPDATE_STATUS',
           color: 'text-blue-600 hover:text-blue-800',
-          confirm: true
+          confirm: true,
         },
-        { 
-          label: 'Xóa vĩnh viễn', 
-          action: 'DELETE', 
+        {
+          label: 'Xóa vĩnh viễn',
+          action: 'DELETE',
           color: 'text-red-600 hover:text-red-800',
-          confirm: true
+          confirm: true,
         },
       ]}
     />

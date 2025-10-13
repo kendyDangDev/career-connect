@@ -186,7 +186,7 @@ export class AdminJobService {
    */
   static async getJobStatistics(jobId: string): Promise<JobStatistics> {
     const response = await this.request<JobStatistics>(
-      `${this.EMPLOYER_API_URL}/admin/${jobId}/statistics`
+      `${this.BASE_URL}/admin/jobs/${jobId}/statistics`
     );
 
     return response.data;

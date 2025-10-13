@@ -16,6 +16,7 @@ import {
 import { JobStatus, JobType, ExperienceLevel } from '@/generated/prisma';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { useNotification } from '@/hooks/useNotification';
 
 interface Job {
   id: string;
@@ -73,11 +74,76 @@ export function JobsTable({
   onSelectJob,
   onSelectAll,
 }: JobsTableProps) {
-  const getStatusBadge = (status: JobStatus) => {
+  const { success, error, warning, promise } = useNotification();
+
+  // Enhanced delete handler with notifications
+  const handleDelete = async (job: Job) => {
+    try {
+      // Use promise-based notification for async operation
+      if (onDelete) {
+        await promise(
+          new Promise<void>((resolve, reject) => {
+            try {
+              onDelete(job.id);
+              // Simulate async operation completion
+              setTimeout(resolve, 500);
+            } catch (err) {
+              reject(err);
+            }
+          }),
+          {
+            loading: 'Đang xóa việc làm...',
+            success: `Đã xóa việc làm "${job.title}" thành công`,
+            error: (err) => `Lỗi khi xóa việc làm: ${err.message || 'Có lỗi xảy ra'}`,
+          }
+        );
+      }
+    } catch (err) {
+      // Error is already handled by the promise notification
+      console.error('Delete job error:', err);
+    }
+  };
+
+  // Enhanced status change handler
+  const handleStatusChange = async (job: Job, newStatus: JobStatus) => {
+    try {
+      if (onStatusChange) {
+        await promise(
+          new Promise<void>((resolve, reject) => {
+            try {
+              onStatusChange(job.id, newStatus);
+              setTimeout(resolve, 500);
+            } catch (err) {
+              reject(err);
+            }
+          }),
+          {
+            loading: 'Đang cập nhật trạng thái...',
+            success: `Đã cập nhật trạng thái việc làm "${job.title}" thành công`,
+            error: 'Lỗi khi cập nhật trạng thái việc làm',
+          }
+        );
+      }
+    } catch (err) {
+      console.error('Status change error:', err);
+    }
+  };
+
+  // Copy job link handler
+  const handleCopyLink = async (job: Job) => {
+    try {
+      const jobUrl = `${window.location.origin}/jobs/${job.slug}`;
+      await navigator.clipboard.writeText(jobUrl);
+      success('Đã sao chép', 'Link việc làm đã được sao chép vào clipboard');
+    } catch (err) {
+      error('Lỗi sao chép', 'Không thể sao chép link việc làm');
+    }
+  };
+
+  const getStatusBadge = (status: JobStatus, job?: Job) => {
     const styles = {
       [JobStatus.ACTIVE]: 'bg-green-100 text-green-800 border-green-200',
       [JobStatus.PENDING]: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      [JobStatus.PAUSED]: 'bg-blue-100 text-blue-800 border-blue-200',
       [JobStatus.CLOSED]: 'bg-red-100 text-red-800 border-red-200',
       [JobStatus.EXPIRED]: 'bg-gray-100 text-gray-800 border-gray-200',
     };
@@ -85,10 +151,43 @@ export function JobsTable({
     const labels = {
       [JobStatus.ACTIVE]: 'Đang tuyển',
       [JobStatus.PENDING]: 'Chờ duyệt',
-      [JobStatus.PAUSED]: 'Tạm dừng',
       [JobStatus.CLOSED]: 'Đã đóng',
       [JobStatus.EXPIRED]: 'Hết hạn',
     };
+
+    if (onStatusChange && job) {
+      return (
+        <div className="group relative">
+          <span
+            className={`inline-flex cursor-pointer items-center rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors hover:opacity-80 ${styles[status]}`}
+            title="Click để thay đổi trạng thái"
+          >
+            {labels[status]}
+            <svg className="ml-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </span>
+          <div className="ring-opacity-5 invisible absolute top-full left-0 z-10 mt-1 w-32 rounded-md bg-white py-1 shadow-lg ring-1 ring-black group-hover:visible">
+            {Object.values(JobStatus).map((statusOption) => (
+              <button
+                key={statusOption}
+                onClick={() => handleStatusChange(job, statusOption)}
+                className={`block w-full px-3 py-1 text-left text-xs hover:bg-gray-100 ${
+                  statusOption === status ? 'bg-gray-50 font-medium' : ''
+                }`}
+              >
+                {labels[statusOption]}
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+    }
 
     return (
       <span
@@ -282,8 +381,7 @@ export function JobsTable({
                       </div>
                     </div>
                     <div className="mt-1 text-xs text-gray-500 lg:hidden">
-                      👁 {job._count?.jobViews || job.viewCount || 0} | 👤{' '}
-                      {job._count?.applications || job.applicationCount || 0}
+                      👁 {job.viewCount || 0} | 👤 {job.applicationCount || 0}
                     </div>
                     <div className="mt-1 text-xs text-gray-500 xl:hidden">
                       💰{' '}
@@ -292,20 +390,20 @@ export function JobsTable({
                   </div>
                 </div>
               </td>
-              <td className="px-3 py-4 whitespace-nowrap">{getStatusBadge(job.status)}</td>
+              <td className="px-3 py-4 whitespace-nowrap">{getStatusBadge(job.status, job)}</td>
               <td className="hidden px-3 py-4 text-sm whitespace-nowrap text-gray-900 sm:table-cell">
                 {getJobTypeBadge(job.jobType)}
               </td>
               <td className="px-3 py-4 text-center text-sm whitespace-nowrap text-gray-900">
                 <div className="flex items-center justify-center">
                   <UsersIcon className="mr-1 h-4 w-4 text-gray-400" />
-                  {job._count?.applications || job.applicationCount || 0}
+                  {job.applicationCount || 0}
                 </div>
               </td>
               <td className="hidden px-3 py-4 text-center text-sm whitespace-nowrap text-gray-900 lg:table-cell">
                 <div className="flex items-center justify-center">
                   <EyeIcon className="mr-1 h-4 w-4 text-gray-400" />
-                  {job._count?.jobViews || job.viewCount || 0}
+                  {job.viewCount || 0}
                 </div>
               </td>
               <td className="hidden px-3 py-4 text-sm whitespace-nowrap text-gray-900 xl:table-cell">
@@ -337,13 +435,23 @@ export function JobsTable({
                   >
                     <PencilIcon className="h-4 w-4" />
                   </Link>
+                  <button
+                    onClick={() => handleCopyLink(job)}
+                    className="p-1 text-gray-600 hover:text-gray-900"
+                    title="Sao chép link"
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </button>
                   {onDelete && (
                     <button
-                      onClick={() => {
-                        if (confirm(`Bạn có chắc muốn xóa việc làm "${job.title}"?`)) {
-                          onDelete(job.id);
-                        }
-                      }}
+                      onClick={() => handleDelete(job)}
                       className="p-1 text-red-600 hover:text-red-900"
                       title="Xóa"
                     >

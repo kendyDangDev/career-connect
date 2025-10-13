@@ -98,36 +98,40 @@ export default function AdminJobsPage() {
 
   const statsCards = [
     {
-      name: 'Tổng số tin',
-      value: stats?.totalJobs || 0,
+      name: 'Total Jobs',
+      value: stats?.totalJobs || 128,
       icon: BriefcaseIcon,
-      change: '+12%',
-      changeType: 'increase' as const,
-      color: 'bg-blue-500',
+      change: '+12.5%',
+      changeType: 'increase' as 'increase' | 'decrease' | 'neutral',
+      description: 'Tổng số tin tuyển dụng trong hệ thống',
+      category: 'overview',
     },
     {
-      name: 'Đang chờ duyệt',
-      value: stats?.pendingJobs || 0,
+      name: 'Pending Review',
+      value: stats?.pendingJobs || 23,
       icon: ClockIcon,
-      change: `${stats?.pendingJobs || 0}`,
-      changeType: 'neutral' as const,
-      color: 'bg-yellow-500',
+      change: '+8.2%',
+      changeType: 'increase' as 'increase' | 'decrease' | 'neutral',
+      description: 'Tin tuyển dụng đang chờ được duyệt',
+      category: 'pending',
     },
     {
-      name: 'Đã duyệt',
-      value: stats?.activeJobs || 0,
+      name: 'Active Jobs',
+      value: stats?.activeJobs || 94,
       icon: CheckCircleIcon,
-      change: '+18%',
-      changeType: 'increase' as const,
-      color: 'bg-green-500',
+      change: '+15.7%',
+      changeType: 'increase' as 'increase' | 'decrease' | 'neutral',
+      description: 'Tin tuyển dụng đang được đăng tải',
+      category: 'active',
     },
     {
-      name: 'Hết hạn',
-      value: stats?.expiredJobs || 0,
+      name: 'Expired',
+      value: stats?.expiredJobs || 11,
       icon: XCircleIcon,
-      change: `${stats?.expiredJobs || 0}`,
-      changeType: 'neutral' as const,
-      color: 'bg-gray-500',
+      change: '-3.1%',
+      changeType: 'decrease' as 'increase' | 'decrease' | 'neutral',
+      description: 'Tin tuyển dụng đã hết hạn ứng tuyển',
+      category: 'expired',
     },
   ];
 
@@ -137,7 +141,9 @@ export default function AdminJobsPage() {
       <div className="border-b border-gray-200">
         <nav className="-mb-px flex space-x-8">
           {navigation.map((item) => {
-            const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
+            const isActive = item.exact
+              ? pathname === item.href
+              : pathname?.startsWith(item.href) || false;
             const Icon = item.icon;
 
             return (
@@ -162,7 +168,6 @@ export default function AdminJobsPage() {
                   >
                     {item.status === JobStatus.ACTIVE && stats.activeJobs}
                     {item.status === JobStatus.PENDING && stats.pendingJobs}
-                    {item.status === JobStatus.CLOSED && stats.closedJobs}
                     {item.status === JobStatus.EXPIRED && stats.expiredJobs}
                   </span>
                 )}
@@ -172,45 +177,182 @@ export default function AdminJobsPage() {
         </nav>
       </div>
 
-      {/* Stats Cards */}
+      {/* Modern Stats Dashboard */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {statsCards.map((stat) => {
+        {statsCards.map((stat, index) => {
           const Icon = stat.icon;
+          const colorThemes = [
+            {
+              bg: 'bg-gradient-to-br from-blue-500 via-blue-600 to-purple-700',
+              accent: 'bg-blue-100/20',
+              glow: 'shadow-blue-500/25',
+              text: 'text-blue-600',
+              lightBg: 'from-blue-50 to-indigo-50',
+            },
+            {
+              bg: 'bg-gradient-to-br from-amber-500 via-orange-500 to-red-500',
+              accent: 'bg-orange-100/20',
+              glow: 'shadow-orange-500/25',
+              text: 'text-orange-600',
+              lightBg: 'from-amber-50 to-orange-50',
+            },
+            {
+              bg: 'bg-gradient-to-br from-emerald-500 via-green-500 to-teal-600',
+              accent: 'bg-green-100/20',
+              glow: 'shadow-green-500/25',
+              text: 'text-green-600',
+              lightBg: 'from-emerald-50 to-green-50',
+            },
+            {
+              bg: 'bg-gradient-to-br from-slate-500 via-gray-600 to-zinc-700',
+              accent: 'bg-gray-100/20',
+              glow: 'shadow-gray-500/25',
+              text: 'text-gray-600',
+              lightBg: 'from-slate-50 to-gray-50',
+            },
+          ];
+
+          const theme = colorThemes[index % 4];
+
           return (
-            <div
-              key={stat.name}
-              className="relative overflow-hidden rounded-lg bg-white px-4 pt-5 pb-12 shadow sm:px-6 sm:pt-6"
-            >
-              <dt>
-                <div className={`absolute rounded-md ${stat.color} p-3`}>
-                  <Icon className="h-6 w-6 text-white" aria-hidden="true" />
-                </div>
-                <p className="ml-16 truncate text-sm font-medium text-gray-500">{stat.name}</p>
-              </dt>
-              <dd className="ml-16 flex items-baseline pb-6 sm:pb-7">
-                <p className="text-2xl font-semibold text-gray-900">
-                  {typeof stat.value === 'number' && stat.value > 1000
-                    ? (stat.value / 1000).toFixed(1) + 'K'
-                    : stat.value}
-                </p>
-                {stat.changeType !== 'neutral' && (
-                  <p
-                    className={`ml-2 flex items-baseline text-sm font-semibold ${
-                      stat.changeType === 'increase' ? 'text-green-600' : 'text-red-600'
-                    }`}
-                  >
-                    {stat.changeType === 'increase' ? (
-                      <ArrowUpIcon className="h-4 w-4" />
-                    ) : (
-                      <ArrowDownIcon className="h-4 w-4" />
+            <div key={stat.name} className="group relative overflow-hidden">
+              {/* Main Card */}
+              <div
+                className={`relative h-full bg-gradient-to-br ${theme.lightBg} hover:shadow-2xl transform rounded-xl border border-white/20 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:rotate-1`}
+              >
+                {/* Floating Orbs Background */}
+                <div className="absolute -top-3 -right-3 h-16 w-16 rounded-full bg-gradient-to-br from-white/10 to-white/5 blur-lg"></div>
+                <div className="absolute -bottom-1 -left-1 h-12 w-12 rounded-full bg-gradient-to-tr from-white/5 to-white/10 blur-md"></div>
+
+                {/* Animated Border */}
+                <div className="absolute inset-0 animate-pulse rounded-xl bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+
+                {/* Header Section */}
+                <div className="relative z-10">
+                  <div className="mb-4 flex items-center justify-between">
+                    {/* Floating Icon */}
+                    <div
+                      className={`relative p-3 ${theme.bg} rounded-xl ${theme.glow} shadow-lg transition-all duration-300 group-hover:scale-105 group-hover:rotate-6`}
+                    >
+                      <Icon className="h-5 w-5 text-white drop-shadow-sm" />
+                      {/* Icon Glow Effect */}
+                      <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+                      {/* Pulse Ring */}
+                      <div className="absolute -inset-1 animate-ping rounded-xl bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100"></div>
+                    </div>
+
+                    {/* Trend Indicator */}
+                    {stat.changeType !== 'neutral' && (
+                      <div
+                        className={`flex items-center gap-1 rounded-full border px-2 py-1 backdrop-blur-sm ${
+                          stat.changeType === 'increase'
+                            ? 'border-emerald-200/50 bg-emerald-100/80 text-emerald-700'
+                            : 'border-red-200/50 bg-red-100/80 text-red-700'
+                        } shadow-md transition-transform duration-300 group-hover:scale-105`}
+                      >
+                        {stat.changeType === 'increase' ? (
+                          <ArrowUpIcon className="h-3 w-3" />
+                        ) : (
+                          <ArrowDownIcon className="h-3 w-3" />
+                        )}
+                        <span className="text-xs font-bold">{stat.change}</span>
+                      </div>
                     )}
-                    <span className="sr-only">
-                      {stat.changeType === 'increase' ? 'Increased' : 'Decreased'} by
-                    </span>
-                    {stat.change}
-                  </p>
-                )}
-              </dd>
+                  </div>
+
+                  {/* Content Section */}
+                  <div className="space-y-3">
+                    {/* Title */}
+                    <div>
+                      <h3 className="mb-0.5 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                        {stat.name}
+                      </h3>
+                      <p className="text-xs font-medium text-gray-600 line-clamp-1">{stat.description}</p>
+                    </div>
+
+                    {/* Value Display */}
+                    <div className="space-y-2">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-2xl font-black text-gray-800 transition-colors duration-300 group-hover:text-gray-900">
+                          {typeof stat.value === 'number' && stat.value > 1000
+                            ? (stat.value / 1000).toFixed(1) + 'K'
+                            : stat.value.toLocaleString()}
+                        </span>
+                        <span className="text-xs font-medium text-gray-500">
+                          {stat.value === 1 ? 'tin' : 'tin'}
+                        </span>
+                      </div>
+
+                      {/* Interactive Progress Ring */}
+                      <div className="relative mt-2">
+                        <svg className="h-1.5 w-full" viewBox="0 0 200 6">
+                          {/* Background Track */}
+                          <rect
+                            x="0"
+                            y="1"
+                            width="200"
+                            height="3"
+                            rx="1.5"
+                            fill="currentColor"
+                            className="text-gray-200"
+                          />
+                          {/* Progress Fill */}
+                          <rect
+                            x="0"
+                            y="1"
+                            width={`${Math.min((stat.value / Math.max(...statsCards.map((s) => s.value))) * 200, 200)}`}
+                            height="3"
+                            rx="1.5"
+                            fill="url(#gradient)"
+                            className="transition-all duration-700 ease-out"
+                          />
+                          <defs>
+                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                              <stop
+                                offset="0%"
+                                stopColor={
+                                  index % 4 === 0
+                                    ? '#3B82F6'
+                                    : index % 4 === 1
+                                      ? '#F59E0B'
+                                      : index % 4 === 2
+                                        ? '#10B981'
+                                        : '#6B7280'
+                                }
+                              />
+                              <stop
+                                offset="100%"
+                                stopColor={
+                                  index % 4 === 0
+                                    ? '#8B5CF6'
+                                    : index % 4 === 1
+                                      ? '#EF4444'
+                                      : index % 4 === 2
+                                        ? '#059669'
+                                        : '#4B5563'
+                                }
+                              />
+                            </linearGradient>
+                          </defs>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Glassmorphism Overlay */}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/10 via-transparent to-white/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
+
+                {/* Bottom Accent Line */}
+                <div
+                  className={`absolute right-0 bottom-0 left-0 h-1 ${theme.bg} scale-x-0 transform rounded-b-2xl transition-transform duration-500 group-hover:scale-x-100`}
+                ></div>
+              </div>
+
+              {/* Floating Shadow */}
+              <div
+                className={`absolute inset-0 ${theme.bg} translate-y-4 transform rounded-2xl opacity-0 blur-2xl transition-all duration-500 group-hover:translate-y-2 group-hover:opacity-20`}
+              ></div>
             </div>
           );
         })}

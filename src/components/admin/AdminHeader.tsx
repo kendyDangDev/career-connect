@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import { AdminChatModal } from '@/components/admin/chat/AdminChatModal';
 
 interface AdminHeaderProps {
   user?: {
@@ -31,6 +32,7 @@ interface AdminHeaderProps {
 export function AdminHeader({ user, className }: AdminHeaderProps) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = React.useState('');
+  const [isChatOpen, setIsChatOpen] = React.useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,7 +135,7 @@ export function AdminHeader({ user, className }: AdminHeaderProps) {
               'hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10',
               'hover:shadow-md hover:scale-110'
             )}
-            onClick={() => router.push('/admin/messages')}
+            onClick={() => setIsChatOpen(true)}
           >
             <MessageSquare className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             <Badge
@@ -232,6 +234,9 @@ export function AdminHeader({ user, className }: AdminHeaderProps) {
           </DropdownMenu>
         </div>
       </div>
+
+      {/* Chat Modal */}
+      <AdminChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </header>
   );
 }

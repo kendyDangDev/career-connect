@@ -109,17 +109,119 @@ export const GET = withPermission(
               id: true,
               status: true,
               appliedAt: true,
+              statusUpdatedAt: true,
+              coverLetter: true,
+              cvFileUrl: true,
+              recruiterNotes: true,
+              rating: true,
+              interviewScheduledAt: true,
               candidate: {
                 select: {
                   id: true,
+                  currentPosition: true,
+                  experienceYears: true,
+                  expectedSalaryMin: true,
+                  expectedSalaryMax: true,
+                  currency: true,
+                  availabilityStatus: true,
+                  preferredWorkType: true,
+                  preferredLocationType: true,
                   user: {
                     select: {
                       id: true,
                       firstName: true,
                       lastName: true,
                       email: true,
+                      phone: true,
                       avatarUrl: true,
+                      profile: {
+                        select: {
+                          dateOfBirth: true,
+                          gender: true,
+                          address: true,
+                          city: true,
+                          province: true,
+                          bio: true,
+                          websiteUrl: true,
+                          linkedinUrl: true,
+                          githubUrl: true,
+                          portfolioUrl: true,
+                        },
+                      },
                     },
+                  },
+                  skills: {
+                    select: {
+                      proficiencyLevel: true,
+                      yearsExperience: true,
+                      skill: {
+                        select: {
+                          id: true,
+                          name: true,
+                          category: true,
+                        },
+                      },
+                    },
+                    orderBy: {
+                      proficiencyLevel: 'desc',
+                    },
+                  },
+                  experience: {
+                    select: {
+                      id: true,
+                      companyName: true,
+                      positionTitle: true,
+                      employmentType: true,
+                      startDate: true,
+                      endDate: true,
+                      isCurrent: true,
+                      description: true,
+                      achievements: true,
+                    },
+                    orderBy: {
+                      startDate: 'desc',
+                    },
+                  },
+                  education: {
+                    select: {
+                      id: true,
+                      institutionName: true,
+                      degreeType: true,
+                      fieldOfStudy: true,
+                      startDate: true,
+                      endDate: true,
+                      gpa: true,
+                      description: true,
+                    },
+                    orderBy: {
+                      startDate: 'desc',
+                    },
+                  },
+                  certifications: {
+                    select: {
+                      id: true,
+                      certificationName: true,
+                      issuingOrganization: true,
+                      issueDate: true,
+                      expiryDate: true,
+                      credentialUrl: true,
+                    },
+                    orderBy: {
+                      issueDate: 'desc',
+                    },
+                  },
+                  cvs: {
+                    select: {
+                      id: true,
+                      cvName: true,
+                      fileUrl: true,
+                      fileSize: true,
+                      mimeType: true,
+                      isPrimary: true,
+                      uploadedAt: true,
+                      viewCount: true,
+                    },
+                    orderBy: [{ isPrimary: 'desc' }, { uploadedAt: 'desc' }],
                   },
                 },
               },
@@ -237,8 +339,12 @@ export const GET = withPermission(
       };
 
       // Calculate conversion rates
-      const currentConversionRate =
-        job._count.jobViews > 0 ? (job._count.applications / job._count.jobViews) * 100 : 0;
+      // Use the counter fields from database for better performance and consistency
+      const totalViews = job.viewCount || job._count.jobViews || 0;
+      const totalApplications = job.applicationCount || job._count.applications || 0;
+      const totalSaved = job._count.savedJobs || 0;
+
+      const currentConversionRate = totalViews > 0 ? (totalApplications / totalViews) * 100 : 0;
 
       const previousWeekConversionRate =
         previousWeekViews > 0 ? (previousWeekApplications / previousWeekViews) * 100 : 0;
@@ -248,10 +354,10 @@ export const GET = withPermission(
         data: {
           ...job,
           statistics: {
-            // Basic stats
-            totalViews: job._count.jobViews,
-            totalApplications: job._count.applications,
-            totalSaved: job._count.savedJobs,
+            // Basic stats - prioritize counter fields over _count for performance
+            totalViews: totalViews,
+            totalApplications: totalApplications,
+            totalSaved: totalSaved,
             conversionRate: currentConversionRate.toFixed(1),
 
             // Weekly comparison stats
@@ -317,9 +423,12 @@ export const PUT = withPermission(
       const { id } = await params;
       const body = await req.json();
 
+      console.log('🔍 Request body received:', body);
+
       // Validate input
       const validationResult = updateJobSchema.safeParse(body);
       if (!validationResult.success) {
+        console.log('❌ Validation failed:', validationResult.error.flatten());
         return NextResponse.json(
           {
             success: false,
@@ -447,6 +556,9 @@ export const PUT = withPermission(
             });
           }
         }
+
+        console.log('category Ids:', data.categoryIds);
+        console.log('DATA in backend:', data);
 
         // Update categories if provided
         if (data.categoryIds !== undefined) {

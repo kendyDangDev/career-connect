@@ -271,15 +271,15 @@ const JobDetailPage: React.FC = () => {
               <StatusBadge status={job.status} />
             </div>
 
-            <div className="grid grid-cols-1 gap-4 text-sm text-gray-600 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-2 text-sm text-gray-600 md:grid-cols-2 lg:grid-cols-4">
               <div className="flex items-center">
                 <BuildingOfficeIcon className="mr-2 h-4 w-4" />
                 {job.company.companyName}
               </div>
               <div className="flex items-center">
                 <MapPinIcon className="mr-2 h-4 w-4" />
-                {job.locationCity && `${job.locationCity}, `}
-                {job.locationProvince}
+                {/* {job.locationCity && `${job.locationCity}, `} */}
+                {`${job.address}, ${job.locationProvince}`}
               </div>
               <div className="flex items-center">
                 <ClockIcon className="mr-2 h-4 w-4" />
@@ -405,7 +405,7 @@ const JobDetailPage: React.FC = () => {
                           ? 'Tại văn phòng'
                           : job.workLocationType === 'REMOTE'
                             ? 'Từ xa'
-                            : 'Lai ghép'}
+                            : 'Linh Hoạt (Hybrid)'}
                       </span>
                     </div>
                     <div className="flex items-center justify-between border-b border-gray-100 py-2">

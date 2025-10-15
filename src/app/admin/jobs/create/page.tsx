@@ -36,19 +36,47 @@ const LoadingSpinner: React.FC<{ size?: 'sm' | 'md' }> = ({ size = 'md' }) => (
   />
 );
 
+interface Company {
+  id: string;
+  companyName: string;
+  logoUrl?: string;
+  verificationStatus: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+}
+
 const CreateJobPage: React.FC = () => {
   const router = useRouter();
   const [activeStep, setActiveStep] = useState(0);
-  const [formData, setFormData] = useState<Partial<CreateJobDTO>>({
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCompanies, setLoadingCompanies] = useState(true);
+  const [formData, setFormData] = useState<any>({
+    companyId: '',
+    title: '',
+    description: '',
+    requirements: '',
+    benefits: '',
     jobType: 'FULL_TIME',
     workLocationType: 'ONSITE',
     experienceLevel: 'MID',
+    salaryMin: null,
+    salaryMax: null,
     currency: 'VND',
     salaryNegotiable: false,
+    locationCity: '',
+    locationProvince: '',
+    locationCountry: 'Vietnam',
+    address: '',
+    applicationDeadline: '',
+    status: 'PENDING',
     featured: false,
     urgent: false,
     skills: [],
-    categories: [],
+    categoryIds: [],
   });
 
   const [formErrors, setFormErrors] = useState<FormErrors>({});
@@ -57,16 +85,55 @@ const CreateJobPage: React.FC = () => {
 
   const mutations = useJobMutations((operation, data) => {
     if (operation === 'create') {
-      router.push(`/admin/jobs/${data.id}`);
+      router.push(`/admin/jobs/all`);
     }
   });
+
+  // Fetch companies and categories for admin selection
+  useEffect(() => {
+    fetchCompanies();
+    fetchCategories();
+  }, []);
+
+  const fetchCompanies = async () => {
+    try {
+      setLoadingCompanies(true);
+      const response = await fetch('/api/admin/companies?limit=100');
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        setCompanies(result.data?.companies || result.data || []);
+      } else {
+        console.error('Failed to fetch companies:', result);
+      }
+    } catch (error) {
+      console.error('Error fetching companies:', error);
+    } finally {
+      setLoadingCompanies(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/public/categories');
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        setCategories(result.data || []);
+      } else {
+        console.error('Failed to fetch categories:', result);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   // Form steps configuration
   const steps = [
     {
       id: 0,
-      title: 'Thông tin cơ bản',
-      description: 'Tiêu đề và mô tả công việc',
+      title: 'Chọn công ty & Thông tin cơ bản',
+      description: 'Chọn công ty và điền thông tin việc làm',
     },
     {
       id: 1,
@@ -93,6 +160,16 @@ const CreateJobPage: React.FC = () => {
   // Form fields configuration for each step
   const formFields: { [key: number]: FormField[] } = {
     0: [
+      {
+        name: 'companyId',
+        label: 'Chọn công ty',
+        type: 'select',
+        required: true,
+        options: companies.map((company) => ({
+          value: company.id,
+          label: `${company.companyName} ${company.verificationStatus === 'VERIFIED' ? '✓' : ''}`,
+        })),
+      },
       {
         name: 'title',
         label: 'Tiêu đề công việc',
@@ -175,14 +252,27 @@ const CreateJobPage: React.FC = () => {
           { value: 'HYBRID', label: 'Lai ghép' },
         ],
       },
-      { name: 'locationCity', label: 'Thành phố', type: 'text', placeholder: 'VD: Hà Nội' },
+      // { name: 'locationCity', label: 'Thành phố', type: 'text', placeholder: 'VD: Hà Nội' },
       {
         name: 'locationProvince',
         label: 'Tỉnh/Thành phố',
         type: 'text',
+        required: true,
         placeholder: 'VD: Hà Nội',
       },
+      {
+        name: 'address',
+        label: 'Địa chỉ cụ thể',
+        type: 'text',
+        required: true,
+        placeholder: 'VD: 123 Đường ABC, Quận XYZ',
+      },
       { name: 'applicationDeadline', label: 'Hạn nộp hồ sơ', type: 'date' },
+      { name: 'featured', label: 'Việc làm nổi bật', type: 'checkbox' },
+      { name: 'urgent', label: 'Tuyển gấp', type: 'checkbox' },
+    ],
+    3: [
+      // Skills và categories sẽ được handle riêng trong renderStepContent
     ],
   };
 
@@ -220,6 +310,25 @@ const CreateJobPage: React.FC = () => {
           errors.requirements = 'Yêu cầu ứng viên phải có ít nhất 50 ký tự';
         }
       }
+
+      if (field.name === 'address' && formData.address) {
+        if (formData.address.length < 5) {
+          errors.address = 'Địa chỉ phải có ít nhất 5 ký tự';
+        }
+        if (formData.address.length > 200) {
+          errors.address = 'Địa chỉ không được quá 200 ký tự';
+        }
+      }
+
+      if (field.name === 'applicationDeadline' && formData.applicationDeadline) {
+        const deadline = new Date(formData.applicationDeadline);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset time to start of day for comparison
+
+        if (deadline < today) {
+          errors.applicationDeadline = 'Hạn nộp hồ sơ không thể là ngày trong quá khứ';
+        }
+      }
     });
 
     setFormErrors(errors);
@@ -228,7 +337,7 @@ const CreateJobPage: React.FC = () => {
 
   // Handlers
   const handleInputChange = (name: string, value: any) => {
-    setFormData((prev) => ({
+    setFormData((prev: any) => ({
       ...prev,
       [name]: value,
     }));
@@ -282,15 +391,55 @@ const CreateJobPage: React.FC = () => {
     if (!isValid) return;
 
     // Prepare final data
-    const jobData: CreateJobDTO = {
+    const jobData: any = {
       ...(formData as Required<CreateJobDTO>),
       skills: selectedSkills.map((skill) => ({
         skillId: skill.skillId,
+        name: skill.name, // Include skill name for creating new skills
         requiredLevel: skill.requiredLevel,
         minYearsExperience: skill.minYearsExperience || 0,
       })),
-      categories: formData.categories || [],
+      categoryIds: (formData as any).categoryIds || [],
     };
+
+    // Convert applicationDeadline to ISO datetime if provided
+    if (formData.applicationDeadline) {
+      const deadlineValue =
+        typeof formData.applicationDeadline === 'string'
+          ? formData.applicationDeadline.trim()
+          : formData.applicationDeadline;
+
+      if (deadlineValue && deadlineValue !== '') {
+        try {
+          // If it's a date string (YYYY-MM-DD), convert to ISO datetime
+          const date = new Date(deadlineValue);
+          // Validate the date
+          if (!isNaN(date.getTime())) {
+            // Set time to end of day (23:59:59)
+            date.setHours(23, 59, 59, 999);
+            jobData.applicationDeadline = date.toISOString();
+          } else {
+            // Invalid date, remove the field
+            delete jobData.applicationDeadline;
+          }
+        } catch (error) {
+          console.error('Error parsing applicationDeadline:', error);
+          delete jobData.applicationDeadline;
+        }
+      } else {
+        // Remove empty applicationDeadline
+        delete jobData.applicationDeadline;
+      }
+    }
+
+    // Remove any undefined or null values
+    Object.keys(jobData).forEach((key) => {
+      if (jobData[key] === undefined || jobData[key] === null || jobData[key] === '') {
+        delete jobData[key];
+      }
+    });
+
+    console.log('Final job data being sent:', jobData);
 
     try {
       await mutations.createJob(jobData);
@@ -312,7 +461,6 @@ const CreateJobPage: React.FC = () => {
     switch (field.type) {
       case 'text':
       case 'number':
-      case 'date':
         return (
           <input
             type={field.type}
@@ -325,6 +473,29 @@ const CreateJobPage: React.FC = () => {
             }
             placeholder={field.placeholder}
             className={baseClasses}
+          />
+        );
+
+      case 'date':
+        // Display date input as date, store as ISO string internally
+        const displayValue = value ? new Date(value).toISOString().split('T')[0] : '';
+        return (
+          <input
+            type="date"
+            value={displayValue}
+            onChange={(e) => {
+              const dateValue = e.target.value;
+              if (dateValue) {
+                // Convert to ISO datetime with end of day time
+                const date = new Date(dateValue + 'T23:59:59');
+                handleInputChange(field.name, date.toISOString());
+              } else {
+                handleInputChange(field.name, '');
+              }
+            }}
+            placeholder={field.placeholder}
+            className={baseClasses}
+            min={new Date().toISOString().split('T')[0]}
           />
         );
 
@@ -345,7 +516,13 @@ const CreateJobPage: React.FC = () => {
             value={(value as string) || ''}
             onChange={(e) => handleInputChange(field.name, e.target.value)}
             className={baseClasses}
+            disabled={field.name === 'companyId' && loadingCompanies}
           >
+            <option value="">
+              {field.name === 'companyId' && loadingCompanies
+                ? 'Đang tải...'
+                : `Chọn ${field.label.toLowerCase()}`}
+            </option>
             {field.options?.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
@@ -441,6 +618,36 @@ const CreateJobPage: React.FC = () => {
                 ))}
               </div>
             </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">Ngành nghề</label>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                {categories.map((category) => (
+                  <label key={category.id} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      checked={(formData.categoryIds || []).includes(category.id)}
+                      onChange={(e) => {
+                        const currentIds = formData.categoryIds || [];
+                        if (e.target.checked) {
+                          setFormData((prev: any) => ({
+                            ...prev,
+                            categoryIds: [...currentIds, category.id],
+                          }));
+                        } else {
+                          setFormData((prev: any) => ({
+                            ...prev,
+                            categoryIds: currentIds.filter((id: string) => id !== category.id),
+                          }));
+                        }
+                      }}
+                    />
+                    <span className="ml-2 text-sm text-gray-700">{category.name}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
           </div>
         );
 
@@ -462,6 +669,11 @@ const CreateJobPage: React.FC = () => {
                 <h4 className="mb-3 font-medium text-gray-900">Thông tin cơ bản</h4>
                 <div className="space-y-2 text-sm">
                   <div>
+                    <span className="text-gray-500">Công ty:</span>{' '}
+                    {companies.find((c) => c.id === (formData as any).companyId)?.companyName ||
+                      'Chưa chọn'}
+                  </div>
+                  <div>
                     <span className="text-gray-500">Tiêu đề:</span> {formData.title}
                   </div>
                   <div>
@@ -471,7 +683,7 @@ const CreateJobPage: React.FC = () => {
                     <span className="text-gray-500">Kinh nghiệm:</span> {formData.experienceLevel}
                   </div>
                   <div>
-                    <span className="text-gray-500">Địa điểm:</span> {formData.locationCity},{' '}
+                    <span className="text-gray-500">Địa chỉ làm việc:</span> {formData.address},{' '}
                     {formData.locationProvince}
                   </div>
                 </div>
@@ -482,7 +694,9 @@ const CreateJobPage: React.FC = () => {
                 <div className="space-y-2 text-sm">
                   <div>
                     <span className="text-gray-500">Mức lương:</span>{' '}
-                    {formData.salaryNegotiable
+                    {formData.salaryNegotiable ||
+                    formData.salaryMin == null ||
+                    formData.salaryMax == null
                       ? 'Thỏa thuận'
                       : `${formData.salaryMin?.toLocaleString()} - ${formData.salaryMax?.toLocaleString()} ${formData.currency}`}
                   </div>
@@ -520,9 +734,27 @@ const CreateJobPage: React.FC = () => {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Tạo việc làm mới</h1>
-        <p className="mt-1 text-gray-600">Điền thông tin chi tiết để tạo bài đăng tuyển dụng</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={() => router.back()}
+            className="inline-flex items-center text-gray-500 hover:text-gray-700"
+          >
+            <svg className="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            Quay lại
+          </button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Tạo việc làm mới</h1>
+            <p className="mt-1 text-gray-600">Điền thông tin chi tiết để tạo bài đăng tuyển dụng</p>
+          </div>
+        </div>
       </div>
 
       {/* Progress Steps */}

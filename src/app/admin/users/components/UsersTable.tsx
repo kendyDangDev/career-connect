@@ -217,7 +217,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                   </div>
                 </TableHead>
                 <TableHead>Vai trò</TableHead>
-                <TableHead>Công ty</TableHead>
+                <TableHead>Công ty/Vị trí</TableHead>
                 <TableHead>Trạng thái</TableHead>
                 <TableHead className="cursor-pointer" onClick={() => onSort('createdAt')}>
                   <div className="flex items-center gap-1">

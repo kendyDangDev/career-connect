@@ -47,7 +47,7 @@ const jobSchema = z.object({
   salaryMax: z.number().min(0, 'Lương tối đa không được âm').optional().nullable(),
   currency: z.string().default('VND'),
   salaryNegotiable: z.boolean().default(false),
-  locationCity: z.string().optional(),
+  address: z.string().optional(),
   locationProvince: z.string().optional(),
   locationCountry: z.string().default('Vietnam'),
   applicationDeadline: z
@@ -102,7 +102,7 @@ const EditJobPage: React.FC = () => {
       featured: false,
       urgent: false,
       benefits: '',
-      locationCity: '',
+      address: '',
       locationProvince: '',
       applicationDeadline: undefined,
       skills: [],
@@ -155,7 +155,7 @@ const EditJobPage: React.FC = () => {
           : null,
         currency: job.currency || 'VND',
         salaryNegotiable: job.salaryNegotiable || false,
-        locationCity: job.locationCity || '',
+        address: job.address || '',
         locationProvince: job.locationProvince || '',
         locationCountry: job.locationCountry || 'Vietnam',
         applicationDeadline: job.applicationDeadline
@@ -874,12 +874,12 @@ const EditJobPage: React.FC = () => {
             <CardContent className="p-3">
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
                 <div className="space-y-1">
-                  <Label htmlFor="locationCity" className="text-xs font-medium text-gray-700">
-                    Thành phố
+                  <Label htmlFor="address" className="text-xs font-medium text-gray-700">
+                    Địa Chỉ
                   </Label>
                   <Input
-                    id="locationCity"
-                    {...register('locationCity')}
+                    id="address"
+                    {...register('address')}
                     placeholder="Hồ Chí Minh"
                     className="h-8 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />

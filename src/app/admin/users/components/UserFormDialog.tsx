@@ -39,7 +39,7 @@ const userFormSchema = z.object({
   phone: z.string().optional(),
   userType: z.enum(['ADMIN', 'EMPLOYER', 'CANDIDATE']),
   status: z.enum(['ACTIVE', 'INACTIVE', 'SUSPENDED']),
-  password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự').optional(),
+  // password: z.string().nullable().optional(),
 });
 
 interface UserFormDialogProps {
@@ -179,10 +179,10 @@ export const UserFormDialog: React.FC<UserFormDialogProps> = ({
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="email" 
-                      placeholder="user@example.com" 
-                      {...field} 
+                    <Input
+                      type="email"
+                      placeholder="user@example.com"
+                      {...field}
                       disabled={mode === 'edit'}
                     />
                   </FormControl>
@@ -263,15 +263,11 @@ export const UserFormDialog: React.FC<UserFormDialogProps> = ({
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      Mật khẩu {mode === 'edit' && '(để trống nếu không đổi)'}
-                    </FormLabel>
+                    {/* <FormLabel>Mật khẩu {mode === 'edit' && '(để trống nếu không đổi)'}</FormLabel> */}
                     <FormControl>
-                      <Input 
-                        type="password" 
-                        placeholder={mode === 'create' ? 'Nhập mật khẩu' : 'Nhập mật khẩu mới'} 
-                        {...field} 
-                      />
+                      {mode === 'create' && (
+                        <Input type="password" placeholder="Nhập mật khẩu" {...field} />
+                      )}
                     </FormControl>
                     <FormMessage />
                   </FormItem>

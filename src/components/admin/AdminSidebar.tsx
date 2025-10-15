@@ -124,28 +124,6 @@ const getNavItems = (jobStats: JobStatistics | null, isLoading: boolean): NavIte
     ],
   },
   {
-    title: 'Quản lý nhà tuyển dụng',
-    icon: Building2,
-    children: [
-      {
-        title: 'Công ty',
-        href: '/admin/companies',
-        icon: Building2,
-        badge: '85',
-      },
-      {
-        title: 'Tài khoản',
-        href: '/admin/employers',
-        icon: UserCheck,
-      },
-      {
-        title: 'Gói dịch vụ',
-        href: '/admin/packages',
-        icon: Package,
-      },
-    ],
-  },
-  {
     title: 'Báo cáo & Thống kê',
     icon: BarChart3,
     children: [
@@ -159,11 +137,11 @@ const getNavItems = (jobStats: JobStatistics | null, isLoading: boolean): NavIte
         href: '/admin/reports/revenue',
         icon: DollarSign,
       },
-      {
-        title: 'Người dùng',
-        href: '/admin/users',
-        icon: Users,
-      },
+      // {
+      //   title: 'Người dùng',
+      //   href: '/admin/users',
+      //   icon: Users,
+      // },
       {
         title: 'Tuyển dụng',
         href: '/admin/reports/recruitment',
@@ -171,58 +149,82 @@ const getNavItems = (jobStats: JobStatistics | null, isLoading: boolean): NavIte
       },
     ],
   },
+  // {
+  //   title: 'Quản lý nhà tuyển dụng',
+  //   icon: Building2,
+  //   children: [
   {
-    title: 'Cài đặt hệ thống',
-    icon: Settings,
-    children: [
-      {
-        title: 'Cài đặt chung',
-        href: '/admin/settings',
-        icon: Settings,
-      },
-      {
-        title: 'Danh mục hệ thống',
-        icon: Database,
-        children: [
-          {
-            title: 'Ngành nghề',
-            href: '/admin/industries',
-            icon: Briefcase,
-          },
-          {
-            title: 'Danh mục công việc',
-            href: '/admin/categories',
-            icon: FolderOpen,
-          },
-          {
-            title: 'Kỹ năng',
-            href: '/admin/skills',
-            icon: Star,
-          },
-          {
-            title: 'Địa điểm',
-            href: '/admin/locations',
-            icon: Globe,
-          },
-        ],
-      },
-      {
-        title: 'Phân quyền',
-        href: '/admin/permissions',
-        icon: Shield,
-      },
-      {
-        title: 'Giao diện',
-        href: '/admin/appearance',
-        icon: Palette,
-      },
-      {
-        title: 'SEO & Marketing',
-        href: '/admin/seo',
-        icon: Globe,
-      },
-    ],
+    title: 'Công ty',
+    href: '/admin/companies',
+    icon: Building2,
+    badge: '85',
   },
+  {
+    title: 'Tài khoản',
+    href: '/admin/users',
+    icon: UserCheck,
+  },
+  // {
+  //   title: 'Gói dịch vụ',
+  //   href: '/admin/packages',
+  //   icon: Package,
+  // },
+  //   ],
+  // },
+
+  // {
+  //   title: 'Cài đặt hệ thống',
+  //   icon: Settings,
+  //   children: [
+  // {
+  //   title: 'Cài đặt chung',
+  //   href: '/admin/settings',
+  //   icon: Settings,
+  // },
+  // {
+  //   title: 'Danh mục hệ thống',
+  //   icon: Database,
+  //   children: [
+  {
+    title: 'Ngành nghề',
+    href: '/admin/industries',
+    icon: Briefcase,
+  },
+  {
+    title: 'Danh mục công việc',
+    href: '/admin/categories',
+    icon: FolderOpen,
+  },
+  {
+    title: 'Kỹ năng',
+    href: '/admin/skills',
+    icon: Star,
+  },
+  {
+    title: 'Địa điểm',
+    href: '/admin/locations',
+    icon: Globe,
+  },
+
+  // ],
+  // },
+  // {
+  //   title: 'Phân quyền',
+  //   href: '/admin/permissions',
+  //   icon: Shield,
+  // },
+  // {
+  //   title: 'Giao diện',
+  //   href: '/admin/appearance',
+  //   icon: Palette,
+  // },
+  // {
+  //   title: 'SEO & Marketing',
+  //   href: '/admin/seo',
+  //   icon: Globe,
+  // },
+  //   ],
+  // },
 ];
 
 interface AdminSidebarProps {
@@ -424,7 +426,7 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
                     loading && 'animate-pulse',
                     active && 'bg-purple-500/20 text-purple-700 dark:text-purple-300',
                     item.badgeKey === 'pendingJobs' &&
-                      'border-yellow-500/50 text-yellow-700 dark:text-yellow-400',
+                      'bg-yellow-400 text-yellow-700 dark:text-yellow-400',
                     item.badgeKey === 'activeJobs' &&
                       'bg-green-500/20 text-green-700 dark:text-green-400',
                     item.badgeKey === 'closedJobs' &&

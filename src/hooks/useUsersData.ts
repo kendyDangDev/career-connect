@@ -70,13 +70,13 @@ export function useUsersData(options?: UseUsersDataOptions) {
 
       if (apiResponse.success && apiResponse.data) {
         setData({
-          users: apiResponse.data.users,
-          totalCount: apiResponse.data.pagination.totalCount,
-          page: apiResponse.data.pagination.page,
-          limit: apiResponse.data.pagination.limit,
-          totalPages: apiResponse.data.pagination.totalPages,
-          hasNextPage: apiResponse.data.pagination.hasNextPage,
-          hasPreviousPage: apiResponse.data.pagination.hasPreviousPage,
+          users: apiResponse.data,
+          totalCount: apiResponse.pagination.total,
+          page: apiResponse.pagination.page,
+          limit: apiResponse.pagination.limit,
+          totalPages: apiResponse.pagination.totalPages,
+          hasNextPage: apiResponse.pagination.hasNextPage,
+          hasPreviousPage: apiResponse.pagination.hasPreviousPage,
         });
       }
     } catch (err) {
@@ -84,7 +84,15 @@ export function useUsersData(options?: UseUsersDataOptions) {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, currentSearch, currentUserType, currentStatus, currentSortBy, currentSortOrder, pageSize]);
+  }, [
+    currentPage,
+    currentSearch,
+    currentUserType,
+    currentStatus,
+    currentSortBy,
+    currentSortOrder,
+    pageSize,
+  ]);
 
   useEffect(() => {
     fetchUsers();

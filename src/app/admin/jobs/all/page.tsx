@@ -137,8 +137,18 @@ export default function AdminJobsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Navigation Tabs */}
+      {/* Header with Navigation Tabs and Action Button */}
       <div className="border-b border-gray-200">
+        <div className="flex items-center justify-between pb-4">
+          <h1 className="text-2xl font-bold text-gray-900">Quản lý việc làm</h1>
+          <Link
+            href="/admin/jobs/create"
+            className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+          >
+            <PlusIcon className="mr-2 h-4 w-4" />
+            Tạo việc làm mới
+          </Link>
+        </div>
         <nav className="-mb-px flex space-x-8">
           {navigation.map((item) => {
             const isActive = item.exact
@@ -218,7 +228,7 @@ export default function AdminJobsPage() {
             <div key={stat.name} className="group relative overflow-hidden">
               {/* Main Card */}
               <div
-                className={`relative h-full bg-gradient-to-br ${theme.lightBg} hover:shadow-2xl transform rounded-xl border border-white/20 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:rotate-1`}
+                className={`relative h-full bg-gradient-to-br ${theme.lightBg} transform rounded-xl border border-white/20 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:rotate-1 hover:shadow-2xl`}
               >
                 {/* Floating Orbs Background */}
                 <div className="absolute -top-3 -right-3 h-16 w-16 rounded-full bg-gradient-to-br from-white/10 to-white/5 blur-lg"></div>
@@ -267,7 +277,9 @@ export default function AdminJobsPage() {
                       <h3 className="mb-0.5 text-xs font-semibold tracking-wider text-gray-500 uppercase">
                         {stat.name}
                       </h3>
-                      <p className="text-xs font-medium text-gray-600 line-clamp-1">{stat.description}</p>
+                      <p className="line-clamp-1 text-xs font-medium text-gray-600">
+                        {stat.description}
+                      </p>
                     </div>
 
                     {/* Value Display */}

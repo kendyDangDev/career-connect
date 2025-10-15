@@ -356,22 +356,22 @@ const ApplicationsTab: React.FC<ApplicationsTabProps> = ({ jobId, onApplicationU
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="px-3 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                   Ứng viên
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="px-3 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                   Vị trí & Kinh nghiệm
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="px-3 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                   Trạng thái
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="px-3 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                   Thời gian ứng tuyển
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="px-3 py-3 text-center text-xs font-medium tracking-wider text-gray-500 uppercase">
                   CV
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="px-3 py-3 text-center text-xs font-medium tracking-wider text-gray-500 uppercase">
                   Thao tác
                 </th>
               </tr>
@@ -384,7 +384,7 @@ const ApplicationsTab: React.FC<ApplicationsTabProps> = ({ jobId, onApplicationU
 
                 return (
                   <tr key={application.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-4">
                       <div className="flex items-center">
                         <Avatar className="h-10 w-10">
                           <AvatarImage src={application.candidate.user.avatarUrl || ''} />
@@ -407,7 +407,7 @@ const ApplicationsTab: React.FC<ApplicationsTabProps> = ({ jobId, onApplicationU
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-4">
                       <div className="space-y-1">
                         {latestPosition && (
                           <div className="text-sm font-medium text-gray-900">{latestPosition}</div>
@@ -431,7 +431,7 @@ const ApplicationsTab: React.FC<ApplicationsTabProps> = ({ jobId, onApplicationU
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 py-4 whitespace-nowrap">
                       {getStatusBadge(application.status)}
                       {application.rating && (
                         <div className="mt-1 flex items-center">
@@ -441,7 +441,7 @@ const ApplicationsTab: React.FC<ApplicationsTabProps> = ({ jobId, onApplicationU
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 py-4 whitespace-nowrap">
                       <div className="flex items-center text-sm text-gray-500">
                         <CalendarDaysIcon className="mr-1 h-4 w-4" />
                         {formatDate(application.appliedAt)}
@@ -452,7 +452,7 @@ const ApplicationsTab: React.FC<ApplicationsTabProps> = ({ jobId, onApplicationU
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-center whitespace-nowrap">
+                    <td className="px-3 py-4 text-center whitespace-nowrap">
                       {(() => {
                         // Ưu tiên CV chính, nếu không có thì lấy CV đầu tiên
                         const primaryCV = application.candidate.cvs?.find((cv) => cv.isPrimary);
@@ -484,7 +484,7 @@ const ApplicationsTab: React.FC<ApplicationsTabProps> = ({ jobId, onApplicationU
                         );
                       })()}
                     </td>
-                    <td className="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
+                    <td className="px-3 py-4 text-right text-sm font-medium whitespace-nowrap">
                       <div className="flex items-center justify-end space-x-2">
                         <Button
                           variant="ghost"

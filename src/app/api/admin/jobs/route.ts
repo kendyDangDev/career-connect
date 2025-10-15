@@ -69,6 +69,7 @@ const createJobSchema = z.object({
   salaryMax: z.number().optional(),
   currency: z.string().default('VND'),
   salaryNegotiable: z.boolean().default(false),
+  address: z.string().min(5).max(200).optional(),
   locationCity: z.string().optional(),
   locationProvince: z.string().optional(),
   locationCountry: z.string().default('Vietnam'),
@@ -82,6 +83,7 @@ const createJobSchema = z.object({
     .array(
       z.object({
         skillId: z.string(),
+        name: z.string().optional(), // Allow skill name for creating new skills
         requiredLevel: z.enum(['NICE_TO_HAVE', 'PREFERRED', 'REQUIRED']),
         minYearsExperience: z.number().optional(),
       })
@@ -159,7 +161,9 @@ export const GET = withPermission('job.view', async (req: AuthenticatedRequest) 
 
     // Salary filters
     if (params.salaryMin !== undefined || params.salaryMax !== undefined) {
-      where.AND = where.AND || [];
+      if (!Array.isArray(where.AND)) {
+        where.AND = [];
+      }
       if (params.salaryMin !== undefined) {
         where.AND.push({ salaryMax: { gte: params.salaryMin } });
       }
@@ -363,6 +367,7 @@ export const POST = withPermission('job.create', async (req: AuthenticatedReques
           salaryMax: data.salaryMax,
           currency: data.currency,
           salaryNegotiable: data.salaryNegotiable,
+          address: data.address,
           locationCity: data.locationCity,
           locationProvince: data.locationProvince,
           locationCountry: data.locationCountry,
@@ -396,13 +401,58 @@ export const POST = withPermission('job.create', async (req: AuthenticatedReques
 
       // Add job skills if provided
       if (data.skills && data.skills.length > 0) {
-        await tx.jobSkill.createMany({
-          data: data.skills.map((skill) => ({
+        const jobSkillsData = [];
+
+        for (const skillData of data.skills) {
+          let skillId = skillData.skillId;
+
+          // If skill ID is temporary (starts with 'temp-'), create the skill first
+          if (skillId.startsWith('temp-') && skillData.name) {
+            // Check if skill already exists
+            let existingSkill = await tx.skill.findFirst({
+              where: {
+                name: { equals: skillData.name, mode: 'insensitive' },
+              },
+            });
+
+            // Create skill if it doesn't exist
+            if (!existingSkill) {
+              // Generate base slug
+              const baseSlug = skillData.name
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/(^-|-$)/g, '');
+
+              // Ensure unique slug
+              let skillSlug = baseSlug;
+              let slugCounter = 1;
+              while (await tx.skill.findUnique({ where: { slug: skillSlug } })) {
+                skillSlug = `${baseSlug}-${slugCounter}`;
+                slugCounter++;
+              }
+
+              existingSkill = await tx.skill.create({
+                data: {
+                  name: skillData.name,
+                  slug: skillSlug,
+                  category: 'TECHNICAL', // Default category, you can make this configurable
+                },
+              });
+            }
+
+            skillId = existingSkill.id;
+          }
+
+          jobSkillsData.push({
             jobId: newJob.id,
-            skillId: skill.skillId,
-            requiredLevel: skill.requiredLevel as any,
-            minYearsExperience: skill.minYearsExperience,
-          })),
+            skillId: skillId,
+            requiredLevel: skillData.requiredLevel as any,
+            minYearsExperience: skillData.minYearsExperience || 0,
+          });
+        }
+
+        await tx.jobSkill.createMany({
+          data: jobSkillsData,
         });
       }
 

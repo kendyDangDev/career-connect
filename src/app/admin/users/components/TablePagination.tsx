@@ -126,7 +126,7 @@ export const TablePagination: React.FC<TablePaginationProps> = ({
 
   return (
     <div className="flex items-center justify-between px-2 py-4">
-      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+      <div className="text-muted-foreground flex items-center space-x-2 text-sm">
         <span>
           Hiển thị {startItem} - {endItem} trong tổng số {totalCount} kết quả
         </span>

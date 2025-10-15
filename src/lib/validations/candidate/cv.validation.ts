@@ -17,11 +17,11 @@ export const uploadCandidateCvSchema = z.object({
   cvName: z
     .string()
     .min(1, 'CV name is required')
-    .max(100, 'CV name must not exceed 100 characters')
-    .regex(
-      /^[a-zA-Z0-9\s\-_()[\]]+$/,
-      'CV name can only contain letters, numbers, spaces, and common special characters'
-    ),
+    .max(100, 'CV name must not exceed 100 characters'),
+  // .regex(
+  //   /^[a-zA-Z0-9\s\-_()[\]]+$/,
+  //   'CV name can only contain letters, numbers, spaces, and common special characters'
+  // )
   description: z
     .string()
     .max(500, 'Description must not exceed 500 characters')

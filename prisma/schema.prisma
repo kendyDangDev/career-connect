@@ -277,6 +277,7 @@ model Job {
   salaryMax           Decimal?          @map("salary_max") @db.Decimal(12, 2)
   currency            String?           @default("VND")
   salaryNegotiable    Boolean           @default(false) @map("salary_negotiable")
+  address             String?
   locationCity        String?           @map("location_city")
   locationProvince    String?           @map("location_province")
   locationCountry     String?           @default("Vietnam") @map("location_country")

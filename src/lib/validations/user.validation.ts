@@ -5,10 +5,11 @@ import { UserType, UserStatus, Gender } from '@/generated/prisma';
 export const updateUserSchema = z.object({
   firstName: z.string().min(2).max(50).optional(),
   lastName: z.string().min(2).max(50).optional(),
-  phone: z.string()
-    .regex(/^(\+84|84|0)[35789][0-9]{8}$/, 'Invalid phone number')
-    .optional()
-    .nullable(),
+  phone: z
+    .string()
+    // .regex(/^(\+84|84|0)[35789][0-9]{8}$/, 'Invalid phone number')
+    .nullable()
+    .optional(),
   avatarUrl: z.string().url().optional().nullable(),
   userType: z.nativeEnum(UserType).optional(),
 });
@@ -19,19 +20,22 @@ export const updateUserStatusSchema = z.object({
 });
 
 // Change Password Schema
-export const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1, 'Current password is required'),
-  newPassword: z.string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/,
-      'Password must contain uppercase, lowercase, number and special character'
-    ),
-  confirmPassword: z.string(),
-}).refine(data => data.newPassword === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword'],
-});
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, 'Current password is required'),
+    newPassword: z
+      .string()
+      .min(8, 'Password must be at least 8 characters')
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/,
+        'Password must contain uppercase, lowercase, number and special character'
+      ),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
 
 // UserProfile Create/Update Schema
 export const userProfileSchema = z.object({
@@ -42,10 +46,10 @@ export const userProfileSchema = z.object({
   province: z.string().max(100).optional().nullable(),
   country: z.string().max(100).default('Vietnam').optional(),
   bio: z.string().max(1000).optional().nullable(),
-  websiteUrl: z.string().url().optional().nullable(),
-  linkedinUrl: z.string().url().optional().nullable(),
-  githubUrl: z.string().url().optional().nullable(),
-  portfolioUrl: z.string().url().optional().nullable(),
+  websiteUrl: z.string().nullable().optional(),
+  linkedinUrl: z.string().nullable().optional(),
+  githubUrl: z.string().nullable().optional(),
+  portfolioUrl: z.string().nullable().optional(),
 });
 
 // Query Parameters Schemas

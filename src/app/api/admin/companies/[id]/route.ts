@@ -1,7 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
-import { withAdmin, AuthenticatedRequest, createAuditLog, successResponse, errorResponse } from "@/middleware";
-import { AdminCompanyService } from "@/services/admin/company.service";
-import { AdminCompanyUpdateDTO } from "@/types/admin/company";
+import { NextRequest, NextResponse } from 'next/server';
+import {
+  withAdmin,
+  AuthenticatedRequest,
+  createAuditLog,
+  successResponse,
+  errorResponse,
+} from '@/lib/middleware';
+import { AdminCompanyService } from '@/services/admin/company.service';
+import { AdminCompanyUpdateDTO } from '@/types/admin/company';
 
 interface Params {
   params: {
@@ -11,7 +17,6 @@ interface Params {
 
 export const GET = withAdmin(async (request: AuthenticatedRequest, { params }: Params) => {
   try {
-
     const { id } = params;
 
     if (!id) {
@@ -26,13 +31,12 @@ export const GET = withAdmin(async (request: AuthenticatedRequest, { params }: P
     }
 
     return successResponse(company);
-
   } catch (error) {
-    console.error("Error fetching company detail:", error);
+    console.error('Error fetching company detail:', error);
     return NextResponse.json(
-      { 
+      {
         success: false,
-        error: "Failed to fetch company detail" 
+        error: 'Failed to fetch company detail',
       },
       { status: 500 }
     );
@@ -41,14 +45,13 @@ export const GET = withAdmin(async (request: AuthenticatedRequest, { params }: P
 
 export const PUT = withAdmin(async (request: AuthenticatedRequest, { params }: Params) => {
   try {
-
     const { id } = params;
 
     if (!id) {
       return NextResponse.json(
-        { 
+        {
           success: false,
-          error: "Company ID is required" 
+          error: 'Company ID is required',
         },
         { status: 400 }
       );
@@ -61,9 +64,9 @@ export const PUT = withAdmin(async (request: AuthenticatedRequest, { params }: P
     const currentCompany = await AdminCompanyService.getCompanyDetail(id);
     if (!currentCompany) {
       return NextResponse.json(
-        { 
+        {
           success: false,
-          error: "Company not found" 
+          error: 'Company not found',
         },
         { status: 404 }
       );
@@ -74,9 +77,9 @@ export const PUT = withAdmin(async (request: AuthenticatedRequest, { params }: P
 
     if (!updatedCompany) {
       return NextResponse.json(
-        { 
+        {
           success: false,
-          error: "Failed to update company" 
+          error: 'Failed to update company',
         },
         { status: 500 }
       );
@@ -85,22 +88,21 @@ export const PUT = withAdmin(async (request: AuthenticatedRequest, { params }: P
     // Log admin action
     await createAuditLog(
       request.user!.id,
-      "UPDATE_COMPANY",
-      "companies",
+      'UPDATE_COMPANY',
+      'companies',
       id,
       currentCompany,
       updatedCompany,
       request
     );
 
-    return successResponse(updatedCompany, "Company updated successfully");
-
+    return successResponse(updatedCompany, 'Company updated successfully');
   } catch (error) {
-    console.error("Error updating company:", error);
+    console.error('Error updating company:', error);
     return NextResponse.json(
-      { 
+      {
         success: false,
-        error: "Failed to update company" 
+        error: 'Failed to update company',
       },
       { status: 500 }
     );
@@ -109,14 +111,13 @@ export const PUT = withAdmin(async (request: AuthenticatedRequest, { params }: P
 
 export const DELETE = withAdmin(async (request: AuthenticatedRequest, { params }: Params) => {
   try {
-
     const { id } = params;
 
     if (!id) {
       return NextResponse.json(
-        { 
+        {
           success: false,
-          error: "Company ID is required" 
+          error: 'Company ID is required',
         },
         { status: 400 }
       );
@@ -130,9 +131,9 @@ export const DELETE = withAdmin(async (request: AuthenticatedRequest, { params }
     const currentCompany = await AdminCompanyService.getCompanyDetail(id);
     if (!currentCompany) {
       return NextResponse.json(
-        { 
+        {
           success: false,
-          error: "Company not found" 
+          error: 'Company not found',
         },
         { status: 404 }
       );
@@ -144,22 +145,24 @@ export const DELETE = withAdmin(async (request: AuthenticatedRequest, { params }
     // Log admin action
     await createAuditLog(
       request.user!.id,
-      hardDelete ? "HARD_DELETE_COMPANY" : "SOFT_DELETE_COMPANY",
-      "companies",
+      hardDelete ? 'HARD_DELETE_COMPANY' : 'SOFT_DELETE_COMPANY',
+      'companies',
       id,
       currentCompany,
       null,
       request
     );
 
-    return successResponse(null, `Company ${hardDelete ? 'permanently deleted' : 'deactivated'} successfully`);
-
+    return successResponse(
+      null,
+      `Company ${hardDelete ? 'permanently deleted' : 'deactivated'} successfully`
+    );
   } catch (error) {
-    console.error("Error deleting company:", error);
+    console.error('Error deleting company:', error);
     return NextResponse.json(
-      { 
+      {
         success: false,
-        error: "Failed to delete company" 
+        error: 'Failed to delete company',
       },
       { status: 500 }
     );

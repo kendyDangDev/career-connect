@@ -29,7 +29,7 @@ export function TablePagination({
   onPageChange,
   onPageSizeChange,
 }: TablePaginationProps) {
-  const { page, limit, total, totalPages } = pagination;
+  const { page, limit, totalCount, totalPages } = pagination;
 
   // Calculate page range to display
   const getPageNumbers = () => {
@@ -37,11 +37,7 @@ export function TablePagination({
     const range: number[] = [];
     const rangeWithDots: (number | string)[] = [];
 
-    for (
-      let i = Math.max(2, page - delta);
-      i <= Math.min(totalPages - 1, page + delta);
-      i++
-    ) {
+    for (let i = Math.max(2, page - delta); i <= Math.min(totalPages - 1, page + delta); i++) {
       range.push(i);
     }
 
@@ -66,13 +62,13 @@ export function TablePagination({
 
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-      <div className="text-sm text-muted-foreground">
-        Hiển thị {Math.min((page - 1) * limit + 1, total)} -{' '}
-        {Math.min(page * limit, total)} trong tổng số {total} kết quả
+      <div className="text-muted-foreground text-sm">
+        Hiển thị {Math.min((page - 1) * limit + 1, totalCount)} -{' '}
+        {Math.min(page * limit, totalCount)} trong tổng số {totalCount} kết quả
       </div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
         <div className="flex items-center gap-2">
-          <span className="text-sm">Hiển thị</span>
+          <span className="w-max text-sm">Hiển thị</span>
           <Select
             value={limit.toString()}
             onValueChange={(value) => onPageSizeChange(parseInt(value))}
@@ -115,9 +111,7 @@ export function TablePagination({
             <PaginationItem>
               <PaginationNext
                 onClick={() => page < totalPages && onPageChange(page + 1)}
-                className={
-                  page >= totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'
-                }
+                className={page >= totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
               />
             </PaginationItem>
           </PaginationContent>

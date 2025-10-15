@@ -138,20 +138,22 @@ export function CompaniesTable({
     }
   };
 
-  const getCompanySizeLabel = (size: string) => {
+  const getCompanySizeLabel = (size: CompanySize | null | undefined) => {
+    if (!size) return 'Chưa xác định';
+
     switch (size) {
-      case 'STARTUP':
-        return 'Startup';
-      case 'SMALL':
-        return 'Nhỏ';
-      case 'MEDIUM':
-        return 'Vừa';
-      case 'LARGE':
-        return 'Lớn';
-      case 'ENTERPRISE':
-        return 'Tập đoàn';
+      case CompanySize.STARTUP_1_10:
+        return 'Startup (1-10 nhân viên)';
+      case CompanySize.SMALL_11_50:
+        return 'Nhỏ (11-50 nhân viên)';
+      case CompanySize.MEDIUM_51_200:
+        return 'Vừa (51-200 nhân viên)';
+      case CompanySize.LARGE_201_500:
+        return 'Lớn (201-500 nhân viên)';
+      case CompanySize.ENTERPRISE_500_PLUS:
+        return 'Tập đoàn (500+ nhân viên)';
       default:
-        return 'N/A';
+        return 'Chưa xác định';
     }
   };
 
@@ -193,10 +195,18 @@ export function CompaniesTable({
                 <SelectValue placeholder="Trạng thái" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tất cả</SelectItem>
-                <SelectItem value={VerificationStatus.VERIFIED}>Đã xác minh</SelectItem>
-                <SelectItem value={VerificationStatus.PENDING}>Chờ xác minh</SelectItem>
-                <SelectItem value={VerificationStatus.REJECTED}>Bị từ chối</SelectItem>
+                <SelectItem key="status-all" value="all">
+                  Tất cả
+                </SelectItem>
+                <SelectItem key="status-verified" value={VerificationStatus.VERIFIED}>
+                  Đã xác minh
+                </SelectItem>
+                <SelectItem key="status-pending" value={VerificationStatus.PENDING}>
+                  Chờ xác minh
+                </SelectItem>
+                <SelectItem key="status-rejected" value={VerificationStatus.REJECTED}>
+                  Bị từ chối
+                </SelectItem>
               </SelectContent>
             </Select>
 
@@ -205,16 +215,28 @@ export function CompaniesTable({
               value={filters.companySize}
               onValueChange={(value) => onFilter('companySize', value)}
             >
-              <SelectTrigger className="w-[120px]">
+              <SelectTrigger className="w-[160px]">
                 <SelectValue placeholder="Quy mô" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tất cả</SelectItem>
-                <SelectItem value="STARTUP_1_10">Startup (1-10)</SelectItem>
-                <SelectItem value="SMALL_11_50">Nhỏ (11-50)</SelectItem>
-                <SelectItem value="MEDIUM_51_200">Vừa (51-200)</SelectItem>
-                <SelectItem value="LARGE_201_500">Lớn (201-500)</SelectItem>
-                <SelectItem value="ENTERPRISE_500_PLUS">Tập đoàn (500+)</SelectItem>
+                <SelectItem key="size-all" value="all">
+                  Tất cả
+                </SelectItem>
+                <SelectItem key="size-startup" value={CompanySize.STARTUP_1_10}>
+                  Startup (1-10)
+                </SelectItem>
+                <SelectItem key="size-small" value={CompanySize.SMALL_11_50}>
+                  Nhỏ (11-50)
+                </SelectItem>
+                <SelectItem key="size-medium" value={CompanySize.MEDIUM_51_200}>
+                  Vừa (51-200)
+                </SelectItem>
+                <SelectItem key="size-large" value={CompanySize.LARGE_201_500}>
+                  Lớn (201-500)
+                </SelectItem>
+                <SelectItem key="size-enterprise" value={CompanySize.ENTERPRISE_500_PLUS}>
+                  Tập đoàn (500+)
+                </SelectItem>
               </SelectContent>
             </Select>
 
@@ -227,7 +249,9 @@ export function CompaniesTable({
                 <SelectValue placeholder="Ngành nghề" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tất cả</SelectItem>
+                <SelectItem key="industry-all" value="all">
+                  Tất cả
+                </SelectItem>
                 {industries.map((industry) => (
                   <SelectItem key={industry.id} value={industry.id}>
                     {industry.name}
@@ -332,11 +356,7 @@ export function CompaniesTable({
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {company.companySize ? (
-                      <span className="text-sm">{getCompanySizeLabel(company.companySize)}</span>
-                    ) : (
-                      <span className="text-muted-foreground text-sm">N/A</span>
-                    )}
+                    <span className="text-sm">{getCompanySizeLabel(company.companySize)}</span>
                   </TableCell>
                   <TableCell>
                     <div className="text-muted-foreground flex gap-4 text-sm">

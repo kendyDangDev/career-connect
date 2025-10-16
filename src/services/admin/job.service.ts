@@ -145,7 +145,7 @@ export class AdminJobService {
     statusData: UpdateJobStatusDTO
   ): Promise<{ success: boolean; message: string }> {
     const response = await this.request<{ success: boolean; message: string }>(
-      `${this.EMPLOYER_API_URL}/${jobId}/status`,
+      `${this.EMPLOYER_API_URL}/${jobId}`,
       {
         method: 'PATCH',
         body: JSON.stringify(statusData),

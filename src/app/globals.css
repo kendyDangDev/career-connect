@@ -5,31 +5,31 @@
 @custom-variant dark (&:is(.dark *)); */
 @theme {
   /* :root {  */
-  /* Custom color scheme */
+  /* Custom color scheme with purple theme */
   --color-background: hsl(0 0% 100%); /* white */
   --color-foreground: hsl(224 71.4% 4.1%); /* dark gray */
   --color-card: hsl(0 0% 100%);
   --color-card-foreground: hsl(224 71.4% 4.1%);
   --color-popover: hsl(0 0% 100%);
   --color-popover-foreground: hsl(224 71.4% 4.1%);
-  --color-primary: hsl(217 91% 60%); /* blue */
+  --color-primary: hsl(262 83% 58%); /* purple */
   --color-primary-foreground: hsl(0 0% 100%);
   --color-secondary: hsl(142 76% 36%); /* green */
   --color-secondary-foreground: hsl(0 0% 100%);
   --color-muted: hsl(214 32% 91%); /* light gray */
   --color-muted-foreground: hsl(220 9% 46%); /* gray */
-  --color-accent: hsl(25 95% 53%); /* orange */
+  --color-accent: hsl(280 85% 60%); /* bright purple */
   --color-accent-foreground: hsl(0 0% 100%);
   --color-destructive: hsl(0 84% 60%);
   --color-destructive-foreground: hsl(0 0% 100%);
   --color-border: hsl(214 32% 91%);
   --color-input: hsl(214 32% 91%);
-  --color-ring: hsl(217 91% 60%);
-  --color-chart-1: hsl(217 91% 60%);
-  --color-chart-2: hsl(142 76% 36%);
-  --color-chart-3: hsl(25 95% 53%);
-  --color-chart-4: hsl(262 83% 58%);
-  --color-chart-5: hsl(340 84% 60%);
+  --color-ring: hsl(262 83% 58%);
+  --color-chart-1: hsl(262 83% 58%); /* purple */
+  --color-chart-2: hsl(217 91% 60%); /* blue */
+  --color-chart-3: hsl(142 76% 36%); /* green */
+  --color-chart-4: hsl(330 81% 60%); /* pink */
+  --color-chart-5: hsl(25 95% 53%); /* orange */
   --color-radius: 0.5rem;
 
   /* Sidebar */

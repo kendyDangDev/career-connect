@@ -49,6 +49,12 @@ export const authOptions: NextAuthOptions = {
             include: {
               profile: true,
               candidate: true,
+              companyUsers: {
+                take: 1,
+                orderBy: {
+                  createdAt: 'desc',
+                },
+              },
             },
           });
 
@@ -88,6 +94,7 @@ export const authOptions: NextAuthOptions = {
             phoneVerified: user.phoneVerified,
             status: user.status,
             avatarUrl: user.avatarUrl,
+            companyId: user.companyUsers?.[0]?.companyId || null,
           };
         } catch (error) {
           console.error('Authentication error:', error);
@@ -178,6 +185,7 @@ export const authOptions: NextAuthOptions = {
         token.firstName = user.firstName;
         token.lastName = user.lastName;
         token.avatarUrl = user.avatarUrl;
+        token.companyId = (user as any).companyId || null;
       }
 
       // Return previous token if the access token has not expired yet
@@ -193,6 +201,7 @@ export const authOptions: NextAuthOptions = {
         session.user.firstName = token.firstName as string | null;
         session.user.lastName = token.lastName as string | null;
         session.user.avatarUrl = token.avatarUrl as string | null;
+        session.user.companyId = token.companyId as string | null;
       }
 
       return session;

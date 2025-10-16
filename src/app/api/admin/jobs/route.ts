@@ -192,8 +192,12 @@ export const GET = withPermission('job.view', async (req: AuthenticatedRequest) 
       [params.sortBy]: params.sortOrder,
     };
 
-    // Execute query with pagination
-    const [jobs, total] = await Promise.all([
+    // Build stats where clause (without status filter for overall stats)
+    const statsWhere: Prisma.JobWhereInput = { ...where };
+    delete statsWhere.status; // Remove status filter for stats
+
+    // Execute query with pagination and stats
+    const [jobs, total, totalJobs, activeJobs, pendingJobs, closedJobs] = await Promise.all([
       prisma.job.findMany({
         where,
         orderBy,
@@ -250,6 +254,10 @@ export const GET = withPermission('job.view', async (req: AuthenticatedRequest) 
         },
       }),
       prisma.job.count({ where }),
+      prisma.job.count({ where: statsWhere }),
+      prisma.job.count({ where: { ...statsWhere, status: JobStatus.ACTIVE } }),
+      prisma.job.count({ where: { ...statsWhere, status: JobStatus.PENDING } }),
+      prisma.job.count({ where: { ...statsWhere, status: JobStatus.CLOSED } }),
     ]);
 
     // Calculate pagination metadata
@@ -257,10 +265,18 @@ export const GET = withPermission('job.view', async (req: AuthenticatedRequest) 
     const hasNextPage = params.page < totalPages;
     const hasPrevPage = params.page > 1;
 
+    // Map jobs to include application count
+    const mappedJobs = jobs.map(job => ({
+      ...job,
+      applicationCount: job._count.applications,
+      savedJobsCount: job._count.savedJobs,
+      viewCount: job._count.jobViews,
+    }));
+
     return NextResponse.json({
       success: true,
       data: {
-        jobs,
+        jobs: mappedJobs,
         pagination: {
           page: params.page,
           limit: params.limit,
@@ -268,6 +284,12 @@ export const GET = withPermission('job.view', async (req: AuthenticatedRequest) 
           totalPages,
           hasNextPage,
           hasPrevPage,
+        },
+        stats: {
+          totalJobs,
+          activeJobs,
+          pendingJobs,
+          closedJobs,
         },
       },
     });

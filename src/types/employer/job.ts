@@ -132,6 +132,7 @@ export interface ApplicationDetail {
 
 // DTO for creating a new job
 export interface CreateJobDTO {
+  companyId?: string; // Added to match API requirements
   title: string;
   description: string;
   requirements: string;
@@ -143,7 +144,7 @@ export interface CreateJobDTO {
   salaryMax?: number;
   currency?: string;
   salaryNegotiable?: boolean;
-  locationCity?: string;
+  address?: string;
   locationProvince?: string;
   locationCountry?: string;
   applicationDeadline?: Date | string;

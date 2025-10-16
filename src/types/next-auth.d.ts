@@ -12,6 +12,7 @@ declare module 'next-auth' {
     phoneVerified: boolean;
     status: UserStatus;
     avatarUrl?: string | null;
+    companyId?: string | null;
   }
 
   interface Session {
@@ -27,6 +28,7 @@ declare module 'next-auth' {
       phoneVerified: boolean;
       status: UserStatus;
       avatarUrl?: string | null;
+      companyId?: string | null;
     };
   }
 }
@@ -40,5 +42,6 @@ declare module 'next-auth/jwt' {
     firstName?: string | null;
     lastName?: string | null;
     avatarUrl?: string | null;
+    companyId?: string | null;
   }
 }

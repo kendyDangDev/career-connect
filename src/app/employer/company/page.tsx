@@ -1,44 +1,143 @@
 'use client';
 
-import { useState } from 'react';
-import { Building2, Save, CheckCircle, AlertCircle, Users, Globe, MapPin, Calendar, Mail, Phone, Image as ImageIcon, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import {
+  Building2,
+  Save,
+  Users,
+  Globe,
+  MapPin,
+  Calendar,
+  Mail,
+  Phone,
+  Image as ImageIcon,
+  AlertCircle,
+} from 'lucide-react';
 import { MediaUploader } from '@/components/employer/company/MediaUploader';
+import {
+  VerificationStatusBadge,
+  VerificationStatusAlert,
+} from '@/components/employer/company/VerificationStatus';
+import {
+  useCompanyProfile,
+  useUpdateCompanyProfile,
+  useUploadCompanyMedia,
+} from '@/hooks/useCompany';
+import { UpdateCompanyData, CompanyProfile } from '@/types/company.types';
+import { CompanySize } from '@/generated/prisma';
+import { getCompanySizeOptions } from '@/lib/utils/company-size';
+import { useIndustries } from '@/hooks/use-industries';
 
 export default function CompanyPage() {
-  const [isSaving, setIsSaving] = useState(false);
-  const [companyData, setCompanyData] = useState({
-    name: 'Tech Innovation Corp',
-    description: 'Chúng tôi là công ty công nghệ hàng đầu chuyên về phát triển phần mềm và AI',
-    industry: 'Công nghệ thông tin',
-    size: '100-500 nhân viên',
-    founded: '2015',
-    website: 'https://techinnovation.com',
-    email: 'contact@techinnovation.com',
-    phone: '0123456789',
-    address: '123 Đường ABC, Quận 1, TP.HCM',
-    logo: '/placeholder-logo.png',
-    coverImage: '/placeholder-cover.png',
-    galleryImages: ['/placeholder-1.png', '/placeholder-2.png', '/placeholder-3.png'],
-    verified: true,
+  // Fetch company profile
+  const { data: profileData, isLoading, error } = useCompanyProfile();
+
+  // Fetch industries
+  const { data: industriesData, isLoading: industriesLoading } = useIndustries({
+    page: 1,
+    limit: 100,
+    isActive: true,
   });
 
+  // Mutations
+  const updateMutation = useUpdateCompanyProfile();
+  const uploadMediaMutation = useUploadCompanyMedia();
+
+  // Local state for form
+  const [formData, setFormData] = useState<UpdateCompanyData>({
+    companyName: '',
+    description: '',
+    industryId: null,
+    companySize: '',
+    foundedYear: '',
+    websiteUrl: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+  });
+
+  // Initialize form data when company profile loads
+  useEffect(() => {
+    if (profileData?.data.company) {
+      const company = profileData.data.company;
+      setFormData({
+        companyName: company.companyName || '',
+        description: company.description || '',
+        industryId: company.industry?.id || null,
+        companySize: company.companySize || '',
+        foundedYear: company.foundedYear || '',
+        websiteUrl: company.websiteUrl || '',
+        email: company.email || '',
+        phone: company.phone || '',
+        address: company.address || '',
+      });
+    }
+  }, [profileData]);
+
   const handleSave = () => {
-    setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
-      alert('Đã lưu thông tin công ty!');
-    }, 1500);
+    updateMutation.mutate(formData);
   };
 
   const handleLogoUpload = (file: File) => {
-    console.log('Logo uploaded:', file);
-    // TODO: Upload to server
+    uploadMediaMutation.mutate({ file, type: 'logo' });
   };
 
   const handleCoverUpload = (file: File) => {
-    console.log('Cover uploaded:', file);
-    // TODO: Upload to server
+    uploadMediaMutation.mutate({ file, type: 'cover' });
   };
+
+  const handleGalleryUpload = (file: File) => {
+    uploadMediaMutation.mutate({ file, type: 'gallery' });
+  };
+
+  const handleRequestVerification = () => {
+    // TODO: Implement verification request
+    console.log('Request verification');
+  };
+
+  const handleResendVerificationRequest = () => {
+    // TODO: Implement resend verification request
+    console.log('Resend verification request');
+  };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-purple-600"></div>
+          <p className="text-gray-600">Đang tải thông tin công ty...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="max-w-md text-center">
+          <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
+          <h2 className="mb-2 text-xl font-bold text-gray-900">Không thể tải thông tin</h2>
+          <p className="mb-4 text-gray-600">{error.message}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700"
+          >
+            Thử lại
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const company = profileData?.data.company as CompanyProfile | undefined;
+  const stats = profileData?.data.stats;
+  const isSaving = updateMutation.isPending;
+  const isUploading = uploadMediaMutation.isPending;
+
+  if (!company) return null;
 
   return (
     <div className="space-y-6">
@@ -48,18 +147,15 @@ export default function CompanyPage() {
           <div className="flex items-center gap-3">
             <Building2 className="h-8 w-8 text-white" />
             <div>
-              <h1 className="text-2xl font-bold text-white mb-1">Quản lý công ty</h1>
-              <p className="text-purple-100">Cập nhật thông tin và hình ảnh công ty</p>
+              <h1 className="mb-1 text-2xl font-bold text-white">{company.companyName}</h1>
+              <p className="text-purple-100">{company.industry?.name ?? 'Chưa có ngành nghề'}</p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-3">
-            {companyData.verified && (
-              <div className="flex items-center gap-2 rounded-lg bg-green-500/20 backdrop-blur-sm px-4 py-2 border border-green-400">
-                <CheckCircle className="h-5 w-5 text-green-300" />
-                <span className="text-sm font-medium text-white">Đã xác minh</span>
-              </div>
-            )}
+            {/* Verification Status Badge */}
+            <VerificationStatusBadge status={company.verificationStatus} />
+
             <button
               onClick={handleSave}
               disabled={isSaving}
@@ -72,31 +168,20 @@ export default function CompanyPage() {
         </div>
       </div>
 
-      {/* Verification Status */}
-      {!companyData.verified && (
-        <div className="rounded-xl border border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100/50 p-6">
-          <div className="flex items-start gap-4">
-            <AlertCircle className="h-6 w-6 text-orange-600 shrink-0" />
-            <div className="flex-1">
-              <h3 className="font-semibold text-orange-900 mb-1">Công ty chưa được xác minh</h3>
-              <p className="text-sm text-orange-700 mb-3">
-                Hãy hoàn thiện thông tin và gửi yêu cầu xác minh để tăng độ tin cậy với ứng viên
-              </p>
-              <button className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white shadow-md transition-all hover:bg-orange-700 hover:shadow-lg">
-                Gửi yêu cầu xác minh
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Verification Status Alert */}
+      <VerificationStatusAlert
+        status={company.verificationStatus}
+        onRequestVerification={handleRequestVerification}
+        onResendRequest={handleResendVerificationRequest}
+      />
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Main Info Form */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6 lg:col-span-2">
           {/* Basic Info */}
-          <div className="rounded-xl border border-purple-100 bg-white p-6 shadow-soft">
-            <h2 className="text-lg font-bold text-gray-900 mb-6">Thông tin cơ bản</h2>
-            
+          <div className="shadow-soft rounded-xl border border-purple-100 bg-white p-6">
+            <h2 className="mb-6 text-lg font-bold text-gray-900">Thông tin cơ bản</h2>
+
             <div className="space-y-4">
               <div>
                 <label className="mb-2 block text-sm font-medium text-gray-700">
@@ -104,9 +189,9 @@ export default function CompanyPage() {
                 </label>
                 <input
                   type="text"
-                  value={companyData.name}
-                  onChange={(e) => setCompanyData({ ...companyData, name: e.target.value })}
-                  className="w-full rounded-lg border border-purple-100 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-purple-300 focus:ring-2 focus:ring-purple-200"
+                  value={formData.companyName}
+                  onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                  className="w-full rounded-lg border border-purple-100 bg-white px-4 py-2.5 text-sm transition-all outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-200"
                 />
               </div>
 
@@ -116,9 +201,9 @@ export default function CompanyPage() {
                 </label>
                 <textarea
                   rows={4}
-                  value={companyData.description}
-                  onChange={(e) => setCompanyData({ ...companyData, description: e.target.value })}
-                  className="w-full rounded-lg border border-purple-100 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-purple-300 focus:ring-2 focus:ring-purple-200"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="w-full rounded-lg border border-purple-100 bg-white px-4 py-2.5 text-sm transition-all outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-200"
                   placeholder="Giới thiệu về công ty..."
                 />
               </div>
@@ -127,41 +212,52 @@ export default function CompanyPage() {
                 <div>
                   <label className="mb-2 block text-sm font-medium text-gray-700">Ngành nghề</label>
                   <select
-                    value={companyData.industry}
-                    onChange={(e) => setCompanyData({ ...companyData, industry: e.target.value })}
-                    className="w-full rounded-lg border border-purple-100 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-purple-300 focus:ring-2 focus:ring-purple-200"
+                    value={formData.industryId ?? ''}
+                    onChange={(e) =>
+                      setFormData({ ...formData, industryId: e.target.value || null })
+                    }
+                    className="w-full rounded-lg border border-purple-100 bg-white px-4 py-2.5 text-sm transition-all outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-200"
+                    disabled={industriesLoading}
                   >
-                    <option>Công nghệ thông tin</option>
-                    <option>Tài chính - Ngân hàng</option>
-                    <option>Y tế</option>
-                    <option>Giáo dục</option>
-                    <option>Bất động sản</option>
+                    <option value="">Chọn ngành nghề</option>
+                    {industriesLoading ? (
+                      <option disabled>Đang tải...</option>
+                    ) : (
+                      industriesData?.data.map((industry) => (
+                        <option key={industry.id} value={industry.id}>
+                          {industry.name}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
 
                 <div>
                   <label className="mb-2 block text-sm font-medium text-gray-700">Quy mô</label>
                   <select
-                    value={companyData.size}
-                    onChange={(e) => setCompanyData({ ...companyData, size: e.target.value })}
-                    className="w-full rounded-lg border border-purple-100 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-purple-300 focus:ring-2 focus:ring-purple-200"
+                    value={formData.companySize}
+                    onChange={(e) => setFormData({ ...formData, companySize: e.target.value })}
+                    className="w-full rounded-lg border border-purple-100 bg-white px-4 py-2.5 text-sm transition-all outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-200"
                   >
-                    <option>1-50 nhân viên</option>
-                    <option>50-100 nhân viên</option>
-                    <option>100-500 nhân viên</option>
-                    <option>500-1000 nhân viên</option>
-                    <option>1000+ nhân viên</option>
+                    <option value="">Chọn quy mô công ty</option>
+                    {getCompanySizeOptions().map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">Năm thành lập</label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Năm thành lập
+                </label>
                 <input
                   type="text"
-                  value={companyData.founded}
-                  onChange={(e) => setCompanyData({ ...companyData, founded: e.target.value })}
-                  className="w-full rounded-lg border border-purple-100 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-purple-300 focus:ring-2 focus:ring-purple-200"
+                  value={formData.foundedYear}
+                  onChange={(e) => setFormData({ ...formData, foundedYear: e.target.value })}
+                  className="w-full rounded-lg border border-purple-100 bg-white px-4 py-2.5 text-sm transition-all outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-200"
                   placeholder="2020"
                 />
               </div>
@@ -169,20 +265,20 @@ export default function CompanyPage() {
           </div>
 
           {/* Contact Info */}
-          <div className="rounded-xl border border-purple-100 bg-white p-6 shadow-soft">
-            <h2 className="text-lg font-bold text-gray-900 mb-6">Thông tin liên hệ</h2>
-            
+          <div className="shadow-soft rounded-xl border border-purple-100 bg-white p-6">
+            <h2 className="mb-6 text-lg font-bold text-gray-900">Thông tin liên hệ</h2>
+
             <div className="space-y-4">
               <div>
                 <label className="mb-2 block text-sm font-medium text-gray-700">
-                  <Globe className="inline h-4 w-4 mr-1" />
+                  <Globe className="mr-1 inline h-4 w-4" />
                   Website
                 </label>
                 <input
                   type="url"
-                  value={companyData.website}
-                  onChange={(e) => setCompanyData({ ...companyData, website: e.target.value })}
-                  className="w-full rounded-lg border border-purple-100 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-purple-300 focus:ring-2 focus:ring-purple-200"
+                  value={formData.websiteUrl}
+                  onChange={(e) => setFormData({ ...formData, websiteUrl: e.target.value })}
+                  className="w-full rounded-lg border border-purple-100 bg-white px-4 py-2.5 text-sm transition-all outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-200"
                   placeholder="https://..."
                 />
               </div>
@@ -190,104 +286,92 @@ export default function CompanyPage() {
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <label className="mb-2 block text-sm font-medium text-gray-700">
-                    <Mail className="inline h-4 w-4 mr-1" />
+                    <Mail className="mr-1 inline h-4 w-4" />
                     Email
                   </label>
                   <input
                     type="email"
-                    value={companyData.email}
-                    onChange={(e) => setCompanyData({ ...companyData, email: e.target.value })}
-                    className="w-full rounded-lg border border-purple-100 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-purple-300 focus:ring-2 focus:ring-purple-200"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full rounded-lg border border-purple-100 bg-white px-4 py-2.5 text-sm transition-all outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-200"
                   />
                 </div>
 
                 <div>
                   <label className="mb-2 block text-sm font-medium text-gray-700">
-                    <Phone className="inline h-4 w-4 mr-1" />
+                    <Phone className="mr-1 inline h-4 w-4" />
                     Số điện thoại
                   </label>
                   <input
                     type="tel"
-                    value={companyData.phone}
-                    onChange={(e) => setCompanyData({ ...companyData, phone: e.target.value })}
-                    className="w-full rounded-lg border border-purple-100 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-purple-300 focus:ring-2 focus:ring-purple-200"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="w-full rounded-lg border border-purple-100 bg-white px-4 py-2.5 text-sm transition-all outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-200"
                   />
                 </div>
               </div>
 
               <div>
                 <label className="mb-2 block text-sm font-medium text-gray-700">
-                  <MapPin className="inline h-4 w-4 mr-1" />
+                  <MapPin className="mr-1 inline h-4 w-4" />
                   Địa chỉ
                 </label>
                 <textarea
                   rows={2}
-                  value={companyData.address}
-                  onChange={(e) => setCompanyData({ ...companyData, address: e.target.value })}
-                  className="w-full rounded-lg border border-purple-100 bg-white px-4 py-2.5 text-sm outline-none transition-all focus:border-purple-300 focus:ring-2 focus:ring-purple-200"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  className="w-full rounded-lg border border-purple-100 bg-white px-4 py-2.5 text-sm transition-all outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-200"
                 />
               </div>
             </div>
           </div>
 
           {/* Gallery */}
-          <div className="rounded-xl border border-purple-100 bg-white p-6 shadow-soft">
+          {/* <div className="shadow-soft rounded-xl border border-purple-100 bg-white p-6">
             <div className="mb-6 flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-bold text-gray-900">Thư viện ảnh</h2>
-                <p className="text-sm text-gray-500 mt-1">Thêm ảnh về văn phòng, team, sự kiện</p>
+                <p className="mt-1 text-sm text-gray-500">Thêm ảnh về văn phòng, team, sự kiện</p>
               </div>
               <ImageIcon className="h-6 w-6 text-purple-600" />
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
-              {companyData.galleryImages.map((img, index) => (
-                <div key={index} className="group relative aspect-video">
-                  <img
-                    src={img}
-                    alt={`Gallery ${index + 1}`}
-                    className="h-full w-full object-cover rounded-lg border-2 border-gray-200"
-                  />
-                  <button className="absolute -top-2 -right-2 flex h-7 w-7 items-center justify-center rounded-full bg-red-500 text-white shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600">
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              ))}
-              
-              <MediaUploader
-                type="gallery"
-                onUpload={(file) => console.log('Gallery image:', file)}
-              />
+              <MediaUploader type="gallery" onUpload={handleGalleryUpload} />
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Sidebar - Media & Stats */}
         <div className="space-y-6">
           {/* Logo */}
-          <div className="rounded-xl border border-purple-100 bg-white p-6 shadow-soft">
+          <div className="shadow-soft rounded-xl border border-purple-100 bg-white p-6">
             <MediaUploader
               type="logo"
-              currentImage={companyData.logo}
+              currentImage={company.logoUrl || ''}
               onUpload={handleLogoUpload}
-              onRemove={() => setCompanyData({ ...companyData, logo: '' })}
+              onRemove={() => {
+                /* Handle logo removal */
+              }}
             />
           </div>
 
           {/* Cover */}
-          <div className="rounded-xl border border-purple-100 bg-white p-6 shadow-soft">
+          <div className="shadow-soft rounded-xl border border-purple-100 bg-white p-6">
             <MediaUploader
               type="cover"
-              currentImage={companyData.coverImage}
+              currentImage={company.coverImageUrl || ''}
               onUpload={handleCoverUpload}
-              onRemove={() => setCompanyData({ ...companyData, coverImage: '' })}
+              onRemove={() => {
+                /* Handle cover removal */
+              }}
             />
           </div>
 
           {/* Quick Stats */}
-          <div className="rounded-xl border border-purple-100 bg-white p-6 shadow-soft">
-            <h3 className="text-sm font-bold text-gray-900 mb-4">Thống kê</h3>
-            
+          <div className="shadow-soft rounded-xl border border-purple-100 bg-white p-6">
+            <h3 className="mb-4 text-sm font-bold text-gray-900">Thống kê</h3>
+
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -296,7 +380,7 @@ export default function CompanyPage() {
                   </div>
                   <span className="text-sm text-gray-600">Công việc đang tuyển</span>
                 </div>
-                <span className="text-lg font-bold text-purple-600">8</span>
+                <span className="text-lg font-bold text-purple-600">{stats?.activeJobs || 0}</span>
               </div>
 
               <div className="flex items-center justify-between">
@@ -306,7 +390,7 @@ export default function CompanyPage() {
                   </div>
                   <span className="text-sm text-gray-600">Lượt xem công ty</span>
                 </div>
-                <span className="text-lg font-bold text-blue-600">2.4K</span>
+                <span className="text-lg font-bold text-blue-600">{stats?.profileViews || 0}</span>
               </div>
 
               <div className="flex items-center justify-between">
@@ -316,7 +400,7 @@ export default function CompanyPage() {
                   </div>
                   <span className="text-sm text-gray-600">Thành viên team</span>
                 </div>
-                <span className="text-lg font-bold text-green-600">3</span>
+                <span className="text-lg font-bold text-green-600">{stats?.teamMembers || 0}</span>
               </div>
             </div>
           </div>

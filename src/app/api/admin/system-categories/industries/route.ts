@@ -1,24 +1,25 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { withRole, AuthenticatedRequest } from '@/lib/middleware/auth';
+import { withRole, withAuth, AuthenticatedRequest } from '@/lib/middleware/auth';
 import { UserType } from '@/generated/prisma';
 import {
   createAuditLog,
   successResponse,
   errorResponse,
   paginatedResponse,
-  checkRateLimit
+  checkRateLimit,
 } from '@/lib/middleware/utils';
 import {
   createIndustrySchema,
   systemCategoryQuerySchema,
   validateAndCreateSlug,
-  checkDuplicateName
+  checkDuplicateName,
 } from '@/lib/validations/system-categories';
 import { Industry } from '@/types/system-categories';
 
 // GET /api/admin/system-categories/industries
-export const GET = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) => {
+// Allow both ADMIN and EMPLOYER to fetch industries (EMPLOYER needs this for company profile)
+export const GET = withAuth(async (req: AuthenticatedRequest) => {
   try {
     // Parse query parameters
     const { searchParams } = new URL(req.url);
@@ -27,11 +28,11 @@ export const GET = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) 
 
     // Build where clause
     const where: any = {};
-    
+
     if (query.search) {
       where.OR = [
         { name: { contains: query.search, mode: 'insensitive' } },
-        { description: { contains: query.search, mode: 'insensitive' } }
+        { description: { contains: query.search, mode: 'insensitive' } },
       ];
     }
 
@@ -48,30 +49,21 @@ export const GET = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) 
       include: {
         _count: {
           select: {
-            companies: true
-          }
-        }
+            companies: true,
+          },
+        },
       },
       orderBy: {
-        [query.sortBy]: query.sortOrder
+        [query.sortBy]: query.sortOrder,
       },
       skip: (query.page - 1) * query.limit,
-      take: query.limit
+      take: query.limit,
     });
 
-    return paginatedResponse<Industry>(
-      industries as any,
-      total,
-      query.page,
-      query.limit
-    );
+    return paginatedResponse<Industry>(industries as any, total, query.page, query.limit);
   } catch (error: any) {
     console.error('Get industries error:', error);
-    return errorResponse(
-      'FETCH_ERROR',
-      error.message || 'Không thể lấy danh sách ngành nghề',
-      500
-    );
+    return errorResponse('FETCH_ERROR', error.message || 'Không thể lấy danh sách ngành nghề', 500);
   }
 });
 
@@ -93,18 +85,10 @@ export const POST = withRole([UserType.ADMIN], async (req: AuthenticatedRequest)
     const dataWithSlug = validateAndCreateSlug(validatedData);
 
     // Check duplicate name
-    const isDuplicate = await checkDuplicateName(
-      prisma,
-      'industry',
-      dataWithSlug.name
-    );
+    const isDuplicate = await checkDuplicateName(prisma, 'industry', dataWithSlug.name);
 
     if (isDuplicate) {
-      return errorResponse(
-        'DUPLICATE_NAME',
-        'Ngành nghề với tên này đã tồn tại',
-        400
-      );
+      return errorResponse('DUPLICATE_NAME', 'Ngành nghề với tên này đã tồn tại', 400);
     }
 
     // Create industry
@@ -114,36 +98,24 @@ export const POST = withRole([UserType.ADMIN], async (req: AuthenticatedRequest)
         slug: dataWithSlug.slug,
         description: dataWithSlug.description,
         iconUrl: dataWithSlug.iconUrl,
-        sortOrder: dataWithSlug.sortOrder
+        sortOrder: dataWithSlug.sortOrder,
       },
       include: {
         _count: {
           select: {
-            companies: true
-          }
-        }
-      }
+            companies: true,
+          },
+        },
+      },
     });
 
     // Create audit log
-    await createAuditLog(
-      req.user!.id,
-      'CREATE',
-      'industries',
-      industry.id,
-      null,
-      industry,
-      req
-    );
+    await createAuditLog(req.user!.id, 'CREATE', 'industries', industry.id, null, industry, req);
 
-    return successResponse<Industry>(
-      industry as any,
-      'Tạo ngành nghề thành công',
-      201
-    );
+    return successResponse<Industry>(industry as any, 'Tạo ngành nghề thành công', 201);
   } catch (error: any) {
     console.error('Create industry error:', error);
-    
+
     if (error.name === 'ZodError') {
       return errorResponse(
         'VALIDATION_ERROR',
@@ -152,11 +124,6 @@ export const POST = withRole([UserType.ADMIN], async (req: AuthenticatedRequest)
       );
     }
 
-    return errorResponse(
-      'CREATE_ERROR',
-      error.message || 'Không thể tạo ngành nghề',
-      500
-    );
+    return errorResponse('CREATE_ERROR', error.message || 'Không thể tạo ngành nghề', 500);
   }
 });
-

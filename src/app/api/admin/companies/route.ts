@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
   withAdmin,
+  withPermission,
   AuthenticatedRequest,
   createAuditLog,
   successResponse,
-  withAnyPermission,
 } from '@/lib/middleware';
 import { AdminCompanyService } from '@/services/admin/company.service';
 import { CompanyListParams } from '@/types/admin/company';
 
-export const GET = async (request: AuthenticatedRequest) => {
+// GET: List all companies (Admin only with company.view_all or company.manage_users permission)
+export const GET = withPermission('company.view_all', async (request: AuthenticatedRequest) => {
   try {
     // Parse query parameters
     const searchParams = request.nextUrl.searchParams;
@@ -27,8 +28,8 @@ export const GET = async (request: AuthenticatedRequest) => {
     };
 
     // Validate pagination params
-    if (params.page < 1) params.page = 1;
-    if (params.limit < 1 || params.limit > 100) params.limit = 10;
+    params.page = params.page && params.page >= 1 ? params.page : 1;
+    params.limit = params.limit && params.limit >= 1 && params.limit <= 100 ? params.limit : 10;
 
     // Get companies list
     const result = await AdminCompanyService.getCompanies(params);
@@ -44,9 +45,10 @@ export const GET = async (request: AuthenticatedRequest) => {
       { status: 500 }
     );
   }
-};
+});
 
-export const POST = withAdmin(async (request: AuthenticatedRequest) => {
+// POST: Bulk operations on companies (Admin only with company.edit permission)
+export const POST = withPermission('company.edit', async (request: AuthenticatedRequest) => {
   try {
     // Parse request body
     const body = await request.json();

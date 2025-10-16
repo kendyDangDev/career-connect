@@ -1,25 +1,26 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { withRole, AuthenticatedRequest } from '@/lib/middleware/auth';
+import { withRole, withAuth, AuthenticatedRequest } from '@/lib/middleware/auth';
 import { UserType } from '@/generated/prisma';
 import {
   createAuditLog,
   successResponse,
   errorResponse,
   paginatedResponse,
-  checkRateLimit
+  checkRateLimit,
 } from '@/lib/middleware/utils';
 import {
   updateIndustrySchema,
   idParamSchemaJoi,
   validateAndCreateSlug,
   checkDuplicateName,
-  checkItemInUse
+  checkItemInUse,
 } from '@/lib/validations/system-categories';
 import { Industry } from '@/types/system-categories';
 
 // GET /api/admin/system-categories/industries/[id]
-export const GET = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) => {
+// Allow authenticated users to view industry details
+export const GET = withAuth(async (req: AuthenticatedRequest) => {
   try {
     // Extract ID from URL
     const url = new URL(req.url);
@@ -28,11 +29,7 @@ export const GET = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) 
     // Validate ID
     const { error } = idParamSchemaJoi.validate({ id });
     if (error) {
-      return errorResponse(
-        'INVALID_ID',
-        'ID không hợp lệ',
-        400
-      );
+      return errorResponse('INVALID_ID', 'ID không hợp lệ', 400);
     }
 
     // Get industry
@@ -41,28 +38,20 @@ export const GET = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) 
       include: {
         _count: {
           select: {
-            companies: true
-          }
-        }
-      }
+            companies: true,
+          },
+        },
+      },
     });
 
     if (!industry) {
-      return errorResponse(
-        'NOT_FOUND',
-        'Không tìm thấy ngành nghề',
-        404
-      );
+      return errorResponse('NOT_FOUND', 'Không tìm thấy ngành nghề', 404);
     }
 
     return successResponse<Industry>(industry as any);
   } catch (error: any) {
     console.error('Get industry error:', error);
-    return errorResponse(
-      'FETCH_ERROR',
-      error.message || 'Không thể lấy thông tin ngành nghề',
-      500
-    );
+    return errorResponse('FETCH_ERROR', error.message || 'Không thể lấy thông tin ngành nghề', 500);
   }
 });
 
@@ -85,24 +74,16 @@ export const PUT = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) 
     // Validate ID
     const { error: idError } = idParamSchemaJoi.validate({ id });
     if (idError) {
-      return errorResponse(
-        'INVALID_ID',
-        'ID không hợp lệ',
-        400
-      );
+      return errorResponse('INVALID_ID', 'ID không hợp lệ', 400);
     }
 
     // Get existing industry
     const existingIndustry = await prisma.industry.findUnique({
-      where: { id: id! }
+      where: { id: id! },
     });
 
     if (!existingIndustry) {
-      return errorResponse(
-        'NOT_FOUND',
-        'Không tìm thấy ngành nghề',
-        404
-      );
+      return errorResponse('NOT_FOUND', 'Không tìm thấy ngành nghề', 404);
     }
 
     // Parse and validate request body
@@ -111,25 +92,16 @@ export const PUT = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) 
 
     // Check duplicate name if name is being updated
     if (validatedData.name && validatedData.name !== existingIndustry.name) {
-      const isDuplicate = await checkDuplicateName(
-        prisma,
-        'industry',
-        validatedData.name,
-        id
-      );
+      const isDuplicate = await checkDuplicateName(prisma, 'industry', validatedData.name, id);
 
       if (isDuplicate) {
-        return errorResponse(
-          'DUPLICATE_NAME',
-          'Ngành nghề với tên này đã tồn tại',
-          400
-        );
+        return errorResponse('DUPLICATE_NAME', 'Ngành nghề với tên này đã tồn tại', 400);
       }
     }
 
     // Prepare update data
     const updateData: any = { ...validatedData };
-    
+
     // Update slug if name changed
     if (updateData.name) {
       updateData.slug = validateAndCreateSlug({ name: updateData.name }).slug;
@@ -142,10 +114,10 @@ export const PUT = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) 
       include: {
         _count: {
           select: {
-            companies: true
-          }
-        }
-      }
+            companies: true,
+          },
+        },
+      },
     });
 
     // Create audit log
@@ -159,13 +131,10 @@ export const PUT = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) 
       req
     );
 
-    return successResponse<Industry>(
-      updatedIndustry as any,
-      'Cập nhật ngành nghề thành công'
-    );
+    return successResponse<Industry>(updatedIndustry as any, 'Cập nhật ngành nghề thành công');
   } catch (error: any) {
     console.error('Update industry error:', error);
-    
+
     if (error.name === 'ZodError') {
       return errorResponse(
         'VALIDATION_ERROR',
@@ -174,11 +143,7 @@ export const PUT = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) 
       );
     }
 
-    return errorResponse(
-      'UPDATE_ERROR',
-      error.message || 'Không thể cập nhật ngành nghề',
-      500
-    );
+    return errorResponse('UPDATE_ERROR', error.message || 'Không thể cập nhật ngành nghề', 500);
   }
 });
 
@@ -201,32 +166,20 @@ export const DELETE = withRole([UserType.ADMIN], async (req: AuthenticatedReques
     // Validate ID
     const { error } = idParamSchemaJoi.validate({ id });
     if (error) {
-      return errorResponse(
-        'INVALID_ID',
-        'ID không hợp lệ',
-        400
-      );
+      return errorResponse('INVALID_ID', 'ID không hợp lệ', 400);
     }
 
     // Check if industry exists
     const industry = await prisma.industry.findUnique({
-      where: { id: id! }
+      where: { id: id! },
     });
 
     if (!industry) {
-      return errorResponse(
-        'NOT_FOUND',
-        'Không tìm thấy ngành nghề',
-        404
-      );
+      return errorResponse('NOT_FOUND', 'Không tìm thấy ngành nghề', 404);
     }
 
     // Check if industry is in use
-    const { inUse, count, relatedModel } = await checkItemInUse(
-      prisma,
-      'industry',
-      id!
-    );
+    const { inUse, count, relatedModel } = await checkItemInUse(prisma, 'industry', id!);
 
     if (inUse) {
       return errorResponse(
@@ -238,30 +191,15 @@ export const DELETE = withRole([UserType.ADMIN], async (req: AuthenticatedReques
 
     // Delete industry
     await prisma.industry.delete({
-      where: { id: id! }
+      where: { id: id! },
     });
 
     // Create audit log
-    await createAuditLog(
-      req.user!.id,
-      'DELETE',
-      'industries',
-      id!,
-      industry,
-      null,
-      req
-    );
+    await createAuditLog(req.user!.id, 'DELETE', 'industries', id!, industry, null, req);
 
-    return successResponse(
-      { id },
-      'Xóa ngành nghề thành công'
-    );
+    return successResponse({ id }, 'Xóa ngành nghề thành công');
   } catch (error: any) {
     console.error('Delete industry error:', error);
-    return errorResponse(
-      'DELETE_ERROR',
-      error.message || 'Không thể xóa ngành nghề',
-      500
-    );
+    return errorResponse('DELETE_ERROR', error.message || 'Không thể xóa ngành nghề', 500);
   }
 });

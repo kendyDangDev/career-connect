@@ -1,287 +1,202 @@
-import { NextRequest, NextResponse } from "next/server";
-import { requireCompanyAuth, canManageCompany } from "@/lib/middleware/company-auth";
-import { CompanyService } from "@/services/company.service";
-import { UploadService } from "@/services/upload.service";
+import { NextRequest, NextResponse } from 'next/server';
+import {
+  withCompanyRole,
+  CompanyAuthenticatedRequest,
+  canManageCompany,
+} from '@/lib/middleware/company-auth';
+import { successResponse, errorResponse, serverErrorResponse } from '@/lib/middleware';
+import { CompanyService } from '@/services/company.service';
+import { UploadService } from '@/services/upload.service';
+import { CompanyRole } from '@/generated/prisma';
+import { z } from 'zod';
 
-export async function POST(request: NextRequest) {
-  try {
-    // Verify authentication and permissions
-    const authResult = await requireCompanyAuth(request);
-    
-    if (authResult instanceof NextResponse) {
-      return authResult;
-    }
+// Validation schemas
+const mediaTypeSchema = z.enum(['logo', 'cover', 'gallery', 'video']);
 
-    // Check if user can manage company
-    if (!canManageCompany(authResult.companyRole)) {
-      return NextResponse.json(
-        { 
-          success: false,
-          error: "You don't have permission to upload company media" 
-        },
-        { status: 403 }
-      );
-    }
+/**
+ * POST /api/companies/media
+ * Upload company media (logo, cover, gallery, video)
+ * Requires: Company ADMIN or HR_MANAGER role
+ */
+export const POST = withCompanyRole(
+  [CompanyRole.ADMIN, CompanyRole.HR_MANAGER],
+  async (request: CompanyAuthenticatedRequest) => {
+    try {
+      // Parse form data
+      const formData = await request.formData();
+      const mediaType = formData.get('type') as string;
 
-    // Parse form data
-    const formData = await request.formData();
-    const mediaType = formData.get("type") as string;
-    
-    if (!["logo", "cover", "gallery", "video"].includes(mediaType)) {
-      return NextResponse.json(
-        { 
-          success: false,
-          error: "Invalid media type" 
-        },
-        { status: 400 }
-      );
-    }
-
-    // Handle different media types
-    switch (mediaType) {
-      case "logo": {
-        const file = formData.get("file") as File;
-        if (!file) {
-          return NextResponse.json(
-            { 
-              success: false,
-              error: "No file provided" 
-            },
-            { status: 400 }
-          );
-        }
-
-        const uploadResult = await UploadService.uploadCompanyLogo(file, authResult.companyId);
-        
-        if (!uploadResult.success) {
-          return NextResponse.json(
-            { 
-              success: false,
-              error: uploadResult.error 
-            },
-            { status: 400 }
-          );
-        }
-
-        // Delete old logo if exists
-        const currentCompany = await CompanyService.getCompanyProfile(authResult.companyId);
-        if (currentCompany?.logoUrl) {
-          await UploadService.deleteFile(currentCompany.logoUrl);
-        }
-
-        // Update database
-        await CompanyService.updateCompanyMedia(
-          authResult.companyId,
-          "logo",
-          uploadResult.fileUrl!
+      // Validate media type
+      const validationResult = mediaTypeSchema.safeParse(mediaType);
+      if (!validationResult.success) {
+        return errorResponse(
+          'INVALID_MEDIA_TYPE',
+          'Invalid media type. Must be one of: logo, cover, gallery, video',
+          400
         );
-
-        return NextResponse.json({
-          success: true,
-          message: "Logo uploaded successfully",
-          data: {
-            logoUrl: uploadResult.fileUrl
-          }
-        });
       }
 
-      case "cover": {
-        const file = formData.get("file") as File;
-        if (!file) {
-          return NextResponse.json(
-            { 
-              success: false,
-              error: "No file provided" 
-            },
-            { status: 400 }
-          );
-        }
+      const companyId = request.company!.id;
 
-        const uploadResult = await UploadService.uploadCompanyCover(file, authResult.companyId);
-        
-        if (!uploadResult.success) {
-          return NextResponse.json(
-            { 
-              success: false,
-              error: uploadResult.error 
-            },
-            { status: 400 }
-          );
-        }
-
-        // Delete old cover if exists
-        const currentCompany = await CompanyService.getCompanyProfile(authResult.companyId);
-        if (currentCompany?.coverImageUrl) {
-          await UploadService.deleteFile(currentCompany.coverImageUrl);
-        }
-
-        // Update database
-        await CompanyService.updateCompanyMedia(
-          authResult.companyId,
-          "cover",
-          uploadResult.fileUrl!
-        );
-
-        return NextResponse.json({
-          success: true,
-          message: "Cover image uploaded successfully",
-          data: {
-            coverImageUrl: uploadResult.fileUrl
+      // Handle different media types
+      switch (validationResult.data) {
+        case 'logo': {
+          const file = formData.get('file') as File;
+          if (!file) {
+            return errorResponse('NO_FILE', 'No file provided', 400);
           }
-        });
+
+          const uploadResult = await UploadService.uploadCompanyLogo(file, companyId);
+
+          if (!uploadResult.success) {
+            return errorResponse('UPLOAD_FAILED', uploadResult.error || 'Upload failed', 400);
+          }
+
+          // Delete old logo if exists
+          const currentCompany = await CompanyService.getCompanyProfile(companyId);
+          if (currentCompany?.logoUrl) {
+            await UploadService.deleteFile(currentCompany.logoUrl);
+          }
+
+          // Update database
+          await CompanyService.updateCompanyMedia(companyId, 'logo', uploadResult.fileUrl!);
+
+          return successResponse({ logoUrl: uploadResult.fileUrl }, 'Logo uploaded successfully');
+        }
+
+        case 'cover': {
+          const file = formData.get('file') as File;
+          if (!file) {
+            return errorResponse('NO_FILE', 'No file provided', 400);
+          }
+
+          const uploadResult = await UploadService.uploadCompanyCover(file, companyId);
+
+          if (!uploadResult.success) {
+            return errorResponse('UPLOAD_FAILED', uploadResult.error || 'Upload failed', 400);
+          }
+
+          // Delete old cover if exists
+          const currentCompany = await CompanyService.getCompanyProfile(companyId);
+          if (currentCompany?.coverImageUrl) {
+            await UploadService.deleteFile(currentCompany.coverImageUrl);
+          }
+
+          // Update database
+          await CompanyService.updateCompanyMedia(companyId, 'cover', uploadResult.fileUrl!);
+
+          return successResponse(
+            { coverImageUrl: uploadResult.fileUrl },
+            'Cover image uploaded successfully'
+          );
+        }
+
+        case 'gallery': {
+          const files = formData.getAll('files') as File[];
+          if (files.length === 0) {
+            return errorResponse('NO_FILES', 'No files provided', 400);
+          }
+
+          const uploadResult = await UploadService.uploadCompanyGallery(files, companyId);
+
+          if (!uploadResult.success && !uploadResult.urls) {
+            return errorResponse('UPLOAD_FAILED', 'Failed to upload gallery images', 400);
+          }
+
+          // Note: Gallery images would typically be stored in a separate table
+          // For now, we'll just return the URLs
+
+          return successResponse(
+            {
+              urls: uploadResult.urls,
+              errors: uploadResult.errors,
+            },
+            'Gallery images uploaded'
+          );
+        }
+
+        case 'video': {
+          const file = formData.get('file') as File;
+          if (!file) {
+            return errorResponse('NO_FILE', 'No file provided', 400);
+          }
+
+          const uploadResult = await UploadService.uploadCompanyVideo(file, companyId);
+
+          if (!uploadResult.success) {
+            return errorResponse('UPLOAD_FAILED', uploadResult.error || 'Upload failed', 400);
+          }
+
+          // Note: Videos would typically be stored in a separate table
+          // For now, we'll just return the URL
+
+          return successResponse({ videoUrl: uploadResult.fileUrl }, 'Video uploaded successfully');
+        }
+
+        default:
+          return errorResponse('INVALID_MEDIA_TYPE', 'Invalid media type', 400);
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return errorResponse('VALIDATION_ERROR', error.errors[0].message, 400);
       }
 
-      case "gallery": {
-        const files = formData.getAll("files") as File[];
-        if (files.length === 0) {
-          return NextResponse.json(
-            { 
-              success: false,
-              error: "No files provided" 
-            },
-            { status: 400 }
-          );
-        }
-
-        const uploadResult = await UploadService.uploadCompanyGallery(files, authResult.companyId);
-        
-        if (!uploadResult.success && !uploadResult.urls) {
-          return NextResponse.json(
-            { 
-              success: false,
-              errors: uploadResult.errors 
-            },
-            { status: 400 }
-          );
-        }
-
-        // Note: Gallery images would typically be stored in a separate table
-        // For now, we'll just return the URLs
-        
-        return NextResponse.json({
-          success: true,
-          message: "Gallery images uploaded",
-          data: {
-            urls: uploadResult.urls,
-            errors: uploadResult.errors
-          }
-        });
-      }
-
-      case "video": {
-        const file = formData.get("file") as File;
-        if (!file) {
-          return NextResponse.json(
-            { 
-              success: false,
-              error: "No file provided" 
-            },
-            { status: 400 }
-          );
-        }
-
-        const uploadResult = await UploadService.uploadCompanyVideo(file, authResult.companyId);
-        
-        if (!uploadResult.success) {
-          return NextResponse.json(
-            { 
-              success: false,
-              error: uploadResult.error 
-            },
-            { status: 400 }
-          );
-        }
-
-        // Note: Videos would typically be stored in a separate table
-        // For now, we'll just return the URL
-        
-        return NextResponse.json({
-          success: true,
-          message: "Video uploaded successfully",
-          data: {
-            videoUrl: uploadResult.fileUrl
-          }
-        });
-      }
-
-      default:
-        return NextResponse.json(
-          { 
-            success: false,
-            error: "Invalid media type" 
-          },
-          { status: 400 }
-        );
+      return serverErrorResponse('Failed to upload media', error);
     }
-
-  } catch (error) {
-    console.error("Error uploading company media:", error);
-    return NextResponse.json(
-      { 
-        success: false,
-        error: "Failed to upload media" 
-      },
-      { status: 500 }
-    );
   }
-}
+);
 
-export async function DELETE(request: NextRequest) {
-  try {
-    // Verify authentication and permissions
-    const authResult = await requireCompanyAuth(request);
-    
-    if (authResult instanceof NextResponse) {
-      return authResult;
-    }
+/**
+ * DELETE /api/companies/media
+ * Delete company media (logo or cover)
+ * Requires: Company ADMIN or HR_MANAGER role
+ */
+export const DELETE = withCompanyRole(
+  [CompanyRole.ADMIN, CompanyRole.HR_MANAGER],
+  async (request: CompanyAuthenticatedRequest) => {
+    try {
+      // Parse request body
+      const body = await request.json();
+      const { mediaType, fileUrl } = body;
 
-    // Check if user can manage company
-    if (!canManageCompany(authResult.companyRole)) {
-      return NextResponse.json(
-        { 
-          success: false,
-          error: "You don't have permission to delete company media" 
-        },
-        { status: 403 }
+      // Validate media type
+      const deleteMediaTypeSchema = z.enum(['logo', 'cover']);
+      const validationResult = deleteMediaTypeSchema.safeParse(mediaType);
+
+      if (!validationResult.success) {
+        return errorResponse(
+          'INVALID_MEDIA_TYPE',
+          'Invalid media type. Must be either logo or cover',
+          400
+        );
+      }
+
+      if (!fileUrl || typeof fileUrl !== 'string') {
+        return errorResponse('INVALID_URL', 'File URL is required', 400);
+      }
+
+      const companyId = request.company!.id;
+
+      // Delete file from storage
+      await UploadService.deleteFile(fileUrl);
+
+      // Update database
+      await CompanyService.updateCompanyMedia(
+        companyId,
+        validationResult.data,
+        '' // Set to empty string to remove
       );
-    }
 
-    // Parse request body
-    const { mediaType, fileUrl } = await request.json();
-    
-    if (!["logo", "cover"].includes(mediaType)) {
-      return NextResponse.json(
-        { 
-          success: false,
-          error: "Invalid media type" 
-        },
-        { status: 400 }
+      return successResponse(
+        null,
+        `${mediaType === 'logo' ? 'Logo' : 'Cover image'} deleted successfully`
       );
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return errorResponse('VALIDATION_ERROR', error.errors[0].message, 400);
+      }
+
+      return serverErrorResponse('Failed to delete media', error);
     }
-
-    // Delete file from storage
-    await UploadService.deleteFile(fileUrl);
-
-    // Update database
-    await CompanyService.updateCompanyMedia(
-      authResult.companyId,
-      mediaType as "logo" | "cover",
-      "" // Set to empty string to remove
-    );
-
-    return NextResponse.json({
-      success: true,
-      message: `${mediaType === "logo" ? "Logo" : "Cover image"} deleted successfully`
-    });
-
-  } catch (error) {
-    console.error("Error deleting company media:", error);
-    return NextResponse.json(
-      { 
-        success: false,
-        error: "Failed to delete media" 
-      },
-      { status: 500 }
-    );
   }
-}
+);

@@ -1,20 +1,22 @@
 import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/components/ui/use-toast';
-import { 
-  Industry, 
-  CreateIndustryDto, 
-  UpdateIndustryDto, 
+import { toast } from 'sonner';
+import {
+  Industry,
+  CreateIndustryDto,
+  UpdateIndustryDto,
   SystemCategoryQuery,
-  PaginatedResponse 
+  PaginatedResponse,
 } from '@/types/system-categories';
 
 const API_BASE = '/api/admin/system-categories/industries';
 
 // API functions
-const fetchIndustries = async (params: SystemCategoryQuery): Promise<PaginatedResponse<Industry>> => {
+const fetchIndustries = async (
+  params: SystemCategoryQuery
+): Promise<PaginatedResponse<Industry>> => {
   const queryParams = new URLSearchParams();
-  
+
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') {
       queryParams.append(key, String(value));
@@ -72,7 +74,13 @@ const createIndustry = async (data: CreateIndustryDto): Promise<Industry> => {
   return result.data;
 };
 
-const updateIndustry = async ({ id, data }: { id: string; data: UpdateIndustryDto }): Promise<Industry> => {
+const updateIndustry = async ({
+  id,
+  data,
+}: {
+  id: string;
+  data: UpdateIndustryDto;
+}): Promise<Industry> => {
   const response = await fetch(`${API_BASE}/${id}`, {
     method: 'PUT',
     headers: {
@@ -125,70 +133,49 @@ export const useIndustry = (id: string | null) => {
 
 export const useCreateIndustry = () => {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
+  // use sonner toast consistent with other hooks
 
   return useMutation({
     mutationFn: createIndustry,
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['industries'] });
-      toast({
-        title: 'Thành công',
-        description: 'Tạo ngành nghề mới thành công',
-      });
+      toast.success('Tạo ngành nghề mới thành công');
     },
     onError: (error: Error) => {
-      toast({
-        title: 'Lỗi',
-        description: error.message || 'Không thể tạo ngành nghề',
-        variant: 'destructive',
-      });
+      toast.error(error.message || 'Không thể tạo ngành nghề');
     },
   });
 };
 
 export const useUpdateIndustry = () => {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
+  // use sonner toast consistent with other hooks
 
   return useMutation({
     mutationFn: updateIndustry,
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['industries'] });
       queryClient.invalidateQueries({ queryKey: ['industry', variables.id] });
-      toast({
-        title: 'Thành công',
-        description: 'Cập nhật ngành nghề thành công',
-      });
+      toast.success('Cập nhật ngành nghề thành công');
     },
     onError: (error: Error) => {
-      toast({
-        title: 'Lỗi',
-        description: error.message || 'Không thể cập nhật ngành nghề',
-        variant: 'destructive',
-      });
+      toast.error(error.message || 'Không thể cập nhật ngành nghề');
     },
   });
 };
 
 export const useDeleteIndustry = () => {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
+  // use sonner toast consistent with other hooks
 
   return useMutation({
     mutationFn: deleteIndustry,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['industries'] });
-      toast({
-        title: 'Thành công',
-        description: 'Xóa ngành nghề thành công',
-      });
+      toast.success('Xóa ngành nghề thành công');
     },
     onError: (error: Error) => {
-      toast({
-        title: 'Lỗi',
-        description: error.message || 'Không thể xóa ngành nghề',
-        variant: 'destructive',
-      });
+      toast.error(error.message || 'Không thể xóa ngành nghề');
     },
   });
 };
@@ -200,17 +187,21 @@ export const useIndustriesAnalytics = () => {
     queryFn: async () => {
       // Fetch all industries for analytics
       const response = await fetchIndustries({ limit: 100, page: 1 });
-      
+
       // Calculate analytics
       const totalIndustries = response.meta.total;
-      const activeIndustries = response.data.filter(i => i.isActive).length;
-      const companiesPerIndustry = response.data.map(industry => ({
-        name: industry.name,
-        companies: industry._count?.companies || 0,
-      })).sort((a, b) => b.companies - a.companies);
+      const activeIndustries = response.data.filter((i) => i.isActive).length;
+      const companiesPerIndustry = response.data
+        .map((industry) => ({
+          name: industry.name,
+          companies: industry._count?.companies || 0,
+        }))
+        .sort((a, b) => b.companies - a.companies);
 
       const topIndustries = companiesPerIndustry.slice(0, 10);
-      const industriesWithoutCompanies = response.data.filter(i => (i._count?.companies || 0) === 0).length;
+      const industriesWithoutCompanies = response.data.filter(
+        (i) => (i._count?.companies || 0) === 0
+      ).length;
 
       return {
         totalIndustries,
@@ -235,7 +226,7 @@ export const useIndustriesTableState = () => {
   });
 
   const updateFilter = useCallback((key: keyof SystemCategoryQuery, value: any) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       [key]: value,
       // Reset to page 1 when filters change

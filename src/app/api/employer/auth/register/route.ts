@@ -26,7 +26,7 @@ function generateCompanySlug(companyName: string): string {
 
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData();
+    const formData = (await request.formData()) as any;
 
     // Parse form data into object
     const data: any = {};

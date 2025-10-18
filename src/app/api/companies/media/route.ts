@@ -23,8 +23,8 @@ export const POST = withCompanyRole(
   async (request: CompanyAuthenticatedRequest) => {
     try {
       // Parse form data
-      const formData = await request.formData();
-      const mediaType = formData.get('type') as string;
+      const formData = (await request.formData()) as any;
+      const mediaType = (formData.get('type') as string | null) || '';
 
       // Validate media type
       const validationResult = mediaTypeSchema.safeParse(mediaType);
@@ -41,7 +41,7 @@ export const POST = withCompanyRole(
       // Handle different media types
       switch (validationResult.data) {
         case 'logo': {
-          const file = formData.get('file') as File;
+          const file = formData.get('file') as File | null;
           if (!file) {
             return errorResponse('NO_FILE', 'No file provided', 400);
           }
@@ -65,7 +65,7 @@ export const POST = withCompanyRole(
         }
 
         case 'cover': {
-          const file = formData.get('file') as File;
+          const file = formData.get('file') as File | null;
           if (!file) {
             return errorResponse('NO_FILE', 'No file provided', 400);
           }
@@ -116,7 +116,7 @@ export const POST = withCompanyRole(
         }
 
         case 'video': {
-          const file = formData.get('file') as File;
+          const file = formData.get('file') as File | null;
           if (!file) {
             return errorResponse('NO_FILE', 'No file provided', 400);
           }

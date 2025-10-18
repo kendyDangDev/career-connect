@@ -18,7 +18,7 @@ import {
   LineChart,
   Line,
   Area,
-  AreaChart
+  AreaChart,
 } from 'recharts';
 import {
   FolderOpen,
@@ -30,7 +30,7 @@ import {
   Briefcase,
   CheckCircle,
   XCircle,
-  BarChart3
+  BarChart3,
 } from 'lucide-react';
 
 interface SkillsAnalyticsProps {
@@ -42,14 +42,14 @@ const skillCategoryIcons: Record<SkillCategory, React.ReactElement> = {
   TECHNICAL: <FolderOpen className="h-4 w-4" />,
   SOFT: <Brain className="h-4 w-4" />,
   LANGUAGE: <Languages className="h-4 w-4" />,
-  TOOL: <Wrench className="h-4 w-4" />
+  TOOL: <Wrench className="h-4 w-4" />,
 };
 
 const skillCategoryLabels: Record<SkillCategory, string> = {
   TECHNICAL: 'Kỹ thuật',
   SOFT: 'Kỹ năng mềm',
   LANGUAGE: 'Ngôn ngữ',
-  TOOL: 'Công cụ'
+  TOOL: 'Công cụ',
 };
 
 interface StatCardProps {
@@ -66,26 +66,22 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, className, tren
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-muted-foreground mb-2">{title}</p>
+            <p className="text-muted-foreground mb-2 text-sm">{title}</p>
             <p className="text-3xl font-bold">{value}</p>
             {trend !== undefined && (
-              <div className="flex items-center mt-2">
-                <TrendingUp 
-                  className={`h-4 w-4 mr-1 ${
-                    trend >= 0 
-                      ? 'text-green-500' 
-                      : 'text-red-500 transform rotate-180'
+              <div className="mt-2 flex items-center">
+                <TrendingUp
+                  className={`mr-1 h-4 w-4 ${
+                    trend >= 0 ? 'text-green-500' : 'rotate-180 transform text-red-500'
                   }`}
                 />
-                <span className={`text-sm ${
-                  trend >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
+                <span className={`text-sm ${trend >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {Math.abs(trend)}% so với tháng trước
                 </span>
               </div>
             )}
           </div>
-          <div className="p-3 bg-primary/10 rounded-lg">
+          <div className="bg-primary/10 rounded-lg p-3">
             {React.cloneElement(icon as any, { className: 'h-6 w-6 text-primary' })}
           </div>
         </div>
@@ -97,23 +93,24 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, className, tren
 export const SkillsAnalytics: React.FC<SkillsAnalyticsProps> = ({ skills, categoryStats }) => {
   // Tính toán thống kê
   const totalSkills = skills.length;
-  const activeSkills = skills.filter(s => s.isActive).length;
+  const activeSkills = skills.filter((s) => s.isActive).length;
   const inactiveSkills = totalSkills - activeSkills;
-  const totalUsage = skills.reduce((sum, skill) => 
-    sum + (skill._count?.candidateSkills || 0) + (skill._count?.jobSkills || 0), 0
+  const totalUsage = skills.reduce(
+    (sum, skill) => sum + (skill._count?.candidateSkills || 0) + (skill._count?.jobSkills || 0),
+    0
   );
 
   // Dữ liệu cho biểu đồ tròn phân loại
   const categoryData = Object.entries(categoryStats).map(([category, count]) => ({
     name: skillCategoryLabels[category as SkillCategory],
     value: count,
-    category: category as SkillCategory
+    category: category as SkillCategory,
   }));
 
   // Dữ liệu cho biểu đồ trạng thái
   const statusData = [
     { name: 'Hoạt động', value: activeSkills, color: '#22c55e' },
-    { name: 'Không hoạt động', value: inactiveSkills, color: '#9ca3af' }
+    { name: 'Không hoạt động', value: inactiveSkills, color: '#9ca3af' },
   ];
 
   // Top 10 kỹ năng được sử dụng nhiều nhất
@@ -124,23 +121,26 @@ export const SkillsAnalytics: React.FC<SkillsAnalyticsProps> = ({ skills, catego
       return usageB - usageA;
     })
     .slice(0, 10)
-    .map(skill => ({
+    .map((skill) => ({
       name: skill.name,
       candidates: skill._count?.candidateSkills || 0,
       jobs: skill._count?.jobSkills || 0,
-      total: (skill._count?.candidateSkills || 0) + (skill._count?.jobSkills || 0)
+      total: (skill._count?.candidateSkills || 0) + (skill._count?.jobSkills || 0),
     }));
 
   // Dữ liệu phân bố sử dụng theo loại
-  const usageByCategory = Object.keys(SkillCategory).map(category => {
-    const categorySkills = skills.filter(s => s.category === category);
-    const candidateUsage = categorySkills.reduce((sum, s) => sum + (s._count?.candidateSkills || 0), 0);
+  const usageByCategory = Object.keys(SkillCategory).map((category) => {
+    const categorySkills = skills.filter((s) => s.category === category);
+    const candidateUsage = categorySkills.reduce(
+      (sum, s) => sum + (s._count?.candidateSkills || 0),
+      0
+    );
     const jobUsage = categorySkills.reduce((sum, s) => sum + (s._count?.jobSkills || 0), 0);
-    
+
     return {
       category: skillCategoryLabels[category as SkillCategory],
       candidates: candidateUsage,
-      jobs: jobUsage
+      jobs: jobUsage,
     };
   });
 
@@ -148,14 +148,14 @@ export const SkillsAnalytics: React.FC<SkillsAnalyticsProps> = ({ skills, catego
     TECHNICAL: '#3b82f6',
     SOFT: '#8b5cf6',
     LANGUAGE: '#10b981',
-    TOOL: '#f59e0b'
+    TOOL: '#f59e0b',
   };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 shadow-lg rounded-lg border">
-          <p className="font-medium mb-1">{label}</p>
+        <div className="rounded-lg border bg-white p-3 shadow-lg">
+          <p className="mb-1 font-medium">{label}</p>
           {payload.map((entry: any, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
               {entry.name}: {entry.value}
@@ -170,22 +170,10 @@ export const SkillsAnalytics: React.FC<SkillsAnalyticsProps> = ({ skills, catego
   return (
     <div className="w-full space-y-6">
       {/* Thẻ thống kê */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Tổng số kỹ năng"
-          value={totalSkills}
-          icon={<BarChart3 />}
-        />
-        <StatCard
-          title="Đang hoạt động"
-          value={activeSkills}
-          icon={<CheckCircle />}
-        />
-        <StatCard
-          title="Tổng lượt sử dụng"
-          value={totalUsage}
-          icon={<TrendingUp />}
-        />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard title="Tổng số kỹ năng" value={totalSkills} icon={<BarChart3 />} />
+        <StatCard title="Đang hoạt động" value={activeSkills} icon={<CheckCircle />} />
+        <StatCard title="Tổng lượt sử dụng" value={totalUsage} icon={<TrendingUp />} />
         <StatCard
           title="Tỷ lệ hoạt động (%)"
           value={totalSkills > 0 ? Math.round((activeSkills / totalSkills) * 100) : 0}
@@ -194,7 +182,7 @@ export const SkillsAnalytics: React.FC<SkillsAnalyticsProps> = ({ skills, catego
       </div>
 
       {/* Biểu đồ phân loại và trạng thái */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Phân bố theo loại kỹ năng</CardTitle>
@@ -207,7 +195,9 @@ export const SkillsAnalytics: React.FC<SkillsAnalyticsProps> = ({ skills, catego
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} (${percent ? (percent * 100).toFixed(0) : 0}%)`}
+                  label={({ name, percent }) =>
+                    `${name} (${percent ? (Number(percent) * 100).toFixed(0) : 0}%)`
+                  }
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
@@ -258,17 +248,9 @@ export const SkillsAnalytics: React.FC<SkillsAnalyticsProps> = ({ skills, catego
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={400}>
-            <BarChart
-              data={topSkills}
-              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-            >
+            <BarChart data={topSkills} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="name" 
-                angle={-45}
-                textAnchor="end"
-                height={100}
-              />
+              <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
               <YAxis />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
@@ -286,27 +268,24 @@ export const SkillsAnalytics: React.FC<SkillsAnalyticsProps> = ({ skills, catego
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <AreaChart
-              data={usageByCategory}
-              margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-            >
+            <AreaChart data={usageByCategory} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="category" />
               <YAxis />
               <Tooltip content={<CustomTooltip />} />
-              <Area 
-                type="monotone" 
-                dataKey="candidates" 
-                stackId="1" 
-                stroke="#3b82f6" 
+              <Area
+                type="monotone"
+                dataKey="candidates"
+                stackId="1"
+                stroke="#3b82f6"
                 fill="#3b82f6"
                 name="Ứng viên"
               />
-              <Area 
-                type="monotone" 
-                dataKey="jobs" 
-                stackId="1" 
-                stroke="#8b5cf6" 
+              <Area
+                type="monotone"
+                dataKey="jobs"
+                stackId="1"
+                stroke="#8b5cf6"
                 fill="#8b5cf6"
                 name="Việc làm"
               />

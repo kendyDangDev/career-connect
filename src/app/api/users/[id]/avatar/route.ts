@@ -65,8 +65,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       }
 
       // Get form data
-      const formData = await request.formData();
-      const file = formData.get('avatar') as File;
+      const formData = (await request.formData()) as any;
+      const file = formData.get('avatar') as File | null;
 
       // Validate file
       if (!file) {

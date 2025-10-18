@@ -94,9 +94,9 @@ export const POST = withRole([UserType.CANDIDATE], async (req: AuthenticatedRequ
     }
 
     // Parse form data
-    const formData = await req.formData();
-    const file = formData.get('file') as File;
-    const cvName = formData.get('cvName') as string;
+    const formData = (await req.formData()) as any;
+    const file = formData.get('file') as File | null;
+    const cvName = (formData.get('cvName') as string | null) || '';
     const description = formData.get('description') as string | null;
     const isPrimary = formData.get('isPrimary') === 'true';
 
@@ -157,4 +157,3 @@ export const POST = withRole([UserType.CANDIDATE], async (req: AuthenticatedRequ
     return serverErrorResponse('Failed to upload CV', error);
   }
 });
-

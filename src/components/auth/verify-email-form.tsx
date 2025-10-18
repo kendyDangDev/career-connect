@@ -36,13 +36,15 @@ export default function VerifyEmailForm() {
 
   // Handle countdown for resend button
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (resendCooldown > 0) {
       interval = setInterval(() => {
         setResendCooldown((prev) => prev - 1);
       }, 1000);
     }
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [resendCooldown]);
 
   // Auto-verify if token is in URL

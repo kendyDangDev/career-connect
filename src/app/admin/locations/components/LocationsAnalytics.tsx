@@ -46,7 +46,16 @@ interface LocationsAnalyticsProps {
   typeStats: Record<string, number>;
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#FFC658', '#FF6B6B'];
+const COLORS = [
+  '#0088FE',
+  '#00C49F',
+  '#FFBB28',
+  '#FF8042',
+  '#8884D8',
+  '#82CA9D',
+  '#FFC658',
+  '#FF6B6B',
+];
 
 const locationTypeLabels: Record<LocationType, string> = {
   [LocationType.COUNTRY]: 'Quốc gia',
@@ -55,20 +64,28 @@ const locationTypeLabels: Record<LocationType, string> = {
   [LocationType.DISTRICT]: 'Phường/Xã',
 };
 
-export function LocationsAnalytics({ locations, locationTree = [], typeStats }: LocationsAnalyticsProps) {
+export function LocationsAnalytics({
+  locations,
+  locationTree = [],
+  typeStats,
+}: LocationsAnalyticsProps) {
   // Calculate statistics
   const stats = useMemo(() => {
     const totalLocations = locations.length;
-    const activeLocations = locations.filter(l => l.isActive).length;
+    const activeLocations = locations.filter((l) => l.isActive).length;
     const inactiveLocations = totalLocations - activeLocations;
-    const locationsWithCoordinates = locations.filter(l => l.latitude && l.longitude).length;
-    const coordinatesCoverage = totalLocations > 0 ? ((locationsWithCoordinates / totalLocations) * 100).toFixed(1) : '0';
-    
+    const locationsWithCoordinates = locations.filter((l) => l.latitude && l.longitude).length;
+    const coordinatesCoverage =
+      totalLocations > 0 ? ((locationsWithCoordinates / totalLocations) * 100).toFixed(1) : '0';
+
     // Calculate by type
-    const byType = Object.entries(LocationType).reduce((acc, [key, value]) => {
-      acc[value] = locations.filter(l => l.type === value).length;
-      return acc;
-    }, {} as Record<LocationType, number>);
+    const byType = Object.entries(LocationType).reduce(
+      (acc, [key, value]) => {
+        acc[value] = locations.filter((l) => l.type === value).length;
+        return acc;
+      },
+      {} as Record<LocationType, number>
+    );
 
     return {
       totalLocations,
@@ -82,8 +99,16 @@ export function LocationsAnalytics({ locations, locationTree = [], typeStats }: 
 
   // Prepare data for status pie chart
   const statusData = [
-    { name: 'Hoạt động', value: stats.activeLocations, percentage: ((stats.activeLocations / stats.totalLocations) * 100).toFixed(1) },
-    { name: 'Không hoạt động', value: stats.inactiveLocations, percentage: ((stats.inactiveLocations / stats.totalLocations) * 100).toFixed(1) },
+    {
+      name: 'Hoạt động',
+      value: stats.activeLocations,
+      percentage: ((stats.activeLocations / stats.totalLocations) * 100).toFixed(1),
+    },
+    {
+      name: 'Không hoạt động',
+      value: stats.inactiveLocations,
+      percentage: ((stats.inactiveLocations / stats.totalLocations) * 100).toFixed(1),
+    },
   ];
 
   // Prepare data for type distribution
@@ -102,10 +127,10 @@ export function LocationsAnalytics({ locations, locationTree = [], typeStats }: 
   // Top provinces by child count
   const topProvincesByChildren = useMemo(() => {
     return locations
-      .filter(l => l.type === LocationType.PROVINCE)
+      .filter((l) => l.type === LocationType.PROVINCE)
       .sort((a, b) => (b._count?.children || 0) - (a._count?.children || 0))
       .slice(0, 10)
-      .map(l => ({
+      .map((l) => ({
         name: l.name,
         children: l._count?.children || 0,
       }));
@@ -119,8 +144,8 @@ export function LocationsAnalytics({ locations, locationTree = [], typeStats }: 
       [LocationType.CITY]: 0,
       [LocationType.DISTRICT]: 0,
     };
-    
-    locations.forEach(loc => {
+
+    locations.forEach((loc) => {
       depthCount[loc.type]++;
     });
 
@@ -134,7 +159,7 @@ export function LocationsAnalytics({ locations, locationTree = [], typeStats }: 
   // Treemap data for location distribution
   const treemapData = useMemo(() => {
     const data: any[] = [];
-    
+
     const processLocation = (loc: Location, parentName = '') => {
       const size = 1 + (loc._count?.children || 0) * 0.5;
       data.push({
@@ -145,18 +170,18 @@ export function LocationsAnalytics({ locations, locationTree = [], typeStats }: 
         parent: parentName,
       });
       if (loc.children) {
-        loc.children.forEach(child => processLocation(child, loc.name));
+        loc.children.forEach((child) => processLocation(child, loc.name));
       }
     };
 
-    locationTree.forEach(loc => processLocation(loc));
+    locationTree.forEach((loc) => processLocation(loc));
     return data;
   }, [locationTree]);
 
   // Monthly trend data (simulated for demo)
   const monthlyTrend = useMemo(() => {
     const months = Array.from({ length: 6 }, (_, i) => subMonths(new Date(), 5 - i));
-    return months.map(month => ({
+    return months.map((month) => ({
       month: format(month, 'MMM yyyy', { locale: vi }),
       locations: Math.floor(Math.random() * 20) + stats.totalLocations - 10,
       active: Math.floor(Math.random() * 15) + stats.activeLocations - 7,
@@ -167,7 +192,7 @@ export function LocationsAnalytics({ locations, locationTree = [], typeStats }: 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="rounded-lg border bg-background p-3 shadow-lg">
+        <div className="bg-background rounded-lg border p-3 shadow-lg">
           <p className="font-medium">{label}</p>
           {payload.map((entry: any, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
@@ -187,23 +212,21 @@ export function LocationsAnalytics({ locations, locationTree = [], typeStats }: 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Tổng địa điểm</CardTitle>
-            <MapPin className="h-4 w-4 text-muted-foreground" />
+            <MapPin className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalLocations}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.activeLocations} hoạt động
-            </p>
+            <p className="text-muted-foreground text-xs">{stats.activeLocations} hoạt động</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Phủ sóng tọa độ</CardTitle>
-            <Navigation className="h-4 w-4 text-muted-foreground" />
+            <Navigation className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.coordinatesCoverage}%</div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               {stats.locationsWithCoordinates}/{stats.totalLocations} có tọa độ
             </p>
           </CardContent>
@@ -211,11 +234,11 @@ export function LocationsAnalytics({ locations, locationTree = [], typeStats }: 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Tỉnh/Thành phố</CardTitle>
-            <MapIcon className="h-4 w-4 text-muted-foreground" />
+            <MapIcon className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.byType[LocationType.PROVINCE]}</div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               {stats.byType[LocationType.CITY]} quận/huyện
             </p>
           </CardContent>
@@ -223,13 +246,11 @@ export function LocationsAnalytics({ locations, locationTree = [], typeStats }: 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Phường/Xã</CardTitle>
-            <Home className="h-4 w-4 text-muted-foreground" />
+            <Home className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.byType[LocationType.DISTRICT]}</div>
-            <p className="text-xs text-muted-foreground">
-              Đơn vị hành chính nhỏ nhất
-            </p>
+            <p className="text-muted-foreground text-xs">Đơn vị hành chính nhỏ nhất</p>
           </CardContent>
         </Card>
       </div>
@@ -289,7 +310,7 @@ export function LocationsAnalytics({ locations, locationTree = [], typeStats }: 
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ value }) => value}
+                      label={({ value }: any) => String(value)}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
@@ -370,9 +391,11 @@ export function LocationsAnalytics({ locations, locationTree = [], typeStats }: 
                       if (active && payload && payload.length) {
                         const data = payload[0].payload;
                         return (
-                          <div className="rounded-lg border bg-background p-3 shadow-lg">
+                          <div className="bg-background rounded-lg border p-3 shadow-lg">
                             <p className="font-medium">{data.name}</p>
-                            <p className="text-sm">Loại: {locationTypeLabels[data.type as LocationType]}</p>
+                            <p className="text-sm">
+                              Loại: {locationTypeLabels[data.type as LocationType]}
+                            </p>
                             <p className="text-sm">Địa điểm con: {data.children}</p>
                           </div>
                         );
@@ -395,7 +418,13 @@ export function LocationsAnalytics({ locations, locationTree = [], typeStats }: 
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={400}>
-                <RadialBarChart cx="50%" cy="50%" innerRadius="10%" outerRadius="90%" data={depthAnalysis}>
+                <RadialBarChart
+                  cx="50%"
+                  cy="50%"
+                  innerRadius="10%"
+                  outerRadius="90%"
+                  data={depthAnalysis}
+                >
                   <RadialBar dataKey="count" fill="#8884d8">
                     {depthAnalysis.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index]} />
@@ -407,14 +436,16 @@ export function LocationsAnalytics({ locations, locationTree = [], typeStats }: 
                     content={(props) => {
                       const { payload } = props;
                       return (
-                        <ul className="flex flex-wrap justify-center gap-4 mt-4">
+                        <ul className="mt-4 flex flex-wrap justify-center gap-4">
                           {payload?.map((entry: any, index: number) => (
                             <li key={`item-${index}`} className="flex items-center gap-2">
                               <span
-                                className="inline-block w-3 h-3 rounded-full"
+                                className="inline-block h-3 w-3 rounded-full"
                                 style={{ backgroundColor: entry.color }}
                               />
-                              <span className="text-sm">{depthAnalysis[index].type}: {depthAnalysis[index].count}</span>
+                              <span className="text-sm">
+                                {depthAnalysis[index].type}: {depthAnalysis[index].count}
+                              </span>
                             </li>
                           ))}
                         </ul>

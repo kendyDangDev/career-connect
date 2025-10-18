@@ -7,7 +7,12 @@ import { CategoriesTable } from './components/CategoriesTable';
 import { CategoryForm } from './components/CategoryForm';
 import { CategoryDetail } from './components/CategoryDetail';
 import { CategoriesAnalytics } from './components/CategoriesAnalytics';
-import { Category, CreateCategoryDto, UpdateCategoryDto, CategoryQuery } from '@/types/system-categories';
+import {
+  Category,
+  CreateCategoryDto,
+  UpdateCategoryDto,
+  CategoryQuery,
+} from '@/types/system-categories';
 import { toast } from 'react-hot-toast';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -112,7 +117,9 @@ function CategoriesManagementPageContent() {
   };
 
   // Xử lý submit form
-  const handleFormSubmit = async (data: CreateCategoryDto | UpdateCategoryDto): Promise<boolean> => {
+  const handleFormSubmit = async (
+    data: CreateCategoryDto | UpdateCategoryDto
+  ): Promise<boolean> => {
     if (formMode === 'create') {
       return await createCategory(data as CreateCategoryDto);
     } else if (selectedCategory) {
@@ -315,17 +322,18 @@ function CategoriesManagementPageContent() {
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
             <AlertDialogDescription>
-              Bạn có chắc chắn muốn xóa danh mục <strong>{categoryToDelete?.name}</strong>? 
+              Bạn có chắc chắn muốn xóa danh mục <strong>{categoryToDelete?.name}</strong>?
               {categoryToDelete?._count?.children && categoryToDelete._count.children > 0 && (
-                <span className="block mt-2 text-red-600">
+                <span className="mt-2 block text-red-600">
                   Cảnh báo: Danh mục này có {categoryToDelete._count.children} danh mục con!
                 </span>
               )}
-              {categoryToDelete?._count?.jobCategories && categoryToDelete._count.jobCategories > 0 && (
-                <span className="block mt-2 text-red-600">
-                  Cảnh báo: Danh mục này có {categoryToDelete._count.jobCategories} việc làm!
-                </span>
-              )}
+              {categoryToDelete?._count?.jobCategories &&
+                categoryToDelete._count.jobCategories > 0 && (
+                  <span className="mt-2 block text-red-600">
+                    Cảnh báo: Danh mục này có {categoryToDelete._count.jobCategories} việc làm!
+                  </span>
+                )}
               Hành động này không thể hoàn tác.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -355,10 +363,8 @@ function CategoriesManagementPageContent() {
 
           <div className="space-y-4">
             <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-              <p className="text-sm text-blue-800">
-                File CSV/JSON cần có cấu trúc:
-              </p>
-              <ul className="mt-2 text-sm text-blue-700 list-disc list-inside">
+              <p className="text-sm text-blue-800">File CSV/JSON cần có cấu trúc:</p>
+              <ul className="mt-2 list-inside list-disc text-sm text-blue-700">
                 <li>name: Tên danh mục (bắt buộc)</li>
                 <li>parentId: ID danh mục cha (tùy chọn)</li>
                 <li>description: Mô tả (tùy chọn)</li>
@@ -404,11 +410,13 @@ function CategoriesManagementPageContent() {
 
 export default function CategoriesManagementPage() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-[400px] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-[400px] items-center justify-center">
+          <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
+        </div>
+      }
+    >
       <CategoriesManagementPageContent />
     </Suspense>
   );

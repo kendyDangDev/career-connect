@@ -15,7 +15,7 @@ const applyJobSchema = z.object({
 export const POST = withPermission('application.create', async (req: AuthenticatedRequest) => {
   try {
     const body = await req.json();
-    
+
     // Validate input
     const validationResult = applyJobSchema.safeParse(body);
     if (!validationResult.success) {
@@ -26,7 +26,7 @@ export const POST = withPermission('application.create', async (req: Authenticat
     }
 
     const { jobId, coverLetter, cvFileUrl } = validationResult.data;
-    
+
     // Check if job exists and is active
     const job = await prisma.job.findUnique({
       where: { id: jobId },
@@ -45,10 +45,7 @@ export const POST = withPermission('application.create', async (req: Authenticat
     });
 
     if (!job) {
-      return NextResponse.json(
-        { error: 'Job not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Job not found' }, { status: 404 });
     }
 
     if (job.status !== 'ACTIVE') {
@@ -59,11 +56,8 @@ export const POST = withPermission('application.create', async (req: Authenticat
     }
 
     // Check if application deadline has passed
-    if (job.applicationDeadline && new Date() > new Date(job.applicationDeadline)) {
-      return NextResponse.json(
-        { error: 'The application deadline has passed' },
-        { status: 400 }
-      );
+    if (job.applicationDeadline !== null && new Date() > new Date(job.applicationDeadline)) {
+      return NextResponse.json({ error: 'The application deadline has passed' }, { status: 400 });
     }
 
     // Get candidate record
@@ -77,10 +71,7 @@ export const POST = withPermission('application.create', async (req: Authenticat
     });
 
     if (!candidate) {
-      return NextResponse.json(
-        { error: 'Candidate profile not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Candidate profile not found' }, { status: 404 });
     }
 
     // Check if already applied
@@ -92,10 +83,7 @@ export const POST = withPermission('application.create', async (req: Authenticat
     });
 
     if (existingApplication) {
-      return NextResponse.json(
-        { error: 'You have already applied for this job' },
-        { status: 409 }
-      );
+      return NextResponse.json({ error: 'You have already applied for this job' }, { status: 409 });
     }
 
     // Create application
@@ -141,7 +129,7 @@ export const POST = withPermission('application.create', async (req: Authenticat
 
       // Create notifications for all relevant company users
       await tx.notification.createMany({
-        data: companyUsers.map(user => ({
+        data: companyUsers.map((user) => ({
           userId: user.userId,
           type: 'APPLICATION_STATUS',
           title: 'New Job Application',
@@ -174,22 +162,21 @@ export const POST = withPermission('application.create', async (req: Authenticat
       },
     });
 
-    return NextResponse.json({
-      success: true,
-      message: 'Application submitted successfully',
-      data: {
-        applicationId: application.id,
-        jobTitle: job.title,
-        companyName: job.company.companyName,
-        appliedAt: application.appliedAt,
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Application submitted successfully',
+        data: {
+          applicationId: application.id,
+          jobTitle: job.title,
+          companyName: job.company.companyName,
+          appliedAt: application.appliedAt,
+        },
       },
-    }, { status: 201 });
-
+      { status: 201 }
+    );
   } catch (error) {
     console.error('Apply job error:', error);
-    return NextResponse.json(
-      { error: 'Failed to submit application' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to submit application' }, { status: 500 });
   }
 });

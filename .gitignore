@@ -62,7 +62,6 @@ next-env.d.ts
 # prisma
 /prisma/*.db
 /prisma/*.db-journal
-/src/generated/prisma
 
 # IDEs and editors
 .idea/

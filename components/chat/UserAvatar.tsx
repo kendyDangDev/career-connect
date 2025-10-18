@@ -28,7 +28,6 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
   };
 
   const getInitials = () => {
-    console.log("User for initials:", user);
     if (!user) return "?";
 
     // Nếu có user.name → dùng để tạo initials

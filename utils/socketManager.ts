@@ -1,5 +1,8 @@
 import { io, Socket } from "socket.io-client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
+import { Platform } from "react-native";
+import { getSocketConfig } from "./apiConfig";
 
 class SocketManager {
   private socket: Socket | null = null;
@@ -7,32 +10,76 @@ class SocketManager {
   private maxReconnectAttempts = 5;
   private reconnectTimeout: NodeJS.Timeout | null = null;
 
+  private async getStoredToken(key: string): Promise<string | null> {
+    try {
+      if (Platform.OS === "web") {
+        return typeof localStorage !== "undefined" ? localStorage.getItem(key) : null;
+      } else {
+        const value = await SecureStore.getItemAsync(key, {
+          keychainAccessible: SecureStore.WHEN_UNLOCKED,
+        });
+        if (value) return value;
+        try {
+          return await AsyncStorage.getItem(key);
+        } catch {
+          return null;
+        }
+      }
+    } catch (error) {
+      // Fallback to AsyncStorage on native if SecureStore/localStorage fails
+      if (Platform.OS !== "web") {
+        try {
+          return await AsyncStorage.getItem(key);
+        } catch {
+          return null;
+        }
+      }
+      return null;
+    }
+  }
+
   async connect(baseUrl: string): Promise<Socket> {
     if (this.socket?.connected) {
+      console.log("[SocketManager] Already connected, returning existing socket");
       return this.socket;
     }
 
     try {
-      // Get chat token from storage
-      const chatToken = await AsyncStorage.getItem("chat_token");
+      // Get chat token from storage (SecureStore on native, localStorage on web, fallback to AsyncStorage)
+      const chatToken = await this.getStoredToken("chat_token");
 
       if (!chatToken) {
-        throw new Error("No chat token found. Please authenticate first.");
+        console.warn("[SocketManager] No chat token found, attempting without auth");
+        // Continue without token for testing - backend may allow anonymous connections
       }
 
-      const socketUrl = baseUrl.replace(/^https?:\/\//, "").replace(/\/$/, "");
-
-      this.socket = io(`https://${socketUrl}`, {
-        path: "/api/socket/io",
-        auth: {
+      // Respect the protocol provided by baseUrl (http -> ws, https -> wss)
+      const socketUrl = baseUrl.replace(/\/$/, "");
+      
+      // Get platform-specific socket configuration
+      const socketConfig = getSocketConfig();
+      const finalSocketUrl = socketConfig.url;
+      
+      console.log(`[SocketManager] Attempting connection to ${finalSocketUrl}`);
+      console.log(`[SocketManager] Platform: ${Platform.OS}, withCredentials: ${socketConfig.withCredentials}`);
+      
+      this.socket = io(finalSocketUrl, {
+        path: "/socket.io", // Backend uses default Socket.IO path
+        auth: chatToken ? {
           token: chatToken,
-        },
-        transports: ["websocket", "polling"],
+        } : undefined,
+        transports: socketConfig.transports,
         timeout: 20000,
         reconnection: true,
         reconnectionDelay: 1000,
         reconnectionDelayMax: 5000,
-        maxReconnectionAttempts: this.maxReconnectAttempts,
+        reconnectionAttempts: this.maxReconnectAttempts,
+        // Additional options for better compatibility
+        upgrade: true, // Allow transport upgrade from polling to websocket
+        rememberUpgrade: true,
+        rejectUnauthorized: false, // For self-signed certificates in dev
+        withCredentials: socketConfig.withCredentials, // Dynamic based on platform
+        autoConnect: true,
       });
 
       this.setupEventListeners();
@@ -43,14 +90,21 @@ class SocketManager {
           return;
         }
 
+        const connectTimeout = setTimeout(() => {
+          console.error("[SocketManager] Connection timeout after 10s");
+          reject(new Error("Connection timeout"));
+        }, 10000);
+
         this.socket.once("connect", () => {
-          console.log("[SocketManager] Connected to chat server");
+          clearTimeout(connectTimeout);
+          console.log("[SocketManager] Successfully connected to chat server!");
           this.reconnectAttempts = 0;
           resolve(this.socket!);
         });
 
         this.socket.once("connect_error", (error) => {
-          console.error("[SocketManager] Connection error:", error);
+          clearTimeout(connectTimeout);
+          console.error("[SocketManager] Connection error:", error.message, "Type:", error.type);
           reject(error);
         });
       });
@@ -63,8 +117,11 @@ class SocketManager {
   private setupEventListeners() {
     if (!this.socket) return;
 
+    // Remove all previous listeners to avoid duplicates
+    this.socket.removeAllListeners();
+
     this.socket.on("connect", () => {
-      console.log("[SocketManager] Socket connected");
+      console.log("[SocketManager] Socket connected, transport:", this.socket?.io?.engine?.transport?.name);
       this.reconnectAttempts = 0;
     });
 
@@ -82,8 +139,11 @@ class SocketManager {
     });
 
     this.socket.on("connect_error", (error) => {
-      console.error("[SocketManager] Connection error:", error);
-      this.scheduleReconnect();
+      console.error("[SocketManager] Connection error:", error.message, "Type:", error.type);
+      // Only schedule reconnect if not already in initial connection attempt
+      if (this.socket?.active) {
+        this.scheduleReconnect();
+      }
     });
 
     this.socket.on("error", (error) => {
@@ -92,6 +152,23 @@ class SocketManager {
 
     this.socket.on("message_error", (error) => {
       console.error("[SocketManager] Message error:", error);
+    });
+    
+    // Debug events
+    this.socket.io.on("reconnect", (attempt) => {
+      console.log("[SocketManager] Reconnected after", attempt, "attempts");
+    });
+    
+    this.socket.io.on("reconnect_attempt", (attempt) => {
+      console.log("[SocketManager] Reconnection attempt", attempt);
+    });
+    
+    this.socket.io.on("reconnect_error", (error) => {
+      console.error("[SocketManager] Reconnection error:", error.message);
+    });
+    
+    this.socket.io.on("reconnect_failed", () => {
+      console.error("[SocketManager] Reconnection failed after max attempts");
     });
   }
 
@@ -231,6 +308,45 @@ class SocketManager {
     this.socket?.off("users:online", callback);
   }
 }
+
+// Test connection helper
+export const testSocketConnection = async (baseUrl: string): Promise<{
+  success: boolean;
+  error?: string;
+  details?: any;
+}> => {
+  try {
+    console.log("[testSocketConnection] Testing connection to:", baseUrl);
+    
+    // Try a simple HTTP request first
+    const response = await fetch(`${baseUrl}/socket.io/?EIO=4&transport=polling`, {
+      method: "GET",
+      headers: {
+        "Accept": "*/*",
+      },
+    });
+    
+    if (response.ok) {
+      const text = await response.text();
+      console.log("[testSocketConnection] Polling test successful, response length:", text.length);
+      return { success: true, details: { transport: "polling", status: response.status } };
+    } else {
+      console.error("[testSocketConnection] Polling test failed:", response.status, response.statusText);
+      return { 
+        success: false, 
+        error: `HTTP ${response.status}: ${response.statusText}`,
+        details: { transport: "polling", status: response.status }
+      };
+    }
+  } catch (error: any) {
+    console.error("[testSocketConnection] Connection test failed:", error);
+    return { 
+      success: false, 
+      error: error.message || "Network error",
+      details: { error }
+    };
+  }
+};
 
 // Export singleton instance
 export const socketManager = new SocketManager();

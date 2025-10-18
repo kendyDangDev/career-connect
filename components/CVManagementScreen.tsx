@@ -1,19 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
-  StyleSheet,
   RefreshControl,
   ActivityIndicator,
-  Alert,
   TextInput,
-  Platform,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 import {
   ArrowLeft,
   Plus,
@@ -23,23 +20,22 @@ import {
   AlertCircle,
   Upload,
   ChevronDown,
-  BarChart3,
   HardDrive,
   Eye,
-} from 'lucide-react-native';
-import { useAlert } from '@/contexts/AlertContext';
-import { useAuthContext } from '@/contexts/AuthContext';
+} from "lucide-react-native";
+import { useAlert } from "@/contexts/AlertContext";
+import { useAuthContext } from "@/contexts/AuthContext";
 import {
   CandidateCv,
   CVListResponse,
   CVQueryParams,
   formatFileSize,
   MAX_CVS_PER_CANDIDATE,
-} from '@/types/candidateCv.types';
-import CVCard from '@/components/cv/CVCard';
-import CVUploadModal from '@/components/cv/CVUploadModal';
-import CVPreviewModal from '@/components/cv/CVPreviewModal';
-import candidateCvService from '@/services/candidateCvService';
+} from "@/types/candidateCv.types";
+import CVCard from "@/components/cv/CVCard";
+import CVUploadModal from "@/components/cv/CVUploadModal";
+import CVPreviewModal from "@/components/cv/CVPreviewModal";
+import candidateCvService from "@/services/candidateCvService";
 
 const CVManagementScreen: React.FC = () => {
   const router = useRouter();
@@ -50,10 +46,13 @@ const CVManagementScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [cvList, setCvList] = useState<CandidateCv[]>([]);
-  const [statistics, setStatistics] = useState<CVListResponse['statistics'] | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<CVQueryParams['sortBy']>('uploadedAt');
-  const [sortOrder, setSortOrder] = useState<CVQueryParams['sortOrder']>('desc');
+  const [statistics, setStatistics] = useState<
+    CVListResponse["statistics"] | null
+  >(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<CVQueryParams["sortBy"]>("uploadedAt");
+  const [sortOrder, setSortOrder] =
+    useState<CVQueryParams["sortOrder"]>("desc");
   const [showSortMenu, setShowSortMenu] = useState(false);
 
   // Modal states
@@ -66,32 +65,35 @@ const CVManagementScreen: React.FC = () => {
   const [settingPrimaryId, setSettingPrimaryId] = useState<string | null>(null);
 
   // Load CVs
-  const loadCVs = useCallback(async (showLoader = true) => {
-    if (showLoader) setLoading(true);
-    
-    try {
-      const params: CVQueryParams = {
-        sortBy,
-        sortOrder,
-        search: searchQuery || undefined,
-      };
+  const loadCVs = useCallback(
+    async (showLoader = true) => {
+      if (showLoader) setLoading(true);
 
-      const response = await candidateCvService.getCVs(params);
-      
-      if (response.success && response.data) {
-        setCvList(response.data.cvs);
-        setStatistics(response.data.statistics);
-      } else {
-        alert.error('Lỗi', response.error || 'Không thể tải danh sách CV');
+      try {
+        const params: CVQueryParams = {
+          sortBy,
+          sortOrder,
+          search: searchQuery || undefined,
+        };
+
+        const response = await candidateCvService.getCVs(params);
+
+        if (response.success && response.data) {
+          setCvList(response.data.cvs);
+          setStatistics(response.data.statistics);
+        } else {
+          alert.error("Lỗi", response.error || "Không thể tải danh sách CV");
+        }
+      } catch (error) {
+        console.error("Error loading CVs:", error);
+        alert.error("Lỗi", "Đã xảy ra lỗi khi tải danh sách CV");
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
       }
-    } catch (error) {
-      console.error('Error loading CVs:', error);
-      alert.error('Lỗi', 'Đã xảy ra lỗi khi tải danh sách CV');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [sortBy, sortOrder, searchQuery, alert]);
+    },
+    [sortBy, sortOrder, searchQuery, alert]
+  );
 
   useEffect(() => {
     loadCVs();
@@ -113,19 +115,19 @@ const CVManagementScreen: React.FC = () => {
     try {
       // Create a File object for Cloudinary upload
       let fileToUpload: File | Blob;
-      
+
       if (file.uri) {
         // For React Native (Expo Document Picker result)
         const response = await fetch(file.uri);
         const blob = await response.blob();
-        fileToUpload = new File([blob], file.name || 'cv.pdf', {
-          type: file.mimeType || 'application/pdf',
+        fileToUpload = new File([blob], file.name || "cv.pdf", {
+          type: file.mimeType || "application/pdf",
         });
       } else if (file instanceof File || file instanceof Blob) {
         // For web platform
         fileToUpload = file;
       } else {
-        throw new Error('Invalid file format');
+        throw new Error("Invalid file format");
       }
 
       // Upload with progress tracking
@@ -141,16 +143,16 @@ const CVManagementScreen: React.FC = () => {
       );
 
       if (uploadResponse.success) {
-        alert.success('Thành công', 'CV đã được tải lên thành công');
+        alert.success("Thành công", "CV đã được tải lên thành công");
         loadCVs();
         return true;
       } else {
-        alert.error('Lỗi', uploadResponse.error || 'Không thể tải lên CV');
+        alert.error("Lỗi", uploadResponse.error || "Không thể tải lên CV");
         return false;
       }
     } catch (error) {
-      console.error('Error uploading CV:', error);
-      alert.error('Lỗi', 'Đã xảy ra lỗi khi tải lên CV');
+      console.error("Error uploading CV:", error);
+      alert.error("Lỗi", "Đã xảy ra lỗi khi tải lên CV");
       return false;
     }
   };
@@ -166,13 +168,13 @@ const CVManagementScreen: React.FC = () => {
     try {
       const success = await candidateCvService.downloadCV(cv);
       if (success) {
-        alert.success('Thành công', 'CV đã được tải xuống');
+        alert.success("Thành công", "CV đã được tải xuống");
       } else {
-        alert.error('Lỗi', 'Không thể tải xuống CV');
+        alert.error("Lỗi", "Không thể tải xuống CV");
       }
     } catch (error) {
-      console.error('Error downloading CV:', error);
-      alert.error('Lỗi', 'Đã xảy ra lỗi khi tải xuống CV');
+      console.error("Error downloading CV:", error);
+      alert.error("Lỗi", "Đã xảy ra lỗi khi tải xuống CV");
     }
   };
 
@@ -182,14 +184,14 @@ const CVManagementScreen: React.FC = () => {
     try {
       const response = await candidateCvService.deleteCV(cv.id);
       if (response.success) {
-        alert.success('Thành công', 'CV đã được xóa');
+        alert.success("Thành công", "CV đã được xóa");
         loadCVs();
       } else {
-        alert.error('Lỗi', response.error || 'Không thể xóa CV');
+        alert.error("Lỗi", response.error || "Không thể xóa CV");
       }
     } catch (error) {
-      console.error('Error deleting CV:', error);
-      alert.error('Lỗi', 'Đã xảy ra lỗi khi xóa CV');
+      console.error("Error deleting CV:", error);
+      alert.error("Lỗi", "Đã xảy ra lỗi khi xóa CV");
     } finally {
       setDeletingId(null);
     }
@@ -201,14 +203,14 @@ const CVManagementScreen: React.FC = () => {
     try {
       const response = await candidateCvService.setPrimaryCV(cv.id);
       if (response.success) {
-        alert.success('Thành công', 'Đã đặt CV làm CV chính');
+        alert.success("Thành công", "Đã đặt CV làm CV chính");
         loadCVs();
       } else {
-        alert.error('Lỗi', response.error || 'Không thể đặt CV làm CV chính');
+        alert.error("Lỗi", response.error || "Không thể đặt CV làm CV chính");
       }
     } catch (error) {
-      console.error('Error setting primary CV:', error);
-      alert.error('Lỗi', 'Đã xảy ra lỗi khi đặt CV làm CV chính');
+      console.error("Error setting primary CV:", error);
+      alert.error("Lỗi", "Đã xảy ra lỗi khi đặt CV làm CV chính");
     } finally {
       setSettingPrimaryId(null);
     }
@@ -217,125 +219,162 @@ const CVManagementScreen: React.FC = () => {
   // Handle CV edit
   const handleEditCV = async (cv: CandidateCv) => {
     // This would open an edit modal or navigate to edit screen
-    alert.info('Thông báo', 'Tính năng chỉnh sửa đang được phát triển');
+    alert.info("Thông báo", "Tính năng chỉnh sửa đang được phát triển");
   };
 
   // Sort options
   const sortOptions = [
-    { value: 'uploadedAt', label: 'Ngày tải lên' },
-    { value: 'cvName', label: 'Tên CV' },
-    { value: 'fileSize', label: 'Kích thước' },
-    { value: 'viewCount', label: 'Lượt xem' },
+    { value: "uploadedAt", label: "Ngày tải lên" },
+    { value: "cvName", label: "Tên CV" },
+    { value: "fileSize", label: "Kích thước" },
+    { value: "viewCount", label: "Lượt xem" },
   ];
 
-  const canUploadMore = !statistics || statistics.totalCvs < MAX_CVS_PER_CANDIDATE;
+  const canUploadMore =
+    !statistics || statistics.totalCvs < MAX_CVS_PER_CANDIDATE;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50">
       {/* Header */}
-      <LinearGradient
-        colors={['#4A90E2', '#357ABD']}
-        style={styles.header}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-      >
-        <View style={styles.headerTop}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <ArrowLeft size={24} color="#FFF" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Quản lý CV</Text>
-          <TouchableOpacity
-            style={styles.uploadButton}
-            onPress={() => setShowUploadModal(true)}
-            disabled={!canUploadMore}
-          >
-            <Plus size={24} color="#FFF" />
-          </TouchableOpacity>
-        </View>
+      <View className="relative">
+        <LinearGradient
+          colors={["#a855f7", "#9333ea", "#7e22ce"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          className="pb-4"
+        >
+          {/* Decorative elements */}
+          <View className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16" />
+          <View className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -ml-12 -mb-12" />
 
-        {/* Statistics */}
-        {statistics && (
-          <View style={styles.statsContainer}>
-            <View style={styles.statItem}>
-              <FileText size={16} color="#FFF" />
-              <Text style={styles.statValue}>{statistics.totalCvs}/{MAX_CVS_PER_CANDIDATE}</Text>
-              <Text style={styles.statLabel}>CV</Text>
+          <View className="relative z-10">
+            {/* Header Top */}
+            <View className="flex-row items-center justify-between px-4 pt-4 pb-3">
+              <TouchableOpacity
+                onPress={() => router.back()}
+                className="p-2 rounded-full bg-white/20"
+              >
+                <ArrowLeft size={24} color="#FFF" />
+              </TouchableOpacity>
+              <Text className="flex-1 text-xl font-bold text-white text-center tracking-wide">
+                Quản lý CV
+              </Text>
+              <TouchableOpacity
+                className={`p-2 rounded-full ${canUploadMore ? "bg-white/20" : "bg-white/10"}`}
+                onPress={() => setShowUploadModal(true)}
+                disabled={!canUploadMore}
+              >
+                <Plus size={24} color={canUploadMore ? "#FFF" : "#FFFFFF80"} />
+              </TouchableOpacity>
             </View>
-            <View style={styles.statItem}>
-              <HardDrive size={16} color="#FFF" />
-              <Text style={styles.statValue}>{formatFileSize(statistics.totalFileSize)}</Text>
-              <Text style={styles.statLabel}>Tổng dung lượng</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Eye size={16} color="#FFF" />
-              <Text style={styles.statValue}>{statistics.totalViews}</Text>
-              <Text style={styles.statLabel}>Lượt xem</Text>
-            </View>
+
+            {/* Statistics */}
+            {statistics && (
+              <View className="flex-row justify-around px-4 pt-2">
+                <View className="items-center">
+                  <View className="bg-white/20 rounded-full p-2 mb-2">
+                    <FileText size={16} color="#FFF" />
+                  </View>
+                  <Text className="text-lg font-bold text-white">
+                    {statistics.totalCvs}/{MAX_CVS_PER_CANDIDATE}
+                  </Text>
+                  <Text className="text-xs text-white/80 mt-1">CV</Text>
+                </View>
+                <View className="items-center">
+                  <View className="bg-white/20 rounded-full p-2 mb-2">
+                    <HardDrive size={16} color="#FFF" />
+                  </View>
+                  <Text className="text-lg font-bold text-white">
+                    {formatFileSize(statistics.totalFileSize)}
+                  </Text>
+                  <Text className="text-xs text-white/80 mt-1">
+                    Tổng dung lượng
+                  </Text>
+                </View>
+                <View className="items-center">
+                  <View className="bg-white/20 rounded-full p-2 mb-2">
+                    <Eye size={16} color="#FFF" />
+                  </View>
+                  <Text className="text-lg font-bold text-white">
+                    {statistics.totalViews}
+                  </Text>
+                  <Text className="text-xs text-white/80 mt-1">Lượt xem</Text>
+                </View>
+              </View>
+            )}
           </View>
-        )}
-      </LinearGradient>
+          {/* Decorative Elements */}
+          <View className="absolute top-20 left-8 w-16 h-16 bg-white/10 rounded-full" />
+          <View className="absolute top-32 right-12 w-8 h-8 bg-white/10 rounded-full" />
+          <View className="absolute top-16 right-20 w-2 h-2 bg-white/20 rounded-full" />
+        </LinearGradient>
+      </View>
 
       {/* Search and Filter Bar */}
-      <View style={styles.searchFilterBar}>
-        <View style={styles.searchContainer}>
-          <Search size={20} color="#7F8C8D" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Tìm kiếm CV..."
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            returnKeyType="search"
-            onSubmitEditing={() => loadCVs()}
-          />
+      <View className="relative">
+        <View className="absolute inset-0 bg-white/80 backdrop-blur-sm" />
+        <View className="flex-row px-4 py-3 gap-3 relative z-10">
+          <View className="flex-1 relative">
+            <View className="absolute inset-0 bg-gradient-to-r from-purple-100/50 to-indigo-100/50 rounded-2xl" />
+            <View className="flex-row items-center bg-white/70 backdrop-blur-xs rounded-2xl px-4 py-2 border border-purple-200/30 relative z-10">
+              <Search size={20} color="#7e22ce" />
+              <TextInput
+                className="flex-1 ml-3 text-sm text-purple-700"
+                placeholder="Tìm kiếm CV..."
+                placeholderTextColor="#a855f7"
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                returnKeyType="search"
+                onSubmitEditing={() => loadCVs()}
+              />
+            </View>
+          </View>
+
+          <TouchableOpacity
+            className="relative"
+            onPress={() => setShowSortMenu(!showSortMenu)}
+          >
+            <View className="absolute inset-0 bg-gradient-to-r from-purple-100 to-indigo-100 rounded-xl opacity-80" />
+            <View className="flex-row items-center bg-white/70 backdrop-blur-xs px-4 py-3 rounded-xl border border-purple-200/50 shadow-soft relative z-10">
+              <Filter size={18} color="#7e22ce" />
+              <Text className="text-purple-700 ml-2 text-sm font-medium">
+                {sortOptions.find((o) => o.value === sortBy)?.label}
+              </Text>
+              <ChevronDown size={16} color="#7e22ce" className="ml-1" />
+            </View>
+          </TouchableOpacity>
         </View>
-        
-        <TouchableOpacity
-          style={styles.sortButton}
-          onPress={() => setShowSortMenu(!showSortMenu)}
-        >
-          <Filter size={18} color="#34495E" />
-          <Text style={styles.sortButtonText}>
-            {sortOptions.find(o => o.value === sortBy)?.label}
-          </Text>
-          <ChevronDown size={16} color="#34495E" />
-        </TouchableOpacity>
       </View>
 
       {/* Sort Menu Dropdown */}
       {showSortMenu && (
-        <View style={styles.sortMenu}>
+        <View className="absolute top-36 right-4 bg-white/90 backdrop-blur-sm rounded-xl shadow-glow-purple border border-purple-200/30 min-w-[150px] z-50">
           {sortOptions.map((option) => (
             <TouchableOpacity
               key={option.value}
-              style={[
-                styles.sortMenuItem,
-                sortBy === option.value && styles.sortMenuItemActive,
-              ]}
+              className={`px-4 py-3 ${sortBy === option.value ? "bg-purple-50" : ""}`}
               onPress={() => {
-                setSortBy(option.value as CVQueryParams['sortBy']);
+                setSortBy(option.value as CVQueryParams["sortBy"]);
                 setShowSortMenu(false);
               }}
             >
               <Text
-                style={[
-                  styles.sortMenuText,
-                  sortBy === option.value && styles.sortMenuTextActive,
-                ]}
+                className={`text-sm ${sortBy === option.value ? "text-purple-700 font-semibold" : "text-purple-600"}`}
               >
                 {option.label}
               </Text>
             </TouchableOpacity>
           ))}
-          <View style={styles.sortMenuDivider} />
+          <View className="h-px bg-purple-200/30 mx-2" />
           <TouchableOpacity
-            style={styles.sortMenuItem}
+            className="px-4 py-3"
             onPress={() => {
-              setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+              setSortOrder(sortOrder === "asc" ? "desc" : "asc");
               setShowSortMenu(false);
             }}
           >
-            <Text style={styles.sortMenuText}>
-              {sortOrder === 'asc' ? 'Tăng dần' : 'Giảm dần'}
+            <Text className="text-sm text-purple-600">
+              {sortOrder === "asc" ? "Tăng dần" : "Giảm dần"}
             </Text>
           </TouchableOpacity>
         </View>
@@ -343,45 +382,55 @@ const CVManagementScreen: React.FC = () => {
 
       {/* Content */}
       <ScrollView
-        style={styles.content}
-        contentContainerStyle={styles.contentContainer}
+        className="flex-1"
+        contentContainerStyle={{ padding: 16 }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         showsVerticalScrollIndicator={false}
       >
         {loading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#4A90E2" />
-            <Text style={styles.loadingText}>Đang tải danh sách CV...</Text>
+          <View className="flex-1 justify-center items-center px-4">
+            <ActivityIndicator size="large" color="#a855f7" />
+            <Text className="text-purple-600 text-lg font-medium mt-4">
+              Đang tải danh sách CV...
+            </Text>
           </View>
         ) : cvList.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <FileText size={64} color="#BDC3C7" />
-            <Text style={styles.emptyTitle}>Chưa có CV nào</Text>
-            <Text style={styles.emptyText}>
+          <View className="flex-1 justify-center items-center px-6">
+            <View className="w-20 h-20 bg-purple-100 rounded-full items-center justify-center mb-6">
+              <FileText size={40} color="#a855f7" />
+            </View>
+            <Text className="text-purple-800 text-xl font-bold text-center mb-2">
+              Chưa có CV nào
+            </Text>
+            <Text className="text-purple-600 text-base text-center mb-8 leading-6">
               Tải lên CV đầu tiên của bạn để bắt đầu ứng tuyển công việc
             </Text>
             <TouchableOpacity
-              style={styles.emptyButton}
+              className="bg-gradient-to-r from-purple-500 to-purple-600 px-8 py-4 rounded-full shadow-glow-purple flex-row items-center"
               onPress={() => setShowUploadModal(true)}
             >
               <Upload size={20} color="#FFF" />
-              <Text style={styles.emptyButtonText}>Tải lên CV</Text>
+              <Text className="text-white text-lg font-semibold ml-2">
+                Tải lên CV
+              </Text>
             </TouchableOpacity>
           </View>
         ) : (
           <>
             {/* Warning if reaching limit */}
             {statistics && statistics.totalCvs >= MAX_CVS_PER_CANDIDATE - 1 && (
-              <View style={styles.warningCard}>
-                <AlertCircle size={20} color="#F39C12" />
-                <Text style={styles.warningText}>
-                  Bạn {statistics.totalCvs === MAX_CVS_PER_CANDIDATE 
-                    ? 'đã đạt giới hạn' 
-                    : `còn ${MAX_CVS_PER_CANDIDATE - statistics.totalCvs} slot`} CV.
-                  {statistics.totalCvs === MAX_CVS_PER_CANDIDATE && 
-                    ' Xóa CV cũ để tải lên CV mới.'}
+              <View className="bg-amber-50 border border-amber-200 rounded-xl p-4 mx-4 mb-4 flex-row items-center">
+                <AlertCircle size={20} color="#F59E0B" />
+                <Text className="text-amber-700 text-sm font-medium ml-3 flex-1">
+                  Bạn{" "}
+                  {statistics.totalCvs === MAX_CVS_PER_CANDIDATE
+                    ? "đã đạt giới hạn"
+                    : `còn ${MAX_CVS_PER_CANDIDATE - statistics.totalCvs} slot`}{" "}
+                  CV.
+                  {statistics.totalCvs === MAX_CVS_PER_CANDIDATE &&
+                    " Xóa CV cũ để tải lên CV mới."}
                 </Text>
               </View>
             )}
@@ -426,192 +475,5 @@ const CVManagementScreen: React.FC = () => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F7FA',
-  },
-  header: {
-    paddingBottom: 16,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#FFF',
-    flex: 1,
-    textAlign: 'center',
-  },
-  uploadButton: {
-    padding: 8,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: 16,
-    paddingTop: 8,
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statValue: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FFF',
-    marginTop: 4,
-  },
-  statLabel: {
-    fontSize: 11,
-    color: 'rgba(255, 255, 255, 0.8)',
-    marginTop: 2,
-  },
-  searchFilterBar: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#FFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E8E8E8',
-    gap: 12,
-  },
-  searchContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F5F7FA',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-  },
-  searchInput: {
-    flex: 1,
-    paddingVertical: 8,
-    paddingLeft: 8,
-    fontSize: 14,
-    color: '#34495E',
-  },
-  sortButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: '#F5F7FA',
-    borderRadius: 8,
-    gap: 6,
-  },
-  sortButtonText: {
-    fontSize: 13,
-    color: '#34495E',
-  },
-  sortMenu: {
-    position: 'absolute',
-    top: Platform.OS === 'ios' ? 180 : 150,
-    right: 16,
-    backgroundColor: '#FFF',
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
-    zIndex: 1000,
-    minWidth: 150,
-  },
-  sortMenuItem: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  sortMenuItemActive: {
-    backgroundColor: '#F0F8FF',
-  },
-  sortMenuText: {
-    fontSize: 14,
-    color: '#34495E',
-  },
-  sortMenuTextActive: {
-    color: '#4A90E2',
-    fontWeight: '500',
-  },
-  sortMenuDivider: {
-    height: 1,
-    backgroundColor: '#E8E8E8',
-  },
-  content: {
-    flex: 1,
-  },
-  contentContainer: {
-    padding: 16,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: 100,
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 14,
-    color: '#7F8C8D',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: 100,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#34495E',
-    marginTop: 16,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: '#7F8C8D',
-    textAlign: 'center',
-    marginTop: 8,
-    marginHorizontal: 32,
-    lineHeight: 20,
-  },
-  emptyButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#4A90E2',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginTop: 24,
-    gap: 8,
-  },
-  emptyButtonText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#FFF',
-  },
-  warningCard: {
-    flexDirection: 'row',
-    backgroundColor: '#FFF3CD',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-  },
-  warningText: {
-    flex: 1,
-    fontSize: 13,
-    color: '#856404',
-    marginLeft: 8,
-    lineHeight: 18,
-  },
-});
 
 export default CVManagementScreen;

@@ -1,4 +1,11 @@
-import { Clock, Heart, MapPin, Users, Send, Loader2 } from "lucide-react-native";
+import {
+  Clock,
+  Heart,
+  MapPin,
+  Users,
+  Send,
+  Loader2,
+} from "lucide-react-native";
 import React, { useState, useEffect, useCallback } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { Job } from "../types/job";
@@ -15,7 +22,12 @@ interface JobCardProps {
   onRefreshSavedStatus?: () => void;
 }
 
-const JobCard: React.FC<JobCardProps> = ({ job, onPress, onSavePress, initialSavedStatus }) => {
+const JobCard: React.FC<JobCardProps> = ({
+  job,
+  onPress,
+  onSavePress,
+  initialSavedStatus,
+}) => {
   const [isSaved, setIsSaved] = useState(initialSavedStatus ?? false);
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [isCheckingStatus, setIsCheckingStatus] = useState(false);
@@ -23,7 +35,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onPress, onSavePress, initialSav
 
   const checkSavedStatus = useCallback(async () => {
     if (!job?.id) return;
-    
+
     try {
       setIsCheckingStatus(true);
       const response = await savedJobService.checkIfJobSaved(job.id);
@@ -31,7 +43,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onPress, onSavePress, initialSav
         setIsSaved(response.data.isSaved);
       }
     } catch (error) {
-      console.error('[JobCard] Error checking saved status:', error);
+      console.error("[JobCard] Error checking saved status:", error);
       // Keep current state on error
     } finally {
       setIsCheckingStatus(false);
@@ -40,13 +52,13 @@ const JobCard: React.FC<JobCardProps> = ({ job, onPress, onSavePress, initialSav
 
   const handleJobView = useCallback(async () => {
     if (!job?.id) return;
-    
+
     try {
-      console.log('[JobCard] Recording job view for:', job.id);
+      console.log("[JobCard] Recording job view for:", job.id);
       await jobViewService.recordJobView(job.id);
-      console.log('[JobCard] Job view recorded successfully');
+      console.log("[JobCard] Job view recorded successfully");
     } catch (error) {
-      console.error('[JobCard] Error recording job view:', error);
+      console.error("[JobCard] Error recording job view:", error);
       // Don't throw error - this shouldn't block user navigation
     }
   }, [job?.id]);
@@ -54,7 +66,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onPress, onSavePress, initialSav
   const handleCardPress = useCallback(async () => {
     // Record job view first
     await handleJobView();
-    
+
     // Then call the parent's onPress handler
     onPress?.();
   }, [handleJobView, onPress]);
@@ -77,7 +89,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onPress, onSavePress, initialSav
     currency: string,
     negotiable: boolean
   ) => {
-    if (negotiable) return "Negotiable";
+    if (negotiable) return "Thỏa thuận";
 
     const formatNumber = (num: number) => {
       if (num >= 1000000) {
@@ -144,21 +156,26 @@ const JobCard: React.FC<JobCardProps> = ({ job, onPress, onSavePress, initialSav
 
   const handleSavePress = async () => {
     if (isToggling || isCheckingStatus) return; // Prevent multiple clicks
-    
+
     try {
       setIsToggling(true);
-      console.log('[JobCard] Toggling save status for job:', job.id, 'Currently saved:', isSaved);
-      
+      console.log(
+        "[JobCard] Toggling save status for job:",
+        job.id,
+        "Currently saved:",
+        isSaved
+      );
+
       const result = await savedJobService.toggleSaveJob(job.id);
       setIsSaved(result.saved);
-      
+
       // Notify parent component
       onSavePress?.(job.id, result.saved);
-      
-      console.log('[JobCard] Save status updated:', result.saved);
+
+      console.log("[JobCard] Save status updated:", result.saved);
     } catch (error) {
-      console.error('[JobCard] Error toggling save status:', error);
-      // Could show error message to user here  
+      console.error("[JobCard] Error toggling save status:", error);
+      // Could show error message to user here
       // On error, refresh status to ensure consistency
       await checkSavedStatus();
     } finally {
@@ -170,152 +187,164 @@ const JobCard: React.FC<JobCardProps> = ({ job, onPress, onSavePress, initialSav
     <>
       <TouchableOpacity
         onPress={handleCardPress}
-        className="bg-white rounded-2xl mx-4 mb-4 p-4 shadow-sm border border-gray-100"
-        activeOpacity={0.7}
+        className="relative bg-white/90 backdrop-blur-sm rounded-2xl mx-4 mb-4 p-5 shadow-soft border border-purple-100/50 overflow-hidden"
+        activeOpacity={0.8}
       >
-      {/* Header with Company Logo and Favorite */}
-      <View className="flex-row justify-between items-start mb-3">
-        <View className="flex-row items-center flex-1">
-          <View className="w-12 h-12 rounded-xl bg-gray-100 justify-center items-center mr-3">
-            {job.company.logoUrl ? (
-              <Image
-                source={{ uri: job.company?.logoUrl }}
-                className="w-10 h-10 rounded-lg"
-                resizeMode="cover"
-              />
-            ) : (
-              <Text className="text-gray-500 font-semibold text-lg">
-                {job.company.companyName?.charAt(0)?.toUpperCase() || "C"}
-              </Text>
-            )}
-          </View>
+        {/* Gradient overlay */}
+        <View className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-purple-100/30 to-transparent rounded-bl-full" />
+        <View className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-indigo-100/20 to-transparent rounded-tr-full" />
+        {/* Header with Company Logo and Favorite */}
+        <View className="flex-row justify-between items-start mb-3 relative z-10">
+          <View className="flex-row items-center flex-1">
+            <View className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-100 to-indigo-100 justify-center items-center mr-3 shadow-soft border border-purple-200/30">
+              {job.company.logoUrl ? (
+                <Image
+                  source={{ uri: job.company?.logoUrl }}
+                  className="w-10 h-10 rounded-lg"
+                  resizeMode="cover"
+                />
+              ) : (
+                <Text className="text-gray-500 font-semibold text-lg">
+                  {job.company.companyName?.charAt(0)?.toUpperCase() || "C"}
+                </Text>
+              )}
+            </View>
 
-          <View className="flex-1">
-            {/* Job Title */}
-            <Text
-              className="text-lg font-semibold text-gray-900"
-              numberOfLines={2}
-            >
-              {job.title || "Untitled Job"}
-            </Text>
             <View className="flex-1">
-              <Text className="text-gray-600 text-sm font-medium">
-                {job.company.companyName || "Unknown Company"}
+              {/* Job Title */}
+              <Text
+                className="text-lg font-semibold text-gray-900"
+                numberOfLines={2}
+              >
+                {job.title || "Untitled Job"}
+              </Text>
+              <View className="flex-1">
+                <Text className="text-gray-600 text-sm font-medium">
+                  {job.company.companyName || "Unknown Company"}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Salary & Location */}
+        <View className="relative z-10 mb-4 flex flex-row items-center justify-between">
+          <View className="flex items-center flex-row">
+            <View className="bg-gradient-to-r from-purple-500 to-indigo-500 px-3 py-1.5 rounded-full shadow-glow-purple">
+              <Text className="text-white font-semibold text-sm">
+                {formatSalary(
+                  job.salaryMin,
+                  job.salaryMax,
+                  job.currency,
+                  job.salaryNegotiable
+                )}
+              </Text>
+            </View>
+
+            <View className="flex flex-row items-center ml-3 bg-purple-50 px-3 py-1.5 rounded-full border border-purple-200/50">
+              <MapPin size={14} color="#a855f7" />
+              <Text className="text-sm font-medium text-purple-600 ml-1">
+                {job.locationCity || "Unknown"}
               </Text>
             </View>
           </View>
-        </View>
-      </View>
-
-      {/* Salary */}
-      <View className="text-blue-600 font-bold text-lg mb-3 flex flex-row items-center justify-between">
-        <View className="flex items-center flex-row text-sm ">
-          <Text className="border px-2 py-1 border-primary-500 rounded-full">
-            {formatSalary(
-              job.salaryMin,
-              job.salaryMax,
-              job.currency,
-              job.salaryNegotiable
+          <TouchableOpacity
+            onPress={handleSavePress}
+            disabled={isToggling || isCheckingStatus}
+            className={`p-2 border rounded-full border-purple-500 ${
+              isToggling || isCheckingStatus ? "opacity-50" : ""
+            }`}
+          >
+            {isToggling || isCheckingStatus ? (
+              <Loader2 size={20} color="#a855f7" />
+            ) : (
+              <Heart
+                size={20}
+                color={isSaved ? "#a855f7" : "#6B7280"}
+                fill={isSaved ? "#a855f7" : "transparent"}
+              />
             )}
-          </Text>
-          {/* <Text className="text-gray-500 text-sm font-normal">/month</Text> */}
-          <View className="text-gray-500 text-xs flex flex-row items-center ml-2 rounded-full bg-gray-200 px-2 py-1">
-            <MapPin size={16} color="#9CA3AF" />
-            <Text className="text-sm font-medium text-gray-600">
-              {" "}
-              {job.locationCity || "Unknown"}
-            </Text>
-          </View>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          onPress={handleSavePress}
-          disabled={isToggling || isCheckingStatus}
-          className={`p-2 border rounded-full border-primary-500 ${
-            isToggling || isCheckingStatus ? 'opacity-50' : ''
-          }`}
-        >
-          {isToggling || isCheckingStatus ? (
-            <Loader2
-              size={20}
-              color="#3b82f6"
-              className="animate-spin"
-            />
-          ) : (
-            <Heart
-              size={20}
-              color={isSaved ? "#3b82f6" : "#6B7280"}
-              fill={isSaved ? "#3b82f6" : "transparent"}
-            />
-          )}
-        </TouchableOpacity>
-      </View>
 
-      {/* Job Details */}
-      <View className="flex-row items-center justify-between">
-        <View className="flex-row items-center">
-          {/* Job Type Badge */}
-          <View className="bg-blue-50 px-3 py-1.5 rounded-full mr-2">
-            <Text className="text-blue-600 text-xs font-medium">
-              {getJobTypeDisplay(job.jobType, job.workLocationType)}
-            </Text>
-          </View>
-
-          {/* Experience Level Badge */}
-          <View className="bg-gray-100 px-3 py-1.5 rounded-full mr-2">
-            <Text className="text-gray-600 text-xs font-medium">
-              {job.experienceLevel}
-            </Text>
-          </View>
-
-          {/* Additional Badges */}
-          {job.urgent && (
-            <View className="bg-red-50 px-3 py-1.5 rounded-full mr-2">
-              <Text className="text-red-600 text-xs font-bold">URGENT</Text>
+        {/* Job Details */}
+        <View className="flex-row items-center justify-between">
+          <View className="flex-row items-center">
+            {/* Job Type Badge */}
+            <View className="bg-blue-100 px-3 py-1.5 rounded-full mr-2">
+              <Text className="text-purple-500 text-xs font-medium">
+                {getJobTypeDisplay(job.jobType, job.workLocationType)}
+              </Text>
             </View>
-          )}
+
+            {/* Experience Level Badge */}
+            <View className="bg-gray-100 px-3 py-1.5 rounded-full mr-2">
+              <Text className="text-gray-600 text-xs font-medium">
+                {job.experienceLevel}
+              </Text>
+            </View>
+
+            {job.featured && (
+              <View className="bg-purple-50 px-3 py-1.5 rounded-full mr-2">
+                <Text className="text-purple-600 text-xs font-bold">
+                  Nổi bật
+                </Text>
+              </View>
+            )}
+
+            {/* Additional Badges */}
+            {job.urgent && (
+              <View className="bg-red-50 px-3 py-1.5 rounded-full mr-2">
+                <Text className="text-red-600 text-xs font-bold">
+                  Tuyển gấp
+                </Text>
+              </View>
+            )}
+          </View>
         </View>
-      </View>
 
-      {/* Bottom Row */}
-      <View className="flex-row items-center justify-between mt-3 pt-3 border-t border-gray-100">
-        <View className="flex-row items-center">
-          <Clock size={12} color="#9CA3AF" />
-          <Text className="text-gray-500 text-xs ml-1">
-            {getTimeAgo(job.createdAt)}
-          </Text>
+        {/* Bottom Row */}
+        <View className="flex-row items-center justify-between mt-3 pt-3 border-t border-gray-100">
+          <View className="flex-row items-center">
+            <Clock size={12} color="#9CA3AF" />
+            <Text className="text-gray-500 text-xs ml-1">
+              {getTimeAgo(job.createdAt)}
+            </Text>
+          </View>
+
+          <View className="flex-row items-center">
+            <Users size={12} color="#9CA3AF" />
+            <Text className="text-gray-500 text-xs ml-1">
+              {job.applicationCount} applications
+            </Text>
+          </View>
         </View>
 
-        <View className="flex-row items-center">
-          <Users size={12} color="#9CA3AF" />
-          <Text className="text-gray-500 text-xs ml-1">
-            {job.applicationCount} applications
-          </Text>
+        {/* Apply Button */}
+        <View className="mt-3 pt-3 border-t border-gray-100">
+          <TouchableOpacity
+            onPress={() => setShowApplyModal(true)}
+            className="bg-purple-500 py-3 rounded-lg flex-row items-center justify-center"
+            activeOpacity={0.8}
+          >
+            <Send size={18} color="white" />
+            <Text className="text-white font-semibold ml-2">
+              Ứng tuyển ngay
+            </Text>
+          </TouchableOpacity>
         </View>
-      </View>
+      </TouchableOpacity>
 
-      {/* Apply Button */}
-      <View className="mt-3 pt-3 border-t border-gray-100">
-        <TouchableOpacity
-          onPress={() => setShowApplyModal(true)}
-          className="bg-blue-500 py-3 rounded-lg flex-row items-center justify-center"
-          activeOpacity={0.8}
-        >
-          <Send size={18} color="white" />
-          <Text className="text-white font-semibold ml-2">Ứng tuyển ngay</Text>
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
-
-    {/* Apply Modal */}
-    <JobApplyModal
-      visible={showApplyModal}
-      job={job}
-      onClose={() => setShowApplyModal(false)}
-      onSuccess={() => {
-        // Refresh job data or show success message
-        console.log('Application submitted successfully');
-      }}
-    />
+      {/* Apply Modal */}
+      <JobApplyModal
+        visible={showApplyModal}
+        job={job}
+        onClose={() => setShowApplyModal(false)}
+        onSuccess={() => {
+          // Refresh job data or show success message
+          console.log("Application submitted successfully");
+        }}
+      />
     </>
   );
 };

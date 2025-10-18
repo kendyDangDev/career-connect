@@ -1,10 +1,10 @@
 // Company size enum
 export enum CompanySize {
-  STARTUP = "STARTUP",
-  SMALL = "SMALL",
-  MEDIUM = "MEDIUM",
-  LARGE = "LARGE",
-  ENTERPRISE = "ENTERPRISE",
+  STARTUP = "STARTUP_1_10",
+  SMALL = "SMALL_11_50",
+  MEDIUM = "MEDIUM_51_200",
+  LARGE = "LARGE_201_500",
+  ENTERPRISE = "ENTERPRISE_501_PLUS",
 }
 
 // Verification status enum
@@ -60,8 +60,8 @@ export interface CompanyFollowersFilters {
   verificationStatus?: VerificationStatus[];
   city?: string;
   province?: string;
-  sortBy?: 'followedAt' | 'companyName' | 'jobCount';
-  sortOrder?: 'asc' | 'desc';
+  sortBy?: "followedAt" | "companyName" | "jobCount";
+  sortOrder?: "asc" | "desc";
 }
 
 // Pagination interface

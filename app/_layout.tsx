@@ -6,6 +6,7 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { Stack, useRouter, useSegments } from "expo-router";
+import Head from "expo-router/head";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import "react-native-reanimated";
@@ -96,11 +97,21 @@ function RootLayoutNav() {
     }
   }, [isAuthenticated, segments, isLoading, router]);
   return (
-    <Stack screenOptions={{ headerShown: false, animation: "fade" }}>
-      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="+not-found" />
-    </Stack>
+    <>
+      <Head>
+        <title>CareerConnect</title>
+        <link rel="icon" href="./assets/images/favicon.png" />
+        <meta
+          name="description"
+          content="Career Connect - Tìm kiếm việc làm và cơ hội nghề nghiệp"
+        />
+      </Head>
+      <Stack screenOptions={{ headerShown: false, animation: "fade" }}>
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+    </>
   );
 }
 

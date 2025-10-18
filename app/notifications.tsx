@@ -1,200 +1,224 @@
-import React, { useState, useMemo } from 'react';
-import { 
-  ScrollView, 
-  TouchableOpacity, 
-  View, 
+import React, { useState, useMemo } from "react";
+import {
+  ScrollView,
+  TouchableOpacity,
+  View,
   Text,
   RefreshControl,
-  ActivityIndicator
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { 
-  FadeInDown, 
+  ActivityIndicator,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Animated, {
+  FadeInDown,
   FadeInUp,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
   withTiming,
-  interpolate
-} from 'react-native-reanimated';
-import { 
-  Bell, 
+  interpolate,
+} from "react-native-reanimated";
+import {
+  Bell,
   BellOff,
-  Briefcase, 
-  FileText, 
-  MessageCircle, 
+  Briefcase,
+  FileText,
+  MessageCircle,
   Info,
   CheckCircle,
   Clock,
   Filter,
-  Check
-} from 'lucide-react-native';
-
+  Check,
+} from "lucide-react-native";
 
 type NotificationItem = {
   id: string;
   title: string;
   description: string;
   time: string;
-  type: 'job' | 'cv' | 'message' | 'system';
+  type: "job" | "cv" | "message" | "system";
   isRead: boolean;
-  priority?: 'high' | 'normal' | 'low';
+  priority?: "high" | "normal" | "low";
   actionUrl?: string;
   companyLogo?: string;
 };
 
 const mockNotifications: NotificationItem[] = [
   {
-    id: '1',
-    title: 'Công việc mới phù hợp với bạn',
-    description: 'FPT Software đang tuyển dụng React Native Developer với mức lương 25-35 triệu VNĐ',
-    time: '5 phút trước',
-    type: 'job',
+    id: "1",
+    title: "Công việc mới phù hợp với bạn",
+    description:
+      "FPT Software đang tuyển dụng React Native Developer với mức lương 25-35 triệu VNĐ",
+    time: "5 phút trước",
+    type: "job",
     isRead: false,
-    priority: 'high',
-    companyLogo: 'https://images.seeklogo.com/logo-png/21/1/fpt-logo-png_seeklogo-211515.png',
+    priority: "high",
+    companyLogo:
+      "https://images.seeklogo.com/logo-png/21/1/fpt-logo-png_seeklogo-211515.png",
   },
   {
-    id: '2',
-    title: 'CV của bạn đã được xem',
-    description: 'Nhà tuyển dụng từ VNG Corporation đã xem CV React Native Developer của bạn',
-    time: '1 giờ trước',
-    type: 'cv',
+    id: "2",
+    title: "CV của bạn đã được xem",
+    description:
+      "Nhà tuyển dụng từ VNG Corporation đã xem CV React Native Developer của bạn",
+    time: "1 giờ trước",
+    type: "cv",
     isRead: false,
-    priority: 'normal',
+    priority: "normal",
   },
   {
-    id: '3',
-    title: 'Tin nhắn mới từ HR',
-    description: 'HR từ Tiki: "Chào bạn, chúng tôi rất ấn tượng với hồ sơ của bạn và muốn mời bạn tham gia..."',
-    time: '2 giờ trước',
-    type: 'message',
+    id: "3",
+    title: "Tin nhắn mới từ HR",
+    description:
+      'HR từ Tiki: "Chào bạn, chúng tôi rất ấn tượng với hồ sơ của bạn và muốn mời bạn tham gia..."',
+    time: "2 giờ trước",
+    type: "message",
     isRead: false,
-    priority: 'high',
+    priority: "high",
   },
   {
-    id: '4',
-    title: '3 nhà tuyển dụng đã lưu hồ sơ của bạn',
-    description: 'Hồ sơ của bạn đang được quan tâm. Xem chi tiết để biết thêm.',
-    time: '3 giờ trước',
-    type: 'cv',
+    id: "4",
+    title: "3 nhà tuyển dụng đã lưu hồ sơ của bạn",
+    description: "Hồ sơ của bạn đang được quan tâm. Xem chi tiết để biết thêm.",
+    time: "3 giờ trước",
+    type: "cv",
     isRead: true,
-    priority: 'normal',
+    priority: "normal",
   },
   {
-    id: '5',
-    title: 'Hạn nộp hồ sơ sắp hết',
-    description: 'Còn 2 ngày để nộp hồ sơ cho vị trí Senior Developer tại Shopee',
-    time: '5 giờ trước',
-    type: 'job',
+    id: "5",
+    title: "Hạn nộp hồ sơ sắp hết",
+    description:
+      "Còn 2 ngày để nộp hồ sơ cho vị trí Senior Developer tại Shopee",
+    time: "5 giờ trước",
+    type: "job",
     isRead: true,
-    priority: 'high',
+    priority: "high",
   },
   {
-    id: '6',
-    title: 'Cập nhật hồ sơ',
-    description: 'Hoàn thiện thêm 30% hồ sơ để tăng 70% cơ hội được nhà tuyển dụng tìm thấy',
-    time: 'Hôm qua',
-    type: 'system',
+    id: "6",
+    title: "Cập nhật hồ sơ",
+    description:
+      "Hoàn thiện thêm 30% hồ sơ để tăng 70% cơ hội được nhà tuyển dụng tìm thấy",
+    time: "Hôm qua",
+    type: "system",
     isRead: true,
-    priority: 'low',
+    priority: "low",
   },
   {
-    id: '7',
-    title: 'Việc làm hot trong tuần',
-    description: 'Xem ngay 50+ việc làm mới với mức lương hấp dẫn nhất tuần này',
-    time: '2 ngày trước',
-    type: 'job',
+    id: "7",
+    title: "Việc làm hot trong tuần",
+    description:
+      "Xem ngay 50+ việc làm mới với mức lương hấp dẫn nhất tuần này",
+    time: "2 ngày trước",
+    type: "job",
     isRead: true,
-    priority: 'normal',
+    priority: "normal",
   },
 ];
 
-const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
+const AnimatedTouchableOpacity =
+  Animated.createAnimatedComponent(TouchableOpacity);
 
 export default function NotificationsScreen() {
-  const [notifications, setNotifications] = useState<NotificationItem[]>(mockNotifications);
-  const [selectedFilter, setSelectedFilter] = useState<string>('all');
+  const [notifications, setNotifications] =
+    useState<NotificationItem[]>(mockNotifications);
+  const [selectedFilter, setSelectedFilter] = useState<string>("all");
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const filters = [
-    { id: 'all', label: 'Tất cả', icon: Bell },
-    { id: 'job', label: 'Công việc', icon: Briefcase },
-    { id: 'cv', label: 'Hồ sơ', icon: FileText },
-    { id: 'message', label: 'Tin nhắn', icon: MessageCircle },
-    { id: 'system', label: 'Hệ thống', icon: Info },
+    { id: "all", label: "Tất cả", icon: Bell },
+    { id: "job", label: "Công việc", icon: Briefcase },
+    { id: "cv", label: "Hồ sơ", icon: FileText },
+    { id: "message", label: "Tin nhắn", icon: MessageCircle },
+    { id: "system", label: "Hệ thống", icon: Info },
   ];
 
   const filteredNotifications = useMemo(() => {
-    if (selectedFilter === 'all') return notifications;
-    return notifications.filter(n => n.type === selectedFilter);
+    if (selectedFilter === "all") return notifications;
+    return notifications.filter((n) => n.type === selectedFilter);
   }, [notifications, selectedFilter]);
 
   const unreadCount = useMemo(() => {
-    return notifications.filter(n => !n.isRead).length;
+    return notifications.filter((n) => !n.isRead).length;
   }, [notifications]);
 
-  const getNotificationIcon = (type: NotificationItem['type']) => {
+  const getNotificationIcon = (type: NotificationItem["type"]) => {
     switch (type) {
-      case 'job': return Briefcase;
-      case 'cv': return FileText;
-      case 'message': return MessageCircle;
-      case 'system': return Info;
-      default: return Bell;
+      case "job":
+        return Briefcase;
+      case "cv":
+        return FileText;
+      case "message":
+        return MessageCircle;
+      case "system":
+        return Info;
+      default:
+        return Bell;
     }
   };
 
-  const getNotificationColor = (type: NotificationItem['type']) => {
+  const getNotificationColor = (type: NotificationItem["type"]) => {
     switch (type) {
-      case 'job': return '#10b981';
-      case 'cv': return '#3b82f6';
-      case 'message': return '#f59e0b';
-      case 'system': return '#6b7280';
-      default: return '#3b82f6';
+      case "job":
+        return "#10b981";
+      case "cv":
+        return "#3b82f6";
+      case "message":
+        return "#f59e0b";
+      case "system":
+        return "#6b7280";
+      default:
+        return "#3b82f6";
     }
   };
 
   const getPriorityColor = (priority?: string) => {
     switch (priority) {
-      case 'high': return '#ef4444';
-      case 'low': return '#6b7280';
-      default: return '#3b82f6';
+      case "high":
+        return "#ef4444";
+      case "low":
+        return "#6b7280";
+      default:
+        return "#3b82f6";
     }
   };
 
   const handleMarkAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
   };
 
   const handleMarkAsRead = (id: string) => {
-    setNotifications(prev => 
-      prev.map(n => n.id === id ? { ...n, isRead: true } : n)
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
     );
   };
 
   const handleDeleteNotification = (id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
   const onRefresh = async () => {
     setRefreshing(true);
     // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     setRefreshing(false);
   };
 
-  const NotificationCard = ({ notification, index }: { notification: NotificationItem; index: number }) => {
+  const NotificationCard = ({
+    notification,
+    index,
+  }: {
+    notification: NotificationItem;
+    index: number;
+  }) => {
     const scale = useSharedValue(1);
     const opacity = useSharedValue(1);
     const translateX = useSharedValue(0);
     const Icon = getNotificationIcon(notification.type);
 
     const animatedStyle = useAnimatedStyle(() => ({
-      transform: [
-        { scale: scale.value },
-        { translateX: translateX.value }
-      ],
+      transform: [{ scale: scale.value }, { translateX: translateX.value }],
       opacity: opacity.value,
     }));
 
@@ -221,14 +245,18 @@ export default function NotificationsScreen() {
         onPress={handlePress}
         activeOpacity={0.9}
         className={`mx-4 mb-3 bg-white rounded-2xl overflow-hidden ${
-          !notification.isRead ? 'border-l-4 border-blue-500' : 'border border-gray-100'
+          !notification.isRead
+            ? "border-l-4 border-blue-500"
+            : "border border-gray-100"
         }`}
       >
         <View className="flex-row p-4">
           {/* Icon Container */}
-          <View 
+          <View
             className="w-12 h-12 rounded-full items-center justify-center mr-3"
-            style={{ backgroundColor: `${getNotificationColor(notification.type)}15` }}
+            style={{
+              backgroundColor: `${getNotificationColor(notification.type)}15`,
+            }}
           >
             <Icon size={24} color={getNotificationColor(notification.type)} />
           </View>
@@ -238,15 +266,18 @@ export default function NotificationsScreen() {
             {/* Header */}
             <View className="flex-row items-start justify-between mb-1">
               <View className="flex-1">
-                <Text className={`text-base font-semibold ${
-                  !notification.isRead ? 'text-gray-900' : 'text-gray-700'
-                }`} numberOfLines={2}>
+                <Text
+                  className={`text-base font-semibold ${
+                    !notification.isRead ? "text-gray-900" : "text-gray-700"
+                  }`}
+                  numberOfLines={2}
+                >
                   {notification.title}
                 </Text>
               </View>
-              
+
               {/* Priority Badge */}
-              {notification.priority === 'high' && !notification.isRead && (
+              {notification.priority === "high" && !notification.isRead && (
                 <View className="ml-2">
                   <View className="w-2 h-2 rounded-full bg-red-500" />
                 </View>
@@ -254,10 +285,7 @@ export default function NotificationsScreen() {
             </View>
 
             {/* Description */}
-            <Text 
-              className="text-sm text-gray-600 mb-2" 
-              numberOfLines={2}
-            >
+            <Text className="text-sm text-gray-600 mb-2" numberOfLines={2}>
               {notification.description}
             </Text>
 
@@ -287,10 +315,7 @@ export default function NotificationsScreen() {
           </View>
 
           {/* Swipe Delete Hint */}
-          <TouchableOpacity
-            onPress={handleSwipeDelete}
-            className="ml-2 p-2"
-          >
+          <TouchableOpacity onPress={handleSwipeDelete} className="ml-2 p-2">
             <Text className="text-xs text-gray-400">×</Text>
           </TouchableOpacity>
         </View>
@@ -299,7 +324,7 @@ export default function NotificationsScreen() {
   };
 
   const EmptyState = () => (
-    <Animated.View 
+    <Animated.View
       entering={FadeInUp.springify()}
       className="flex-1 items-center justify-center py-20"
     >
@@ -318,7 +343,7 @@ export default function NotificationsScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header */}
-      <Animated.View 
+      <Animated.View
         entering={FadeInDown.springify()}
         className="bg-white border-b border-gray-100"
       >
@@ -334,7 +359,7 @@ export default function NotificationsScreen() {
                 </Text>
               )}
             </View>
-            
+
             {unreadCount > 0 && (
               <TouchableOpacity
                 onPress={handleMarkAllAsRead}
@@ -352,8 +377,8 @@ export default function NotificationsScreen() {
           </View>
 
           {/* Filter Tabs */}
-          <ScrollView 
-            horizontal 
+          <ScrollView
+            horizontal
             showsHorizontalScrollIndicator={false}
             className="-mx-4 px-4"
           >
@@ -365,19 +390,16 @@ export default function NotificationsScreen() {
                   key={filter.id}
                   onPress={() => setSelectedFilter(filter.id)}
                   className={`mr-2 px-4 py-2 rounded-full flex-row items-center ${
-                    isActive 
-                      ? 'bg-blue-600' 
-                      : 'bg-gray-100'
+                    isActive ? "bg-blue-600" : "bg-gray-100"
                   }`}
                   activeOpacity={0.7}
                 >
-                  <Icon 
-                    size={16} 
-                    color={isActive ? '#ffffff' : '#6b7280'} 
-                  />
-                  <Text className={`ml-2 text-sm font-medium ${
-                    isActive ? 'text-white' : 'text-gray-600'
-                  }`}>
+                  <Icon size={16} color={isActive ? "#ffffff" : "#6b7280"} />
+                  <Text
+                    className={`ml-2 text-sm font-medium ${
+                      isActive ? "text-white" : "text-gray-600"
+                    }`}
+                  >
                     {filter.label}
                   </Text>
                 </TouchableOpacity>
@@ -395,12 +417,12 @@ export default function NotificationsScreen() {
       ) : filteredNotifications.length === 0 ? (
         <EmptyState />
       ) : (
-        <ScrollView 
+        <ScrollView
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              colors={['#3b82f6']}
+              colors={["#3b82f6"]}
               tintColor="#3b82f6"
             />
           }
@@ -408,9 +430,9 @@ export default function NotificationsScreen() {
           className="flex-1 pt-4"
         >
           {filteredNotifications.map((notification, index) => (
-            <NotificationCard 
-              key={notification.id} 
-              notification={notification} 
+            <NotificationCard
+              key={notification.id}
+              notification={notification}
               index={index}
             />
           ))}

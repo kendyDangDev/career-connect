@@ -20,6 +20,7 @@
       "package": "com.kendydangdev.careerconnectapp"
     },
     "web": {
+      "name": "CareerConnect",
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png"

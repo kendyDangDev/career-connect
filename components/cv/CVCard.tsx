@@ -1,12 +1,6 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ActivityIndicator,
-  StyleSheet,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import React, { useState } from "react";
+import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import {
   FileText,
   Download,
@@ -17,10 +11,9 @@ import {
   Edit3,
   Clock,
   HardDrive,
-  Share2,
-} from 'lucide-react-native';
-import { CandidateCv, formatFileSize } from '@/types/candidateCv.types';
-import { useAlert } from '@/contexts/AlertContext';
+} from "lucide-react-native";
+import { CandidateCv, formatFileSize } from "@/types/candidateCv.types";
+import { useAlert } from "@/contexts/AlertContext";
 
 interface CVCardProps {
   cv: CandidateCv;
@@ -49,37 +42,29 @@ const CVCard: React.FC<CVCardProps> = ({
 
   const formatDate = (dateString: string | Date) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
-  };
-
-  const formatTime = (dateString: string | Date) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('vi-VN', {
-      hour: '2-digit',
-      minute: '2-digit',
+    return date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     });
   };
 
   const getFileIcon = () => {
-    const extension = cv.cvName.split('.').pop()?.toLowerCase();
+    const extension = cv.cvName.split(".").pop()?.toLowerCase();
     switch (extension) {
-      case 'pdf':
-        return '#E74C3C';
-      case 'doc':
-      case 'docx':
-        return '#3498DB';
+      case "pdf":
+        return "#E74C3C";
+      case "doc":
+      case "docx":
+        return "#3498DB";
       default:
-        return '#95A5A6';
+        return "#95A5A6";
     }
   };
 
   const handleDelete = () => {
     alert.confirm(
-      'Xác nhận xóa',
+      "Xác nhận xóa",
       `Bạn có chắc chắn muốn xóa CV "${cv.cvName}"?`,
       () => onDelete(cv)
     );
@@ -92,119 +77,170 @@ const CVCard: React.FC<CVCardProps> = ({
   };
 
   return (
-    <View style={styles.container}>
+    <View className="mb-3 relative">
       <LinearGradient
-        colors={cv.isPrimary ? ['#4A90E2', '#357ABD'] : ['#FFFFFF', '#F8F9FA']}
-        style={styles.cardGradient}
+        colors={
+          cv.isPrimary
+            ? ["#a855f7", "#9333ea", "#7e22ce"]
+            : ["#FFFFFF", "#F8F9FA"]
+        }
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
+        className="rounded-2xl shadow-glow-purple"
       >
         <TouchableOpacity
-          style={styles.card}
+          className="rounded-2xl overflow-hidden"
           onPress={() => onPreview(cv)}
           activeOpacity={0.7}
         >
-          <View style={styles.cardContent}>
+          <View className="flex-row p-4 items-center">
             {/* File Icon Section */}
-            <View style={[styles.fileIconContainer, { backgroundColor: getFileIcon() + '20' }]}>
+            <View
+              className={`w-14 h-14 rounded-xl justify-center items-center mr-3 relative`}
+              style={{ backgroundColor: getFileIcon() + "20" }}
+            >
               <FileText size={28} color={getFileIcon()} />
               {cv.isPrimary && (
-                <View style={styles.primaryBadge}>
+                <View className="absolute -top-1 -right-1 bg-amber-500 rounded-full p-1">
                   <Star size={12} color="#FFF" fill="#FFF" />
                 </View>
               )}
             </View>
 
             {/* Content Section */}
-            <View style={styles.contentSection}>
-              <Text style={[styles.cvName, cv.isPrimary && styles.primaryText]} numberOfLines={1}>
+            <View className="flex-1 mr-2">
+              <Text
+                className={`text-base font-semibold mb-1 ${cv.isPrimary ? "text-white" : "text-gray-800"}`}
+                numberOfLines={1}
+              >
                 {cv.cvName}
               </Text>
-              
+
               {cv.description && (
-                <Text style={styles.description} numberOfLines={2}>
+                <Text
+                  className={`text-sm ${cv.isPrimary ? "text-white/80" : "text-gray-600"} mb-2 leading-5`}
+                  numberOfLines={2}
+                >
                   {cv.description}
                 </Text>
               )}
 
-              <View style={styles.metadata}>
-                <View style={styles.metaItem}>
-                  <HardDrive size={12} color="#7F8C8D" />
-                  <Text style={styles.metaText}>{formatFileSize(cv.fileSize)}</Text>
+              <View className="flex-row flex-wrap gap-3">
+                <View className="flex-row items-center gap-1">
+                  <HardDrive
+                    size={12}
+                    color={cv.isPrimary ? "#FFFFFF80" : "#7F8C8D"}
+                  />
+                  <Text
+                    className={`text-xs ${cv.isPrimary ? "text-white/70" : "text-gray-500"}`}
+                  >
+                    {formatFileSize(cv.fileSize)}
+                  </Text>
                 </View>
-                
-                <View style={styles.metaItem}>
-                  <Clock size={12} color="#7F8C8D" />
-                  <Text style={styles.metaText}>{formatDate(cv.uploadedAt)}</Text>
+
+                <View className="flex-row items-center gap-1">
+                  <Clock
+                    size={12}
+                    color={cv.isPrimary ? "#FFFFFF80" : "#7F8C8D"}
+                  />
+                  <Text
+                    className={`text-xs ${cv.isPrimary ? "text-white/70" : "text-gray-500"}`}
+                  >
+                    {formatDate(cv.uploadedAt)}
+                  </Text>
                 </View>
 
                 {cv.viewCount > 0 && (
-                  <View style={styles.metaItem}>
-                    <Eye size={12} color="#7F8C8D" />
-                    <Text style={styles.metaText}>{cv.viewCount}</Text>
+                  <View className="flex-row items-center gap-1">
+                    <Eye
+                      size={12}
+                      color={cv.isPrimary ? "#FFFFFF80" : "#7F8C8D"}
+                    />
+                    <Text
+                      className={`text-xs ${cv.isPrimary ? "text-white/70" : "text-gray-500"}`}
+                    >
+                      {cv.viewCount}
+                    </Text>
                   </View>
                 )}
               </View>
             </View>
 
             {/* Actions Section */}
-            <View style={styles.actionsContainer}>
+            <View className="p-1">
               <TouchableOpacity
-                style={styles.actionButton}
+                className="p-2 rounded-lg"
                 onPress={() => setShowActions(!showActions)}
               >
-                <MoreVertical size={20} color={cv.isPrimary ? '#FFF' : '#34495E'} />
+                <MoreVertical
+                  size={20}
+                  color={cv.isPrimary ? "#FFF" : "#6b7280"}
+                />
               </TouchableOpacity>
             </View>
           </View>
 
           {/* Action Menu */}
           {showActions && (
-            <View style={[styles.actionMenu, cv.isPrimary && styles.actionMenuPrimary]}>
+            <View
+              className={`border-t pt-2 ${cv.isPrimary ? "bg-white/10 border-white/20 backdrop-blur-sm" : "bg-white border-gray-200"}`}
+            >
               <TouchableOpacity
-                style={styles.actionItem}
+                className="flex-row items-center py-3 px-4 gap-3"
                 onPress={() => {
                   setShowActions(false);
                   onPreview(cv);
                 }}
               >
-                <Eye size={16} color={cv.isPrimary ? '#FFF' : '#3498DB'} />
-                <Text style={[styles.actionText, cv.isPrimary && styles.actionTextPrimary]}>
+                <Eye size={16} color={cv.isPrimary ? "#FFF" : "#a855f7"} />
+                <Text
+                  className={`text-sm font-medium ${cv.isPrimary ? "text-white" : "text-purple-700"}`}
+                >
                   Xem trước
                 </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={styles.actionItem}
+                className="flex-row items-center py-3 px-4 gap-3"
                 onPress={handleDownload}
                 disabled={isDownloading}
               >
                 {isDownloading ? (
-                  <ActivityIndicator size="small" color={cv.isPrimary ? '#FFF' : '#3498DB'} />
+                  <ActivityIndicator
+                    size="small"
+                    color={cv.isPrimary ? "#FFF" : "#10b981"}
+                  />
                 ) : (
-                  <Download size={16} color={cv.isPrimary ? '#FFF' : '#27AE60'} />
+                  <Download
+                    size={16}
+                    color={cv.isPrimary ? "#FFF" : "#10b981"}
+                  />
                 )}
-                <Text style={[styles.actionText, cv.isPrimary && styles.actionTextPrimary]}>
+                <Text
+                  className={`text-sm font-medium ${cv.isPrimary ? "text-white" : "text-emerald-600"}`}
+                >
                   Tải xuống
                 </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={styles.actionItem}
+                className="flex-row items-center py-3 px-4 gap-3"
                 onPress={() => {
                   setShowActions(false);
                   onEdit(cv);
                 }}
               >
-                <Edit3 size={16} color={cv.isPrimary ? '#FFF' : '#F39C12'} />
-                <Text style={[styles.actionText, cv.isPrimary && styles.actionTextPrimary]}>
+                <Edit3 size={16} color={cv.isPrimary ? "#FFF" : "#f59e0b"} />
+                <Text
+                  className={`text-sm font-medium ${cv.isPrimary ? "text-white" : "text-amber-600"}`}
+                >
                   Chỉnh sửa
                 </Text>
               </TouchableOpacity>
 
               {!cv.isPrimary && (
                 <TouchableOpacity
-                  style={styles.actionItem}
+                  className="flex-row items-center py-3 px-4 gap-3"
                   onPress={() => {
                     setShowActions(false);
                     onSetPrimary(cv);
@@ -212,16 +248,18 @@ const CVCard: React.FC<CVCardProps> = ({
                   disabled={isSettingPrimary}
                 >
                   {isSettingPrimary ? (
-                    <ActivityIndicator size="small" color="#F39C12" />
+                    <ActivityIndicator size="small" color="#f59e0b" />
                   ) : (
-                    <Star size={16} color="#F39C12" />
+                    <Star size={16} color="#f59e0b" />
                   )}
-                  <Text style={styles.actionText}>Đặt làm chính</Text>
+                  <Text className="text-sm font-medium text-amber-600">
+                    Đặt làm chính
+                  </Text>
                 </TouchableOpacity>
               )}
 
               <TouchableOpacity
-                style={[styles.actionItem, styles.deleteAction]}
+                className="flex-row items-center py-3 px-4 gap-3 border-t border-red-100 mt-2 pt-3"
                 onPress={() => {
                   setShowActions(false);
                   handleDelete();
@@ -229,11 +267,11 @@ const CVCard: React.FC<CVCardProps> = ({
                 disabled={isDeleting}
               >
                 {isDeleting ? (
-                  <ActivityIndicator size="small" color="#E74C3C" />
+                  <ActivityIndicator size="small" color="#ef4444" />
                 ) : (
-                  <Trash2 size={16} color="#E74C3C" />
+                  <Trash2 size={16} color="#ef4444" />
                 )}
-                <Text style={[styles.actionText, styles.deleteText]}>Xóa</Text>
+                <Text className="text-sm font-medium text-red-500">Xóa</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -242,143 +280,21 @@ const CVCard: React.FC<CVCardProps> = ({
 
       {/* Primary Badge Label */}
       {cv.isPrimary && (
-        <View style={styles.primaryLabel}>
+        <View className="absolute top-0 right-3 bg-gradient-to-r from-amber-500 to-amber-600 px-3 py-1 rounded-b-lg flex-row items-center gap-1 shadow-soft">
           <Star size={10} color="#FFF" fill="#FFF" />
-          <Text style={styles.primaryLabelText}>CV Chính</Text>
+          <Text className="text-white text-xs font-semibold">CV Chính</Text>
         </View>
+      )}
+
+      {/* Decorative Elements for Primary CV */}
+      {cv.isPrimary && (
+        <>
+          <View className="absolute top-4 right-4 w-6 h-6 bg-white/10 rounded-full" />
+          <View className="absolute bottom-4 left-4 w-3 h-3 bg-white/10 rounded-full" />
+        </>
       )}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: 12,
-  },
-  cardGradient: {
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  card: {
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  cardContent: {
-    flexDirection: 'row',
-    padding: 16,
-    alignItems: 'center',
-  },
-  fileIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-    position: 'relative',
-  },
-  primaryBadge: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    backgroundColor: '#F39C12',
-    borderRadius: 10,
-    padding: 3,
-  },
-  contentSection: {
-    flex: 1,
-    marginRight: 8,
-  },
-  cvName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#2C3E50',
-    marginBottom: 4,
-  },
-  primaryText: {
-    color: '#FFF',
-  },
-  description: {
-    fontSize: 13,
-    color: '#7F8C8D',
-    marginBottom: 8,
-    lineHeight: 18,
-  },
-  metadata: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  metaItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  metaText: {
-    fontSize: 11,
-    color: '#7F8C8D',
-  },
-  actionsContainer: {
-    padding: 4,
-  },
-  actionButton: {
-    padding: 8,
-  },
-  actionMenu: {
-    backgroundColor: '#FFF',
-    borderTopWidth: 1,
-    borderTopColor: '#E8E8E8',
-    paddingVertical: 8,
-  },
-  actionMenuPrimary: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    borderTopColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  actionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    gap: 12,
-  },
-  actionText: {
-    fontSize: 14,
-    color: '#34495E',
-  },
-  actionTextPrimary: {
-    color: '#FFF',
-  },
-  deleteAction: {
-    borderTopWidth: 1,
-    borderTopColor: '#FEE',
-    marginTop: 8,
-    paddingTop: 12,
-  },
-  deleteText: {
-    color: '#E74C3C',
-  },
-  primaryLabel: {
-    position: 'absolute',
-    top: 0,
-    right: 12,
-    backgroundColor: '#F39C12',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  primaryLabelText: {
-    color: '#FFF',
-    fontSize: 10,
-    fontWeight: '600',
-  },
-});
 
 export default CVCard;

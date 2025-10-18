@@ -59,16 +59,20 @@ const CompanyHeader: React.FC<CompanyHeaderProps> = ({
       {/* Cover Image */}
       <View className="relative h-48">
         <Image
-          source={{ uri: company.coverImageUrl }}
+          source={{
+            uri:
+              company.coverImageUrl ||
+              "https://www.dochipo.com/wp-content/uploads/2022/07/LinkedIn-Banner-_-Business-10.png",
+          }}
           className="w-full h-full"
           resizeMode="cover"
         />
 
         {/* Gradient Overlay */}
-        <LinearGradient
+        {/* <LinearGradient
           colors={["transparent", "#3b82f6"]}
           className="absolute inset-0"
-        />
+        /> */}
         {/* <Image
           source={{ uri: company.coverImageUrl }}
           className="w-full h-full"

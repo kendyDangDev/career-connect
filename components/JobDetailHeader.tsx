@@ -38,18 +38,18 @@ const JobDetailHeader: React.FC<JobDetailHeaderProps> = ({
     currency: string,
     negotiable: boolean
   ) => {
-    if (negotiable) return "Negotiable";
+    if (negotiable) return "Thỏa thuận";
 
     if (currency === "VND") {
       const minFormatted =
         min >= 1000000
-          ? `${(min / 1000000).toFixed(0)}M`
+          ? `${(min / 1000000).toFixed(0)}`
           : `${(min / 1000).toFixed(0)}K`;
       const maxFormatted =
         max >= 1000000
-          ? `${(max / 1000000).toFixed(0)}M`
+          ? `${(max / 1000000).toFixed(0)}`
           : `${(max / 1000).toFixed(0)}K`;
-      return `${minFormatted} - ${maxFormatted} VND/month`;
+      return `${minFormatted} - ${maxFormatted} Triệu/Tháng`;
     }
 
     const formatNumber = (num: number) => {
@@ -218,15 +218,13 @@ const JobDetailHeader: React.FC<JobDetailHeaderProps> = ({
 
           {job.urgent && (
             <View className="bg-red-50 px-3 py-2 rounded-full mr-2 mb-2">
-              <Text className="text-red-600 text-sm font-bold">URGENT</Text>
+              <Text className="text-red-600 text-sm font-bold">Tuyển gấp</Text>
             </View>
           )}
 
           {job.featured && (
-            <View className="bg-yellow-50 px-3 py-2 rounded-full mr-2 mb-2">
-              <Text className="text-yellow-600 text-sm font-bold">
-                FEATURED
-              </Text>
+            <View className="bg-purple-50 px-3 py-2 rounded-full mr-2 mb-2">
+              <Text className="text-purple-600 text-sm font-bold">Nổi bật</Text>
             </View>
           )}
         </View>

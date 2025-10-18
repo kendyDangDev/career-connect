@@ -256,7 +256,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ conversationId }) => {
 
   const isUserOnline = (): boolean => {
     const otherUser = getOtherUser();
-    return otherUser ? onlineUsers.includes(otherUser.id) : false;
+    return otherUser ? onlineUsers?.includes(otherUser.id) : false;
   };
 
   const handleLoadMoreMessages = useCallback(() => {

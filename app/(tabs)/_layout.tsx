@@ -53,7 +53,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="notifications"
         options={{
           title: "Thông Báo",
@@ -61,7 +61,7 @@ export default function TabLayout() {
             <User size={size || 24} color={color} />
           ),
         }}
-      />
+      /> */}
       {/* <Tabs.Screen
         name="saved-jobs"
         options={{

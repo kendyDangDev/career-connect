@@ -286,11 +286,11 @@ export default function CompanyFollowerScreen() {
               <View className="flex-row flex-wrap">
                 {(
                   [
-                    "STARTUP",
-                    "SMALL",
-                    "MEDIUM",
-                    "LARGE",
-                    "ENTERPRISE",
+                    "STARTUP_1_10",
+                    "SMALL_11_50",
+                    "MEDIUM_51_200",
+                    "LARGE_201_500",
+                    "ENTERPRISE_501_PLUS",
                   ] as CompanySize[]
                 ).map((size) => (
                   <TouchableOpacity
@@ -309,11 +309,11 @@ export default function CompanyFollowerScreen() {
                           : "text-gray-700"
                       }
                     >
-                      {size === "STARTUP" && "1-10 người"}
-                      {size === "SMALL" && "11-50 người"}
-                      {size === "MEDIUM" && "51-200 người"}
-                      {size === "LARGE" && "201-500 người"}
-                      {size === "ENTERPRISE" && "500+ người"}
+                      {size === "STARTUP_1_10" && "1-10 người"}
+                      {size === "SMALL_11_50" && "11-50 người"}
+                      {size === "MEDIUM_51_200" && "51-200 người"}
+                      {size === "LARGE_201_500" && "201-500 người"}
+                      {size === "ENTERPRISE_501_PLUS" && "500+ người"}
                     </Text>
                   </TouchableOpacity>
                 ))}

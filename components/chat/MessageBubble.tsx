@@ -25,7 +25,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   onReplyPress,
   locale = "vi",
 }) => {
-  console.log("Rendering MessageBubble for message:", message);
   const formatTime = (dateString: string) => {
     try {
       return format(new Date(dateString), "HH:mm", {

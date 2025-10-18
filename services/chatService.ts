@@ -10,10 +10,13 @@ import {
   Message,
   MessagesResponse,
 } from "@/types/chat.types";
-
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
+import { getApiUrl } from "@/utils/apiConfig";
 
 class ChatService {
+  private getApiBaseUrl(): string {
+    return getApiUrl();
+  }
+
   private async getSecureItem(key: string): Promise<string | null> {
     try {
       if (Platform.OS === "web") {
@@ -98,7 +101,7 @@ class ChatService {
       const headers = await this.getAuthHeader();
       console.log("[ChatService] Auth headers obtained");
 
-      const url = `${API_BASE_URL}/api/chat/token`;
+      const url = `${this.getApiBaseUrl()}/api/chat/token`;
       console.log("[ChatService] Requesting chat token from:", url);
 
       const response = await fetch(url, {
@@ -147,7 +150,7 @@ class ChatService {
       if (params?.limit) queryParams.append("limit", params.limit.toString());
       if (params?.type) queryParams.append("type", params.type);
 
-      const url = `${API_BASE_URL}/api/chat/conversations?${queryParams.toString()}`;
+      const url = `${this.getApiBaseUrl()}/api/chat/conversations?${queryParams.toString()}`;
       const response = await fetch(url, {
         method: "GET",
         headers,
@@ -192,7 +195,7 @@ class ChatService {
     try {
       const headers = await this.getAuthHeader();
       const response = await fetch(
-        `${API_BASE_URL}/api/chat/conversations/${conversationId}`,
+        `${this.getApiBaseUrl()}/api/chat/conversations/${conversationId}`,
         {
           method: "GET",
           headers,
@@ -218,7 +221,7 @@ class ChatService {
   ): Promise<{ conversation: Conversation }> {
     try {
       const headers = await this.getAuthHeader();
-      const response = await fetch(`${API_BASE_URL}/api/chat/conversations`, {
+      const response = await fetch(`${this.getApiBaseUrl()}/api/chat/conversations`, {
         method: "POST",
         headers,
         body: JSON.stringify(payload),
@@ -272,7 +275,7 @@ class ChatService {
       if (params?.limit) queryParams.append("limit", params.limit.toString());
       if (params?.cursor) queryParams.append("cursor", params.cursor);
 
-      const url = `${API_BASE_URL}/api/chat/conversations/${conversationId}/messages?${queryParams.toString()}`;
+      const url = `${this.getApiBaseUrl()}/api/chat/conversations/${conversationId}/messages?${queryParams.toString()}`;
       console.log("[ChatService] Fetching messages from:", url);
 
       const response = await fetch(url, {
@@ -320,7 +323,7 @@ class ChatService {
     try {
       const headers = await this.getAuthHeader();
       const response = await fetch(
-        `${API_BASE_URL}/api/chat/conversations/${conversationId}/messages`,
+        `${this.getApiBaseUrl()}/api/chat/conversations/${conversationId}/messages`,
         {
           method: "POST",
           headers,
@@ -371,7 +374,7 @@ class ChatService {
       const formData = new FormData();
       formData.append("file", file as any);
 
-      const response = await fetch(`${API_BASE_URL}/api/chat/upload`, {
+      const response = await fetch(`${this.getApiBaseUrl()}/api/chat/upload`, {
         method: "POST",
         headers,
         body: formData,
@@ -398,7 +401,7 @@ class ChatService {
     try {
       const headers = await this.getAuthHeader();
       const response = await fetch(
-        `${API_BASE_URL}/api/chat/conversations/${conversationId}/messages/${messageId}/read`,
+        `${this.getApiBaseUrl()}/api/chat/conversations/${conversationId}/messages/${messageId}/read`,
         {
           method: "POST",
           headers,
@@ -421,31 +424,31 @@ class ChatService {
   /**
    * Mark all messages in a conversation as read
    */
-  async markConversationAsRead(
-    conversationId: string
-  ): Promise<{ success: boolean }> {
-    try {
-      const headers = await this.getAuthHeader();
-      const response = await fetch(
-        `${API_BASE_URL}/api/chat/conversations/${conversationId}/read`,
-        {
-          method: "POST",
-          headers,
-        }
-      );
+  // async markConversationAsRead(
+  //   conversationId: string
+  // ): Promise<{ success: boolean }> {
+  //   try {
+  //     const headers = await this.getAuthHeader();
+  //     const response = await fetch(
+  //       `${API_BASE_URL}/api/chat/conversations/${conversationId}/read`,
+  //       {
+  //         method: "POST",
+  //         headers,
+  //       }
+  //     );
 
-      if (!response.ok) {
-        throw new Error(
-          `Failed to mark conversation as read: ${response.statusText}`
-        );
-      }
+  //     if (!response.ok) {
+  //       throw new Error(
+  //         `Failed to mark conversation as read: ${response.statusText}`
+  //       );
+  //     }
 
-      return await response.json();
-    } catch (error) {
-      console.error("[ChatService] markConversationAsRead error:", error);
-      throw error;
-    }
-  }
+  //     return await response.json();
+  //   } catch (error) {
+  //     console.error("[ChatService] markConversationAsRead error:", error);
+  //     throw error;
+  //   }
+  // }
 
   /**
    * Delete a message
@@ -457,7 +460,7 @@ class ChatService {
     try {
       const headers = await this.getAuthHeader();
       const response = await fetch(
-        `${API_BASE_URL}/api/chat/conversations/${conversationId}/messages/${messageId}`,
+        `${this.getApiBaseUrl()}/api/chat/conversations/${conversationId}/messages/${messageId}`,
         {
           method: "DELETE",
           headers,
@@ -486,7 +489,7 @@ class ChatService {
     try {
       const headers = await this.getAuthHeader();
       const response = await fetch(
-        `${API_BASE_URL}/api/chat/conversations/${conversationId}/messages/${messageId}`,
+        `${this.getApiBaseUrl()}/api/chat/conversations/${conversationId}/messages/${messageId}`,
         {
           method: "PATCH",
           headers,
@@ -514,7 +517,7 @@ class ChatService {
     try {
       const headers = await this.getAuthHeader();
       const response = await fetch(
-        `${API_BASE_URL}/api/chat/conversations/${conversationId}/leave`,
+        `${this.getApiBaseUrl()}/api/chat/conversations/${conversationId}/leave`,
         {
           method: "POST",
           headers,
@@ -542,7 +545,7 @@ class ChatService {
     try {
       const headers = await this.getAuthHeader();
       const response = await fetch(
-        `${API_BASE_URL}/api/chat/conversations/${conversationId}/participants`,
+        `${this.getApiBaseUrl()}/api/chat/conversations/${conversationId}/participants`,
         {
           method: "POST",
           headers,
@@ -571,7 +574,7 @@ class ChatService {
     try {
       const headers = await this.getAuthHeader();
       const response = await fetch(
-        `${API_BASE_URL}/api/chat/conversations/${conversationId}/participants/${userId}`,
+        `${this.getApiBaseUrl()}/api/chat/conversations/${conversationId}/participants/${userId}`,
         {
           method: "DELETE",
           headers,

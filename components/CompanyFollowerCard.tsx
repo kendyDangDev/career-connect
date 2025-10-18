@@ -36,7 +36,7 @@ export default function CompanyFollowerCard({
 
   const handleUnfollow = async () => {
     if (!onUnfollow) return;
-    
+
     // Show confirmation dialog
     alert.confirm(
       "Bỏ theo dõi công ty",
@@ -46,23 +46,27 @@ export default function CompanyFollowerCard({
         try {
           await companyFollowerService.unfollowCompany(company.id);
           onUnfollow(company.id);
-          
+
           // Show success feedback
           alert.success("Thành công", `Đã bỏ theo dõi ${company.companyName}`);
         } catch (error: any) {
           console.error("Error unfollowing company:", error);
-          
+
           // Show error message
           let errorMessage = "Không thể bỏ theo dõi công ty";
-          
-          if (error.message?.includes("network") || error.message?.includes("fetch")) {
+
+          if (
+            error.message?.includes("network") ||
+            error.message?.includes("fetch")
+          ) {
             errorMessage = "Không có kết nối mạng, vui lòng thử lại";
           } else if (error.status === 401) {
             errorMessage = "Phiên đăng nhập đã hết hạn";
           } else if (error.status === 404) {
-            errorMessage = "Công ty không tồn tại hoặc bạn chưa theo dõi công ty này";
+            errorMessage =
+              "Công ty không tồn tại hoặc bạn chưa theo dõi công ty này";
           }
-          
+
           alert.error("Lỗi", errorMessage, () => {
             // Optionally retry
             alert.confirm(
@@ -85,11 +89,11 @@ export default function CompanyFollowerCard({
 
   const getCompanySizeLabel = (size?: string | null) => {
     const sizeMap: Record<string, string> = {
-      STARTUP: "1-10",
-      SMALL: "11-50",
-      MEDIUM: "51-200",
-      LARGE: "201-500",
-      ENTERPRISE: "500+",
+      STARTUP_1_10: "1-10",
+      SMALL_11_50: "11-50",
+      MEDIUM_51_200: "51-200",
+      LARGE_201_500: "201-500",
+      ENTERPRISE_500_PLUS: "500+",
     };
     return size ? sizeMap[size] || size : "N/A";
   };
@@ -148,8 +152,11 @@ export default function CompanyFollowerCard({
 
           {/* Company Details */}
           <View className="flex-1">
-            <View className="flex-row items-center mb-1">
-              <Text className="text-base font-semibold text-gray-900 flex-1" numberOfLines={1}>
+            <View className="flex-row items-center mb-1 gap-1">
+              <Text
+                className="text-base font-semibold text-gray-900"
+                numberOfLines={1}
+              >
                 {company.companyName}
               </Text>
               {getVerificationIcon()}
@@ -167,9 +174,7 @@ export default function CompanyFollowerCard({
               <View className="flex-row items-center">
                 <MapPin size={14} color="#9CA3AF" />
                 <Text className="text-sm text-gray-500 ml-1" numberOfLines={1}>
-                  {[company.city, company.province]
-                    .filter(Boolean)
-                    .join(", ")}
+                  {[company.city, company.province].filter(Boolean).join(", ")}
                 </Text>
               </View>
             )}
@@ -193,7 +198,10 @@ export default function CompanyFollowerCard({
 
         {/* Description */}
         {company.description && (
-          <Text className="text-sm text-gray-600 mt-3 leading-5" numberOfLines={2}>
+          <Text
+            className="text-sm text-gray-600 mt-3 leading-5"
+            numberOfLines={2}
+          >
             {company.description}
           </Text>
         )}

@@ -209,8 +209,28 @@ export const useChatStore = create<ChatStore>()(
       // Socket connection
       connectSocket: async () => {
         try {
-          const baseUrl =
-            process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
+          const { getApiUrl } = await import("@/utils/apiConfig");
+          const baseUrl = getApiUrl();
+
+          console.log(
+            "[ChatStore] Connecting to socket with baseUrl:",
+            baseUrl
+          );
+
+          // Test connection first
+          const { testSocketConnection } = await import(
+            "@/utils/socketManager"
+          );
+          const testResult = await testSocketConnection(baseUrl);
+
+          if (!testResult.success) {
+            console.error(
+              "[ChatStore] Socket connection test failed:",
+              testResult.error
+            );
+            // Continue anyway, socket.io may still work
+          }
+
           await socketManager.connect(baseUrl);
 
           // Set up socket event listeners (remove existing ones first)
@@ -370,7 +390,7 @@ export const useChatStore = create<ChatStore>()(
 
       updateConversation: (conversationId, updates) => {
         set((state) => ({
-          conversations: state.conversations.map((conv) =>
+          conversations: state.conversations?.map((conv) =>
             conv.id === conversationId ? { ...conv, ...updates } : conv
           ),
         }));
@@ -525,7 +545,7 @@ export const useChatStore = create<ChatStore>()(
           }
 
           // Update last message in conversation
-          const conversations = state.conversations.map((conv) => {
+          const conversations = state.conversations?.map((conv) => {
             if (conv.id === conversationId) {
               return {
                 ...conv,
@@ -590,12 +610,12 @@ export const useChatStore = create<ChatStore>()(
           if (messageId) {
             await chatService.markMessageAsRead(conversationId, messageId);
           } else {
-            await chatService.markConversationAsRead(conversationId);
+            // await chatService.markConversationAsRead(conversationId);
           }
 
           // Update unread count
           set((state) => ({
-            conversations: state.conversations.map((conv) =>
+            conversations: state.conversations?.map((conv) =>
               conv.id === conversationId ? { ...conv, unreadCount: 0 } : conv
             ),
           }));
@@ -668,7 +688,7 @@ export const useChatStore = create<ChatStore>()(
       },
 
       handleUsersOnline: (data) => {
-        set({ onlineUsers: data.users.map((u) => u.userId) });
+        set({ onlineUsers: data.users?.map((u) => u.userId) });
       },
 
       // Typing indicators

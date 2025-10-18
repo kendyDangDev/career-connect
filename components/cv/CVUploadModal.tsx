@@ -5,7 +5,6 @@ import {
   Modal,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   ActivityIndicator,
   ScrollView,
   Switch,
@@ -20,6 +19,7 @@ import {
   CheckCircle,
   AlertCircle,
   FileUp,
+  Star,
 } from "lucide-react-native";
 // Constants for file validation
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -326,29 +326,45 @@ const CVUploadModal: React.FC<CVUploadModalProps> = ({
       transparent={true}
       onRequestClose={handleClose}
     >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
+      <View className="flex-1 bg-black/50 justify-end">
+        <View className="bg-white rounded-t-3xl max-h-[90%] shadow-2xl">
           <LinearGradient
-            colors={["#4A90E2", "#357ABD"]}
-            style={styles.modalHeader}
+            colors={["#a855f7", "#9333ea", "#7e22ce"]}
             start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            className="flex-row justify-between items-center px-5 py-4 rounded-t-3xl"
           >
-            <Text style={styles.modalTitle}>Tải lên CV mới</Text>
-            <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+            {/* Decorative elements */}
+            <View className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10" />
+            <View className="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full -ml-8 -mb-8" />
+
+            <View className="relative z-10 flex-1">
+              <Text className="text-lg font-bold text-white">
+                Tải lên CV mới
+              </Text>
+              <Text className="text-xs text-white/80 mt-1">
+                Tạo hồ sơ chuyên nghiệp
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={handleClose}
+              className="p-2 rounded-full bg-white/20 relative z-10"
+            >
               <X size={24} color="#FFF" />
             </TouchableOpacity>
           </LinearGradient>
 
           <ScrollView
-            style={styles.modalBody}
+            className="p-5 max-h-96"
             showsVerticalScrollIndicator={false}
           >
             {/* Upload limit warning */}
             {!canUploadMore && (
-              <View style={styles.warningBox}>
-                <AlertCircle size={20} color="#F39C12" />
-                <Text style={styles.warningText}>
+              <View className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4 flex-row items-center">
+                <View className="w-8 h-8 bg-amber-100 rounded-full items-center justify-center mr-3">
+                  <AlertCircle size={16} color="#F59E0B" />
+                </View>
+                <Text className="text-amber-700 text-sm font-medium flex-1 leading-5">
                   Bạn đã đạt giới hạn 5 CV. Vui lòng xóa CV cũ trước khi tải lên
                   CV mới.
                 </Text>
@@ -356,131 +372,152 @@ const CVUploadModal: React.FC<CVUploadModalProps> = ({
             )}
 
             {/* File picker section */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Chọn file CV</Text>
-              {/* Debug button - remove after testing */}
-              {__DEV__ && (
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: "#f0f0f0",
-                    padding: 8,
-                    borderRadius: 4,
-                    marginBottom: 8,
-                  }}
-                  onPress={() => {
-                    console.log("DEBUG - Current selectedFile:", selectedFile);
-                    console.log("DEBUG - Current cvName:", cvName);
-                    showNotification(
-                      "success",
-                      "Debug",
-                      `File: ${selectedFile ? "Selected" : "None"}\nName: ${cvName}`
-                    );
-                  }}
-                >
-                  <Text style={{ fontSize: 12, color: "#666" }}>
-                    DEBUG: Check State
-                  </Text>
-                </TouchableOpacity>
-              )}
+            <View className="mb-5">
+              <Text className="text-sm font-semibold text-purple-800 mb-3">
+                Chọn file CV
+              </Text>
               <TouchableOpacity
-                style={[styles.filePicker, errors.file && styles.inputError]}
+                className={`border-2 border-dashed rounded-2xl p-5 relative overflow-hidden ${
+                  errors.file
+                    ? "border-red-300 bg-red-50"
+                    : "border-purple-300 bg-purple-50/30"
+                } ${!canUploadMore ? "opacity-50" : ""}`}
                 onPress={pickDocument}
                 disabled={!canUploadMore}
               >
-                {selectedFile ? (
-                  <View style={styles.selectedFile}>
-                    <FileText size={24} color="#4A90E2" />
-                    <View style={styles.fileInfo}>
-                      <Text style={styles.fileName} numberOfLines={1}>
-                        {selectedFile.name}
+                <View className="absolute inset-0 bg-gradient-to-br from-purple-100/20 to-indigo-100/20" />
+                <View className="relative z-10">
+                  {selectedFile ? (
+                    <View className="flex-row items-center">
+                      <View className="w-12 h-12 bg-purple-100 rounded-xl items-center justify-center mr-3">
+                        <FileText size={24} color="#a855f7" />
+                      </View>
+                      <View className="flex-1 mr-2">
+                        <Text
+                          className="text-sm font-medium text-purple-800"
+                          numberOfLines={1}
+                        >
+                          {selectedFile.name}
+                        </Text>
+                        <Text className="text-xs text-purple-600 mt-1">
+                          {formatFileSize(selectedFile.size || 0)}
+                        </Text>
+                      </View>
+                      <View className="w-8 h-8 bg-green-100 rounded-full items-center justify-center">
+                        <CheckCircle size={18} color="#22c55e" />
+                      </View>
+                    </View>
+                  ) : (
+                    <View className="items-center">
+                      <View className="w-16 h-16 bg-purple-100 rounded-2xl items-center justify-center mb-3">
+                        <FileUp size={32} color="#a855f7" />
+                      </View>
+                      <Text className="text-sm font-medium text-purple-700 mb-1">
+                        Nhấn để chọn file CV
                       </Text>
-                      <Text style={styles.fileSize}>
-                        {formatFileSize(selectedFile.size || 0)}
+                      <Text className="text-xs text-purple-500">
+                        PDF, DOC, DOCX (Tối đa 10MB)
                       </Text>
                     </View>
-                    <CheckCircle size={20} color="#27AE60" />
-                  </View>
-                ) : (
-                  <View style={styles.filePickerEmpty}>
-                    <FileUp size={32} color="#95A5A6" />
-                    <Text style={styles.filePickerText}>
-                      Nhấn để chọn file CV
-                    </Text>
-                    <Text style={styles.filePickerHint}>
-                      PDF, DOC, DOCX (Tối đa 10MB)
-                    </Text>
-                  </View>
-                )}
+                  )}
+                </View>
               </TouchableOpacity>
               {errors.file && (
-                <Text style={styles.errorText}>{errors.file}</Text>
+                <Text className="text-xs text-red-500 mt-2">{errors.file}</Text>
               )}
             </View>
 
             {/* CV Name input */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Tên CV *</Text>
-              <TextInput
-                style={[styles.input, errors.cvName && styles.inputError]}
-                placeholder="Ví dụ: CV Kỹ sư phần mềm"
-                value={cvName}
-                onChangeText={setCvName}
-                maxLength={100}
-                editable={!isUploading}
-              />
-              <Text style={styles.charCount}>{cvName.length}/100</Text>
+            <View className="mb-5">
+              <Text className="text-sm font-semibold text-purple-800 mb-3">
+                Tên CV *
+              </Text>
+              <View className="relative">
+                <View className="absolute inset-0 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl" />
+                <TextInput
+                  className={`relative z-10 border rounded-xl px-4 py-3 text-sm text-purple-800 bg-white/70 backdrop-blur-sm ${
+                    errors.cvName ? "border-red-300" : "border-purple-200"
+                  }`}
+                  placeholder="Ví dụ: CV Kỹ sư phần mềm"
+                  placeholderTextColor="#a855f7"
+                  value={cvName}
+                  onChangeText={setCvName}
+                  maxLength={100}
+                  editable={!isUploading}
+                />
+              </View>
+              <Text className="text-xs text-purple-500 text-right mt-1">
+                {cvName.length}/100
+              </Text>
               {errors.cvName && (
-                <Text style={styles.errorText}>{errors.cvName}</Text>
+                <Text className="text-xs text-red-500 mt-2">
+                  {errors.cvName}
+                </Text>
               )}
             </View>
 
             {/* Description input */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Mô tả</Text>
-              <TextInput
-                style={[
-                  styles.input,
-                  styles.textArea,
-                  errors.description && styles.inputError,
-                ]}
-                placeholder="Mô tả ngắn về CV này..."
-                value={description}
-                onChangeText={setDescription}
-                maxLength={500}
-                multiline
-                numberOfLines={4}
-                editable={!isUploading}
-                textAlignVertical="top"
-              />
-              <Text style={styles.charCount}>{description.length}/500</Text>
+            <View className="mb-5">
+              <Text className="text-sm font-semibold text-purple-800 mb-3">
+                Mô tả
+              </Text>
+              <View className="relative">
+                <View className="absolute inset-0 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl" />
+                <TextInput
+                  className={`relative z-10 border rounded-xl px-4 py-3 text-sm text-purple-800 bg-white/70 backdrop-blur-sm min-h-20 ${
+                    errors.description ? "border-red-300" : "border-purple-200"
+                  }`}
+                  placeholder="Mô tả ngắn về CV này..."
+                  placeholderTextColor="#a855f7"
+                  value={description}
+                  onChangeText={setDescription}
+                  maxLength={500}
+                  multiline
+                  numberOfLines={4}
+                  editable={!isUploading}
+                  textAlignVertical="top"
+                />
+              </View>
+              <Text className="text-xs text-purple-500 text-right mt-1">
+                {description.length}/500
+              </Text>
               {errors.description && (
-                <Text style={styles.errorText}>{errors.description}</Text>
+                <Text className="text-xs text-red-500 mt-2">
+                  {errors.description}
+                </Text>
               )}
             </View>
 
             {/* Primary CV toggle */}
             {currentCVCount === 0 ? (
-              <View style={styles.section}>
-                <View style={styles.infoBox}>
-                  <Text style={styles.infoText}>
-                    Đây sẽ là CV chính của bạn vì bạn chưa có CV nào.
-                  </Text>
+              <View className="mb-5">
+                <View className="bg-purple-50 border border-purple-200 rounded-xl p-4">
+                  <View className="flex-row items-center">
+                    <View className="w-8 h-8 bg-purple-100 rounded-full items-center justify-center mr-3">
+                      <Star size={16} color="#a855f7" />
+                    </View>
+                    <Text className="text-sm text-purple-700 font-medium flex-1">
+                      Đây sẽ là CV chính của bạn vì bạn chưa có CV nào.
+                    </Text>
+                  </View>
                 </View>
               </View>
             ) : (
-              <View style={styles.section}>
-                <View style={styles.toggleSection}>
-                  <View>
-                    <Text style={styles.sectionTitle}>Đặt làm CV chính</Text>
-                    <Text style={styles.toggleHint}>
+              <View className="mb-5">
+                <View className="flex-row justify-between items-center">
+                  <View className="flex-1 mr-4">
+                    <Text className="text-sm font-semibold text-purple-800 mb-1">
+                      Đặt làm CV chính
+                    </Text>
+                    <Text className="text-xs text-purple-600">
                       CV chính sẽ được sử dụng mặc định khi ứng tuyển
                     </Text>
                   </View>
                   <Switch
                     value={isPrimary}
                     onValueChange={setIsPrimary}
-                    trackColor={{ false: "#E0E0E0", true: "#4A90E2" }}
-                    thumbColor={isPrimary ? "#357ABD" : "#F4F3F4"}
+                    trackColor={{ false: "#e5e7eb", true: "#c084fc" }}
+                    thumbColor={isPrimary ? "#a855f7" : "#f3f4f6"}
                     disabled={isUploading}
                   />
                 </View>
@@ -489,16 +526,14 @@ const CVUploadModal: React.FC<CVUploadModalProps> = ({
 
             {/* Upload progress */}
             {isUploading && (
-              <View style={styles.progressSection}>
-                <View style={styles.progressBar}>
+              <View className="mt-4">
+                <View className="bg-purple-100 rounded-full h-2 overflow-hidden mb-2">
                   <View
-                    style={[
-                      styles.progressFill,
-                      { width: `${uploadProgress}%` },
-                    ]}
+                    className="h-full bg-gradient-to-r from-purple-500 to-purple-600 transition-all duration-300"
+                    style={{ width: `${uploadProgress}%` }}
                   />
                 </View>
-                <Text style={styles.progressText}>
+                <Text className="text-xs text-purple-600 text-center">
                   Đang tải lên... {uploadProgress}%
                 </Text>
               </View>
@@ -506,33 +541,46 @@ const CVUploadModal: React.FC<CVUploadModalProps> = ({
           </ScrollView>
 
           {/* Footer buttons */}
-          <View style={styles.modalFooter}>
+          <View className="flex-row p-5 pt-3 border-t border-purple-100">
             <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
+              className={`flex-1 py-3 mr-2 rounded-xl border border-purple-200 items-center justify-center ${
+                isUploading ? "opacity-50" : ""
+              }`}
               onPress={handleCancel}
               disabled={isUploading}
             >
-              <Text style={styles.cancelButtonText}>Hủy</Text>
+              <Text className="text-sm font-medium text-purple-700">Hủy</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[
-                styles.button,
-                styles.uploadButton,
-                (!canUploadMore || isUploading) && styles.buttonDisabled,
-              ]}
-              onPress={handleUpload}
-              disabled={!canUploadMore || isUploading}
+            <View
+              className={`flex-1 ml-2 rounded-xl overflow-hidden shadow-glow-purple ${
+                !canUploadMore || isUploading ? "opacity-50" : ""
+              }`}
             >
-              {isUploading ? (
-                <ActivityIndicator size="small" color="#FFF" />
-              ) : (
-                <>
-                  <Upload size={18} color="#FFF" />
-                  <Text style={styles.uploadButtonText}>Tải lên</Text>
-                </>
-              )}
-            </TouchableOpacity>
+              <LinearGradient
+                colors={["#a855f7", "#9333ea", "#7e22ce"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                className="flex-1"
+              >
+                <TouchableOpacity
+                  className="flex-1 py-3 items-center justify-center flex-row"
+                  onPress={handleUpload}
+                  disabled={!canUploadMore || isUploading}
+                >
+                  {isUploading ? (
+                    <ActivityIndicator size="small" color="#FFF" />
+                  ) : (
+                    <>
+                      <Upload size={18} color="#FFF" />
+                      <Text className="text-sm font-semibold text-white ml-2">
+                        Tải lên
+                      </Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              </LinearGradient>
+            </View>
           </View>
         </View>
 
@@ -549,208 +597,5 @@ const CVUploadModal: React.FC<CVUploadModalProps> = ({
     </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "flex-end",
-    position: "absolute",
-    width: "100%",
-    height: "100%",
-  },
-  modalContent: {
-    backgroundColor: "#FFF",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    maxHeight: "90%",
-  },
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#FFF",
-  },
-  closeButton: {
-    padding: 4,
-  },
-  modalBody: {
-    padding: 20,
-    maxHeight: 400,
-  },
-  section: {
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#2C3E50",
-    marginBottom: 8,
-  },
-  filePicker: {
-    borderWidth: 2,
-    borderColor: "#E0E0E0",
-    borderStyle: "dashed",
-    borderRadius: 12,
-    padding: 20,
-    backgroundColor: "#F8F9FA",
-  },
-  filePickerEmpty: {
-    alignItems: "center",
-  },
-  filePickerText: {
-    fontSize: 14,
-    color: "#34495E",
-    marginTop: 8,
-  },
-  filePickerHint: {
-    fontSize: 12,
-    color: "#95A5A6",
-    marginTop: 4,
-  },
-  selectedFile: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  fileInfo: {
-    flex: 1,
-    marginLeft: 12,
-    marginRight: 8,
-  },
-  fileName: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#2C3E50",
-  },
-  fileSize: {
-    fontSize: 12,
-    color: "#7F8C8D",
-    marginTop: 2,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
-    color: "#2C3E50",
-    backgroundColor: "#FFF",
-  },
-  textArea: {
-    minHeight: 80,
-    paddingTop: 10,
-  },
-  inputError: {
-    borderColor: "#E74C3C",
-  },
-  charCount: {
-    fontSize: 11,
-    color: "#95A5A6",
-    textAlign: "right",
-    marginTop: 4,
-  },
-  errorText: {
-    fontSize: 12,
-    color: "#E74C3C",
-    marginTop: 4,
-  },
-  toggleSection: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  toggleHint: {
-    fontSize: 12,
-    color: "#7F8C8D",
-    marginTop: 2,
-  },
-  warningBox: {
-    flexDirection: "row",
-    backgroundColor: "#FFF3CD",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-  },
-  warningText: {
-    flex: 1,
-    fontSize: 13,
-    color: "#856404",
-    marginLeft: 8,
-  },
-  infoBox: {
-    backgroundColor: "#E3F2FD",
-    borderRadius: 8,
-    padding: 12,
-  },
-  infoText: {
-    fontSize: 13,
-    color: "#1976D2",
-  },
-  progressSection: {
-    marginTop: 16,
-  },
-  progressBar: {
-    height: 4,
-    backgroundColor: "#E0E0E0",
-    borderRadius: 2,
-    overflow: "hidden",
-  },
-  progressFill: {
-    height: "100%",
-    backgroundColor: "#4A90E2",
-  },
-  progressText: {
-    fontSize: 12,
-    color: "#7F8C8D",
-    textAlign: "center",
-    marginTop: 8,
-  },
-  modalFooter: {
-    flexDirection: "row",
-    padding: 20,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: "#E8E8E8",
-  },
-  button: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cancelButton: {
-    backgroundColor: "#F5F5F5",
-    marginRight: 8,
-  },
-  uploadButton: {
-    backgroundColor: "#4A90E2",
-    marginLeft: 8,
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-  },
-  cancelButtonText: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#34495E",
-  },
-  uploadButtonText: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#FFF",
-    marginLeft: 6,
-  },
-});
 
 export default CVUploadModal;

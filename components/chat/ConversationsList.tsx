@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -8,15 +8,15 @@ import {
   ActivityIndicator,
   TextInput,
   Alert,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { useChatStore } from '@/stores/chatStore';
-import { Conversation } from '@/types/chat.types';
-import ConversationItem from './ConversationItem';
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { useChatStore } from "@/stores/chatStore";
+import { Conversation } from "@/types/chat.types";
+import ConversationItem from "./ConversationItem";
 
 const ConversationsList: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [isSearchVisible, setIsSearchVisible] = useState(false);
 
   const {
@@ -41,30 +41,31 @@ const ConversationsList: React.FC = () => {
   // Filter conversations based on search query
   const filteredConversations = conversations.filter((conversation) => {
     if (!searchQuery.trim()) return true;
-    
+
     const query = searchQuery.toLowerCase();
-    
+
     // Search by conversation name
-    if (conversation.name?.toLowerCase().includes(query)) {
+    if (conversation.name?.toLowerCase()?.includes(query)) {
       return true;
     }
-    
+
     // Search by participant names (for direct conversations)
-    if (conversation.type === 'DIRECT') {
+    if (conversation.type === "DIRECT") {
       const otherParticipant = conversation.participants.find(
-        p => p.userId !== currentUserId
+        (p) => p.userId !== currentUserId
       );
       if (otherParticipant?.user) {
-        const fullName = `${otherParticipant.user.firstName} ${otherParticipant.user.lastName}`.toLowerCase();
-        return fullName.includes(query);
+        const fullName =
+          `${otherParticipant.user.firstName} ${otherParticipant.user.lastName}`.toLowerCase();
+        return fullName?.includes(query);
       }
     }
-    
+
     // Search by last message content
-    if (conversation.lastMessage?.content.toLowerCase().includes(query)) {
+    if (conversation.lastMessage?.content.toLowerCase()?.includes(query)) {
       return true;
     }
-    
+
     return false;
   });
 
@@ -73,7 +74,7 @@ const ConversationsList: React.FC = () => {
       await fetchConversations();
       clearError();
     } catch (error) {
-      console.error('[ConversationsList] Refresh error:', error);
+      console.error("[ConversationsList] Refresh error:", error);
     }
   }, [fetchConversations, clearError]);
 
@@ -85,23 +86,25 @@ const ConversationsList: React.FC = () => {
 
   const handleConversationPress = (conversation: Conversation) => {
     router.push({
-      pathname: '/chat/[conversationId]',
-      params: { conversationId: conversation.id }
+      pathname: "/chat/[conversationId]",
+      params: { conversationId: conversation.id },
     });
   };
 
   const handleNewChatPress = () => {
-    router.push('/chat/new');
+    router.push("/chat/new");
   };
 
   const isUserOnline = (userId: string) => {
-    return onlineUsers.includes(userId);
+    return onlineUsers?.includes(userId);
   };
 
-  const getOtherParticipantId = (conversation: Conversation): string | undefined => {
-    if (conversation.type === 'DIRECT') {
+  const getOtherParticipantId = (
+    conversation: Conversation
+  ): string | undefined => {
+    if (conversation.type === "DIRECT") {
       const otherParticipant = conversation.participants.find(
-        p => p.userId !== currentUserId
+        (p) => p.userId !== currentUserId
       );
       return otherParticipant?.userId;
     }
@@ -127,13 +130,15 @@ const ConversationsList: React.FC = () => {
       {/* Header */}
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100">
         <Text className="text-2xl font-bold text-gray-900">Tin nhắn</Text>
-        
+
         <View className="flex-row items-center">
           {/* Connection Status */}
-          <View className={`w-2 h-2 rounded-full mr-3 ${
-            isConnected ? 'bg-green-500' : 'bg-red-500'
-          }`} />
-          
+          <View
+            className={`w-2 h-2 rounded-full mr-3 ${
+              isConnected ? "bg-green-500" : "bg-red-500"
+            }`}
+          />
+
           {/* Search Button */}
           <TouchableOpacity
             onPress={() => setIsSearchVisible(!isSearchVisible)}
@@ -142,7 +147,7 @@ const ConversationsList: React.FC = () => {
           >
             <Ionicons name="search" size={20} color="#374151" />
           </TouchableOpacity>
-          
+
           {/* New Chat Button */}
           <TouchableOpacity
             onPress={handleNewChatPress}
@@ -169,7 +174,7 @@ const ConversationsList: React.FC = () => {
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity
-                onPress={() => setSearchQuery('')}
+                onPress={() => setSearchQuery("")}
                 className="ml-2"
                 hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
               >
@@ -196,7 +201,9 @@ const ConversationsList: React.FC = () => {
         className="bg-blue-500 px-6 py-3 rounded-lg"
         activeOpacity={0.7}
       >
-        <Text className="text-white font-semibold">Tạo cuộc trò chuyện mới</Text>
+        <Text className="text-white font-semibold">
+          Tạo cuộc trò chuyện mới
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -208,7 +215,7 @@ const ConversationsList: React.FC = () => {
         Có lỗi xảy ra
       </Text>
       <Text className="text-base text-gray-600 text-center mb-6">
-        {error || 'Không thể tải danh sách cuộc trò chuyện'}
+        {error || "Không thể tải danh sách cuộc trò chuyện"}
       </Text>
       <TouchableOpacity
         onPress={handleRefresh}
@@ -222,7 +229,7 @@ const ConversationsList: React.FC = () => {
 
   const renderFooter = () => {
     if (!isLoadingMore) return null;
-    
+
     return (
       <View className="py-4">
         <ActivityIndicator size="small" color="#3B82F6" />
@@ -258,13 +265,15 @@ const ConversationsList: React.FC = () => {
         renderItem={renderConversationItem}
         keyExtractor={(item) => item.id}
         ListHeaderComponent={renderHeader}
-        ListEmptyComponent={filteredConversations.length === 0 ? renderEmptyState : null}
+        ListEmptyComponent={
+          filteredConversations.length === 0 ? renderEmptyState : null
+        }
         ListFooterComponent={renderFooter}
         refreshControl={
           <RefreshControl
             refreshing={isLoading && conversations.length > 0}
             onRefresh={handleRefresh}
-            colors={['#3B82F6']}
+            colors={["#3B82F6"]}
             tintColor="#3B82F6"
           />
         }

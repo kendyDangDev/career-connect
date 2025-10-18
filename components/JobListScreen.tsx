@@ -1,4 +1,4 @@
-import { useRouter } from "expo-router";
+import { useRouter } from 'expo-router';
 import {
   Filter,
   X,
@@ -10,8 +10,9 @@ import {
   TrendingUp,
   Star,
   Building2,
-} from "lucide-react-native";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+  ArrowLeft,
+} from 'lucide-react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -20,20 +21,20 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useDebounce } from "../hooks/useDebounce";
-import { useJobs } from "../hooks/useJobs";
-import { Job, JobFilters as JobFiltersType } from "../types/job";
-import JobCard from "./JobCard";
-import JobFilters from "./JobFilters";
-import SearchBar from "./SearchBar";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDebounce } from '../hooks/useDebounce';
+import { useJobs } from '../hooks/useJobs';
+import { Job, JobFilters as JobFiltersType } from '../types/job';
+import JobCard from './JobCard';
+import JobFilters from './JobFilters';
+import SearchBar from './SearchBar';
 
 const JobListScreen: React.FC = () => {
   const router = useRouter();
   // Separate input value from search query to prevent focus loss
-  const [inputValue, setInputValue] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [inputValue, setInputValue] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<JobFiltersType>({
     page: 1,
@@ -43,59 +44,59 @@ const JobListScreen: React.FC = () => {
   // Quick filter definitions
   const quickFilters = [
     {
-      id: "hanoi",
-      label: "Hà Nội",
+      id: 'hanoi',
+      label: 'Hà Nội',
       icon: MapPin,
-      filter: { locationCity: "Hà Nội" as const },
+      filter: { locationCity: 'Hà Nội' as const },
     },
     {
-      id: "fulltime",
-      label: "Full-time",
+      id: 'fulltime',
+      label: 'Full-time',
       icon: Clock,
-      filter: { jobType: "FULL_TIME" as const },
+      filter: { jobType: 'FULL_TIME' as const },
     },
     {
-      id: "senior",
-      label: "Senior",
+      id: 'senior',
+      label: 'Senior',
       icon: Users,
-      filter: { experienceLevel: "SENIOR" as const },
+      filter: { experienceLevel: 'SENIOR' as const },
     },
     {
-      id: "junior",
-      label: "Entry Level",
+      id: 'junior',
+      label: 'Entry Level',
       icon: Star,
-      filter: { experienceLevel: "ENTRY" as const },
+      filter: { experienceLevel: 'ENTRY' as const },
     },
     {
-      id: "highSalary",
-      label: "High Salary",
+      id: 'highSalary',
+      label: 'High Salary',
       icon: DollarSign,
       filter: { salaryMin: 20000000 },
     },
     {
-      id: "tech",
-      label: "Tech Jobs",
+      id: 'tech',
+      label: 'Tech Jobs',
       icon: Briefcase,
-      filter: { categoryId: "tech" },
+      filter: { categoryId: 'tech' },
     },
   ];
 
   // Job stats data
   const jobStats = [
     {
-      label: "Tổng việc làm",
-      value: "15.2K+",
+      label: 'Tổng việc làm',
+      value: '15.2K+',
       icon: Briefcase,
-      color: "purple",
+      color: 'purple',
     },
     {
-      label: "Công ty tuyển dụng",
-      value: "3.5K",
+      label: 'Công ty tuyển dụng',
+      value: '3.5K',
       icon: Building2,
-      color: "indigo",
+      color: 'indigo',
     },
-    { label: "Ứng viên mới", value: "28K+", icon: Users, color: "blue" },
-    { label: "Việc làm hot", value: "892", icon: TrendingUp, color: "pink" },
+    { label: 'Ứng viên mới', value: '28K+', icon: Users, color: 'blue' },
+    { label: 'Việc làm hot', value: '892', icon: TrendingUp, color: 'pink' },
   ];
 
   // Debounce the input value to reduce API calls
@@ -106,7 +107,7 @@ const JobListScreen: React.FC = () => {
     setSearchQuery(debouncedInputValue);
     // Reset to page 1 when search query changes
     if (debouncedInputValue !== searchQuery) {
-      setFilters((prev) => ({ ...prev, page: 1 }));
+      setFilters(prev => ({ ...prev, page: 1 }));
     }
   }, [debouncedInputValue, searchQuery]);
 
@@ -140,33 +141,33 @@ const JobListScreen: React.FC = () => {
     isFetchingNextPage = jobsResult.isFetchingNextPage;
   } catch (e) {
     // If QueryClient is not available, use mock data
-    console.log("[JobListScreen] Using mock data due to missing QueryClient");
+    console.log('[JobListScreen] Using mock data due to missing QueryClient');
     data = {
       jobs: [
         {
-          id: "1",
-          title: "Senior React Native Developer",
-          slug: "senior-react-native-developer",
+          id: '1',
+          title: 'Senior React Native Developer',
+          slug: 'senior-react-native-developer',
           company: {
-            id: "company-1",
-            companyName: "Tech Corp",
-            companySlug: "tech-corp",
-            logoUrl: "",
-            verificationStatus: "VERIFIED" as const,
+            id: 'company-1',
+            companyName: 'Tech Corp',
+            companySlug: 'tech-corp',
+            logoUrl: '',
+            verificationStatus: 'VERIFIED' as const,
           },
-          jobType: "FULL_TIME" as const,
-          workLocationType: "HYBRID" as const,
-          experienceLevel: "SENIOR" as const,
+          jobType: 'FULL_TIME' as const,
+          workLocationType: 'HYBRID' as const,
+          experienceLevel: 'SENIOR' as const,
           salaryMin: 25000000,
           salaryMax: 35000000,
-          currency: "VND",
+          currency: 'VND',
           salaryNegotiable: false,
-          locationCity: "Hà Nội",
-          locationProvince: "Hà Nội",
+          locationCity: 'Hà Nội',
+          locationProvince: 'Hà Nội',
           applicationDeadline: new Date(
             Date.now() + 30 * 24 * 60 * 60 * 1000
           ).toISOString(),
-          status: "ACTIVE" as const,
+          status: 'ACTIVE' as const,
           viewCount: 120,
           applicationCount: 15,
           featured: true,
@@ -176,29 +177,29 @@ const JobListScreen: React.FC = () => {
           publishedAt: new Date().toISOString(),
         },
         {
-          id: "2",
-          title: "Frontend Developer",
-          slug: "frontend-developer",
+          id: '2',
+          title: 'Frontend Developer',
+          slug: 'frontend-developer',
           company: {
-            id: "company-2",
-            companyName: "Startup ABC",
-            companySlug: "startup-abc",
-            logoUrl: "",
-            verificationStatus: "VERIFIED" as const,
+            id: 'company-2',
+            companyName: 'Startup ABC',
+            companySlug: 'startup-abc',
+            logoUrl: '',
+            verificationStatus: 'VERIFIED' as const,
           },
-          jobType: "FULL_TIME" as const,
-          workLocationType: "ONSITE" as const,
-          experienceLevel: "MID" as const,
+          jobType: 'FULL_TIME' as const,
+          workLocationType: 'ONSITE' as const,
+          experienceLevel: 'MID' as const,
           salaryMin: 15000000,
           salaryMax: 25000000,
-          currency: "VND",
+          currency: 'VND',
           salaryNegotiable: false,
-          locationCity: "Hồ Chí Minh",
-          locationProvince: "Hồ Chí Minh",
+          locationCity: 'Hồ Chí Minh',
+          locationProvince: 'Hồ Chí Minh',
           applicationDeadline: new Date(
             Date.now() + 20 * 24 * 60 * 60 * 1000
           ).toISOString(),
-          status: "ACTIVE" as const,
+          status: 'ACTIVE' as const,
           viewCount: 85,
           applicationCount: 8,
           featured: false,
@@ -227,12 +228,12 @@ const JobListScreen: React.FC = () => {
     // When user explicitly submits (presses search), update immediately
     setInputValue(query);
     setSearchQuery(query);
-    setFilters((prev) => ({ ...prev, page: 1 }));
+    setFilters(prev => ({ ...prev, page: 1 }));
   }, []);
 
   const handleFilterChange = useCallback(
     (newFilters: Partial<JobFiltersType>) => {
-      setFilters((prev) => ({
+      setFilters(prev => ({
         ...prev,
         ...newFilters,
         page: 1, // Reset to page 1 when filters change
@@ -247,13 +248,13 @@ const JobListScreen: React.FC = () => {
       page: 1,
       limit: 10,
     });
-    setInputValue("");
-    setSearchQuery("");
+    setInputValue('');
+    setSearchQuery('');
   }, []);
 
   const handleQuickFilter = useCallback(
     (filterData: Partial<JobFiltersType>) => {
-      setFilters((prev) => ({
+      setFilters(prev => ({
         ...prev,
         ...filterData,
         page: 1,
@@ -266,7 +267,7 @@ const JobListScreen: React.FC = () => {
     (job: Job) => {
       // Navigate to job detail screen
       router.push({
-        pathname: "/job/[id]",
+        pathname: '/job/[id]',
         params: { id: job.id },
       });
     },
@@ -275,7 +276,7 @@ const JobListScreen: React.FC = () => {
 
   const handleSavePress = useCallback((jobId: string, isSaved: boolean) => {
     // Handle save job action
-    console.log(`Job ${jobId} ${isSaved ? "saved" : "unsaved"}`);
+    console.log(`Job ${jobId} ${isSaved ? 'saved' : 'unsaved'}`);
 
     // Optionally show toast message
     // toast.success(isSaved ? 'Job saved successfully!' : 'Job removed from saved list');
@@ -343,7 +344,7 @@ const JobListScreen: React.FC = () => {
 
   const renderHeader = () => {
     const activeFilterCount = Object.entries(filters).filter(
-      ([key, value]) => key !== "page" && key !== "limit" && value !== undefined
+      ([key, value]) => key !== 'page' && key !== 'limit' && value !== undefined
     ).length;
 
     return (
@@ -354,6 +355,20 @@ const JobListScreen: React.FC = () => {
         {/* Decorative gradient elements */}
         <View className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-purple-100/20 to-transparent rounded-bl-full" />
         <View className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-indigo-100/20 to-transparent rounded-tr-full" />
+
+        <View className="px-4 pt-4">
+          <View className="flex-row items-center gap-2">
+            {/* <TouchableOpacity onPress={() => router.back}>
+              <ArrowLeft size={24} color="#9333ea" />
+            </TouchableOpacity> */}
+            <Text className="text-2xl font-bold text-purple-80">
+              Tìm kiếm việc làm
+            </Text>
+          </View>
+          <Text className="text-purple-600 mt-1">
+            Hàng ngàn cơ hội đang chờ bạn
+          </Text>
+        </View>
 
         <View className="relative z-10">
           {/* Search Bar with enhanced styling */}
@@ -413,8 +428,8 @@ const JobListScreen: React.FC = () => {
               {searchQuery && (
                 <TouchableOpacity
                   onPress={() => {
-                    setInputValue("");
-                    setSearchQuery("");
+                    setInputValue('');
+                    setSearchQuery('');
                   }}
                   className="relative mr-3"
                 >
@@ -431,14 +446,14 @@ const JobListScreen: React.FC = () => {
               {filters.jobType && (
                 <TouchableOpacity
                   onPress={() =>
-                    setFilters((prev) => ({ ...prev, jobType: undefined }))
+                    setFilters(prev => ({ ...prev, jobType: undefined }))
                   }
                   className="relative mr-3"
                 >
                   <View className="absolute inset-0 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-full opacity-80" />
                   <View className="flex-row items-center bg-white/70 backdrop-blur-xs px-4 py-2 rounded-full border border-indigo-200/50 shadow-soft relative z-10">
                     <Text className="text-indigo-700 text-sm mr-2 font-medium">
-                      {filters.jobType?.replace("_", " ")}
+                      {filters.jobType?.replace('_', ' ')}
                     </Text>
                     <X size={16} color="#4f46e5" />
                   </View>
@@ -448,7 +463,7 @@ const JobListScreen: React.FC = () => {
               {filters.experienceLevel && (
                 <TouchableOpacity
                   onPress={() =>
-                    setFilters((prev) => ({
+                    setFilters(prev => ({
                       ...prev,
                       experienceLevel: undefined,
                     }))
@@ -468,7 +483,7 @@ const JobListScreen: React.FC = () => {
               {filters.locationCity && (
                 <TouchableOpacity
                   onPress={() =>
-                    setFilters((prev) => ({ ...prev, locationCity: undefined }))
+                    setFilters(prev => ({ ...prev, locationCity: undefined }))
                   }
                   className="relative mr-3"
                 >
@@ -507,7 +522,7 @@ const JobListScreen: React.FC = () => {
               Bộ lọc nhanh
             </Text>
             <View className="flex-row flex-wrap -mx-1">
-              {quickFilters.map((filter) => {
+              {quickFilters.map(filter => {
                 const IconComponent = filter.icon;
                 const isActive = Object.entries(filter.filter).some(
                   ([key, value]) =>
@@ -520,29 +535,29 @@ const JobListScreen: React.FC = () => {
                     className="mx-1 mb-2"
                   >
                     <View
-                      className={`relative ${isActive ? "opacity-100" : "opacity-80"}`}
+                      className={`relative ${isActive ? 'opacity-100' : 'opacity-80'}`}
                     >
                       <View
                         className={`absolute inset-0 ${
                           isActive
-                            ? "bg-gradient-to-r from-purple-200 to-indigo-200"
-                            : "bg-gradient-to-r from-purple-100/50 to-indigo-100/50"
+                            ? 'bg-gradient-to-r from-purple-200 to-indigo-200'
+                            : 'bg-gradient-to-r from-purple-100/50 to-indigo-100/50'
                         } rounded-full`}
                       />
                       <View
                         className={`flex-row items-center px-4 py-2 rounded-full border relative z-10 ${
                           isActive
-                            ? "bg-white/80 border-purple-300/50 shadow-soft"
-                            : "bg-white/60 border-purple-200/30"
+                            ? 'bg-white/80 border-purple-300/50 shadow-soft'
+                            : 'bg-white/60 border-purple-200/30'
                         }`}
                       >
                         <IconComponent
                           size={16}
-                          color={isActive ? "#7e22ce" : "#9333ea"}
+                          color={isActive ? '#7e22ce' : '#9333ea'}
                         />
                         <Text
                           className={`ml-2 text-sm font-medium ${
-                            isActive ? "text-purple-700" : "text-purple-600"
+                            isActive ? 'text-purple-700' : 'text-purple-600'
                           }`}
                         >
                           {filter.label}
@@ -578,7 +593,7 @@ const JobListScreen: React.FC = () => {
               showsHorizontalScrollIndicator={false}
               className="flex-row"
             >
-              {[1, 2, 3, 4].map((item) => (
+              {[1, 2, 3, 4].map(item => (
                 <View key={item} className="relative mr-2 w-40">
                   <View className="absolute inset-0 bg-white/70 backdrop-blur-xs rounded-xl" />
                   <View className="relative z-10 p-2 border border-purple-100/50 rounded-xl">
@@ -658,7 +673,7 @@ const JobListScreen: React.FC = () => {
             {/* Error message */}
             <Text className="text-purple-500 text-base text-center leading-6 mb-8 max-w-sm font-medium">
               {error?.message ||
-                "Không thể tải danh sách việc làm. Vui lòng thử lại sau."}
+                'Không thể tải danh sách việc làm. Vui lòng thử lại sau.'}
             </Text>
 
             {/* Retry button with gradient */}
@@ -682,7 +697,7 @@ const JobListScreen: React.FC = () => {
       <FlatList
         data={data?.jobs || []}
         renderItem={renderJob}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={renderEmpty}
         ListFooterComponent={renderFooter}
@@ -690,7 +705,7 @@ const JobListScreen: React.FC = () => {
           <RefreshControl
             refreshing={isLoading && !isFetchingNextPage}
             onRefresh={refetch}
-            colors={["#a855f7", "#6366f1", "#3b82f6"]}
+            colors={['#a855f7', '#6366f1', '#3b82f6']}
             tintColor="#a855f7"
             progressBackgroundColor="#f3e8ff"
           />

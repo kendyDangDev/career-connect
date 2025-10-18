@@ -1,0 +1,9 @@
+# Shared Types Package
+
+Package này chứa các types và interfaces được chia sẻ giữa web và mobile apps.
+
+## Sử dụng
+
+```typescript
+import { User, Job } from '@career-connect/shared-types';
+```

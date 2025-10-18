@@ -1,0 +1,30 @@
+{
+  "name": "career-connect-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Career Connect - Monorepo for Web and Mobile",
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "start": "pnpm --filter web start",
+    "dev:mobile": "pnpm --filter mobile start",
+    "dev:all": "concurrently \"pnpm dev\" \"pnpm dev:mobile\"",
+    "build": "pnpm --filter web build",
+    "build:mobile": "pnpm --filter mobile android",
+    "lint": "pnpm --recursive lint",
+    "clean": "pnpm --recursive exec -- rm -rf node_modules dist .next .expo",
+    "postinstall": "pnpm --filter web prisma generate"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "turbo": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
+}

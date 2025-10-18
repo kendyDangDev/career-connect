@@ -1,0 +1,8 @@
+# Ignore all files in uploads
+*
+!.gitignore
+!companies/
+!companies/logos/.gitkeep
+!companies/covers/.gitkeep
+!companies/gallery/.gitkeep
+!companies/videos/.gitkeep

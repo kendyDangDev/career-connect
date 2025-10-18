@@ -7,13 +7,13 @@ import {
   successResponse,
   errorResponse,
   paginatedResponse,
-  checkRateLimit
+  checkRateLimit,
 } from '@/lib/middleware';
 import {
   createSkillSchema,
   skillQuerySchema,
   validateAndCreateSlug,
-  checkDuplicateName
+  checkDuplicateName,
 } from '@/lib/validations/system-categories';
 import { Skill, SkillCategory } from '@/types/system-categories';
 
@@ -27,11 +27,11 @@ export const GET = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) 
 
     // Build where clause
     const where: any = {};
-    
+
     if (query.search) {
       where.OR = [
         { name: { contains: query.search, mode: 'insensitive' } },
-        { description: { contains: query.search, mode: 'insensitive' } }
+        { description: { contains: query.search, mode: 'insensitive' } },
       ];
     }
 
@@ -53,15 +53,15 @@ export const GET = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) 
         _count: {
           select: {
             candidateSkills: true,
-            jobSkills: true
-          }
-        }
+            jobSkills: true,
+          },
+        },
       },
       orderBy: {
-        [query.sortBy]: query.sortOrder
+        [query.sortBy]: query.sortOrder,
       },
       skip: (query.page - 1) * query.limit,
-      take: query.limit
+      take: query.limit,
     });
 
     // Get category counts for filters
@@ -69,14 +69,17 @@ export const GET = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) 
       by: ['category'],
       where: query.isActive !== undefined ? { isActive: query.isActive } : {},
       _count: {
-        category: true
-      }
+        category: true,
+      },
     });
 
-    const categoryStats = categoryCounts.reduce((acc, curr) => {
-      acc[curr.category] = curr._count.category;
-      return acc;
-    }, {} as Record<string, number>);
+    const categoryStats = categoryCounts.reduce(
+      (acc, curr) => {
+        acc[curr.category] = curr._count.category;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     return NextResponse.json({
       success: true,
@@ -86,16 +89,12 @@ export const GET = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) 
         page: query.page,
         limit: query.limit,
         totalPages: Math.ceil(total / query.limit),
-        categoryStats
-      }
+        categoryStats,
+      },
     });
   } catch (error: any) {
     console.error('Get skills error:', error);
-    return errorResponse(
-      'FETCH_ERROR',
-      error.message || 'Không thể lấy danh sách kỹ năng',
-      500
-    );
+    return errorResponse('FETCH_ERROR', error.message || 'Không thể lấy danh sách kỹ năng', 500);
   }
 });
 
@@ -117,18 +116,10 @@ export const POST = withRole([UserType.ADMIN], async (req: AuthenticatedRequest)
     const dataWithSlug = validateAndCreateSlug(validatedData);
 
     // Check duplicate name
-    const isDuplicate = await checkDuplicateName(
-      prisma,
-      'skill',
-      dataWithSlug.name
-    );
+    const isDuplicate = await checkDuplicateName(prisma, 'skill', dataWithSlug.name);
 
     if (isDuplicate) {
-      return errorResponse(
-        'DUPLICATE_NAME',
-        'Kỹ năng với tên này đã tồn tại',
-        400
-      );
+      return errorResponse('DUPLICATE_NAME', 'Kỹ năng với tên này đã tồn tại', 400);
     }
 
     // Create skill
@@ -138,37 +129,25 @@ export const POST = withRole([UserType.ADMIN], async (req: AuthenticatedRequest)
         slug: dataWithSlug.slug,
         category: dataWithSlug.category,
         description: dataWithSlug.description,
-        iconUrl: dataWithSlug.iconUrl
+        iconUrl: dataWithSlug.iconUrl,
       },
       include: {
         _count: {
           select: {
             candidateSkills: true,
-            jobSkills: true
-          }
-        }
-      }
+            jobSkills: true,
+          },
+        },
+      },
     });
 
     // Create audit log
-    await createAuditLog(
-      req.user!.id,
-      'CREATE',
-      'skills',
-      skill.id,
-      null,
-      skill,
-      req
-    );
+    await createAuditLog(req.user!.id, 'CREATE', 'skills', skill.id, null, skill, req);
 
-    return successResponse<Skill>(
-      skill as any,
-      'Tạo kỹ năng thành công',
-      201
-    );
+    return successResponse<Skill>(skill as any, 'Tạo kỹ năng thành công', 201);
   } catch (error: any) {
     console.error('Create skill error:', error);
-    
+
     if (error.name === 'ZodError') {
       return errorResponse(
         'VALIDATION_ERROR',
@@ -177,167 +156,162 @@ export const POST = withRole([UserType.ADMIN], async (req: AuthenticatedRequest)
       );
     }
 
-    return errorResponse(
-      'CREATE_ERROR',
-      error.message || 'Không thể tạo kỹ năng',
-      500
-    );
+    return errorResponse('CREATE_ERROR', error.message || 'Không thể tạo kỹ năng', 500);
   }
 });
 
 // Import skills from file
-export const POST_IMPORT = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) => {
-    try {
-      // Check rate limit
-      if (!checkRateLimit(req.user!.id, 1, 300000)) { // 1 request per 5 minutes
-        return errorResponse(
-          'RATE_LIMIT',
-          'Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau.',
-          429
-        );
-      }
+// export const POST_IMPORT = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) => {
+//     try {
+//       // Check rate limit
+//       if (!checkRateLimit(req.user!.id, 1, 300000)) { // 1 request per 5 minutes
+//         return errorResponse(
+//           'RATE_LIMIT',
+//           'Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau.',
+//           429
+//         );
+//       }
 
-      const formData = await req.formData();
-      const file = formData.get('file') as File;
+//       const formData = await req.formData();
+//       const file = formData.get('file') as File;
 
-      if (!file) {
-        return errorResponse(
-          'NO_FILE',
-          'Vui lòng chọn file để import',
-          400
-        );
-      }
+//       if (!file) {
+//         return errorResponse(
+//           'NO_FILE',
+//           'Vui lòng chọn file để import',
+//           400
+//         );
+//       }
 
-      // Validate file type
-      if (!file.name.endsWith('.csv') && !file.name.endsWith('.json')) {
-        return errorResponse(
-          'INVALID_FILE_TYPE',
-          'Chỉ hỗ trợ file CSV hoặc JSON',
-          400
-        );
-      }
+//       // Validate file type
+//       if (!file.name.endsWith('.csv') && !file.name.endsWith('.json')) {
+//         return errorResponse(
+//           'INVALID_FILE_TYPE',
+//           'Chỉ hỗ trợ file CSV hoặc JSON',
+//           400
+//         );
+//       }
 
-      const content = await file.text();
-      let skills: any[] = [];
+//       const content = await file.text();
+//       let skills: any[] = [];
 
-      // Parse file content
-      if (file.name.endsWith('.json')) {
-        try {
-          skills = JSON.parse(content);
-        } catch (e) {
-          return errorResponse(
-            'INVALID_JSON',
-            'File JSON không hợp lệ',
-            400
-          );
-        }
-      } else {
-        // Parse CSV
-        const lines = content.split('\n').filter(line => line.trim());
-        const headers = lines[0].split(',').map(h => h.trim());
-        
-        if (!headers.includes('name') || !headers.includes('category')) {
-          return errorResponse(
-            'INVALID_CSV_HEADERS',
-            'File CSV phải có cột "name" và "category"',
-            400
-          );
-        }
+//       // Parse file content
+//       if (file.name.endsWith('.json')) {
+//         try {
+//           skills = JSON.parse(content);
+//         } catch (e) {
+//           return errorResponse(
+//             'INVALID_JSON',
+//             'File JSON không hợp lệ',
+//             400
+//           );
+//         }
+//       } else {
+//         // Parse CSV
+//         const lines = content.split('\n').filter(line => line.trim());
+//         const headers = lines[0].split(',').map(h => h.trim());
 
-        skills = lines.slice(1).map(line => {
-          const values = line.split(',').map(v => v.trim());
-          const skill: any = {};
-          headers.forEach((header, index) => {
-            skill[header] = values[index];
-          });
-          return skill;
-        });
-      }
+//         if (!headers.includes('name') || !headers.includes('category')) {
+//           return errorResponse(
+//             'INVALID_CSV_HEADERS',
+//             'File CSV phải có cột "name" và "category"',
+//             400
+//           );
+//         }
 
-      // Validate and import skills
-      const results = {
-        total: skills.length,
-        success: 0,
-        failed: 0,
-        errors: [] as Array<{ row: number; error: string }>
-      };
+//         skills = lines.slice(1).map(line => {
+//           const values = line.split(',').map(v => v.trim());
+//           const skill: any = {};
+//           headers.forEach((header, index) => {
+//             skill[header] = values[index];
+//           });
+//           return skill;
+//         });
+//       }
 
-      for (let i = 0; i < skills.length; i++) {
-        try {
-          const skillData = skills[i];
-          
-          // Validate skill data
-          const validatedData = createSkillSchema.parse({
-            name: skillData.name,
-            category: skillData.category as SkillCategory,
-            description: skillData.description || undefined,
-            iconUrl: skillData.iconUrl || undefined
-          });
+//       // Validate and import skills
+//       const results = {
+//         total: skills.length,
+//         success: 0,
+//         failed: 0,
+//         errors: [] as Array<{ row: number; error: string }>
+//       };
 
-          const dataWithSlug = validateAndCreateSlug(validatedData);
+//       for (let i = 0; i < skills.length; i++) {
+//         try {
+//           const skillData = skills[i];
 
-          // Check if skill already exists
-          const existing = await prisma.skill.findFirst({
-            where: {
-              OR: [
-                { name: { equals: dataWithSlug.name, mode: 'insensitive' } },
-                { slug: dataWithSlug.slug }
-              ]
-            }
-          });
+//           // Validate skill data
+//           const validatedData = createSkillSchema.parse({
+//             name: skillData.name,
+//             category: skillData.category as SkillCategory,
+//             description: skillData.description || undefined,
+//             iconUrl: skillData.iconUrl || undefined
+//           });
 
-          if (existing) {
-            results.failed++;
-            results.errors.push({
-              row: i + 2, // +2 because of header row and 0-based index
-              error: `Kỹ năng "${dataWithSlug.name}" đã tồn tại`
-            });
-            continue;
-          }
+//           const dataWithSlug = validateAndCreateSlug(validatedData);
 
-          // Create skill
-          await prisma.skill.create({
-            data: {
-              name: dataWithSlug.name,
-              slug: dataWithSlug.slug,
-              category: dataWithSlug.category,
-              description: dataWithSlug.description,
-              iconUrl: dataWithSlug.iconUrl
-            }
-          });
+//           // Check if skill already exists
+//           const existing = await prisma.skill.findFirst({
+//             where: {
+//               OR: [
+//                 { name: { equals: dataWithSlug.name, mode: 'insensitive' } },
+//                 { slug: dataWithSlug.slug }
+//               ]
+//             }
+//           });
 
-          results.success++;
-        } catch (error: any) {
-          results.failed++;
-          results.errors.push({
-            row: i + 2,
-            error: error.message || 'Lỗi không xác định'
-          });
-        }
-      }
+//           if (existing) {
+//             results.failed++;
+//             results.errors.push({
+//               row: i + 2, // +2 because of header row and 0-based index
+//               error: `Kỹ năng "${dataWithSlug.name}" đã tồn tại`
+//             });
+//             continue;
+//           }
 
-      // Create audit log
-      await createAuditLog(
-        req.user!.id,
-        'IMPORT_SKILLS',
-        'skills',
-        'bulk_import',
-        null,
-        results,
-        req
-      );
+//           // Create skill
+//           await prisma.skill.create({
+//             data: {
+//               name: dataWithSlug.name,
+//               slug: dataWithSlug.slug,
+//               category: dataWithSlug.category,
+//               description: dataWithSlug.description,
+//               iconUrl: dataWithSlug.iconUrl
+//             }
+//           });
 
-      return successResponse(
-        results,
-        `Import hoàn tất: ${results.success} thành công, ${results.failed} thất bại`
-      );
-    } catch (error: any) {
-      console.error('Import skills error:', error);
-      return errorResponse(
-        'IMPORT_ERROR',
-        error.message || 'Không thể import kỹ năng',
-        500
-      );
-    }
-});
+//           results.success++;
+//         } catch (error: any) {
+//           results.failed++;
+//           results.errors.push({
+//             row: i + 2,
+//             error: error.message || 'Lỗi không xác định'
+//           });
+//         }
+//       }
 
+//       // Create audit log
+//       await createAuditLog(
+//         req.user!.id,
+//         'IMPORT_SKILLS',
+//         'skills',
+//         'bulk_import',
+//         null,
+//         results,
+//         req
+//       );
+
+//       return successResponse(
+//         results,
+//         `Import hoàn tất: ${results.success} thành công, ${results.failed} thất bại`
+//       );
+//     } catch (error: any) {
+//       console.error('Import skills error:', error);
+//       return errorResponse(
+//         'IMPORT_ERROR',
+//         error.message || 'Không thể import kỹ năng',
+//         500
+//       );
+//     }
+// });

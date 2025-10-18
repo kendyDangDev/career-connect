@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
@@ -28,9 +28,12 @@ export async function verifyMobileToken(token: string): Promise<MobileTokenPaylo
 /**
  * Generate a new JWT token
  */
-export function generateMobileToken(payload: Omit<MobileTokenPayload, 'iat' | 'exp'>, expiresIn: string = '7d'): string {
+export function generateMobileToken(
+  payload: Omit<MobileTokenPayload, 'iat' | 'exp'>,
+  expiresIn: string | number = '7d'
+): string {
   return jwt.sign(payload, JWT_SECRET, {
-    expiresIn,
+    expiresIn: expiresIn as any,
   });
 }
 

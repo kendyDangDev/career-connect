@@ -18,7 +18,7 @@ const TemplateStructureSchema = z.object({
     title: z.string(),
     required: z.boolean().default(false),
     order: z.number(),
-    config: z.record(z.any()).optional()
+    config: z.record(z.string(), z.any()).optional()
   })).optional(),
   layout: z.object({
     columns: z.number().min(1).max(3).default(1),

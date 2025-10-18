@@ -1,60 +1,55 @@
 import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { authOptions } from '@/lib/auth-config';
 import { CompanyReviewService } from '@/services/company-review.service';
-import { 
-  successResponse, 
-  errorResponse, 
+import {
+  successResponse,
+  errorResponse,
   serverErrorResponse,
   validationErrorResponse,
-  unauthorizedResponse
+  unauthorizedResponse,
 } from '@/utils/api-response';
 import { updateCompanyReviewSchema } from '@/lib/validations/company-review.validation';
 import { UserType } from '@/generated/prisma';
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 /**
  * GET /api/reviews/company/[id]
  * Get a specific company review by ID
  */
-export async function GET(
-  req: NextRequest,
-  { params }: RouteParams
-) {
+export async function GET(req: NextRequest, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     // Check if requesting unapproved review
     const searchParams = req.nextUrl.searchParams;
     const includeUnapproved = searchParams.get('includeUnapproved') === 'true';
-    
+
     if (includeUnapproved && session?.user.userType !== UserType.ADMIN) {
       // Non-admin users can only see their own unapproved reviews
-      const review = await CompanyReviewService.getCompanyReviewById(params.id, true);
-      
+      const { id } = await params;
+      const review = await CompanyReviewService.getCompanyReviewById(id, true);
+
       if (!review) {
         return errorResponse('Review not found', 404);
       }
-      
+
       if (review.reviewerId !== session?.user.id) {
         return errorResponse('Review not found', 404);
       }
     }
-    
-    const review = await CompanyReviewService.getCompanyReviewById(
-      params.id,
-      includeUnapproved
-    );
+
+    const { id } = await params;
+    const review = await CompanyReviewService.getCompanyReviewById(id, includeUnapproved);
 
     if (!review) {
       return errorResponse('Review not found', 404);
     }
 
     return successResponse({ review }, 'Review retrieved successfully');
-
   } catch (error) {
     return serverErrorResponse('Failed to retrieve review', error);
   }
@@ -64,10 +59,7 @@ export async function GET(
  * PUT /api/reviews/company/[id]
  * Update a company review (only by the reviewer)
  */
-export async function PUT(
-  req: NextRequest,
-  { params }: RouteParams
-) {
+export async function PUT(req: NextRequest, { params }: RouteParams) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
@@ -82,9 +74,10 @@ export async function PUT(
       return validationErrorResponse(validated.error.flatten().fieldErrors);
     }
 
+    const { id } = await params;
     try {
       const updatedReview = await CompanyReviewService.updateCompanyReview(
-        params.id,
+        id,
         session.user.id,
         validated.data
       );
@@ -96,7 +89,6 @@ export async function PUT(
       }
       throw error;
     }
-
   } catch (error) {
     return serverErrorResponse('Failed to update review', error);
   }
@@ -106,10 +98,7 @@ export async function PUT(
  * DELETE /api/reviews/company/[id]
  * Delete a company review (only by the reviewer)
  */
-export async function DELETE(
-  req: NextRequest,
-  { params }: RouteParams
-) {
+export async function DELETE(req: NextRequest, { params }: RouteParams) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
@@ -117,11 +106,9 @@ export async function DELETE(
       return unauthorizedResponse();
     }
 
+    const { id } = await params;
     try {
-      await CompanyReviewService.deleteCompanyReview(
-        params.id,
-        session.user.id
-      );
+      await CompanyReviewService.deleteCompanyReview(id, session.user.id);
 
       return successResponse(null, 'Review deleted successfully');
     } catch (error: any) {
@@ -130,7 +117,6 @@ export async function DELETE(
       }
       throw error;
     }
-
   } catch (error) {
     return serverErrorResponse('Failed to delete review', error);
   }

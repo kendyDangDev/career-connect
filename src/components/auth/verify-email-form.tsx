@@ -5,14 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { 
-  Mail, 
-  CheckCircle, 
-  XCircle, 
-  Loader2,
-  RefreshCw,
-  Clock
-} from 'lucide-react';
+import { Mail, CheckCircle, XCircle, Loader2, RefreshCw, Clock } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,7 +25,7 @@ export default function VerifyEmailForm() {
   const [resendCooldown, setResendCooldown] = useState(0);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const email = searchParams.get('email');
+  const email = searchParams?.get('email');
 
   const form = useForm<VerifyFormData>({
     resolver: zodResolver(verifySchema),
@@ -54,7 +47,7 @@ export default function VerifyEmailForm() {
 
   // Auto-verify if token is in URL
   useEffect(() => {
-    const token = searchParams.get('token');
+    const token = searchParams?.get('token');
     if (token) {
       form.setValue('token', token);
       handleVerify({ token });
@@ -83,12 +76,11 @@ export default function VerifyEmailForm() {
       }
 
       setSuccess('Email đã được xác thực thành công!');
-      
+
       // Redirect to login page after 2 seconds
       setTimeout(() => {
         router.push('/auth/signin?message=verified');
       }, 2000);
-
     } catch (error) {
       console.error('Verification error:', error);
       setError('Đã có lỗi xảy ra. Vui lòng thử lại.');
@@ -124,7 +116,6 @@ export default function VerifyEmailForm() {
 
       setSuccess('Email xác thực đã được gửi lại!');
       setResendCooldown(60); // 60 seconds cooldown
-
     } catch (error) {
       console.error('Resend error:', error);
       setError('Đã có lỗi xảy ra. Vui lòng thử lại.');
@@ -134,22 +125,24 @@ export default function VerifyEmailForm() {
   };
 
   return (
-    <Card className="w-full shadow-2xl border-0">
-      <CardHeader className="space-y-1 text-center pb-6">
-        <div className="flex items-center justify-center mb-4">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-            <Mail className="w-8 h-8 text-blue-600" />
+    <Card className="w-full border-0 shadow-2xl">
+      <CardHeader className="space-y-1 pb-6 text-center">
+        <div className="mb-4 flex items-center justify-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
+            <Mail className="h-8 w-8 text-blue-600" />
           </div>
         </div>
-        <CardTitle className="text-2xl font-bold text-gray-900">
-          Xác thực Email
-        </CardTitle>
-        <CardDescription className="text-gray-600 text-base">
+        <CardTitle className="text-2xl font-bold text-gray-900">Xác thực Email</CardTitle>
+        <CardDescription className="text-base text-gray-600">
           {email ? (
             <>
-              Chúng tôi đã gửi mã xác thực <strong>6 chữ số</strong> đến email:<br />
-              <span className="font-medium text-gray-900">{email}</span><br />
-              <span className="text-sm text-gray-500">Vui lòng kiểm tra hộp thư đến và cả thư mục spam nếu cần</span>
+              Chúng tôi đã gửi mã xác thực <strong>6 chữ số</strong> đến email:
+              <br />
+              <span className="font-medium text-gray-900">{email}</span>
+              <br />
+              <span className="text-sm text-gray-500">
+                Vui lòng kiểm tra hộp thư đến và cả thư mục spam nếu cần
+              </span>
             </>
           ) : (
             'Vui lòng nhập mã xác thực <strong>6 chữ số</strong> được gửi đến email của bạn'
@@ -159,48 +152,44 @@ export default function VerifyEmailForm() {
 
       <CardContent className="space-y-6">
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm flex items-center space-x-2">
-            <XCircle className="w-5 h-5" />
+          <div className="flex items-center space-x-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            <XCircle className="h-5 w-5" />
             <span>{error}</span>
           </div>
         )}
 
         {success && (
-          <div className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-lg text-sm flex items-center space-x-2">
-            <CheckCircle className="w-5 h-5" />
+          <div className="flex items-center space-x-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-600">
+            <CheckCircle className="h-5 w-5" />
             <span>{success}</span>
           </div>
         )}
 
         <form onSubmit={form.handleSubmit(handleVerify)} className="space-y-6">
           <div>
-            <label className="text-gray-700 font-medium block mb-2">
-              Mã xác thực
-            </label>
+            <label className="mb-2 block font-medium text-gray-700">Mã xác thực</label>
             <Input
               {...form.register('token')}
               placeholder="Nhập mã 6 chữ số từ email"
-              className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-center text-2xl tracking-[0.3em] font-mono"
+              className="h-12 border-gray-300 text-center font-mono text-2xl tracking-[0.3em] focus:border-blue-500 focus:ring-blue-500"
               disabled={isLoading}
               maxLength={6}
               pattern="[0-9]{6}"
               inputMode="numeric"
             />
             {form.formState.errors.token && (
-              <p className="text-red-600 text-sm mt-1">
-                {form.formState.errors.token.message}
-              </p>
+              <p className="mt-1 text-sm text-red-600">{form.formState.errors.token.message}</p>
             )}
           </div>
 
           <Button
             type="submit"
-            className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium text-base"
+            className="h-12 w-full bg-blue-600 text-base font-medium text-white hover:bg-blue-700"
             disabled={isLoading}
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Đang xác thực...
               </>
             ) : (
@@ -209,32 +198,30 @@ export default function VerifyEmailForm() {
           </Button>
         </form>
 
-        <div className="text-center space-y-4">
-          <div className="text-sm text-gray-600">
-            Không nhận được email?
-          </div>
-          
+        <div className="space-y-4 text-center">
+          <div className="text-sm text-gray-600">Không nhận được email?</div>
+
           {email && (
             <Button
               type="button"
               variant="outline"
               onClick={handleResendEmail}
               disabled={isResending || resendCooldown > 0}
-              className="w-full h-10"
+              className="h-10 w-full"
             >
               {isResending ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Đang gửi...
                 </>
               ) : resendCooldown > 0 ? (
                 <>
-                  <Clock className="w-4 h-4 mr-2" />
+                  <Clock className="mr-2 h-4 w-4" />
                   Gửi lại sau {resendCooldown}s
                 </>
               ) : (
                 <>
-                  <RefreshCw className="w-4 h-4 mr-2" />
+                  <RefreshCw className="mr-2 h-4 w-4" />
                   Gửi lại mã xác thực
                 </>
               )}
@@ -243,10 +230,7 @@ export default function VerifyEmailForm() {
         </div>
 
         <div className="text-center text-sm text-gray-600">
-          <a 
-            href="/auth/signin" 
-            className="text-blue-600 hover:text-blue-500 font-medium"
-          >
+          <a href="/auth/signin" className="font-medium text-blue-600 hover:text-blue-500">
             ← Quay lại đăng nhập
           </a>
         </div>

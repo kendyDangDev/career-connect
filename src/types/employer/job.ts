@@ -15,7 +15,7 @@ export interface JobStatistics {
   totalViews: number;
   totalApplications: number;
   totalSaved: number;
-  conversionRate: string;
+  conversionRate: number;
   viewsChange: string;
   viewsChangeType: 'increase' | 'decrease';
   applicationsChange: string;
@@ -133,6 +133,7 @@ export interface ApplicationDetail {
 // DTO for creating a new job
 export interface CreateJobDTO {
   companyId?: string; // Added to match API requirements
+  slug: string;
   title: string;
   description: string;
   requirements: string;
@@ -253,7 +254,7 @@ export interface JobStatistics {
   totalViews: number;
   totalApplications: number;
   totalSaved: number;
-  conversionRate: string;
+  conversionRate: number;
 
   // Weekly comparison
   viewsChange: string;

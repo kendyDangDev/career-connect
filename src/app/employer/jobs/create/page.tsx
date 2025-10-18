@@ -31,6 +31,7 @@ export default function CreateJobPage() {
 
   // Form state
   const [formData, setFormData] = useState<CreateJobDTO>({
+    slug: '',
     title: '',
     description: '',
     requirements: '',
@@ -490,7 +491,13 @@ export default function CreateJobPage() {
                 type="date"
                 id="applicationDeadline"
                 name="applicationDeadline"
-                value={formData.applicationDeadline}
+                value={
+                  formData.applicationDeadline
+                    ? typeof formData.applicationDeadline === 'string'
+                      ? formData.applicationDeadline
+                      : formData.applicationDeadline.toISOString().split('T')[0]
+                    : ''
+                }
                 onChange={handleChange}
                 min={new Date().toISOString().split('T')[0]}
                 className="w-full rounded-lg border border-purple-100 bg-white px-4 py-2.5 text-sm transition-all outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-200"

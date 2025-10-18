@@ -199,7 +199,8 @@ export default function ChatDemo() {
                             {conv.type}
                           </Badge>
                           <span className="text-sm font-medium">
-                            {conv.name || `Conversation ${conv.id.slice(-6)}`}
+                            {`${conv.firstName} ${conv.lastName}` ||
+                              `Conversation ${conv.id.slice(-6)}`}
                           </span>
                         </div>
                         <p className="text-xs text-gray-500">
@@ -225,13 +226,15 @@ export default function ChatDemo() {
               <CardHeader>
                 <CardTitle>
                   {activeConversation
-                    ? `Chat: ${activeConversation.name || `Conversation ${activeConversation.id.slice(-6)}`}`
+                    ? `Chat: ${activeConversation.firstName} ${activeConversation.lastName}`
                     : 'Select a conversation'}
                 </CardTitle>
                 {activeConversation && (
                   <CardDescription>
                     Participants:{' '}
-                    {activeConversation.participants.map((p) => p.user.name).join(', ')}
+                    {activeConversation.participants
+                      .map((p) => `${p.user.firstName} ${p.user.lastName}`)
+                      .join(', ')}
                   </CardDescription>
                 )}
               </CardHeader>
@@ -272,7 +275,7 @@ export default function ChatDemo() {
                           </div>
                           <p className="mt-1 px-2 text-xs text-gray-500">
                             {message.sender.name ||
-                              `${message.sender?.firstName} ${message.sender?.lastName}` ||
+                              // `${message.sender?.firstName} ${message.sender?.lastName}` ||
                               'Unknown'}{' '}
                             • {new Date(message.createdAt).toLocaleTimeString()}
                           </p>

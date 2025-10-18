@@ -331,7 +331,7 @@ export class ApplicationService {
                 startDate: 'desc',
               },
             },
-            experiences: {
+            experience: {
               orderBy: {
                 startDate: 'desc',
               },

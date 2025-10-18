@@ -2,16 +2,16 @@ import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth-config';
 import { InterviewReviewService } from '@/services/interview-review.service';
-import { 
-  successResponse, 
-  errorResponse, 
+import {
+  successResponse,
+  errorResponse,
   serverErrorResponse,
   validationErrorResponse,
-  unauthorizedResponse
+  unauthorizedResponse,
 } from '@/utils/api-response';
 import {
   createInterviewReviewSchema,
-  getInterviewReviewsQuerySchema
+  getInterviewReviewsQuerySchema,
 } from '@/lib/validations/interview-review.validation';
 import { UserType } from '@/generated/prisma';
 
@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     // Parse query parameters
     const searchParams = req.nextUrl.searchParams;
     const queryParams = Object.fromEntries(searchParams.entries());
-    
+
     // Validate query parameters
     const validatedParams = getInterviewReviewsQuerySchema.safeParse(queryParams);
     if (!validatedParams.success) {
@@ -36,23 +36,28 @@ export async function GET(req: NextRequest) {
 
     // If requesting by company, also get statistics
     if (validatedParams.data.companyId || validatedParams.data.companySlug) {
-      const companyId = validatedParams.data.companyId || 
-        (await InterviewReviewService.getInterviewReviews({ 
-          companySlug: validatedParams.data.companySlug,
-          limit: 1 
-        })).reviews[0]?.companyId;
-      
+      const companyId =
+        validatedParams.data.companyId ||
+        (
+          await InterviewReviewService.getInterviewReviews({
+            companySlug: validatedParams.data.companySlug,
+            limit: 1,
+          })
+        ).reviews[0]?.companyId;
+
       if (companyId) {
         const statistics = await InterviewReviewService.getCompanyInterviewStatistics(companyId);
-        return successResponse({
-          ...result,
-          statistics
-        }, 'Interview reviews retrieved successfully');
+        return successResponse(
+          {
+            ...result,
+            statistics,
+          },
+          'Interview reviews retrieved successfully'
+        );
       }
     }
 
     return successResponse(result, 'Interview reviews retrieved successfully');
-
   } catch (error) {
     return serverErrorResponse('Failed to retrieve interview reviews', error);
   }
@@ -88,7 +93,7 @@ export async function POST(req: NextRequest) {
     const canReviewResult = await InterviewReviewService.canReviewInterview(
       session.user.id,
       validated.data.companyId,
-      validated.data.jobId
+      validated.data.jobId ?? undefined
     );
 
     if (!canReviewResult.canReview) {
@@ -117,7 +122,6 @@ export async function POST(req: NextRequest) {
       }
       throw error;
     }
-
   } catch (error) {
     return serverErrorResponse('Failed to create interview review', error);
   }

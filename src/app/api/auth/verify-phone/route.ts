@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       // Update user phone verification
       await tx.user.update({
         where: { id: verificationToken.userId },
-        data: { phoneVerified: new Date() },
+        data: { phoneVerified: true },
       });
 
       // Mark token as used

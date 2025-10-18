@@ -17,7 +17,7 @@ export interface CreateCandidateSkillInput {
 
 export interface UpdateCandidateSkillInput {
   proficiencyLevel?: ProficiencyLevel;
-  yearsExperience?: number;
+  yearsExperience?: number | null;
 }
 
 export interface BulkCreateCandidateSkillsInput {

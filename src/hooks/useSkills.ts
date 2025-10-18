@@ -52,7 +52,7 @@ export const useSkills = (): UseSkillsReturn => {
   const [filters, setFilters] = useState<SkillQuery>(() => {
     const params: SkillQuery = { ...defaultFilters };
     
-    searchParams.forEach((value, key) => {
+    searchParams?.forEach((value, key) => {
       if (key === 'page') params.page = parseInt(value);
       else if (key === 'limit') params.limit = parseInt(value);
       else if (key === 'isActive') params.isActive = value === 'true';

@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Check role
-    if (session.user.role !== 'EMPLOYER') {
+    if (session.user.userType !== 'EMPLOYER') {
       return NextResponse.json(
         { success: false, error: 'Forbidden - Employer access only' },
         { status: 403 }
@@ -127,15 +127,26 @@ export async function GET(req: NextRequest) {
     // Experience distribution
     const experienceDistribution = {
       '0-2': applications.filter(
-        (app) => app.candidate.experienceYears >= 0 && app.candidate.experienceYears <= 2
+        (app) =>
+          app.candidate.experienceYears != null &&
+          app.candidate.experienceYears >= 0 &&
+          app.candidate.experienceYears <= 2
       ).length,
       '3-5': applications.filter(
-        (app) => app.candidate.experienceYears >= 3 && app.candidate.experienceYears <= 5
+        (app) =>
+          app.candidate.experienceYears != null &&
+          app.candidate.experienceYears >= 3 &&
+          app.candidate.experienceYears <= 5
       ).length,
       '6-10': applications.filter(
-        (app) => app.candidate.experienceYears >= 6 && app.candidate.experienceYears <= 10
+        (app) =>
+          app.candidate.experienceYears != null &&
+          app.candidate.experienceYears >= 6 &&
+          app.candidate.experienceYears <= 10
       ).length,
-      '10+': applications.filter((app) => app.candidate.experienceYears > 10).length,
+      '10+': applications.filter(
+        (app) => app.candidate.experienceYears != null && app.candidate.experienceYears > 10
+      ).length,
     };
 
     // Time to hire metrics
@@ -193,14 +204,15 @@ export async function GET(req: NextRequest) {
     const conversionFunnel = {
       applied: totalApplications,
       reviewed: applications.filter((app) => app.status !== ApplicationStatus.APPLIED).length,
-      interviewed: applications.filter((app) =>
-        [
-          ApplicationStatus.INTERVIEWING,
-          ApplicationStatus.HIRED,
-          ApplicationStatus.REJECTED,
-        ].includes(app.status)
+      interviewed: applications.filter(
+        (app) =>
+          app.status === ApplicationStatus.INTERVIEWING ||
+          app.status === ApplicationStatus.HIRED ||
+          app.status === ApplicationStatus.REJECTED
+        // app.status === ApplicationStatus.
       ).length,
       hired: hiredApplications.length,
+      rejected: applications.filter((app) => app.status === ApplicationStatus.REJECTED).length,
     };
 
     return NextResponse.json({

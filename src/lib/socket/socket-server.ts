@@ -40,11 +40,10 @@ export const initSocketIO = (server: NetServer) => {
               'http://localhost:3000',
               'http://192.168.1.100:3000',
               'http://192.168.0.106:3000',
-              'https://192.168.0.106:3000'
+              'https://192.168.0.106:3000',
             ], // Cho mobile app
       methods: ['GET', 'POST'],
       credentials: true,
-      allowEIO3: true
     },
     transports: ['websocket', 'polling'],
     allowUpgrades: true,
@@ -131,7 +130,7 @@ export const initSocketIO = (server: NetServer) => {
             where: {
               conversationId: data.conversationId,
               userId: socket.userId,
-              isActive: true,
+              leftAt: null,
             },
           });
 
@@ -146,7 +145,7 @@ export const initSocketIO = (server: NetServer) => {
               conversationId: data.conversationId,
               senderId: socket.userId,
               content: data.content,
-              messageType: data.messageType as any,
+              type: data.messageType as any,
               replyToId: data.replyToId,
             },
             include: {
@@ -194,7 +193,7 @@ export const initSocketIO = (server: NetServer) => {
             where: { id: data.conversationId },
             include: {
               participants: {
-                where: { isActive: true },
+                where: { leftAt: null },
                 include: { user: true },
               },
             },
@@ -237,14 +236,14 @@ export const initSocketIO = (server: NetServer) => {
       socket.to(`conversation:${data.conversationId}`).emit('user:typing', {
         userId: socket.userId,
         user: socket.user,
-        conversationId: data.conversationId
+        conversationId: data.conversationId,
       });
     });
 
     socket.on('user:stop-typing', (data: { conversationId: string }) => {
       socket.to(`conversation:${data.conversationId}`).emit('user:stop-typing', {
         userId: socket.userId,
-        conversationId: data.conversationId
+        conversationId: data.conversationId,
       });
     });
 
@@ -258,7 +257,7 @@ export const initSocketIO = (server: NetServer) => {
           where: {
             conversationId: data.conversationId,
             userId: socket.userId,
-            isActive: true,
+            leftAt: null,
           },
         });
 

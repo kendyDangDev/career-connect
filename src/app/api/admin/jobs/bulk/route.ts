@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { withPermission, AuthenticatedRequest } from '@/lib/middleware/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
-import { JobStatus } from '@/generated/prisma';
+import { JobStatus, ApplicationStatus } from '@/generated/prisma';
 
 const bulkUpdateSchema = z.object({
   jobIds: z.array(z.string()).min(1, 'At least one job ID is required'),
@@ -16,9 +16,9 @@ const bulkUpdateSchema = z.object({
 /**
  * POST /api/admin/jobs/bulk
  * Perform bulk operations on multiple jobs
- * Requires: job.update permission
+ * Requires: job.edit permission
  */
-export const POST = withPermission('job.update', async (req: AuthenticatedRequest) => {
+export const POST = withPermission('job.edit', async (req: AuthenticatedRequest) => {
   try {
     const body = await req.json();
     
@@ -176,7 +176,7 @@ export const DELETE = withPermission('job.delete', async (req: AuthenticatedRequ
         applications: {
           some: {
             status: {
-              in: ['APPLIED', 'REVIEWING', 'SHORTLISTED', 'INTERVIEW_SCHEDULED']
+              in: [ApplicationStatus.APPLIED, ApplicationStatus.SCREENING, ApplicationStatus.INTERVIEWING]
             }
           }
         }
@@ -189,7 +189,7 @@ export const DELETE = withPermission('job.delete', async (req: AuthenticatedRequ
             applications: {
               where: {
                 status: {
-                  in: ['APPLIED', 'REVIEWING', 'SHORTLISTED', 'INTERVIEW_SCHEDULED']
+                  in: [ApplicationStatus.APPLIED, ApplicationStatus.SCREENING, ApplicationStatus.INTERVIEWING]
                 }
               }
             }

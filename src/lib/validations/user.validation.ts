@@ -54,8 +54,8 @@ export const userProfileSchema = z.object({
 
 // Query Parameters Schemas
 export const getUsersQuerySchema = z.object({
-  page: z.string().transform(Number).pipe(z.number().positive()).default('1'),
-  limit: z.string().transform(Number).pipe(z.number().positive().max(100)).default('10'),
+  page: z.string().transform(Number).pipe(z.number().positive()).default(1),
+  limit: z.string().transform(Number).pipe(z.number().positive().max(100)).default(10),
   search: z.string().optional(),
   userType: z.nativeEnum(UserType).optional(),
   status: z.nativeEnum(UserStatus).optional(),

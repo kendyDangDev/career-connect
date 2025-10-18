@@ -31,8 +31,8 @@ export async function OPTIONS(request: NextRequest) {
  * POST /api/users/[id]/avatar
  * Upload a new avatar for the user
  */
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
-  const userId = params.id;
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id: userId } = await params;
   return withAuth(async (req: AuthenticatedRequest) => {
     try {
       const currentUser = req.user;
@@ -182,8 +182,11 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
  * DELETE /api/users/[id]/avatar
  * Delete user's avatar
  */
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  const userId = params.id;
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id: userId } = await params;
   return withAuth(async (req: AuthenticatedRequest) => {
     try {
       const currentUser = req.user;

@@ -1,5 +1,5 @@
-import { PrismaClient, ApplicationStatus, ApplicationTimeline, Prisma } from "@/generated/prisma";
-import prisma from "@/lib/prisma";
+import { PrismaClient, ApplicationStatus, ApplicationTimeline, Prisma } from '@/generated/prisma';
+import { prisma } from '@/lib/prisma';
 import {
   ApplicationTimelineWithRelations,
   ApplicationTimelineQueryParams,
@@ -11,7 +11,7 @@ import {
   BulkUpdateStatusDTO,
   ApplicationTimelineErrorCode,
   isValidStatusTransition,
-} from "@/types/application-timeline.types";
+} from '@/types/application-timeline.types';
 
 export class ApplicationTimelineService {
   private static prisma: PrismaClient = prisma;
@@ -26,7 +26,7 @@ export class ApplicationTimelineService {
     // Verify application exists
     const application = await this.prisma.application.findUnique({
       where: { id: data.applicationId },
-      select: { id: true, status: true }
+      select: { id: true, status: true },
     });
 
     if (!application) {
@@ -56,18 +56,18 @@ export class ApplicationTimelineService {
               firstName: true,
               lastName: true,
               userType: true,
-            }
-          }
-        }
+            },
+          },
+        },
       });
 
       // Update application status
       await tx.application.update({
         where: { id: data.applicationId },
-        data: { 
+        data: {
           status: data.status,
-          statusUpdatedAt: new Date()
-        }
+          statusUpdatedAt: new Date(),
+        },
       });
 
       return timeline;
@@ -83,7 +83,7 @@ export class ApplicationTimelineService {
   ): Promise<ApplicationTimelineWithRelations | null> {
     return await this.prisma.applicationTimeline.findUnique({
       where: { id },
-      include: includeRelations ? {
+      include: {
         application: {
           include: {
             job: {
@@ -96,9 +96,9 @@ export class ApplicationTimelineService {
                     id: true,
                     companyName: true,
                     companySlug: true,
-                  }
-                }
-              }
+                  },
+                },
+              },
             },
             candidate: {
               include: {
@@ -109,11 +109,11 @@ export class ApplicationTimelineService {
                     firstName: true,
                     lastName: true,
                     userType: true,
-                  }
-                }
-              }
-            }
-          }
+                  },
+                },
+              },
+            },
+          },
         },
         user: {
           select: {
@@ -122,19 +122,9 @@ export class ApplicationTimelineService {
             firstName: true,
             lastName: true,
             userType: true,
-          }
-        }
-      } : {
-        user: {
-          select: {
-            id: true,
-            email: true,
-            firstName: true,
-            lastName: true,
-            userType: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
   }
 
@@ -147,6 +137,37 @@ export class ApplicationTimelineService {
     return await this.prisma.applicationTimeline.findMany({
       where: { applicationId },
       include: {
+        application: {
+          include: {
+            job: {
+              select: {
+                id: true,
+                title: true,
+                slug: true,
+                company: {
+                  select: {
+                    id: true,
+                    companyName: true,
+                    companySlug: true,
+                  },
+                },
+              },
+            },
+            candidate: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    email: true,
+                    firstName: true,
+                    lastName: true,
+                    userType: true,
+                  },
+                },
+              },
+            },
+          },
+        },
         user: {
           select: {
             id: true,
@@ -154,10 +175,10 @@ export class ApplicationTimelineService {
             firstName: true,
             lastName: true,
             userType: true,
-          }
-        }
+          },
+        },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -177,7 +198,7 @@ export class ApplicationTimelineService {
       page = 1,
       limit = 10,
       sortBy = 'createdAt',
-      sortOrder = 'desc'
+      sortOrder = 'desc',
     } = params;
 
     const where: Prisma.ApplicationTimelineWhereInput = {};
@@ -226,9 +247,9 @@ export class ApplicationTimelineService {
                       id: true,
                       companyName: true,
                       companySlug: true,
-                    }
-                  }
-                }
+                    },
+                  },
+                },
               },
               candidate: {
                 include: {
@@ -239,11 +260,11 @@ export class ApplicationTimelineService {
                       firstName: true,
                       lastName: true,
                       userType: true,
-                    }
-                  }
-                }
-              }
-            }
+                    },
+                  },
+                },
+              },
+            },
           },
           user: {
             select: {
@@ -252,14 +273,14 @@ export class ApplicationTimelineService {
               firstName: true,
               lastName: true,
               userType: true,
-            }
-          }
+            },
+          },
         },
         skip,
         take: limit,
-        orderBy: { [sortBy]: sortOrder }
+        orderBy: { [sortBy]: sortOrder },
       }),
-      this.prisma.applicationTimeline.count({ where })
+      this.prisma.applicationTimeline.count({ where }),
     ]);
 
     return { data, total };
@@ -275,7 +296,7 @@ export class ApplicationTimelineService {
     return await this.prisma.applicationTimeline.update({
       where: { id },
       data: {
-        note: data.note
+        note: data.note,
       },
       include: {
         user: {
@@ -285,9 +306,9 @@ export class ApplicationTimelineService {
             firstName: true,
             lastName: true,
             userType: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
   }
 
@@ -296,7 +317,7 @@ export class ApplicationTimelineService {
    */
   static async delete(id: string): Promise<void> {
     await this.prisma.applicationTimeline.delete({
-      where: { id }
+      where: { id },
     });
   }
 
@@ -317,16 +338,16 @@ export class ApplicationTimelineService {
             status: entry.status,
             note: entry.note || null,
             changedBy: userId,
-          }
+          },
         });
 
         // Update application status
         await tx.application.update({
           where: { id: entry.applicationId },
-          data: { 
+          data: {
             status: entry.status,
-            statusUpdatedAt: new Date()
-          }
+            statusUpdatedAt: new Date(),
+          },
         });
 
         results.push(timeline);
@@ -350,7 +371,7 @@ export class ApplicationTimelineService {
         // Get current application status
         const application = await tx.application.findUnique({
           where: { id: applicationId },
-          select: { status: true }
+          select: { status: true },
         });
 
         if (!application) continue;
@@ -367,16 +388,16 @@ export class ApplicationTimelineService {
             status: data.status,
             note: data.note || null,
             changedBy: userId,
-          }
+          },
         });
 
         // Update application status
         await tx.application.update({
           where: { id: applicationId },
-          data: { 
+          data: {
             status: data.status,
-            statusUpdatedAt: new Date()
-          }
+            statusUpdatedAt: new Date(),
+          },
         });
 
         results.push(timeline);
@@ -400,10 +421,10 @@ export class ApplicationTimelineService {
             firstName: true,
             lastName: true,
             userType: true,
-          }
-        }
+          },
+        },
       },
-      orderBy: { createdAt: 'asc' }
+      orderBy: { createdAt: 'asc' },
     });
 
     if (timelines.length === 0) {
@@ -413,7 +434,7 @@ export class ApplicationTimelineService {
     // Get current application status
     const application = await this.prisma.application.findUnique({
       where: { id: applicationId },
-      select: { status: true }
+      select: { status: true },
     });
 
     if (!application) {
@@ -450,7 +471,7 @@ export class ApplicationTimelineService {
         exitedAt: next ? next.createdAt : undefined,
         durationHours,
         note: current.note || undefined,
-        changedBy: current.user as any
+        changedBy: current.user as any,
       });
     }
 
@@ -467,7 +488,7 @@ export class ApplicationTimelineService {
       statusCounts: statusCounts as Record<ApplicationStatus, number>,
       averageTimeInStatus: averageTimeInStatus as Record<ApplicationStatus, number>,
       lastUpdateDate: timelines[timelines.length - 1].createdAt,
-      timelineProgress: progress
+      timelineProgress: progress,
     };
   }
 
@@ -488,8 +509,8 @@ export class ApplicationTimelineService {
     if (companyId) {
       where.application = {
         job: {
-          companyId
-        }
+          companyId,
+        },
       };
     }
 
@@ -508,9 +529,9 @@ export class ApplicationTimelineService {
                     id: true,
                     companyName: true,
                     companySlug: true,
-                  }
-                }
-              }
+                  },
+                },
+              },
             },
             candidate: {
               include: {
@@ -521,11 +542,11 @@ export class ApplicationTimelineService {
                     firstName: true,
                     lastName: true,
                     userType: true,
-                  }
-                }
-              }
-            }
-          }
+                  },
+                },
+              },
+            },
+          },
         },
         user: {
           select: {
@@ -534,22 +555,18 @@ export class ApplicationTimelineService {
             firstName: true,
             lastName: true,
             userType: true,
-          }
-        }
+          },
+        },
       },
       take: limit,
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
   }
 
   /**
    * Check if user has permission to access timeline
    */
-  static async checkAccess(
-    timelineId: string,
-    userId: string,
-    userType: string
-  ): Promise<boolean> {
+  static async checkAccess(timelineId: string, userId: string, userType: string): Promise<boolean> {
     const timeline = await this.prisma.applicationTimeline.findUnique({
       where: { id: timelineId },
       include: {
@@ -558,30 +575,30 @@ export class ApplicationTimelineService {
             job: {
               select: {
                 companyId: true,
-                recruiterId: true
-              }
-            }
-          }
-        }
-      }
+                recruiterId: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!timeline) return false;
 
     // Check based on user type
     if (userType === 'ADMIN') return true;
-    
+
     if (userType === 'CANDIDATE') {
       return timeline.application.userId === userId;
     }
-    
+
     if (userType === 'EMPLOYER') {
       // Check if user is associated with the company
       const companyUser = await this.prisma.companyUser.findFirst({
         where: {
           userId,
-          companyId: timeline.application.job.companyId
-        }
+          companyId: timeline.application.job.companyId,
+        },
       });
       return !!companyUser;
     }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { CompaniesTable } from './components/CompaniesTable';
@@ -11,7 +11,7 @@ import { useCompaniesData } from '@/hooks/useCompaniesData';
 import { Company, CompanyFormData } from './types';
 import { Loader2 } from 'lucide-react';
 
-export default function CompaniesPage() {
+function CompaniesPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -24,14 +24,14 @@ export default function CompaniesPage() {
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   // Parse URL params
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '10');
-  const search = searchParams.get('search') || '';
-  const status = searchParams.get('status') || '';
-  const companySize = searchParams.get('companySize') || '';
-  const industryId = searchParams.get('industryId') || '';
-  const sortBy = searchParams.get('sortBy') || 'createdAt';
-  const sortOrder = searchParams.get('sortOrder') || 'desc';
+  const page = parseInt(searchParams?.get('page') || '1');
+  const limit = parseInt(searchParams?.get('limit') || '10');
+  const search = searchParams?.get('search') || '';
+  const status = searchParams?.get('status') || '';
+  const companySize = searchParams?.get('companySize') || '';
+  const industryId = searchParams?.get('industryId') || '';
+  const sortBy = searchParams?.get('sortBy') || 'createdAt';
+  const sortOrder = searchParams?.get('sortOrder') || 'desc';
 
   const {
     companies,
@@ -61,7 +61,7 @@ export default function CompaniesPage() {
   // Update URL params
   const updateURLParams = useCallback(
     (params: Record<string, string | number | null>) => {
-      const newSearchParams = new URLSearchParams(searchParams.toString());
+      const newSearchParams = new URLSearchParams(searchParams?.toString() || '');
 
       Object.entries(params).forEach(([key, value]) => {
         if (value === null || value === '') {
@@ -213,5 +213,17 @@ export default function CompaniesPage() {
         loading={deleteLoading}
       />
     </div>
+  );
+}
+
+export default function CompaniesPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-[400px] items-center justify-center">
+        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
+      </div>
+    }>
+      <CompaniesPageContent />
+    </Suspense>
   );
 }

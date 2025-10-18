@@ -1,9 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { 
-  CompanyReview,
-  Prisma,
-  EmploymentStatus
-} from '@/generated/prisma';
+import { CompanyReview, Prisma, EmploymentStatus } from '@/generated/prisma';
 import {
   CreateCompanyReviewInput,
   UpdateCompanyReviewInput,
@@ -13,7 +9,7 @@ import {
   CompanyReviewStatistics,
   CompanyReviewDetail,
   ReviewerInfo,
-  AdminUpdateReviewInput
+  AdminUpdateReviewInput,
 } from '@/types/company-review.types';
 
 export class CompanyReviewService {
@@ -31,18 +27,18 @@ export class CompanyReviewService {
     sortBy = 'createdAt',
     sortOrder = 'desc',
     page = 1,
-    limit = 10
+    limit = 10,
   }: GetCompanyReviewsParams): Promise<CompanyReviewResponse> {
     // Build where clause
     const where: Prisma.CompanyReviewWhereInput = {};
-    
+
     if (companyId) {
       where.companyId = companyId;
     } else if (companySlug) {
       // Get company by slug first
       const company = await prisma.company.findUnique({
         where: { companySlug },
-        select: { id: true }
+        select: { id: true },
       });
       if (company) {
         where.companyId = company.id;
@@ -53,7 +49,7 @@ export class CompanyReviewService {
           total: 0,
           page,
           totalPages: 0,
-          hasMore: false
+          hasMore: false,
         };
       }
     }
@@ -100,49 +96,49 @@ export class CompanyReviewService {
             id: true,
             companyName: true,
             companySlug: true,
-            logoUrl: true
-          }
+            logoUrl: true,
+          },
         },
         reviewer: {
           select: {
             id: true,
             firstName: true,
             lastName: true,
-            avatarUrl: true
-          }
-        }
-      }
+            avatarUrl: true,
+          },
+        },
+      },
     });
 
     // Transform reviews to handle anonymous reviewers
-    const transformedReviews = reviews.map(review => {
+    const transformedReviews = reviews.map((review) => {
       const reviewerInfo: ReviewerInfo = review.isAnonymous
         ? {
             id: review.reviewer.id,
             displayName: 'Anonymous User',
-            isAnonymous: true
+            isAnonymous: true,
           }
         : {
             id: review.reviewer.id,
             displayName: `${review.reviewer.firstName} ${review.reviewer.lastName}`,
             avatarUrl: review.reviewer.avatarUrl || undefined,
-            isAnonymous: false
+            isAnonymous: false,
           };
 
       return {
         ...review,
-        reviewer: reviewerInfo
+        reviewer: reviewerInfo,
       };
     });
 
     const totalPages = Math.ceil(total / limit);
 
     return {
-      reviews: transformedReviews as CompanyReviewWithRelations[],
+      reviews: transformedReviews as any,
       total,
       page,
       totalPages,
-      hasMore: page < totalPages
+      hasMore: page < totalPages,
     };
   }
 
@@ -154,7 +150,7 @@ export class CompanyReviewService {
     includeUnapproved: boolean = false
   ): Promise<CompanyReviewDetail | null> {
     const where: Prisma.CompanyReviewWhereInput = { id };
-    
+
     if (!includeUnapproved) {
       where.isApproved = true;
     }
@@ -167,18 +163,18 @@ export class CompanyReviewService {
             id: true,
             companyName: true,
             companySlug: true,
-            logoUrl: true
-          }
+            logoUrl: true,
+          },
         },
         reviewer: {
           select: {
             id: true,
             firstName: true,
             lastName: true,
-            avatarUrl: true
-          }
-        }
-      }
+            avatarUrl: true,
+          },
+        },
+      },
     });
 
     if (!review) {
@@ -190,18 +186,18 @@ export class CompanyReviewService {
       ? {
           id: review.reviewer.id,
           displayName: 'Anonymous User',
-          isAnonymous: true
+          isAnonymous: true,
         }
       : {
           id: review.reviewer.id,
           displayName: `${review.reviewer.firstName} ${review.reviewer.lastName}`,
           avatarUrl: review.reviewer.avatarUrl || undefined,
-          isAnonymous: false
+          isAnonymous: false,
         };
 
     return {
       ...review,
-      reviewer: reviewerInfo
+      reviewer: reviewerInfo,
     } as CompanyReviewDetail;
   }
 
@@ -214,7 +210,7 @@ export class CompanyReviewService {
   ): Promise<CompanyReviewDetail> {
     // Check if company exists
     const company = await prisma.company.findUnique({
-      where: { id: data.companyId }
+      where: { id: data.companyId },
     });
 
     if (!company) {
@@ -225,8 +221,8 @@ export class CompanyReviewService {
     const existingReview = await prisma.companyReview.findFirst({
       where: {
         companyId: data.companyId,
-        reviewerId: reviewerId
-      }
+        reviewerId: reviewerId,
+      },
     });
 
     if (existingReview) {
@@ -238,7 +234,7 @@ export class CompanyReviewService {
       data: {
         ...data,
         reviewerId,
-        isApproved: false // All reviews start as unapproved
+        isApproved: false, // All reviews start as unapproved
       },
       include: {
         company: {
@@ -246,18 +242,18 @@ export class CompanyReviewService {
             id: true,
             companyName: true,
             companySlug: true,
-            logoUrl: true
-          }
+            logoUrl: true,
+          },
         },
         reviewer: {
           select: {
             id: true,
             firstName: true,
             lastName: true,
-            avatarUrl: true
-          }
-        }
-      }
+            avatarUrl: true,
+          },
+        },
+      },
     });
 
     // Transform reviewer info
@@ -265,18 +261,18 @@ export class CompanyReviewService {
       ? {
           id: review.reviewer.id,
           displayName: 'Anonymous User',
-          isAnonymous: true
+          isAnonymous: true,
         }
       : {
           id: review.reviewer.id,
           displayName: `${review.reviewer.firstName} ${review.reviewer.lastName}`,
           avatarUrl: review.reviewer.avatarUrl || undefined,
-          isAnonymous: false
+          isAnonymous: false,
         };
 
     return {
       ...review,
-      reviewer: reviewerInfo
+      reviewer: reviewerInfo,
     } as CompanyReviewDetail;
   }
 
@@ -290,7 +286,7 @@ export class CompanyReviewService {
   ): Promise<CompanyReviewDetail> {
     // Check if review exists and belongs to the reviewer
     const existingReview = await prisma.companyReview.findFirst({
-      where: { id, reviewerId }
+      where: { id, reviewerId },
     });
 
     if (!existingReview) {
@@ -302,7 +298,7 @@ export class CompanyReviewService {
       where: { id },
       data: {
         ...data,
-        isApproved: false // Reset approval status when edited
+        isApproved: false, // Reset approval status when edited
       },
       include: {
         company: {
@@ -310,18 +306,18 @@ export class CompanyReviewService {
             id: true,
             companyName: true,
             companySlug: true,
-            logoUrl: true
-          }
+            logoUrl: true,
+          },
         },
         reviewer: {
           select: {
             id: true,
             firstName: true,
             lastName: true,
-            avatarUrl: true
-          }
-        }
-      }
+            avatarUrl: true,
+          },
+        },
+      },
     });
 
     // Transform reviewer info
@@ -329,31 +325,28 @@ export class CompanyReviewService {
       ? {
           id: updatedReview.reviewer.id,
           displayName: 'Anonymous User',
-          isAnonymous: true
+          isAnonymous: true,
         }
       : {
           id: updatedReview.reviewer.id,
           displayName: `${updatedReview.reviewer.firstName} ${updatedReview.reviewer.lastName}`,
           avatarUrl: updatedReview.reviewer.avatarUrl || undefined,
-          isAnonymous: false
+          isAnonymous: false,
         };
 
     return {
       ...updatedReview,
-      reviewer: reviewerInfo
+      reviewer: reviewerInfo,
     } as CompanyReviewDetail;
   }
 
   /**
    * Delete a company review
    */
-  static async deleteCompanyReview(
-    id: string,
-    reviewerId: string
-  ): Promise<void> {
+  static async deleteCompanyReview(id: string, reviewerId: string): Promise<void> {
     // Check if review exists and belongs to the reviewer
     const existingReview = await prisma.companyReview.findFirst({
-      where: { id, reviewerId }
+      where: { id, reviewerId },
     });
 
     if (!existingReview) {
@@ -361,19 +354,16 @@ export class CompanyReviewService {
     }
 
     await prisma.companyReview.delete({
-      where: { id }
+      where: { id },
     });
   }
 
   /**
    * Admin update review status
    */
-  static async adminUpdateReview(
-    id: string,
-    data: AdminUpdateReviewInput
-  ): Promise<CompanyReview> {
+  static async adminUpdateReview(id: string, data: AdminUpdateReviewInput): Promise<CompanyReview> {
     const review = await prisma.companyReview.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!review) {
@@ -382,21 +372,19 @@ export class CompanyReviewService {
 
     return await prisma.companyReview.update({
       where: { id },
-      data
+      data,
     });
   }
 
   /**
    * Get company review statistics
    */
-  static async getCompanyStatistics(
-    companyId: string
-  ): Promise<CompanyReviewStatistics> {
+  static async getCompanyStatistics(companyId: string): Promise<CompanyReviewStatistics> {
     // Get all approved reviews for the company
     const reviews = await prisma.companyReview.findMany({
       where: {
         companyId,
-        isApproved: true
+        isApproved: true,
       },
       select: {
         rating: true,
@@ -404,8 +392,8 @@ export class CompanyReviewService {
         salaryBenefitRating: true,
         managementRating: true,
         cultureRating: true,
-        employmentStatus: true
-      }
+        employmentStatus: true,
+      },
     });
 
     if (reviews.length === 0) {
@@ -418,40 +406,43 @@ export class CompanyReviewService {
         averageCulture: 0,
         ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
         byEmploymentStatus: { CURRENT: 0, FORMER: 0 },
-        recommendationRate: 0
+        recommendationRate: 0,
       };
     }
 
     // Calculate averages
     const totalReviews = reviews.length;
-    
+
     const calculateAverage = (ratings: (number | null)[]) => {
-      const validRatings = ratings.filter(r => r !== null) as number[];
+      const validRatings = ratings.filter((r) => r !== null) as number[];
       return validRatings.length > 0
         ? validRatings.reduce((sum, r) => sum + r, 0) / validRatings.length
         : 0;
     };
 
-    const averageRating = calculateAverage(reviews.map(r => r.rating));
-    const averageWorkLifeBalance = calculateAverage(reviews.map(r => r.workLifeBalanceRating));
-    const averageSalaryBenefit = calculateAverage(reviews.map(r => r.salaryBenefitRating));
-    const averageManagement = calculateAverage(reviews.map(r => r.managementRating));
-    const averageCulture = calculateAverage(reviews.map(r => r.cultureRating));
+    const averageRating = calculateAverage(reviews.map((r) => r.rating));
+    const averageWorkLifeBalance = calculateAverage(reviews.map((r) => r.workLifeBalanceRating));
+    const averageSalaryBenefit = calculateAverage(reviews.map((r) => r.salaryBenefitRating));
+    const averageManagement = calculateAverage(reviews.map((r) => r.managementRating));
+    const averageCulture = calculateAverage(reviews.map((r) => r.cultureRating));
 
     // Calculate rating distribution
     const ratingDistribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-    reviews.forEach(review => {
+    reviews.forEach((review) => {
       ratingDistribution[review.rating]++;
     });
 
     // Calculate by employment status
-    const byEmploymentStatus = reviews.reduce((acc, review) => {
-      acc[review.employmentStatus] = (acc[review.employmentStatus] || 0) + 1;
-      return acc;
-    }, {} as Record<EmploymentStatus, number>);
+    const byEmploymentStatus = reviews.reduce(
+      (acc, review) => {
+        acc[review.employmentStatus] = (acc[review.employmentStatus] || 0) + 1;
+        return acc;
+      },
+      {} as Record<EmploymentStatus, number>
+    );
 
     // Calculate recommendation rate (4+ stars)
-    const recommendedReviews = reviews.filter(r => r.rating >= 4).length;
+    const recommendedReviews = reviews.filter((r) => r.rating >= 4).length;
     const recommendationRate = (recommendedReviews / totalReviews) * 100;
 
     return {
@@ -463,7 +454,7 @@ export class CompanyReviewService {
       averageCulture: Math.round(averageCulture * 10) / 10,
       ratingDistribution,
       byEmploymentStatus,
-      recommendationRate: Math.round(recommendationRate)
+      recommendationRate: Math.round(recommendationRate),
     };
   }
 
@@ -476,7 +467,7 @@ export class CompanyReviewService {
   ): Promise<{ canReview: boolean; reason?: string }> {
     // Check if company exists
     const company = await prisma.company.findUnique({
-      where: { id: companyId }
+      where: { id: companyId },
     });
 
     if (!company) {
@@ -487,8 +478,8 @@ export class CompanyReviewService {
     const existingReview = await prisma.companyReview.findFirst({
       where: {
         companyId,
-        reviewerId: userId
-      }
+        reviewerId: userId,
+      },
     });
 
     if (existingReview) {
@@ -508,7 +499,7 @@ export class CompanyReviewService {
     includeUnapproved: boolean = true
   ): Promise<CompanyReviewWithRelations[]> {
     const where: Prisma.CompanyReviewWhereInput = { reviewerId: userId };
-    
+
     if (!includeUnapproved) {
       where.isApproved = true;
     }
@@ -522,10 +513,10 @@ export class CompanyReviewService {
             id: true,
             companyName: true,
             companySlug: true,
-            logoUrl: true
-          }
-        }
-      }
+            logoUrl: true,
+          },
+        },
+      },
     });
 
     return reviews as CompanyReviewWithRelations[];

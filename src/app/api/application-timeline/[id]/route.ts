@@ -21,7 +21,7 @@ import {
  * GET /api/application-timeline/[id]
  * Get a specific timeline entry
  */
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
@@ -29,8 +29,11 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       return unauthorizedResponse();
     }
 
+    // Await params
+    const { id } = await params;
+
     // Get timeline entry
-    const timeline = await ApplicationTimelineService.getById(params.id, true);
+    const timeline = await ApplicationTimelineService.getById(id, true);
 
     if (!timeline) {
       return notFoundResponse('Timeline entry');
@@ -38,9 +41,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     // Check access permissions
     const hasAccess = await ApplicationTimelineService.checkAccess(
-      params.id,
+      id,
       session.user.id,
-      session.user.role
+      session.user.userType
     );
 
     if (!hasAccess) {
@@ -58,7 +61,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
  * PUT /api/application-timeline/[id]
  * Update a timeline entry (only note can be updated)
  */
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
@@ -66,22 +69,25 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       return unauthorizedResponse();
     }
 
+    // Await params
+    const { id } = await params;
+
     // Only employers and admins can update timeline entries
-    if (session.user.role !== 'EMPLOYER' && session.user.role !== 'ADMIN') {
+    if (session.user.userType !== 'EMPLOYER' && session.user.userType !== 'ADMIN') {
       return forbiddenResponse('Only employers and admins can update timeline entries');
     }
 
     // Check if timeline entry exists
-    const existingTimeline = await ApplicationTimelineService.getById(params.id);
+    const existingTimeline = await ApplicationTimelineService.getById(id);
     if (!existingTimeline) {
       return notFoundResponse('Timeline entry');
     }
 
     // Check access permissions
     const hasAccess = await ApplicationTimelineService.checkAccess(
-      params.id,
+      id,
       session.user.id,
-      session.user.role
+      session.user.userType
     );
 
     if (!hasAccess) {
@@ -99,7 +105,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
 
     // Update timeline entry
-    const updatedTimeline = await ApplicationTimelineService.update(params.id, body);
+    const updatedTimeline = await ApplicationTimelineService.update(id, body);
 
     return successResponse(updatedTimeline, 'Timeline entry updated successfully');
   } catch (error: any) {
@@ -112,7 +118,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
  * DELETE /api/application-timeline/[id]
  * Delete a timeline entry (admin only)
  */
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
@@ -120,19 +126,22 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       return unauthorizedResponse();
     }
 
+    // Await params
+    const { id } = await params;
+
     // Only admins can delete timeline entries
-    if (session.user.role !== 'ADMIN') {
+    if (session.user.userType !== 'ADMIN') {
       return forbiddenResponse('Only admins can delete timeline entries');
     }
 
     // Check if timeline entry exists
-    const existingTimeline = await ApplicationTimelineService.getById(params.id);
+    const existingTimeline = await ApplicationTimelineService.getById(id);
     if (!existingTimeline) {
       return notFoundResponse('Timeline entry');
     }
 
     // Delete timeline entry
-    await ApplicationTimelineService.delete(params.id);
+    await ApplicationTimelineService.delete(id);
 
     return noContentResponse();
   } catch (error: any) {

@@ -7,9 +7,9 @@ import * as bcrypt from 'bcryptjs';
 
 // GET - Get single user by ID (ADMIN only)
 export const GET = withAdmin(
-  async (req: AuthenticatedRequest, { params }: { params: { id: string } }) => {
+  async (req: AuthenticatedRequest, { params }: { params: Promise<{ id: string }> }) => {
     try {
-      const userId = params.id;
+      const { id: userId } = await params;
 
       const user = await prisma.user.findUnique({
         where: { id: userId },
@@ -18,6 +18,7 @@ export const GET = withAdmin(
           email: true,
           firstName: true,
           lastName: true,
+          avatarUrl: true,
           phone: true,
           userType: true,
           status: true,
@@ -31,9 +32,7 @@ export const GET = withAdmin(
               province: true,
               country: true,
               address: true,
-              postalCode: true,
-              about: true,
-              avatar: true,
+              bio: true,
             },
           },
           companyUsers: {
@@ -42,8 +41,8 @@ export const GET = withAdmin(
                 select: {
                   id: true,
                   companyName: true,
-                  logo: true,
-                  website: true,
+                  logoUrl: true,
+                  websiteUrl: true,
                 },
               },
             },
@@ -53,10 +52,10 @@ export const GET = withAdmin(
               id: true,
               currentPosition: true,
               experienceYears: true,
-              salaryExpectation: true,
+              expectedSalaryMin: true,
+              expectedSalaryMax: true,
               skills: true,
-              languages: true,
-              willingToRelocate: true,
+              cvFileUrl: true,
             },
           },
         },
@@ -67,15 +66,7 @@ export const GET = withAdmin(
       }
 
       // Create audit log
-      await createAuditLog(
-        req.user!.id,
-        'VIEW_USER',
-        'users',
-        userId,
-        undefined,
-        undefined,
-        req
-      );
+      await createAuditLog(req.user!.id, 'VIEW_USER', 'users', userId, undefined, undefined, req);
 
       return successResponse(user);
     } catch (error) {
@@ -87,9 +78,9 @@ export const GET = withAdmin(
 
 // PUT - Update user (ADMIN only)
 export const PUT = withAdmin(
-  async (req: AuthenticatedRequest, { params }: { params: { id: string } }) => {
+  async (req: AuthenticatedRequest, { params }: { params: Promise<{ id: string }> }) => {
     try {
-      const userId = params.id;
+      const { id: userId } = await params;
       const body = await req.json();
       const { email, firstName, lastName, phone, userType, status, password } = body;
 
@@ -181,9 +172,9 @@ export const PUT = withAdmin(
 
 // DELETE - Delete user (ADMIN only)
 export const DELETE = withAdmin(
-  async (req: AuthenticatedRequest, { params }: { params: { id: string } }) => {
+  async (req: AuthenticatedRequest, { params }: { params: Promise<{ id: string }> }) => {
     try {
-      const userId = params.id;
+      const {id: userId} = await params;
 
       // Check if user exists
       const existingUser = await prisma.user.findUnique({

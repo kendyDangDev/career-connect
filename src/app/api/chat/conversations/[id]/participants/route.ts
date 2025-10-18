@@ -8,25 +8,20 @@ const addParticipantsSchema = z.object({
   userIds: z.array(z.string()),
 });
 
-const updateParticipantSchema = z.object({
-  role: z.enum(['ADMIN', 'MODERATOR', 'MEMBER']).optional(),
-});
-
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const conversationId = params.id;
+    const { id: conversationId } = await params;
 
     // Check if user is participant
     const userParticipant = await prisma.conversationParticipant.findFirst({
       where: {
         conversationId,
         userId: session.user.id,
-        isActive: true,
       },
     });
 
@@ -37,7 +32,6 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     const participants = await prisma.conversationParticipant.findMany({
       where: {
         conversationId,
-        isActive: true,
       },
       include: {
         user: {
@@ -69,14 +63,14 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const conversationId = params.id;
+    const { id: conversationId } = await params;
     const body = await request.json();
     const data = addParticipantsSchema.parse(body);
 
@@ -85,7 +79,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       where: {
         conversationId,
         userId: session.user.id,
-        isActive: true,
         role: { in: ['ADMIN', 'MODERATOR'] },
       },
     });
@@ -124,7 +117,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       where: {
         conversationId,
         userId: { in: data.userIds },
-        isActive: true,
       },
       select: { userId: true },
     });
@@ -150,7 +142,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       where: {
         conversationId,
         userId: { in: newUserIds },
-        isActive: true,
       },
       include: {
         user: {

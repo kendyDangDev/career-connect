@@ -1,11 +1,7 @@
 import { NextRequest } from 'next/server';
 import { InterviewReviewService } from '@/services/interview-review.service';
-import { 
-  successResponse, 
-  errorResponse, 
-  serverErrorResponse
-} from '@/utils/api-response';
-import prisma from '@/lib/prisma';
+import { successResponse, errorResponse, serverErrorResponse } from '@/utils/api-response';
+import { prisma } from '@/lib/prisma';
 
 /**
  * GET /api/reviews/interview/statistics
@@ -28,20 +24,19 @@ export async function GET(req: NextRequest) {
     if (!finalCompanyId && companySlug) {
       const company = await prisma.company.findUnique({
         where: { companySlug },
-        select: { id: true }
+        select: { id: true },
       });
-      
+
       if (!company) {
         return errorResponse('Company not found', 404);
       }
-      
+
       finalCompanyId = company.id;
     }
 
     const statistics = await InterviewReviewService.getCompanyInterviewStatistics(finalCompanyId!);
 
     return successResponse({ statistics }, 'Interview statistics retrieved successfully');
-
   } catch (error) {
     return serverErrorResponse('Failed to retrieve interview statistics', error);
   }

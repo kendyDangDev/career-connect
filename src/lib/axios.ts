@@ -15,11 +15,11 @@ axiosInstance.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     try {
       const session = await getSession();
-      
-      if (session?.accessToken) {
-        config.headers.Authorization = `Bearer ${session.accessToken}`;
-      }
-      
+
+      // if (session?.sessionToken) {
+      //   config.headers.Authorization = `Bearer ${session.accessToken}`;
+      // }
+
       return config;
     } catch (error) {
       console.error('Error in request interceptor:', error);
@@ -41,7 +41,7 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status === 401) {
       // Redirect to login or refresh token logic here
       if (typeof window !== 'undefined') {
-        window.location.href = '/auth/login';
+        window.location.href = '/auth/signin';
       }
     }
 
@@ -63,24 +63,24 @@ axiosInstance.interceptors.response.use(
 export const handleApiError = (error: unknown): string => {
   if (axios.isAxiosError(error)) {
     const axiosError = error as AxiosError<{ error?: string; message?: string }>;
-    
+
     if (axiosError.response?.data?.error) {
       return axiosError.response.data.error;
     }
-    
+
     if (axiosError.response?.data?.message) {
       return axiosError.response.data.message;
     }
-    
+
     if (axiosError.message) {
       return axiosError.message;
     }
   }
-  
+
   if (error instanceof Error) {
     return error.message;
   }
-  
+
   return 'An unexpected error occurred';
 };
 

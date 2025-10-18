@@ -36,13 +36,13 @@ export function useUsersData(options?: UseUsersDataOptions) {
   const [error, setError] = useState<string | null>(null);
 
   // Use options if provided, otherwise get from URL
-  const currentPage = options?.page || parseInt(searchParams.get('page') || '1', 10);
-  const pageSize = options?.limit || parseInt(searchParams.get('limit') || '10', 10);
-  const currentSearch = options?.search || searchParams.get('search') || '';
-  const currentUserType = options?.userType || searchParams.get('userType') || '';
-  const currentStatus = options?.status || searchParams.get('status') || '';
-  const currentSortBy = options?.sortBy || searchParams.get('sortBy') || 'createdAt';
-  const currentSortOrder = options?.sortOrder || searchParams.get('sortOrder') || 'desc';
+  const currentPage = options?.page || parseInt(searchParams?.get('page') || '1', 10);
+  const pageSize = options?.limit || parseInt(searchParams?.get('limit') || '10', 10);
+  const currentSearch = options?.search || searchParams?.get('search') || '';
+  const currentUserType = options?.userType || searchParams?.get('userType') || '';
+  const currentStatus = options?.status || searchParams?.get('status') || '';
+  const currentSortBy = options?.sortBy || searchParams?.get('sortBy') || 'createdAt';
+  const currentSortOrder = options?.sortOrder || searchParams?.get('sortOrder') || 'desc';
 
   // Fetch users data
   const fetchUsers = useCallback(async () => {
@@ -71,7 +71,7 @@ export function useUsersData(options?: UseUsersDataOptions) {
       if (apiResponse.success && apiResponse.data) {
         setData({
           users: apiResponse.data,
-          totalCount: apiResponse.pagination.total,
+          totalCount: apiResponse.pagination.totalCount,
           page: apiResponse.pagination.page,
           limit: apiResponse.pagination.limit,
           totalPages: apiResponse.pagination.totalPages,
@@ -101,7 +101,7 @@ export function useUsersData(options?: UseUsersDataOptions) {
   // Update URL params
   const updateParams = useCallback(
     (params: Record<string, string | null>) => {
-      const newSearchParams = new URLSearchParams(searchParams.toString());
+      const newSearchParams = new URLSearchParams(searchParams?.toString());
 
       Object.entries(params).forEach(([key, value]) => {
         if (value === null || value === '') {
@@ -246,13 +246,20 @@ export function useUsersData(options?: UseUsersDataOptions) {
     }
   }, []);
 
-  const pagination = data && {
+  const pagination = data ? {
     page: data.page,
     limit: data.limit,
     totalCount: data.totalCount,
     totalPages: data.totalPages,
     hasNextPage: data.hasNextPage,
     hasPreviousPage: data.hasPreviousPage,
+  } : {
+    page: currentPage,
+    limit: pageSize,
+    totalCount: 0,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPreviousPage: false,
   };
 
   return {

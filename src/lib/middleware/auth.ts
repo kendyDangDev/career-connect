@@ -48,8 +48,9 @@ export async function authenticateUser(
           const jwt = require('jsonwebtoken');
           decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET);
           console.log('Auth middleware - Decoded with NEXTAUTH_SECRET:', decoded);
-        } catch (error) {
-          console.log('Auth middleware - NEXTAUTH_SECRET also failed:', error.message);
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+          console.log('Auth middleware - NEXTAUTH_SECRET also failed:', errorMessage);
         }
       }
 

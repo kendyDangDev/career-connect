@@ -18,7 +18,7 @@ export const useNotification = () => {
 
   const showNotification = useCallback((options: ShowNotificationOptions) => {
     const id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
-    
+
     const notification: NotificationItem = {
       id,
       ...options,
@@ -39,58 +39,73 @@ export const useNotification = () => {
   }, []);
 
   // Convenience methods for common notification types
-  const success = useCallback((title: string, message?: string, options?: Partial<ShowNotificationOptions>) => {
-    return showNotification({
-      type: 'success',
-      title,
-      message,
-      duration: 4000,
-      ...options,
-    });
-  }, [showNotification]);
+  const success = useCallback(
+    (title: string, message?: string, options?: Partial<ShowNotificationOptions>) => {
+      return showNotification({
+        type: 'success',
+        title,
+        message,
+        duration: 4000,
+        ...options,
+      });
+    },
+    [showNotification]
+  );
 
-  const error = useCallback((title: string, message?: string, options?: Partial<ShowNotificationOptions>) => {
-    return showNotification({
-      type: 'error',
-      title,
-      message,
-      duration: 6000,
-      ...options,
-    });
-  }, [showNotification]);
+  const error = useCallback(
+    (title: string, message?: string, options?: Partial<ShowNotificationOptions>) => {
+      return showNotification({
+        type: 'error',
+        title,
+        message,
+        duration: 6000,
+        ...options,
+      });
+    },
+    [showNotification]
+  );
 
-  const warning = useCallback((title: string, message?: string, options?: Partial<ShowNotificationOptions>) => {
-    return showNotification({
-      type: 'warning',
-      title,
-      message,
-      duration: 5000,
-      ...options,
-    });
-  }, [showNotification]);
+  const warning = useCallback(
+    (title: string, message?: string, options?: Partial<ShowNotificationOptions>) => {
+      return showNotification({
+        type: 'warning',
+        title,
+        message,
+        duration: 5000,
+        ...options,
+      });
+    },
+    [showNotification]
+  );
 
-  const info = useCallback((title: string, message?: string, options?: Partial<ShowNotificationOptions>) => {
-    return showNotification({
-      type: 'info',
-      title,
-      message,
-      duration: 4000,
-      ...options,
-    });
-  }, [showNotification]);
+  const info = useCallback(
+    (title: string, message?: string, options?: Partial<ShowNotificationOptions>) => {
+      return showNotification({
+        type: 'info',
+        title,
+        message,
+        duration: 4000,
+        ...options,
+      });
+    },
+    [showNotification]
+  );
 
-  const loading = useCallback((title: string, message?: string) => {
-    return showNotification({
-      type: 'loading',
-      title,
-      message,
-      dismissible: false,
-    });
-  }, [showNotification]);
+  const loading = useCallback(
+    (title: string, message?: string) => {
+      return showNotification({
+        type: 'loading',
+        title,
+        message,
+        dismissible: false,
+      });
+    },
+    [showNotification]
+  );
 
   // Promise-based notification for async operations
   const promise = useCallback(
-    async <T,>(
+    async <T>(
       promise: Promise<T>,
       messages: {
         loading: string;
@@ -103,22 +118,23 @@ export const useNotification = () => {
       try {
         const result = await promise;
         dismissNotification(loadingId);
-        
-        const successMessage = typeof messages.success === 'function' 
-          ? messages.success(result) 
-          : messages.success;
-        
+
+        const successMessage =
+          typeof messages.success === 'function' ? messages.success(result) : messages.success;
+
         success(successMessage);
         return result;
-      } catch (error) {
+      } catch (err) {
         dismissNotification(loadingId);
-        
-        const errorMessage = messages.error 
-          ? (typeof messages.error === 'function' ? messages.error(error) : messages.error)
+
+        const errorMessage = messages.error
+          ? typeof messages.error === 'function'
+            ? messages.error(error)
+            : messages.error
           : 'Đã xảy ra lỗi không mong muốn';
-        
+
         error(errorMessage);
-        throw error;
+        throw err;
       }
     },
     [loading, dismissNotification, success, error]

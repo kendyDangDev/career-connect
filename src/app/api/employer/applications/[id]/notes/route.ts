@@ -5,7 +5,7 @@ import { EmployerApplicationService } from '@/services/employer/application.serv
 import { AddApplicationNoteDTO } from '@/types/employer/application';
 import { ErrorCode } from '@/lib/errors/application-errors';
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
 
     // Check role
-    if (session.user.role !== 'EMPLOYER') {
+    if (session.user.userType !== 'EMPLOYER') {
       return NextResponse.json(
         { success: false, error: 'Forbidden - Employer access only' },
         { status: 403 }
@@ -55,12 +55,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       note: body.note.trim(),
     };
 
+    const { id } = await params;
+
     // Add note to application
-    const result = await EmployerApplicationService.addApplicationNote(
-      params.id,
-      companyId,
-      noteData
-    );
+    const result = await EmployerApplicationService.addApplicationNote(id, companyId, noteData);
 
     return NextResponse.json({
       success: true,

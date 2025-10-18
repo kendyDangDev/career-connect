@@ -1,29 +1,26 @@
 import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { authOptions } from '@/lib/auth-config';
 import { CompanyReviewService } from '@/services/company-review.service';
-import { 
-  successResponse, 
-  errorResponse, 
+import {
+  successResponse,
+  errorResponse,
   serverErrorResponse,
   validationErrorResponse,
-  unauthorizedResponse
+  unauthorizedResponse,
 } from '@/utils/api-response';
 import { adminUpdateReviewSchema } from '@/lib/validations/company-review.validation';
 import { UserType } from '@/generated/prisma';
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 /**
  * PATCH /api/reviews/company/[id]/approve
  * Approve or reject a company review (Admin only)
  */
-export async function PATCH(
-  req: NextRequest,
-  { params }: RouteParams
-) {
+export async function PATCH(req: NextRequest, { params }: RouteParams) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
@@ -44,13 +41,11 @@ export async function PATCH(
     }
 
     try {
-      const updatedReview = await CompanyReviewService.adminUpdateReview(
-        params.id,
-        validated.data
-      );
+      const { id } = await params;
+      const updatedReview = await CompanyReviewService.adminUpdateReview(id, validated.data);
 
       return successResponse(
-        { review: updatedReview }, 
+        { review: updatedReview },
         `Review ${validated.data.isApproved ? 'approved' : 'rejected'} successfully`
       );
     } catch (error: any) {
@@ -59,7 +54,6 @@ export async function PATCH(
       }
       throw error;
     }
-
   } catch (error) {
     return serverErrorResponse('Failed to update review status', error);
   }

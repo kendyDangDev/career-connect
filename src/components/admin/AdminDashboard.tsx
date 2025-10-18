@@ -160,7 +160,8 @@ export function AdminDashboard() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Recent Activity - Takes 2 columns */}
         <div className="lg:col-span-2">
-          <RecentActivity />
+          {/* <RecentActivity activities={} /> */}
+          recent acitivity componet chưa hoạt động(thiếu props)
         </div>
 
         {/* Quick Stats */}

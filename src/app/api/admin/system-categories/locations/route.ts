@@ -7,12 +7,12 @@ import {
   successResponse,
   errorResponse,
   paginatedResponse,
-  checkRateLimit
+  checkRateLimit,
 } from '@/lib/middleware';
 import {
   createLocationSchema,
   locationQuerySchema,
-  checkDuplicateName
+  checkDuplicateName,
 } from '@/lib/validations/system-categories';
 import { Location, LocationType } from '@/types/system-categories';
 
@@ -22,12 +22,12 @@ function buildLocationTree(locations: any[]): any[] {
   const rootLocations: any[] = [];
 
   // First pass: create map
-  locations.forEach(loc => {
+  locations.forEach((loc) => {
     locationMap.set(loc.id, { ...loc, children: [] });
   });
 
   // Second pass: build tree
-  locations.forEach(loc => {
+  locations.forEach((loc) => {
     if (loc.parentId) {
       const parent = locationMap.get(loc.parentId);
       if (parent) {
@@ -51,7 +51,7 @@ export const GET = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) 
 
     // Build where clause
     const where: any = {};
-    
+
     if (query.search) {
       where.name = { contains: query.search, mode: 'insensitive' };
     }
@@ -81,20 +81,20 @@ export const GET = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) 
           select: {
             id: true,
             name: true,
-            type: true
-          }
+            type: true,
+          },
         },
         _count: {
           select: {
-            children: true
-          }
-        }
+            children: true,
+          },
+        },
       },
       orderBy: {
-        [query.sortBy]: query.sortOrder
+        [query.sortBy]: query.sortOrder,
       },
       skip: (query.page - 1) * query.limit,
-      take: query.limit
+      take: query.limit,
     });
 
     // If includeChildren is true and we're querying root locations, build tree
@@ -102,30 +102,27 @@ export const GET = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) 
       const allLocations = await prisma.location.findMany({
         where: {
           isActive: query.isActive,
-          type: query.type
+          type: query.type,
         },
         include: {
           parent: {
             select: {
               id: true,
               name: true,
-              type: true
-            }
+              type: true,
+            },
           },
           _count: {
             select: {
-              children: true
-            }
-          }
+              children: true,
+            },
+          },
         },
-        orderBy: [
-          { type: 'asc' },
-          { [query.sortBy]: query.sortOrder }
-        ]
+        orderBy: [{ type: 'asc' }, { [query.sortBy]: query.sortOrder }],
       });
-      
+
       locations = buildLocationTree(allLocations);
-      
+
       // Apply pagination to root locations only
       const startIndex = (query.page - 1) * query.limit;
       const endIndex = startIndex + query.limit;
@@ -137,14 +134,17 @@ export const GET = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) 
       by: ['type'],
       where: query.isActive !== undefined ? { isActive: query.isActive } : {},
       _count: {
-        type: true
-      }
+        type: true,
+      },
     });
 
-    const typeStats = typeCounts.reduce((acc, curr) => {
-      acc[curr.type] = curr._count.type;
-      return acc;
-    }, {} as Record<string, number>);
+    const typeStats = typeCounts.reduce(
+      (acc, curr) => {
+        acc[curr.type] = curr._count.type;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     return NextResponse.json({
       success: true,
@@ -154,16 +154,12 @@ export const GET = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) 
         page: query.page,
         limit: query.limit,
         totalPages: Math.ceil(total / query.limit),
-        typeStats
-      }
+        typeStats,
+      },
     });
   } catch (error: any) {
     console.error('Get locations error:', error);
-    return errorResponse(
-      'FETCH_ERROR',
-      error.message || 'Không thể lấy danh sách địa điểm',
-      500
-    );
+    return errorResponse('FETCH_ERROR', error.message || 'Không thể lấy danh sách địa điểm', 500);
   }
 });
 
@@ -188,33 +184,25 @@ export const POST = withRole([UserType.ADMIN], async (req: AuthenticatedRequest)
       where: {
         name: {
           equals: validatedData.name,
-          mode: 'insensitive'
+          mode: 'insensitive',
         },
         parentId: validatedData.parentId || null,
-        type: validatedData.type
-      }
+        type: validatedData.type,
+      },
     });
 
     if (existingLocation) {
-      return errorResponse(
-        'DUPLICATE_NAME',
-        'Địa điểm với tên này đã tồn tại trong cùng cấp',
-        400
-      );
+      return errorResponse('DUPLICATE_NAME', 'Địa điểm với tên này đã tồn tại trong cùng cấp', 400);
     }
 
     // Validate parent ID and type hierarchy if provided
     if (validatedData.parentId) {
       const parentLocation = await prisma.location.findUnique({
-        where: { id: validatedData.parentId }
+        where: { id: validatedData.parentId },
       });
 
       if (!parentLocation) {
-        return errorResponse(
-          'INVALID_PARENT',
-          'Địa điểm cha không tồn tại',
-          400
-        );
+        return errorResponse('INVALID_PARENT', 'Địa điểm cha không tồn tại', 400);
       }
 
       // Validate type hierarchy
@@ -222,11 +210,11 @@ export const POST = withRole([UserType.ADMIN], async (req: AuthenticatedRequest)
         [LocationType.COUNTRY]: null,
         [LocationType.PROVINCE]: LocationType.COUNTRY,
         [LocationType.CITY]: LocationType.PROVINCE,
-        [LocationType.DISTRICT]: LocationType.CITY
+        [LocationType.DISTRICT]: LocationType.CITY,
       };
 
       const expectedParentType = typeHierarchy[validatedData.type];
-      
+
       if (expectedParentType && parentLocation.type !== expectedParentType) {
         return errorResponse(
           'INVALID_TYPE_HIERARCHY',
@@ -237,11 +225,7 @@ export const POST = withRole([UserType.ADMIN], async (req: AuthenticatedRequest)
     } else {
       // Only COUNTRY can have no parent
       if (validatedData.type !== LocationType.COUNTRY) {
-        return errorResponse(
-          'PARENT_REQUIRED',
-          `${validatedData.type} phải có địa điểm cha`,
-          400
-        );
+        return errorResponse('PARENT_REQUIRED', `${validatedData.type} phải có địa điểm cha`, 400);
       }
     }
 
@@ -252,43 +236,31 @@ export const POST = withRole([UserType.ADMIN], async (req: AuthenticatedRequest)
         type: validatedData.type,
         parentId: validatedData.parentId || null,
         latitude: validatedData.latitude,
-        longitude: validatedData.longitude
+        longitude: validatedData.longitude,
       },
       include: {
         parent: {
           select: {
             id: true,
             name: true,
-            type: true
-          }
+            type: true,
+          },
         },
         _count: {
           select: {
-            children: true
-          }
-        }
-      }
+            children: true,
+          },
+        },
+      },
     });
 
     // Create audit log
-    await createAuditLog(
-      req.user!.id,
-      'CREATE',
-      'locations',
-      location.id,
-      null,
-      location,
-      req
-    );
+    await createAuditLog(req.user!.id, 'CREATE', 'locations', location.id, null, location, req);
 
-    return successResponse<Location>(
-      location as any,
-      'Tạo địa điểm thành công',
-      201
-    );
+    return successResponse<Location>(location as any, 'Tạo địa điểm thành công', 201);
   } catch (error: any) {
     console.error('Create location error:', error);
-    
+
     if (error.name === 'ZodError') {
       return errorResponse(
         'VALIDATION_ERROR',
@@ -297,47 +269,42 @@ export const POST = withRole([UserType.ADMIN], async (req: AuthenticatedRequest)
       );
     }
 
-    return errorResponse(
-      'CREATE_ERROR',
-      error.message || 'Không thể tạo địa điểm',
-      500
-    );
+    return errorResponse('CREATE_ERROR', error.message || 'Không thể tạo địa điểm', 500);
   }
 });
 
 // GET popular cities (for quick selection)
-export const GET_POPULAR = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) => {
-    try {
-      // Get top cities by job count or pre-defined list
-      const popularCities = await prisma.location.findMany({
-        where: {
-          type: LocationType.CITY,
-          isActive: true,
-          OR: [
-            { name: { in: ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Hải Phòng', 'Cần Thơ'] } }
-          ]
-        },
-        include: {
-          parent: {
-            select: {
-              id: true,
-              name: true
-            }
-          }
-        },
-        orderBy: {
-          name: 'asc'
-        }
-      });
+// export const GET_POPULAR = withRole([UserType.ADMIN], async (req: AuthenticatedRequest) => {
+//     try {
+//       // Get top cities by job count or pre-defined list
+//       const popularCities = await prisma.location.findMany({
+//         where: {
+//           type: LocationType.CITY,
+//           isActive: true,
+//           OR: [
+//             { name: { in: ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Hải Phòng', 'Cần Thơ'] } }
+//           ]
+//         },
+//         include: {
+//           parent: {
+//             select: {
+//               id: true,
+//               name: true
+//             }
+//           }
+//         },
+//         orderBy: {
+//           name: 'asc'
+//         }
+//       });
 
-      return successResponse(popularCities);
-    } catch (error: any) {
-      console.error('Get popular cities error:', error);
-      return errorResponse(
-        'FETCH_ERROR',
-        error.message || 'Không thể lấy danh sách thành phố phổ biến',
-        500
-      );
-    }
-});
-
+//       return successResponse(popularCities);
+//     } catch (error: any) {
+//       console.error('Get popular cities error:', error);
+//       return errorResponse(
+//         'FETCH_ERROR',
+//         error.message || 'Không thể lấy danh sách thành phố phổ biến',
+//         500
+//       );
+//     }
+// });

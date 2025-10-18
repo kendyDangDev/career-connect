@@ -5,7 +5,7 @@ import {
   AlertFrequency,
   JobStatus,
   JobType,
-  ExperienceLevel
+  ExperienceLevel,
 } from '@/generated/prisma';
 import {
   GetJobAlertsParams,
@@ -18,7 +18,7 @@ import {
   JobAlertFilters,
   PaginationParams,
   JobAlertStatsResponse,
-  parseJobAlertJsonFields
+  parseJobAlertJsonFields,
 } from '@/types/job-alert.types';
 
 export class JobAlertService {
@@ -28,7 +28,7 @@ export class JobAlertService {
   static async getJobAlerts({
     candidateId,
     filters = {},
-    pagination = {}
+    pagination = {},
   }: GetJobAlertsParams): Promise<{
     jobAlerts: JobAlertWithRelations[];
     total: number;
@@ -41,7 +41,7 @@ export class JobAlertService {
       hasLocations,
       hasCategories,
       sortBy = 'createdAt',
-      sortOrder = 'desc'
+      sortOrder = 'desc',
     } = filters;
 
     const { page = 1, limit = 20 } = pagination;
@@ -53,36 +53,43 @@ export class JobAlertService {
       ...(search && {
         OR: [
           { alertName: { contains: search, mode: 'insensitive' } },
-          { keywords: { contains: search, mode: 'insensitive' } }
-        ]
+          { keywords: { contains: search, mode: 'insensitive' } },
+        ],
       }),
       ...(isActive !== undefined && { isActive }),
-      ...(frequency && frequency.length > 0 && {
-        frequency: { in: frequency }
-      }),
+      ...(frequency &&
+        frequency.length > 0 && {
+          frequency: { in: frequency },
+        }),
+
+      // --- keywords ---
       ...(hasKeywords === true && {
-        NOT: { keywords: null }
+        NOT: { keywords: { equals: null } },
       }),
       ...(hasKeywords === false && {
-        keywords: null
+        keywords: { equals: null },
       }),
+
+      // --- locations ---
       ...(hasLocations === true && {
-        NOT: { locationIds: Prisma.DbNull }
+        NOT: { locationIds: { equals: Prisma.DbNull } },
       }),
       ...(hasLocations === false && {
-        locationIds: Prisma.DbNull
+        locationIds: { equals: Prisma.DbNull },
       }),
+
+      // --- categories ---
       ...(hasCategories === true && {
-        NOT: { categoryIds: Prisma.DbNull }
+        NOT: { categoryIds: { equals: Prisma.DbNull } },
       }),
       ...(hasCategories === false && {
-        categoryIds: Prisma.DbNull
-      })
+        categoryIds: { equals: Prisma.DbNull },
+      }),
     };
 
     // Build orderBy clause
     const orderBy: Prisma.JobAlertOrderByWithRelationInput = {
-      [sortBy]: sortOrder
+      [sortBy]: sortOrder,
     };
 
     // Execute queries in parallel
@@ -97,17 +104,17 @@ export class JobAlertService {
                   id: true,
                   email: true,
                   firstName: true,
-                  lastName: true
-                }
-              }
-            }
-          }
+                  lastName: true,
+                },
+              },
+            },
+          },
         },
         orderBy,
         skip,
-        take: limit
+        take: limit,
       }),
-      prisma.jobAlert.count({ where })
+      prisma.jobAlert.count({ where }),
     ]);
 
     // Add matching jobs count for each alert
@@ -117,15 +124,15 @@ export class JobAlertService {
         return {
           ...alert,
           _count: {
-            matchingJobs: matchingJobsCount
-          }
+            matchingJobs: matchingJobsCount,
+          },
         } as JobAlertWithRelations;
       })
     );
 
     return {
       jobAlerts: alertsWithCounts,
-      total
+      total,
     };
   }
 
@@ -134,11 +141,11 @@ export class JobAlertService {
    */
   static async createJobAlert({
     candidateId,
-    data
+    data,
   }: CreateJobAlertParams): Promise<JobAlertWithRelations> {
     // Check if candidate exists
     const candidate = await prisma.candidate.findUnique({
-      where: { id: candidateId }
+      where: { id: candidateId },
     });
 
     if (!candidate) {
@@ -147,7 +154,7 @@ export class JobAlertService {
 
     // Check alert limit (e.g., max 10 alerts per candidate)
     const alertCount = await prisma.jobAlert.count({
-      where: { candidateId }
+      where: { candidateId },
     });
 
     if (alertCount >= 10) {
@@ -160,17 +167,15 @@ export class JobAlertService {
         candidateId,
         alertName: data.alertName,
         keywords: data.keywords || null,
-        locationIds: data.locationIds && data.locationIds.length > 0 
-          ? data.locationIds 
-          : Prisma.JsonNull,
-        categoryIds: data.categoryIds && data.categoryIds.length > 0 
-          ? data.categoryIds 
-          : Prisma.JsonNull,
+        locationIds:
+          data.locationIds && data.locationIds.length > 0 ? data.locationIds : Prisma.JsonNull,
+        categoryIds:
+          data.categoryIds && data.categoryIds.length > 0 ? data.categoryIds : Prisma.JsonNull,
         jobType: data.jobType || null,
         salaryMin: data.salaryMin ? new Prisma.Decimal(data.salaryMin) : null,
         experienceLevel: data.experienceLevel || null,
         frequency: data.frequency || AlertFrequency.WEEKLY,
-        isActive: true
+        isActive: true,
       },
       include: {
         candidate: {
@@ -180,12 +185,12 @@ export class JobAlertService {
                 id: true,
                 email: true,
                 firstName: true,
-                lastName: true
-              }
-            }
-          }
-        }
-      }
+                lastName: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     // Add matching jobs count
@@ -194,8 +199,8 @@ export class JobAlertService {
     return {
       ...jobAlert,
       _count: {
-        matchingJobs: matchingJobsCount
-      }
+        matchingJobs: matchingJobsCount,
+      },
     } as JobAlertWithRelations;
   }
 
@@ -205,14 +210,14 @@ export class JobAlertService {
   static async updateJobAlert({
     id,
     candidateId,
-    data
+    data,
   }: UpdateJobAlertParams): Promise<JobAlertWithRelations> {
     // Check if job alert exists and belongs to candidate
     const existingAlert = await prisma.jobAlert.findFirst({
       where: {
         id,
-        candidateId
-      }
+        candidateId,
+      },
     });
 
     if (!existingAlert) {
@@ -226,24 +231,20 @@ export class JobAlertService {
         ...(data.alertName !== undefined && { alertName: data.alertName }),
         ...(data.keywords !== undefined && { keywords: data.keywords || null }),
         ...(data.locationIds !== undefined && {
-          locationIds: data.locationIds.length > 0 
-            ? data.locationIds 
-            : Prisma.JsonNull
+          locationIds: data.locationIds.length > 0 ? data.locationIds : Prisma.JsonNull,
         }),
         ...(data.categoryIds !== undefined && {
-          categoryIds: data.categoryIds.length > 0 
-            ? data.categoryIds 
-            : Prisma.JsonNull
+          categoryIds: data.categoryIds.length > 0 ? data.categoryIds : Prisma.JsonNull,
         }),
         ...(data.jobType !== undefined && { jobType: data.jobType || null }),
         ...(data.salaryMin !== undefined && {
-          salaryMin: data.salaryMin ? new Prisma.Decimal(data.salaryMin) : null
+          salaryMin: data.salaryMin ? new Prisma.Decimal(data.salaryMin) : null,
         }),
         ...(data.experienceLevel !== undefined && {
-          experienceLevel: data.experienceLevel || null
+          experienceLevel: data.experienceLevel || null,
         }),
         ...(data.frequency !== undefined && { frequency: data.frequency }),
-        ...(data.isActive !== undefined && { isActive: data.isActive })
+        ...(data.isActive !== undefined && { isActive: data.isActive }),
       },
       include: {
         candidate: {
@@ -253,12 +254,12 @@ export class JobAlertService {
                 id: true,
                 email: true,
                 firstName: true,
-                lastName: true
-              }
-            }
-          }
-        }
-      }
+                lastName: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     // Add matching jobs count
@@ -267,24 +268,21 @@ export class JobAlertService {
     return {
       ...updatedAlert,
       _count: {
-        matchingJobs: matchingJobsCount
-      }
+        matchingJobs: matchingJobsCount,
+      },
     } as JobAlertWithRelations;
   }
 
   /**
    * Delete a job alert
    */
-  static async deleteJobAlert({
-    id,
-    candidateId
-  }: DeleteJobAlertParams): Promise<boolean> {
+  static async deleteJobAlert({ id, candidateId }: DeleteJobAlertParams): Promise<boolean> {
     // Check if job alert exists and belongs to candidate
     const existingAlert = await prisma.jobAlert.findFirst({
       where: {
         id,
-        candidateId
-      }
+        candidateId,
+      },
     });
 
     if (!existingAlert) {
@@ -293,7 +291,7 @@ export class JobAlertService {
 
     // Delete the job alert
     await prisma.jobAlert.delete({
-      where: { id }
+      where: { id },
     });
 
     return true;
@@ -305,14 +303,14 @@ export class JobAlertService {
   static async toggleJobAlertStatus({
     id,
     candidateId,
-    isActive
+    isActive,
   }: ToggleJobAlertStatusParams): Promise<JobAlertWithRelations> {
     // Check if job alert exists and belongs to candidate
     const existingAlert = await prisma.jobAlert.findFirst({
       where: {
         id,
-        candidateId
-      }
+        candidateId,
+      },
     });
 
     if (!existingAlert) {
@@ -331,12 +329,12 @@ export class JobAlertService {
                 id: true,
                 email: true,
                 firstName: true,
-                lastName: true
-              }
-            }
-          }
-        }
-      }
+                lastName: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     // Add matching jobs count
@@ -345,18 +343,15 @@ export class JobAlertService {
     return {
       ...updatedAlert,
       _count: {
-        matchingJobs: matchingJobsCount
-      }
+        matchingJobs: matchingJobsCount,
+      },
     } as JobAlertWithRelations;
   }
 
   /**
    * Test a job alert by finding matching jobs
    */
-  static async testJobAlert({
-    id,
-    candidateId
-  }: TestJobAlertParams): Promise<{
+  static async testJobAlert({ id, candidateId }: TestJobAlertParams): Promise<{
     alert: JobAlertWithRelations;
     matchingJobs: any[];
     totalMatches: number;
@@ -365,7 +360,7 @@ export class JobAlertService {
     const jobAlert = await prisma.jobAlert.findFirst({
       where: {
         id,
-        candidateId
+        candidateId,
       },
       include: {
         candidate: {
@@ -375,12 +370,12 @@ export class JobAlertService {
                 id: true,
                 email: true,
                 firstName: true,
-                lastName: true
-              }
-            }
-          }
-        }
-      }
+                lastName: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!jobAlert) {
@@ -389,7 +384,7 @@ export class JobAlertService {
 
     // Find matching jobs
     const where = this.buildJobSearchConditions(jobAlert);
-    
+
     const [matchingJobs, totalMatches] = await Promise.all([
       prisma.job.findMany({
         where,
@@ -401,33 +396,33 @@ export class JobAlertService {
               companySlug: true,
               logoUrl: true,
               city: true,
-              province: true
-            }
+              province: true,
+            },
           },
           _count: {
             select: {
               applications: true,
-              savedJobs: true
-            }
-          }
+              savedJobs: true,
+            },
+          },
         },
         orderBy: {
-          publishedAt: 'desc'
+          publishedAt: 'desc',
         },
-        take: 10 // Return first 10 matches for testing
+        take: 10, // Return first 10 matches for testing
       }),
-      prisma.job.count({ where })
+      prisma.job.count({ where }),
     ]);
 
     return {
       alert: {
         ...jobAlert,
         _count: {
-          matchingJobs: totalMatches
-        }
+          matchingJobs: totalMatches,
+        },
       } as JobAlertWithRelations,
       matchingJobs,
-      totalMatches
+      totalMatches,
     };
   }
 
@@ -439,19 +434,19 @@ export class JobAlertService {
       where: { candidateId },
       select: {
         isActive: true,
-        frequency: true
-      }
+        frequency: true,
+      },
     });
 
     const stats: JobAlertStatsResponse = {
       totalAlerts: alerts.length,
-      activeAlerts: alerts.filter(a => a.isActive).length,
-      inactiveAlerts: alerts.filter(a => !a.isActive).length,
+      activeAlerts: alerts.filter((a) => a.isActive).length,
+      inactiveAlerts: alerts.filter((a) => !a.isActive).length,
       byFrequency: {
-        daily: alerts.filter(a => a.frequency === AlertFrequency.DAILY).length,
-        weekly: alerts.filter(a => a.frequency === AlertFrequency.WEEKLY).length,
-        instant: alerts.filter(a => a.frequency === AlertFrequency.INSTANT).length
-      }
+        daily: alerts.filter((a) => a.frequency === AlertFrequency.DAILY).length,
+        weekly: alerts.filter((a) => a.frequency === AlertFrequency.WEEKLY).length,
+        instant: alerts.filter((a) => a.frequency === AlertFrequency.INSTANT).length,
+      },
     };
 
     return stats;
@@ -477,55 +472,52 @@ export class JobAlertService {
         OR: [
           { title: { contains: parsedAlert.keywords, mode: 'insensitive' } },
           { description: { contains: parsedAlert.keywords, mode: 'insensitive' } },
-          { requirements: { contains: parsedAlert.keywords, mode: 'insensitive' } }
-        ]
+          { requirements: { contains: parsedAlert.keywords, mode: 'insensitive' } },
+        ],
       }),
       ...(parsedAlert.locationIds.length > 0 && {
         OR: [
           {
             locationCity: {
-              in: parsedAlert.locationIds
-            }
+              in: parsedAlert.locationIds,
+            },
           },
           {
             locationProvince: {
-              in: parsedAlert.locationIds
-            }
-          }
-        ]
+              in: parsedAlert.locationIds,
+            },
+          },
+        ],
       }),
       ...(parsedAlert.categoryIds.length > 0 && {
         jobCategories: {
           some: {
             categoryId: {
-              in: parsedAlert.categoryIds
-            }
-          }
-        }
+              in: parsedAlert.categoryIds,
+            },
+          },
+        },
       }),
       ...(jobAlert.jobType && {
-        jobType: jobAlert.jobType
+        jobType: jobAlert.jobType,
       }),
       ...(jobAlert.salaryMin && {
         OR: [
           {
             salaryMax: {
-              gte: jobAlert.salaryMin
-            }
+              gte: jobAlert.salaryMin,
+            },
           },
           {
-            salaryNegotiable: true
-          }
-        ]
+            salaryNegotiable: true,
+          },
+        ],
       }),
       ...(jobAlert.experienceLevel && {
-        experienceLevel: jobAlert.experienceLevel
+        experienceLevel: jobAlert.experienceLevel,
       }),
       // Only show jobs with future deadlines or no deadline
-      OR: [
-        { applicationDeadline: null },
-        { applicationDeadline: { gte: new Date() } }
-      ]
+      OR: [{ applicationDeadline: null }, { applicationDeadline: { gte: new Date() } }],
     };
 
     return where;
@@ -554,18 +546,15 @@ export class JobAlertService {
       where: {
         isActive: true,
         frequency,
-        OR: [
-          { lastSentAt: null },
-          { lastSentAt: { lt: lastSentBefore } }
-        ]
+        OR: [{ lastSentAt: null }, { lastSentAt: { lt: lastSentBefore } }],
       },
       include: {
         candidate: {
           include: {
-            user: true
-          }
-        }
-      }
+            user: true,
+          },
+        },
+      },
     });
   }
 
@@ -575,7 +564,7 @@ export class JobAlertService {
   static async updateLastSent(id: string): Promise<void> {
     await prisma.jobAlert.update({
       where: { id },
-      data: { lastSentAt: new Date() }
+      data: { lastSentAt: new Date() },
     });
   }
 }

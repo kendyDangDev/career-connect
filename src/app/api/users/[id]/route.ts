@@ -1,17 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { authenticate, getUserFromRequest } from '@/lib/middleware/auth';
-import { updateUserSchema, updateUserStatusSchema, changePasswordSchema } from '@/lib/validations/user.validation';
+import {
+  updateUserSchema,
+  updateUserStatusSchema,
+  changePasswordSchema,
+} from '@/lib/validations/user.validation';
 import { hashPassword, verifyPassword } from '@/lib/auth-utils';
 
 // GET /api/users/[id] - Get user by ID
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authResult = await authenticate(req);
   if (authResult) return authResult;
 
+  const { id } = await params;
+
   try {
     const user = await prisma.user.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       select: {
         id: true,
         email: true,
@@ -41,22 +47,24 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 }
 
 // PUT /api/users/[id] - Update user by ID
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authResult = await authenticate(req);
   if (authResult) return authResult;
 
+  const { id } = await params;
+
   const currentUser = getUserFromRequest(req);
-  
+
   // Users can only update their own profile unless they're admin
-  if (currentUser.id !== params.id && currentUser.userType !== 'ADMIN') {
+  if (currentUser?.id !== id && currentUser?.userType !== 'ADMIN') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   }
 
   try {
     const body = await req.json();
-    
+
     // If updating status, only admin can do it
-    if (body.status && currentUser.userType !== 'ADMIN') {
+    if (body.status && currentUser?.userType !== 'ADMIN') {
       return NextResponse.json({ error: 'Only admin can update user status' }, { status: 403 });
     }
 
@@ -64,15 +72,18 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     if (body.currentPassword && body.newPassword) {
       const passwordParse = changePasswordSchema.safeParse(body);
       if (!passwordParse.success) {
-        return NextResponse.json({ 
-          error: 'Invalid password data', 
-          details: passwordParse.error.flatten() 
-        }, { status: 400 });
+        return NextResponse.json(
+          {
+            error: 'Invalid password data',
+            details: passwordParse.error.flatten(),
+          },
+          { status: 400 }
+        );
       }
 
       // Verify current password
       const user = await prisma.user.findUnique({
-        where: { id: params.id },
+        where: { id },
         select: { passwordHash: true },
       });
 
@@ -80,7 +91,10 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         return NextResponse.json({ error: 'User not found' }, { status: 404 });
       }
 
-      const isPasswordValid = await verifyPassword(passwordParse.data.currentPassword, user.passwordHash);
+      const isPasswordValid = await verifyPassword(
+        passwordParse.data.currentPassword,
+        user.passwordHash
+      );
       if (!isPasswordValid) {
         return NextResponse.json({ error: 'Current password is incorrect' }, { status: 400 });
       }
@@ -88,7 +102,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       // Update password
       const hashedPassword = await hashPassword(passwordParse.data.newPassword);
       await prisma.user.update({
-        where: { id: params.id },
+        where: { id },
         data: { passwordHash: hashedPassword },
       });
 
@@ -98,14 +112,17 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     // Regular user update
     const parse = updateUserSchema.safeParse(body);
     if (!parse.success) {
-      return NextResponse.json({ 
-        error: 'Invalid user data', 
-        details: parse.error.flatten() 
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: 'Invalid user data',
+          details: parse.error.flatten(),
+        },
+        { status: 400 }
+      );
     }
 
     const updatedUser = await prisma.user.update({
-      where: { id: params.id },
+      where: { id },
       data: parse.data,
       select: {
         id: true,
@@ -132,25 +149,27 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 }
 
 // DELETE /api/users/[id] - Delete user by ID (Admin only)
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authResult = await authenticate(req);
   if (authResult) return authResult;
 
+  const { id } = await params;
+
   const currentUser = getUserFromRequest(req);
-  
+
   // Only admin can delete users
-  if (currentUser.userType !== 'ADMIN') {
+  if (currentUser?.userType !== 'ADMIN') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   }
 
   // Prevent self-deletion
-  if (currentUser.id === params.id) {
+  if (currentUser?.id === id) {
     return NextResponse.json({ error: 'Cannot delete your own account' }, { status: 400 });
   }
 
   try {
     await prisma.user.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: 'User deleted successfully' });

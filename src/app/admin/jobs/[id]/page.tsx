@@ -704,16 +704,16 @@ const JobDetailPage: React.FC = () => {
                             <span className="text-sm font-medium text-gray-700">Xu hướng</span>
                             <span
                               className={`rounded-full px-2 py-1 text-xs ${
-                                parseFloat(job.statistics?.conversionRate || '0') >= 5
+                                parseFloat(String(job.statistics?.conversionRate || '0')) >= 5
                                   ? 'bg-green-100 text-green-800'
-                                  : parseFloat(job.statistics?.conversionRate || '0') >= 2
+                                  : parseFloat(String(job.statistics?.conversionRate || '0')) >= 2
                                     ? 'bg-yellow-100 text-yellow-800'
                                     : 'bg-red-100 text-red-800'
                               }`}
                             >
-                              {parseFloat(job.statistics?.conversionRate || '0') >= 5
+                              {parseFloat(String(job.statistics?.conversionRate || '0')) >= 5
                                 ? 'Tốt'
-                                : parseFloat(job.statistics?.conversionRate || '0') >= 2
+                                : parseFloat(String(job.statistics?.conversionRate || '0')) >= 2
                                   ? 'Trung bình'
                                   : 'Cần cải thiện'}
                             </span>

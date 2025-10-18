@@ -1,37 +1,34 @@
 import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { authOptions } from '@/lib/auth-config';
 import { InterviewReviewService } from '@/services/interview-review.service';
-import { 
-  successResponse, 
-  errorResponse, 
+import {
+  successResponse,
+  errorResponse,
   serverErrorResponse,
   validationErrorResponse,
-  unauthorizedResponse
+  unauthorizedResponse,
 } from '@/utils/api-response';
 import { updateInterviewReviewSchema } from '@/lib/validations/interview-review.validation';
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 /**
  * GET /api/reviews/interview/[id]
  * Get a specific interview review by ID
  */
-export async function GET(
-  req: NextRequest,
-  { params }: RouteParams
-) {
+export async function GET(req: NextRequest, { params }: RouteParams) {
   try {
-    const review = await InterviewReviewService.getInterviewReviewById(params.id);
+    const { id } = await params;
+    const review = await InterviewReviewService.getInterviewReviewById(id);
 
     if (!review) {
       return errorResponse('Interview review not found', 404);
     }
 
     return successResponse({ review }, 'Interview review retrieved successfully');
-
   } catch (error) {
     return serverErrorResponse('Failed to retrieve interview review', error);
   }
@@ -41,10 +38,7 @@ export async function GET(
  * PUT /api/reviews/interview/[id]
  * Update an interview review (only by the reviewer)
  */
-export async function PUT(
-  req: NextRequest,
-  { params }: RouteParams
-) {
+export async function PUT(req: NextRequest, { params }: RouteParams) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
@@ -59,9 +53,10 @@ export async function PUT(
       return validationErrorResponse(validated.error.flatten().fieldErrors);
     }
 
+    const { id } = await params;
     try {
       const updatedReview = await InterviewReviewService.updateInterviewReview(
-        params.id,
+        id,
         session.user.id,
         validated.data
       );
@@ -73,7 +68,6 @@ export async function PUT(
       }
       throw error;
     }
-
   } catch (error) {
     return serverErrorResponse('Failed to update interview review', error);
   }
@@ -83,10 +77,7 @@ export async function PUT(
  * DELETE /api/reviews/interview/[id]
  * Delete an interview review (only by the reviewer)
  */
-export async function DELETE(
-  req: NextRequest,
-  { params }: RouteParams
-) {
+export async function DELETE(req: NextRequest, { params }: RouteParams) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
@@ -94,11 +85,9 @@ export async function DELETE(
       return unauthorizedResponse();
     }
 
+    const { id } = await params;
     try {
-      await InterviewReviewService.deleteInterviewReview(
-        params.id,
-        session.user.id
-      );
+      await InterviewReviewService.deleteInterviewReview(id, session.user.id);
 
       return successResponse(null, 'Interview review deleted successfully');
     } catch (error: any) {
@@ -107,7 +96,6 @@ export async function DELETE(
       }
       throw error;
     }
-
   } catch (error) {
     return serverErrorResponse('Failed to delete interview review', error);
   }

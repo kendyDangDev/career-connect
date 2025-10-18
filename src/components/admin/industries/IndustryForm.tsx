@@ -1,9 +1,9 @@
-'use client'
+'use client';
 
-import React, { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
+import React, { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -20,78 +20,78 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
-import { toast } from 'sonner'
-import { Loader2 } from 'lucide-react'
-import { Industry } from '@/types/system-categories'
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
+import { Industry } from '@/types/system-categories';
 
 const formSchema = z.object({
-  code: z.string()
-    .min(2, 'Mã ngành phải có ít nhất 2 ký tự')
-    .max(10, 'Mã ngành không được vượt quá 10 ký tự')
-    .regex(/^[A-Z0-9_]+$/, 'Mã ngành chỉ chứa chữ hoa, số và dấu gạch dưới'),
-  name: z.string()
+  name: z
+    .string()
     .min(3, 'Tên ngành phải có ít nhất 3 ký tự')
     .max(100, 'Tên ngành không được vượt quá 100 ký tự'),
-  description: z.string()
-    .max(500, 'Mô tả không được vượt quá 500 ký tự')
-    .optional(),
-  isActive: z.boolean().default(true),
-})
+  description: z.string().max(500, 'Mô tả không được vượt quá 500 ký tự').optional(),
+  iconUrl: z.string().url('URL icon không hợp lệ').optional().or(z.literal('')),
+  sortOrder: z.number().int('Thứ tự phải là số nguyên').min(0, 'Thứ tự không được âm').optional(),
+  isActive: z.boolean().optional(),
+});
 
-type FormData = z.infer<typeof formSchema>
+type FormData = z.infer<typeof formSchema>;
 
 interface IndustryFormProps {
-  open: boolean
-  onClose: () => void
-  onSuccess: () => void
-  industry?: Industry | null
+  open: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+  industry?: Industry | null;
 }
 
 export function IndustryForm({ open, onClose, onSuccess, industry }: IndustryFormProps) {
-  const [loading, setLoading] = React.useState(false)
-  const isEdit = !!industry
+  const [loading, setLoading] = React.useState(false);
+  const isEdit = !!industry;
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      code: '',
       name: '',
       description: '',
+      iconUrl: '',
+      sortOrder: 0,
       isActive: true,
     },
-  })
+  });
 
   useEffect(() => {
     if (industry) {
       form.reset({
-        code: industry.code,
         name: industry.name,
         description: industry.description || '',
+        iconUrl: industry.iconUrl || '',
+        sortOrder: industry.sortOrder || 0,
         isActive: industry.isActive,
-      })
+      });
     } else {
       form.reset({
-        code: '',
         name: '',
         description: '',
+        iconUrl: '',
+        sortOrder: 0,
         isActive: true,
-      })
+      });
     }
-  }, [industry, form])
+  }, [industry, form]);
 
   const onSubmit = async (data: FormData) => {
-    setLoading(true)
+    setLoading(true);
     try {
       const url = isEdit
         ? `/api/admin/system-categories/industries/${industry.id}`
-        : '/api/admin/system-categories/industries'
-      
-      const method = isEdit ? 'PUT' : 'POST'
+        : '/api/admin/system-categories/industries';
+
+      const method = isEdit ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
         method,
@@ -99,22 +99,22 @@ export function IndustryForm({ open, onClose, onSuccess, industry }: IndustryFor
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
-      })
+      });
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Có lỗi xảy ra')
+        const error = await response.json();
+        throw new Error(error.message || 'Có lỗi xảy ra');
       }
 
-      toast.success(isEdit ? 'Cập nhật ngành thành công' : 'Thêm ngành mới thành công')
-      onSuccess()
-      onClose()
+      toast.success(isEdit ? 'Cập nhật ngành thành công' : 'Thêm ngành mới thành công');
+      onSuccess();
+      onClose();
     } catch (error: any) {
-      toast.error(error.message || 'Có lỗi xảy ra')
+      toast.error(error.message || 'Có lỗi xảy ra');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -132,31 +132,12 @@ export function IndustryForm({ open, onClose, onSuccess, industry }: IndustryFor
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="code"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mã ngành <span className="text-destructive">*</span></FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="VD: IT, SALES, MKT..."
-                      disabled={isEdit}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Mã ngành chỉ chứa chữ hoa, số và dấu gạch dưới
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tên ngành <span className="text-destructive">*</span></FormLabel>
+                  <FormLabel>
+                    Tên ngành <span className="text-destructive">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="VD: Công nghệ thông tin" {...field} />
                   </FormControl>
@@ -179,8 +160,38 @@ export function IndustryForm({ open, onClose, onSuccess, industry }: IndustryFor
                       {...field}
                     />
                   </FormControl>
+                  <FormDescription>Mô tả không bắt buộc, tối đa 500 ký tự</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="iconUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>URL Icon</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://example.com/icon.png" type="url" {...field} />
+                  </FormControl>
+                  <FormDescription>Đường dẫn đến icon của ngành nghề</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="sortOrder"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Thứ tự hiển thị</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="0" {...field} />
+                  </FormControl>
                   <FormDescription>
-                    Mô tả không bắt buộc, tối đa 500 ký tự
+                    Thứ tự hiển thị của ngành nghề (số càng nhỏ càng ưu tiên)
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -199,22 +210,14 @@ export function IndustryForm({ open, onClose, onSuccess, industry }: IndustryFor
                     </FormDescription>
                   </div>
                   <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
                 </FormItem>
               )}
             />
 
             <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                disabled={loading}
-              >
+              <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
                 Hủy
               </Button>
               <Button type="submit" disabled={loading}>
@@ -226,5 +229,5 @@ export function IndustryForm({ open, onClose, onSuccess, industry }: IndustryFor
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

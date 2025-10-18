@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { CompanyService } from "@/services/company.service";
 
 interface Params {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export async function GET(request: NextRequest, { params }: Params) {
   try {
-    const { slug } = params;
+    const { slug } = await params;
 
     if (!slug) {
       return NextResponse.json(

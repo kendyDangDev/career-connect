@@ -35,14 +35,14 @@ export function useCompaniesData(options?: UseCompaniesDataOptions) {
   const [error, setError] = useState<string | null>(null);
 
   // Use options if provided, otherwise get from URL
-  const currentPage = options?.page || parseInt(searchParams.get('page') || '1', 10);
-  const pageSize = options?.limit || parseInt(searchParams.get('limit') || '10', 10);
-  const currentSearch = options?.search || searchParams.get('search') || '';
-  const currentStatus = options?.status || searchParams.get('status') || '';
-  const currentCompanySize = options?.companySize || searchParams.get('companySize') || '';
-  const currentIndustryId = options?.industryId || searchParams.get('industryId') || '';
-  const currentSortBy = options?.sortBy || searchParams.get('sortBy') || 'createdAt';
-  const currentSortOrder = options?.sortOrder || searchParams.get('sortOrder') || 'desc';
+  const currentPage = options?.page || parseInt(searchParams?.get('page') || '1', 10);
+  const pageSize = options?.limit || parseInt(searchParams?.get('limit') || '10', 10);
+  const currentSearch = options?.search || searchParams?.get('search') || '';
+  const currentStatus = options?.status || searchParams?.get('status') || '';
+  const currentCompanySize = options?.companySize || searchParams?.get('companySize') || '';
+  const currentIndustryId = options?.industryId || searchParams?.get('industryId') || '';
+  const currentSortBy = options?.sortBy || searchParams?.get('sortBy') || 'createdAt';
+  const currentSortOrder = options?.sortOrder || searchParams?.get('sortOrder') || 'desc';
 
   // Fetch companies data
   const fetchCompanies = useCallback(async () => {
@@ -72,7 +72,7 @@ export function useCompaniesData(options?: UseCompaniesDataOptions) {
       if (apiResponse.success && apiResponse.data) {
         setData({
           companies: apiResponse.data.companies,
-          totalCount: apiResponse.data.pagination.total,
+          totalCount: apiResponse.data.pagination.totalCount,
           page: apiResponse.data.pagination.page,
           limit: apiResponse.data.pagination.limit,
           totalPages: apiResponse.data.pagination.totalPages,
@@ -92,7 +92,7 @@ export function useCompaniesData(options?: UseCompaniesDataOptions) {
   // Update URL params
   const updateParams = useCallback(
     (params: Record<string, string | null>) => {
-      const newSearchParams = new URLSearchParams(searchParams.toString());
+      const newSearchParams = new URLSearchParams(searchParams?.toString());
 
       Object.entries(params).forEach(([key, value]) => {
         if (value === null || value === '') {
@@ -244,12 +244,12 @@ export function useCompaniesData(options?: UseCompaniesDataOptions) {
     }
   }, []);
 
-  const pagination = data && {
+  const pagination = data ? {
     page: data.page,
     limit: data.limit,
     totalCount: data.totalCount,
     totalPages: data.totalPages,
-  };
+  } : null;
 
   return {
     // Data

@@ -138,7 +138,7 @@ export const POST = withCompanyRole(
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return errorResponse('VALIDATION_ERROR', error.errors[0].message, 400);
+        return errorResponse('VALIDATION_ERROR', error.issues[0].message, 400);
       }
 
       return serverErrorResponse('Failed to upload media', error);
@@ -193,7 +193,7 @@ export const DELETE = withCompanyRole(
       );
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return errorResponse('VALIDATION_ERROR', error.errors[0].message, 400);
+        return errorResponse('VALIDATION_ERROR', error.issues[0].message, 400);
       }
 
       return serverErrorResponse('Failed to delete media', error);

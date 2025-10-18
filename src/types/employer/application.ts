@@ -1,10 +1,4 @@
-import { 
-  Application, 
-  ApplicationStatus,
-  Candidate,
-  User,
-  Job
-} from "@/generated/prisma";
+import { Application, ApplicationStatus, Candidate, User, Job } from '@/generated/prisma';
 
 // Application list item with candidate info
 export interface ApplicationListItem {
@@ -254,7 +248,7 @@ export interface ApplicationStats {
 
 // Status update DTO
 export interface UpdateApplicationStatusDTO {
-  status: ApplicationStatus;
+  status?: ApplicationStatus;
   notes?: string;
   rating?: number; // 1-5
   interviewScheduledAt?: Date | string;

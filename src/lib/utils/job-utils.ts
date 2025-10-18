@@ -155,7 +155,7 @@ export function canChangeJobStatus(
 
   // Active can go to Closed, or Expired
   if (currentStatus === JobStatus.ACTIVE) {
-    if ([JobStatus.CLOSED, JobStatus.EXPIRED].includes(newStatus)) {
+    if (newStatus === JobStatus.CLOSED || newStatus === JobStatus.EXPIRED) {
       return { allowed: true };
     }
     return {

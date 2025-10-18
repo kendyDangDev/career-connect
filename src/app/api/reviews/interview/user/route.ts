@@ -1,12 +1,8 @@
 import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { authOptions } from '@/lib/auth-config';
 import { InterviewReviewService } from '@/services/interview-review.service';
-import { 
-  successResponse, 
-  serverErrorResponse,
-  unauthorizedResponse
-} from '@/utils/api-response';
+import { successResponse, serverErrorResponse, unauthorizedResponse } from '@/utils/api-response';
 
 /**
  * GET /api/reviews/interview/user
@@ -22,11 +18,13 @@ export async function GET(req: NextRequest) {
 
     const reviews = await InterviewReviewService.getUserInterviewReviews(session.user.id);
 
-    return successResponse({ 
-      reviews,
-      total: reviews.length 
-    }, 'User interview reviews retrieved successfully');
-
+    return successResponse(
+      {
+        reviews,
+        total: reviews.length,
+      },
+      'User interview reviews retrieved successfully'
+    );
   } catch (error) {
     return serverErrorResponse('Failed to retrieve user interview reviews', error);
   }

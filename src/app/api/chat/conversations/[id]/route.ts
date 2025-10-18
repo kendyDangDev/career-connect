@@ -5,29 +5,23 @@ import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 
 const updateConversationSchema = z.object({
-  title: z.string().optional(),
-  isArchived: z.boolean().optional(),
+  name: z.string().optional(),
 });
 
-const addParticipantSchema = z.object({
-  userIds: z.array(z.string()),
-});
-
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const conversationId = params.id;
+    const { id: conversationId } = await params;
 
     // Check if user is participant
     const participant = await prisma.conversationParticipant.findFirst({
       where: {
         conversationId,
         userId: session.user.id,
-        isActive: true,
       },
     });
 
@@ -39,7 +33,6 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       where: { id: conversationId },
       include: {
         participants: {
-          where: { isActive: true },
           include: {
             user: {
               select: {
@@ -62,7 +55,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
             joinedAt: 'asc',
           },
         },
-        relatedApplication: {
+        application: {
           include: {
             job: {
               select: {
@@ -71,7 +64,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
                 company: {
                   select: {
                     id: true,
-                    name: true,
+                    companyName: true,
                     logoUrl: true,
                   },
                 },
@@ -91,14 +84,14 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
             },
           },
         },
-        relatedJob: {
+        job: {
           select: {
             id: true,
             title: true,
             company: {
               select: {
                 id: true,
-                name: true,
+                companyName: true,
                 logoUrl: true,
               },
             },
@@ -134,14 +127,14 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const conversationId = params.id;
+    const { id: conversationId } = await params;
     const body = await request.json();
     const data = updateConversationSchema.parse(body);
 
@@ -150,7 +143,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       where: {
         conversationId,
         userId: session.user.id,
-        isActive: true,
         role: { in: ['ADMIN', 'MODERATOR'] },
       },
     });
@@ -164,7 +156,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       data,
       include: {
         participants: {
-          where: { isActive: true },
           include: {
             user: {
               select: {
@@ -196,21 +187,23 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const conversationId = params.id;
+    const { id: conversationId } = await params;
 
     // Check if user has admin rights
     const participant = await prisma.conversationParticipant.findFirst({
       where: {
         conversationId,
         userId: session.user.id,
-        isActive: true,
         role: 'ADMIN',
       },
     });
@@ -226,6 +219,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     });
 
     if (conversation?.type === 'DIRECT') {
+      // Mark participant as left
       await prisma.conversationParticipant.update({
         where: {
           conversationId_userId: {
@@ -233,13 +227,13 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
             userId: session.user.id,
           },
         },
-        data: { isActive: false },
+        data: { leftAt: new Date() },
       });
     } else {
-      // For GROUP conversations, archive the entire conversation
-      await prisma.conversation.update({
-        where: { id: conversationId },
-        data: { isArchived: true },
+      // For GROUP conversations, mark all participants as left
+      await prisma.conversationParticipant.updateMany({
+        where: { conversationId },
+        data: { leftAt: new Date() },
       });
     }
 

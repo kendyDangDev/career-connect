@@ -4,10 +4,11 @@ import { authenticate, getUserFromRequest } from '@/lib/middleware/auth';
 import { userProfileSchema } from '@/lib/validations/user.validation';
 
 // GET /api/users/[id]/profile - Get user profile
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const profile = await prisma.userProfile.findUnique({
-      where: { userId: params.id },
+      where: { userId: id },
       include: {
         user: {
           select: {
@@ -36,14 +37,16 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 }
 
 // PUT /api/users/[id]/profile - Create or update user profile
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authResult = await authenticate(req);
   if (authResult) return authResult;
 
   const currentUser = getUserFromRequest(req);
 
+  const { id } = await params;
+
   // Users can only update their own profile unless they're admin
-  if (currentUser.id !== params.id && currentUser.userType !== 'ADMIN') {
+  if (currentUser?.id !== id && currentUser?.userType !== 'ADMIN') {
     return NextResponse.json(
       { error: 'Unauthorized - You can only update your own profile' },
       { status: 403 }
@@ -66,7 +69,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
     // Check if user exists
     const userExists = await prisma.user.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!userExists) {
@@ -75,10 +78,10 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
     // Upsert profile (create if doesn't exist, update if exists)
     const profile = await prisma.userProfile.upsert({
-      where: { userId: params.id },
+      where: { userId: id },
       update: parse.data,
       create: {
-        userId: params.id,
+        userId: id,
         ...parse.data,
       },
       include: {
@@ -113,20 +116,22 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 }
 
 // DELETE /api/users/[id]/profile - Delete user profile (Admin only)
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authResult = await authenticate(req);
   if (authResult) return authResult;
 
   const currentUser = getUserFromRequest(req);
 
+  const { id } = await params;
+
   // Only admin can delete profiles
-  if (currentUser.userType !== 'ADMIN') {
+  if (currentUser?.userType !== 'ADMIN') {
     return NextResponse.json({ error: 'Unauthorized - Admin access required' }, { status: 403 });
   }
 
   try {
     await prisma.userProfile.delete({
-      where: { userId: params.id },
+      where: { userId: id },
     });
 
     return NextResponse.json({

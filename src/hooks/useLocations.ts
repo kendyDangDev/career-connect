@@ -79,15 +79,20 @@ export function useLocations(): UseLocationsReturn {
 
   // Parse filters from URL
   const filters = useMemo<LocationQuery>(() => {
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = parseInt(searchParams.get('limit') || '10', 10);
-    const sortBy = searchParams.get('sortBy') || 'name';
-    const sortOrder = (searchParams.get('sortOrder') || 'asc') as 'asc' | 'desc';
-    const isActive = searchParams.get('isActive') === 'true' ? true : searchParams.get('isActive') === 'false' ? false : undefined;
-    const search = searchParams.get('search') || '';
-    const type = searchParams.get('type') as LocationType | undefined;
-    const parentId = searchParams.get('parentId') || undefined;
-    const includeChildren = searchParams.get('includeChildren') === 'true';
+    const page = parseInt(searchParams?.get('page') || '1', 10);
+    const limit = parseInt(searchParams?.get('limit') || '10', 10);
+    const sortBy = searchParams?.get('sortBy') || 'name';
+    const sortOrder = (searchParams?.get('sortOrder') || 'asc') as 'asc' | 'desc';
+    const isActive =
+      searchParams?.get('isActive') === 'true'
+        ? true
+        : searchParams?.get('isActive') === 'false'
+          ? false
+          : undefined;
+    const search = searchParams?.get('search') || '';
+    const type = searchParams?.get('type') as LocationType | undefined;
+    const parentId = searchParams?.get('parentId') || undefined;
+    const includeChildren = searchParams?.get('includeChildren') === 'true';
 
     return {
       page,
@@ -108,7 +113,7 @@ export function useLocations(): UseLocationsReturn {
   // Update URL with new filters
   const updateFilters = useCallback(
     (newFilters: Partial<LocationQuery>) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParams?.toString());
 
       Object.entries(newFilters).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
@@ -125,83 +130,89 @@ export function useLocations(): UseLocationsReturn {
 
   // Reset filters
   const resetFilters = useCallback(() => {
-    router.push(pathname);
+    router.push(pathname || '');
   }, [pathname, router]);
 
   // Fetch locations
-  const fetchLocations = useCallback(async (query?: LocationQuery) => {
-    try {
-      setLoading(true);
-      setError(null);
+  const fetchLocations = useCallback(
+    async (query?: LocationQuery) => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      const queryParams = new URLSearchParams();
-      const finalQuery = query || filters;
+        const queryParams = new URLSearchParams();
+        const finalQuery = query || filters;
 
-      Object.entries(finalQuery).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
-          queryParams.append(key, value.toString());
-        }
-      });
+        Object.entries(finalQuery).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            queryParams.append(key, value.toString());
+          }
+        });
 
-      const response = await fetch(`/api/admin/system-categories/locations?${queryParams}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch locations');
-      }
-
-      const result: LocationsResponse = await response.json();
-      
-      setLocations(result.data);
-      setTotalPages(result.meta.totalPages);
-      setTotalItems(result.meta.total);
-      setTypeStats(result.meta.typeStats || {});
-
-      // Fetch location tree for parent selection
-      if (!query || query.parentId !== 'null') {
-        const treeResponse = await fetch('/api/admin/system-categories/locations?parentId=null&includeChildren=true&limit=100', {
+        const response = await fetch(`/api/admin/system-categories/locations?${queryParams}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
         });
 
-        if (treeResponse.ok) {
-          const treeResult: LocationsResponse = await treeResponse.json();
-          setLocationTree(treeResult.data);
-          
-          // Organize locations by type for parent selection
-          const organized: Record<LocationType, Location[]> = {
-            [LocationType.COUNTRY]: [],
-            [LocationType.PROVINCE]: [],
-            [LocationType.CITY]: [],
-            [LocationType.DISTRICT]: [],
-          };
-
-          const processLocation = (loc: Location) => {
-            organized[loc.type].push(loc);
-            if (loc.children) {
-              loc.children.forEach(processLocation);
-            }
-          };
-
-          treeResult.data.forEach(processLocation);
-          setParentLocations(organized);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to fetch locations');
         }
+
+        const result: LocationsResponse = await response.json();
+
+        setLocations(result.data);
+        setTotalPages(result.meta.totalPages);
+        setTotalItems(result.meta.total);
+        setTypeStats(result.meta.typeStats || {});
+
+        // Fetch location tree for parent selection
+        if (!query || query.parentId !== 'null') {
+          const treeResponse = await fetch(
+            '/api/admin/system-categories/locations?parentId=null&includeChildren=true&limit=100',
+            {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+
+          if (treeResponse.ok) {
+            const treeResult: LocationsResponse = await treeResponse.json();
+            setLocationTree(treeResult.data);
+
+            // Organize locations by type for parent selection
+            const organized: Record<LocationType, Location[]> = {
+              [LocationType.COUNTRY]: [],
+              [LocationType.PROVINCE]: [],
+              [LocationType.CITY]: [],
+              [LocationType.DISTRICT]: [],
+            };
+
+            const processLocation = (loc: Location) => {
+              organized[loc.type].push(loc);
+              if (loc.children) {
+                loc.children.forEach(processLocation);
+              }
+            };
+
+            treeResult.data.forEach(processLocation);
+            setParentLocations(organized);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching locations:', err);
+        setError(err instanceof Error ? err.message : 'An error occurred');
+        toast.error(err instanceof Error ? err.message : 'Failed to fetch locations');
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error('Error fetching locations:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred');
-      toast.error(err instanceof Error ? err.message : 'Failed to fetch locations');
-    } finally {
-      setLoading(false);
-    }
-  }, [filters]);
+    },
+    [filters]
+  );
 
   // Get single location
   const getLocation = useCallback(async (id: string): Promise<Location | null> => {
@@ -228,84 +239,93 @@ export function useLocations(): UseLocationsReturn {
   }, []);
 
   // Create location
-  const createLocation = useCallback(async (data: CreateLocationDto): Promise<boolean> => {
-    try {
-      const response = await fetch('/api/admin/system-categories/locations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+  const createLocation = useCallback(
+    async (data: CreateLocationDto): Promise<boolean> => {
+      try {
+        const response = await fetch('/api/admin/system-categories/locations', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
 
-      const result = await response.json();
+        const result = await response.json();
 
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to create location');
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to create location');
+        }
+
+        toast.success(result.message || 'Location created successfully');
+        await fetchLocations();
+        return true;
+      } catch (err) {
+        console.error('Error creating location:', err);
+        toast.error(err instanceof Error ? err.message : 'Failed to create location');
+        return false;
       }
-
-      toast.success(result.message || 'Location created successfully');
-      await fetchLocations();
-      return true;
-    } catch (err) {
-      console.error('Error creating location:', err);
-      toast.error(err instanceof Error ? err.message : 'Failed to create location');
-      return false;
-    }
-  }, [fetchLocations]);
+    },
+    [fetchLocations]
+  );
 
   // Update location
-  const updateLocation = useCallback(async (id: string, data: UpdateLocationDto): Promise<boolean> => {
-    try {
-      const response = await fetch(`/api/admin/system-categories/locations/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+  const updateLocation = useCallback(
+    async (id: string, data: UpdateLocationDto): Promise<boolean> => {
+      try {
+        const response = await fetch(`/api/admin/system-categories/locations/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
 
-      const result = await response.json();
+        const result = await response.json();
 
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to update location');
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to update location');
+        }
+
+        toast.success(result.message || 'Location updated successfully');
+        await fetchLocations();
+        return true;
+      } catch (err) {
+        console.error('Error updating location:', err);
+        toast.error(err instanceof Error ? err.message : 'Failed to update location');
+        return false;
       }
-
-      toast.success(result.message || 'Location updated successfully');
-      await fetchLocations();
-      return true;
-    } catch (err) {
-      console.error('Error updating location:', err);
-      toast.error(err instanceof Error ? err.message : 'Failed to update location');
-      return false;
-    }
-  }, [fetchLocations]);
+    },
+    [fetchLocations]
+  );
 
   // Delete location
-  const deleteLocation = useCallback(async (id: string): Promise<boolean> => {
-    try {
-      const response = await fetch(`/api/admin/system-categories/locations/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+  const deleteLocation = useCallback(
+    async (id: string): Promise<boolean> => {
+      try {
+        const response = await fetch(`/api/admin/system-categories/locations/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
-      const result = await response.json();
+        const result = await response.json();
 
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to delete location');
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to delete location');
+        }
+
+        toast.success(result.message || 'Location deleted successfully');
+        await fetchLocations();
+        return true;
+      } catch (err) {
+        console.error('Error deleting location:', err);
+        toast.error(err instanceof Error ? err.message : 'Failed to delete location');
+        return false;
       }
-
-      toast.success(result.message || 'Location deleted successfully');
-      await fetchLocations();
-      return true;
-    } catch (err) {
-      console.error('Error deleting location:', err);
-      toast.error(err instanceof Error ? err.message : 'Failed to delete location');
-      return false;
-    }
-  }, [fetchLocations]);
+    },
+    [fetchLocations]
+  );
 
   // Get popular cities
   const getPopularCities = useCallback(async (): Promise<Location[]> => {

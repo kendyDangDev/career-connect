@@ -174,8 +174,7 @@ export const availabilityStatusColors: Record<
 > = {
   AVAILABLE: 'default',
   NOT_AVAILABLE: 'destructive',
-  BUSY: 'secondary',
-  CONSIDERING: 'outline',
+  PASSIVE: 'secondary',
 };
 
 export const preferredWorkTypeLabels: Record<PreferredWorkType, string> = {

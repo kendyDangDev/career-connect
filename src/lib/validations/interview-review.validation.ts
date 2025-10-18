@@ -37,7 +37,7 @@ export const createInterviewReviewSchema = z.object({
     .nullable(),
   
   outcome: z.nativeEnum(InterviewOutcome, {
-    errorMap: () => ({ message: 'Invalid interview outcome' })
+    message: 'Invalid interview outcome' 
   }),
   
   recommendation: z.boolean(),
@@ -73,7 +73,7 @@ export const updateInterviewReviewSchema = z.object({
     .optional(),
   
   outcome: z.nativeEnum(InterviewOutcome, {
-    errorMap: () => ({ message: 'Invalid interview outcome' })
+    message: 'Invalid interview outcome' 
   }).optional(),
   
   recommendation: z.boolean()
@@ -117,14 +117,14 @@ export const getInterviewReviewsQuerySchema = z.object({
       message: 'Page must be a positive integer'
     })
     .optional()
-    .default('1'),
+    .default(1),
   limit: z.string()
     .transform((val) => parseInt(val))
     .refine((val) => !isNaN(val) && val >= 1 && val <= 100, {
       message: 'Limit must be between 1 and 100'
     })
     .optional()
-    .default('10')
+    .default(10)
 }).refine((data) => {
   // Must have either companyId/companySlug or jobId or reviewerId
   if (!data.companyId && !data.companySlug && !data.jobId && !data.reviewerId) {

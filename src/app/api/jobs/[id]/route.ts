@@ -3,9 +3,9 @@ import { PublicJobService } from '@/services/public/job.service';
 import { prisma } from '@/lib/prisma';
 
 interface Params {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 /**
@@ -15,7 +15,7 @@ interface Params {
  */
 export async function GET(request: NextRequest, { params }: Params) {
   try {
-    const { id } = params;
+    const { id } = await params;
     // const id = 'cmf479xdf0001ulbw8i705irn';
 
     if (!id) {

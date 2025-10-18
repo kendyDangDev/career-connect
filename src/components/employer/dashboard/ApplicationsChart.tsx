@@ -1,17 +1,31 @@
 'use client';
 
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
+import { ApplicationsChartSummary } from '@/types/employer/dashboard.types';
 
-const chartData = [
-  { month: 'T1', applications: 45, interviews: 12 },
-  { month: 'T2', applications: 52, interviews: 15 },
-  { month: 'T3', applications: 48, interviews: 14 },
-  { month: 'T4', applications: 61, interviews: 18 },
-  { month: 'T5', applications: 55, interviews: 16 },
-  { month: 'T6', applications: 67, interviews: 20 },
-];
+interface ApplicationsChartProps {
+  data: ApplicationsChartSummary | null;
+  isLoading?: boolean;
+}
 
-export function ApplicationsChart() {
+export function ApplicationsChart({ data, isLoading }: ApplicationsChartProps) {
+  if (isLoading || !data) {
+    return (
+      <div className="rounded-xl bg-white p-6 shadow-soft border border-purple-50">
+        <div className="animate-pulse space-y-4">
+          <div className="h-6 w-48 bg-gray-200 rounded" />
+          <div className="h-4 w-32 bg-gray-200 rounded" />
+          <div className="space-y-3 mt-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-12 bg-gray-100 rounded" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  const chartData = data.monthlyData;
   const maxValue = Math.max(...chartData.map(d => d.applications));
   
   return (
@@ -21,9 +35,17 @@ export function ApplicationsChart() {
           <h2 className="text-lg font-bold text-gray-900">Thống kê ứng tuyển</h2>
           <p className="text-sm text-gray-500 mt-1">6 tháng gần đây</p>
         </div>
-        <div className="flex items-center gap-2 rounded-lg bg-green-50 px-3 py-1.5">
-          <TrendingUp className="h-4 w-4 text-green-600" />
-          <span className="text-sm font-semibold text-green-700">+12.5%</span>
+        <div className={`flex items-center gap-2 rounded-lg px-3 py-1.5 ${
+          data.trend.isPositive ? 'bg-green-50' : 'bg-red-50'
+        }`}>
+          {data.trend.isPositive ? (
+            <TrendingUp className="h-4 w-4 text-green-600" />
+          ) : (
+            <TrendingDown className="h-4 w-4 text-red-600" />
+          )}
+          <span className={`text-sm font-semibold ${
+            data.trend.isPositive ? 'text-green-700' : 'text-red-700'
+          }`}>{data.trend.value}%</span>
         </div>
       </div>
 
@@ -94,15 +116,15 @@ export function ApplicationsChart() {
       {/* Summary Stats */}
       <div className="mt-6 grid grid-cols-3 gap-4 border-t border-gray-100 pt-6">
         <div className="text-center">
-          <p className="text-2xl font-bold text-gray-900">328</p>
+          <p className="text-2xl font-bold text-gray-900">{data.totalApplications}</p>
           <p className="text-xs text-gray-500 mt-1">Tổng ứng tuyển</p>
         </div>
         <div className="text-center">
-          <p className="text-2xl font-bold text-gray-900">95</p>
+          <p className="text-2xl font-bold text-gray-900">{data.totalInterviews}</p>
           <p className="text-xs text-gray-500 mt-1">Phỏng vấn</p>
         </div>
         <div className="text-center">
-          <p className="text-2xl font-bold text-purple-600">29%</p>
+          <p className="text-2xl font-bold text-purple-600">{data.conversionRate}%</p>
           <p className="text-xs text-gray-500 mt-1">Tỷ lệ chuyển đổi</p>
         </div>
       </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { CandidatesTable } from './components/CandidatesTable';
@@ -9,7 +9,7 @@ import { useCandidatesData } from '@/hooks/useCandidatesData';
 import { CandidateListItem } from './types';
 import { Loader2 } from 'lucide-react';
 
-export default function CandidatesPage() {
+function CandidatesPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -17,14 +17,14 @@ export default function CandidatesPage() {
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
 
   // Parse URL params
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '10');
-  const search = searchParams.get('search') || '';
-  const status = searchParams.get('status') || '';
-  const availabilityStatus = searchParams.get('availabilityStatus') || '';
-  const preferredWorkType = searchParams.get('preferredWorkType') || '';
-  const sortBy = searchParams.get('sortBy') || 'createdAt';
-  const sortOrder = (searchParams.get('sortOrder') || 'desc') as 'asc' | 'desc';
+  const page = parseInt(searchParams?.get('page') || '1');
+  const limit = parseInt(searchParams?.get('limit') || '10');
+  const search = searchParams?.get('search') || '';
+  const status = searchParams?.get('status') || '';
+  const availabilityStatus = searchParams?.get('availabilityStatus') || '';
+  const preferredWorkType = searchParams?.get('preferredWorkType') || '';
+  const sortBy = searchParams?.get('sortBy') || 'createdAt';
+  const sortOrder = (searchParams?.get('sortOrder') || 'desc') as 'asc' | 'desc';
 
   const { 
     candidates, 
@@ -47,7 +47,7 @@ export default function CandidatesPage() {
   // Update URL params
   const updateURLParams = useCallback(
     (params: Record<string, string | number | null>) => {
-      const newSearchParams = new URLSearchParams(searchParams.toString());
+      const newSearchParams = new URLSearchParams(searchParams?.toString() || '');
 
       Object.entries(params).forEach(([key, value]) => {
         if (value === null || value === '') {
@@ -138,5 +138,17 @@ export default function CandidatesPage() {
         fetchCandidateDetails={fetchCandidateDetails}
       />
     </div>
+  );
+}
+
+export default function CandidatesPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-[400px] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    }>
+      <CandidatesPageContent />
+    </Suspense>
   );
 }

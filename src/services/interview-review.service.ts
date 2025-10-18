@@ -1,9 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { 
-  InterviewReview,
-  Prisma,
-  InterviewOutcome
-} from '@/generated/prisma';
+import { InterviewReview, Prisma, InterviewOutcome } from '@/generated/prisma';
 import {
   CreateInterviewReviewInput,
   UpdateInterviewReviewInput,
@@ -13,7 +9,7 @@ import {
   InterviewReviewStatistics,
   InterviewReviewDetail,
   ReviewerInfo,
-  InterviewTips
+  InterviewTips,
 } from '@/types/interview-review.types';
 
 export class InterviewReviewService {
@@ -32,18 +28,18 @@ export class InterviewReviewService {
     sortBy = 'createdAt',
     sortOrder = 'desc',
     page = 1,
-    limit = 10
+    limit = 10,
   }: GetInterviewReviewsParams): Promise<InterviewReviewResponse> {
     // Build where clause
     const where: Prisma.InterviewReviewWhereInput = {};
-    
+
     if (companyId) {
       where.companyId = companyId;
     } else if (companySlug) {
       // Get company by slug first
       const company = await prisma.company.findUnique({
         where: { companySlug },
-        select: { id: true }
+        select: { id: true },
       });
       if (company) {
         where.companyId = company.id;
@@ -54,7 +50,7 @@ export class InterviewReviewService {
           total: 0,
           page,
           totalPages: 0,
-          hasMore: false
+          hasMore: false,
         };
       }
     }
@@ -105,65 +101,63 @@ export class InterviewReviewService {
             id: true,
             companyName: true,
             companySlug: true,
-            logoUrl: true
-          }
+            logoUrl: true,
+          },
         },
         job: {
           select: {
             id: true,
             title: true,
-            slug: true
-          }
+            slug: true,
+          },
         },
         reviewer: {
           select: {
             id: true,
             firstName: true,
             lastName: true,
-            avatarUrl: true
-          }
-        }
-      }
+            avatarUrl: true,
+          },
+        },
+      },
     });
 
     // Transform reviews to handle anonymous reviewers
-    const transformedReviews = reviews.map(review => {
+    const transformedReviews = reviews.map((review) => {
       const reviewerInfo: ReviewerInfo = review.isAnonymous
         ? {
             id: review.reviewer.id,
             displayName: 'Anonymous Candidate',
-            isAnonymous: true
+            isAnonymous: true,
           }
         : {
             id: review.reviewer.id,
             displayName: `${review.reviewer.firstName} ${review.reviewer.lastName}`,
             avatarUrl: review.reviewer.avatarUrl || undefined,
-            isAnonymous: false
+            isAnonymous: false,
           };
 
       return {
         ...review,
-        reviewer: reviewerInfo
+        reviewer: reviewerInfo,
       };
     });
 
     const totalPages = Math.ceil(total / limit);
 
     return {
-      reviews: transformedReviews as InterviewReviewWithRelations[],
+      reviews: transformedReviews as any,
       total,
       page,
       totalPages,
-      hasMore: page < totalPages
+      hasMore: page < totalPages,
     };
   }
 
   /**
    * Get a single review by ID
    */
-  static async getInterviewReviewById(
-    id: string
-  ): Promise<InterviewReviewDetail | null> {
+  static async getInterviewReviewById(id: string): Promise<InterviewReviewDetail | null> {
     const review = await prisma.interviewReview.findUnique({
       where: { id },
       include: {
@@ -172,25 +166,25 @@ export class InterviewReviewService {
             id: true,
             companyName: true,
             companySlug: true,
-            logoUrl: true
-          }
+            logoUrl: true,
+          },
         },
         job: {
           select: {
             id: true,
             title: true,
-            slug: true
-          }
+            slug: true,
+          },
         },
         reviewer: {
           select: {
             id: true,
             firstName: true,
             lastName: true,
-            avatarUrl: true
-          }
-        }
-      }
+            avatarUrl: true,
+          },
+        },
+      },
     });
 
     if (!review) {
@@ -202,18 +196,18 @@ export class InterviewReviewService {
       ? {
           id: review.reviewer.id,
           displayName: 'Anonymous Candidate',
-          isAnonymous: true
+          isAnonymous: true,
         }
       : {
           id: review.reviewer.id,
           displayName: `${review.reviewer.firstName} ${review.reviewer.lastName}`,
           avatarUrl: review.reviewer.avatarUrl || undefined,
-          isAnonymous: false
+          isAnonymous: false,
         };
 
     return {
       ...review,
-      reviewer: reviewerInfo
+      reviewer: reviewerInfo,
     } as InterviewReviewDetail;
   }
 
@@ -226,7 +220,7 @@ export class InterviewReviewService {
   ): Promise<InterviewReviewDetail> {
     // Check if company exists
     const company = await prisma.company.findUnique({
-      where: { id: data.companyId }
+      where: { id: data.companyId },
     });
 
     if (!company) {
@@ -236,9 +230,9 @@ export class InterviewReviewService {
     // Check if job exists (if provided)
     if (data.jobId) {
       const job = await prisma.job.findUnique({
-        where: { id: data.jobId }
+        where: { id: data.jobId },
       });
-      
+
       if (!job) {
         throw new Error('Job not found');
       }
@@ -254,8 +248,8 @@ export class InterviewReviewService {
       where: {
         companyId: data.companyId,
         jobId: data.jobId || null,
-        reviewerId: reviewerId
-      }
+        reviewerId: reviewerId,
+      },
     });
 
     if (existingReview) {
@@ -266,7 +260,7 @@ export class InterviewReviewService {
     const review = await prisma.interviewReview.create({
       data: {
         ...data,
-        reviewerId
+        reviewerId,
       },
       include: {
         company: {
@@ -274,25 +268,25 @@ export class InterviewReviewService {
             id: true,
             companyName: true,
             companySlug: true,
-            logoUrl: true
-          }
+            logoUrl: true,
+          },
         },
         job: {
           select: {
             id: true,
             title: true,
-            slug: true
-          }
+            slug: true,
+          },
         },
         reviewer: {
           select: {
             id: true,
             firstName: true,
             lastName: true,
-            avatarUrl: true
-          }
-        }
-      }
+            avatarUrl: true,
+          },
+        },
+      },
     });
 
     // Transform reviewer info
@@ -300,18 +294,18 @@ export class InterviewReviewService {
       ? {
           id: review.reviewer.id,
           displayName: 'Anonymous Candidate',
-          isAnonymous: true
+          isAnonymous: true,
         }
       : {
           id: review.reviewer.id,
           displayName: `${review.reviewer.firstName} ${review.reviewer.lastName}`,
           avatarUrl: review.reviewer.avatarUrl || undefined,
-          isAnonymous: false
+          isAnonymous: false,
         };
 
     return {
       ...review,
-      reviewer: reviewerInfo
+      reviewer: reviewerInfo,
     } as InterviewReviewDetail;
   }
 
@@ -325,7 +319,7 @@ export class InterviewReviewService {
   ): Promise<InterviewReviewDetail> {
     // Check if review exists and belongs to the reviewer
     const existingReview = await prisma.interviewReview.findFirst({
-      where: { id, reviewerId }
+      where: { id, reviewerId },
     });
 
     if (!existingReview) {
@@ -342,25 +336,25 @@ export class InterviewReviewService {
             id: true,
             companyName: true,
             companySlug: true,
-            logoUrl: true
-          }
+            logoUrl: true,
+          },
         },
         job: {
           select: {
             id: true,
             title: true,
-            slug: true
-          }
+            slug: true,
+          },
         },
         reviewer: {
           select: {
             id: true,
             firstName: true,
             lastName: true,
-            avatarUrl: true
-          }
-        }
-      }
+            avatarUrl: true,
+          },
+        },
+      },
     });
 
     // Transform reviewer info
@@ -368,31 +362,28 @@ export class InterviewReviewService {
       ? {
           id: updatedReview.reviewer.id,
           displayName: 'Anonymous Candidate',
-          isAnonymous: true
+          isAnonymous: true,
         }
       : {
           id: updatedReview.reviewer.id,
           displayName: `${updatedReview.reviewer.firstName} ${updatedReview.reviewer.lastName}`,
           avatarUrl: updatedReview.reviewer.avatarUrl || undefined,
-          isAnonymous: false
+          isAnonymous: false,
         };
 
     return {
       ...updatedReview,
-      reviewer: reviewerInfo
+      reviewer: reviewerInfo,
     } as InterviewReviewDetail;
   }
 
   /**
    * Delete an interview review
    */
-  static async deleteInterviewReview(
-    id: string,
-    reviewerId: string
-  ): Promise<void> {
+  static async deleteInterviewReview(id: string, reviewerId: string): Promise<void> {
     // Check if review exists and belongs to the reviewer
     const existingReview = await prisma.interviewReview.findFirst({
-      where: { id, reviewerId }
+      where: { id, reviewerId },
     });
 
     if (!existingReview) {
@@ -400,7 +391,7 @@ export class InterviewReviewService {
     }
 
     await prisma.interviewReview.delete({
-      where: { id }
+      where: { id },
     });
   }
 
@@ -416,8 +407,8 @@ export class InterviewReviewService {
         overallRating: true,
         difficultyRating: true,
         recommendation: true,
-        outcome: true
-      }
+        outcome: true,
+      },
     });
 
     if (reviews.length === 0) {
@@ -429,31 +420,36 @@ export class InterviewReviewService {
         outcomeDistribution: { OFFER: 0, REJECTION: 0, PENDING: 0 },
         ratingDistribution: {
           overall: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
-          difficulty: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
-        }
+          difficulty: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+        },
       };
     }
 
     // Calculate averages
     const totalReviews = reviews.length;
-    const averageOverallRating = reviews.reduce((sum, r) => sum + r.overallRating, 0) / totalReviews;
-    const averageDifficultyRating = reviews.reduce((sum, r) => sum + r.difficultyRating, 0) / totalReviews;
-    
+    const averageOverallRating =
+      reviews.reduce((sum, r) => sum + r.overallRating, 0) / totalReviews;
+    const averageDifficultyRating =
+      reviews.reduce((sum, r) => sum + r.difficultyRating, 0) / totalReviews;
+
     // Calculate recommendation rate
-    const recommendedCount = reviews.filter(r => r.recommendation).length;
+    const recommendedCount = reviews.filter((r) => r.recommendation).length;
     const recommendationRate = (recommendedCount / totalReviews) * 100;
 
     // Calculate outcome distribution
-    const outcomeDistribution = reviews.reduce((acc, review) => {
-      acc[review.outcome] = (acc[review.outcome] || 0) + 1;
-      return acc;
-    }, {} as Record<InterviewOutcome, number>);
+    const outcomeDistribution = reviews.reduce(
+      (acc, review) => {
+        acc[review.outcome] = (acc[review.outcome] || 0) + 1;
+        return acc;
+      },
+      {} as Record<InterviewOutcome, number>
+    );
 
     // Calculate rating distributions
     const overallRatingDist: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
     const difficultyRatingDist: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-    
-    reviews.forEach(review => {
+
+    reviews.forEach((review) => {
       overallRatingDist[review.overallRating]++;
       difficultyRatingDist[review.difficultyRating]++;
     });
@@ -466,27 +462,25 @@ export class InterviewReviewService {
       outcomeDistribution,
       ratingDistribution: {
         overall: overallRatingDist,
-        difficulty: difficultyRatingDist
-      }
+        difficulty: difficultyRatingDist,
+      },
     };
   }
 
   /**
    * Get interview tips for a company
    */
-  static async getInterviewTips(
-    companyId: string
-  ): Promise<InterviewTips> {
+  static async getInterviewTips(companyId: string): Promise<InterviewTips> {
     const reviews = await prisma.interviewReview.findMany({
-      where: { 
+      where: {
         companyId,
-        interviewQuestions: { not: null }
+        interviewQuestions: { not: null },
       },
       select: {
         interviewQuestions: true,
         processDescription: true,
-        difficultyRating: true
-      }
+        difficultyRating: true,
+      },
     });
 
     if (reviews.length === 0) {
@@ -494,20 +488,24 @@ export class InterviewReviewService {
         companyId,
         commonQuestions: [],
         processOverview: 'No interview process information available yet.',
-        preparationTips: ['Research the company thoroughly', 'Practice common interview questions', 'Prepare questions to ask the interviewer'],
-        difficultyLevel: 'Medium'
+        preparationTips: [
+          'Research the company thoroughly',
+          'Practice common interview questions',
+          'Prepare questions to ask the interviewer',
+        ],
+        difficultyLevel: 'Medium',
       };
     }
 
     // Extract and parse questions
     const allQuestions: string[] = [];
-    reviews.forEach(review => {
+    reviews.forEach((review) => {
       if (review.interviewQuestions) {
         // Split questions by common delimiters
         const questions = review.interviewQuestions
           .split(/[\n\r]+|[0-9]+\.|[-•]/)
-          .map(q => q.trim())
-          .filter(q => q.length > 10);
+          .map((q) => q.trim())
+          .filter((q) => q.length > 10);
         allQuestions.push(...questions);
       }
     });
@@ -517,13 +515,14 @@ export class InterviewReviewService {
 
     // Generate process overview
     const processDescriptions = reviews
-      .filter(r => r.processDescription)
-      .map(r => r.processDescription)
-      .filter(Boolean);
-    
-    const processOverview = processDescriptions.length > 0
-      ? processDescriptions[0] // Use the most recent one
-      : 'No specific process information available.';
+      .filter((r) => r.processDescription)
+      .map((r) => r.processDescription)
+      .filter(Boolean) as string[];
+
+    const processOverview =
+      processDescriptions.length > 0
+        ? processDescriptions[0] // Use the most recent one
+        : 'No specific process information available.';
 
     // Calculate difficulty level
     const avgDifficulty = reviews.reduce((sum, r) => sum + r.difficultyRating, 0) / reviews.length;
@@ -533,7 +532,7 @@ export class InterviewReviewService {
     const preparationTips = [
       'Research the company culture and values',
       'Review the job description thoroughly',
-      'Prepare examples using the STAR method'
+      'Prepare examples using the STAR method',
     ];
 
     if (difficultyLevel === 'Hard') {
@@ -548,7 +547,7 @@ export class InterviewReviewService {
       commonQuestions: uniqueQuestions,
       processOverview,
       preparationTips,
-      difficultyLevel
+      difficultyLevel,
     };
   }
 
@@ -562,7 +561,7 @@ export class InterviewReviewService {
   ): Promise<{ canReview: boolean; reason?: string }> {
     // Check if company exists
     const company = await prisma.company.findUnique({
-      where: { id: companyId }
+      where: { id: companyId },
     });
 
     if (!company) {
@@ -574,8 +573,8 @@ export class InterviewReviewService {
       where: {
         companyId,
         jobId: jobId || null,
-        reviewerId: userId
-      }
+        reviewerId: userId,
+      },
     });
 
     if (existingReview) {
@@ -588,9 +587,7 @@ export class InterviewReviewService {
   /**
    * Get user's interview reviews
    */
-  static async getUserInterviewReviews(
-    userId: string
-  ): Promise<InterviewReviewWithRelations[]> {
+  static async getUserInterviewReviews(userId: string): Promise<InterviewReviewWithRelations[]> {
     const reviews = await prisma.interviewReview.findMany({
       where: { reviewerId: userId },
       orderBy: { createdAt: 'desc' },
@@ -600,17 +597,17 @@ export class InterviewReviewService {
             id: true,
             companyName: true,
             companySlug: true,
-            logoUrl: true
-          }
+            logoUrl: true,
+          },
         },
         job: {
           select: {
             id: true,
             title: true,
-            slug: true
-          }
-        }
-      }
+            slug: true,
+          },
+        },
+      },
     });
 
     return reviews as InterviewReviewWithRelations[];

@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { CompanyJobService } from '@/services/public/company-job.service';
 
 interface Params {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 /**
@@ -43,7 +43,7 @@ export async function OPTIONS(request: NextRequest) {
  */
 export async function GET(request: NextRequest, { params }: Params) {
   try {
-    const { slug } = params;
+    const { slug } = await params;
     const searchParams = request.nextUrl.searchParams;
     const origin = request.headers.get('origin');
 

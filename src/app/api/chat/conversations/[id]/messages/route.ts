@@ -44,7 +44,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       });
 
       if (!participant) {
-        return errorResponse('Access denied - You are not a participant in this conversation', 403);
+        return errorResponse(
+          'FORBIDDEN',
+          'Access denied - You are not a participant in this conversation',
+          403
+        );
       }
 
       const where: any = {
@@ -164,7 +168,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       });
 
       if (!participant) {
-        return errorResponse('Access denied - You are not a participant in this conversation', 403);
+        return errorResponse(
+          'FORBIDDEN',
+          'Access denied - You are not a participant in this conversation',
+          403
+        );
       }
 
       // Validate reply-to message if provided
@@ -178,7 +186,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         });
 
         if (!replyToMessage) {
-          return errorResponse('Reply-to message not found', 400);
+          return errorResponse('INVALID_REQUEST', 'Reply-to message not found', 400);
         }
       }
 
@@ -239,7 +247,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       console.error('Error sending message:', error);
 
       if (error instanceof z.ZodError) {
-        return errorResponse('Invalid request data', 400, error.issues);
+        return errorResponse('Invalid request data', error.issues[0].message, 400);
       }
 
       return serverErrorResponse('Failed to send message', error);

@@ -125,7 +125,7 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
  * GET /api/applications/stats
  * Get application statistics
  */
-export async function handleGetStats(req: AuthenticatedRequest) {
+async function handleGetStats(req: AuthenticatedRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const queryParams = {

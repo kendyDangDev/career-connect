@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, Suspense } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useLocations } from '@/hooks/useLocations';
 import { LocationsTable } from './components/LocationsTable';
@@ -43,7 +43,7 @@ import {
   Map,
 } from 'lucide-react';
 
-export default function LocationsManagementPage() {
+function LocationsManagementPageContent() {
   const router = useRouter();
   const pathname = usePathname();
   const {
@@ -401,5 +401,17 @@ export default function LocationsManagementPage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+export default function LocationsManagementPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-[400px] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    }>
+      <LocationsManagementPageContent />
+    </Suspense>
   );
 }

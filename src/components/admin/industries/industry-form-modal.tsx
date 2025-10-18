@@ -30,10 +30,17 @@ import { Industry, CreateIndustryDto, UpdateIndustryDto } from '@/types/system-c
 
 // Form validation schema
 const formSchema = z.object({
-  name: z.string().min(2, 'Tên ngành nghề phải có ít nhất 2 ký tự').max(100, 'Tên ngành nghề không được vượt quá 100 ký tự'),
-  description: z.string().max(500, 'Mô tả không được vượt quá 500 ký tự').optional().or(z.literal('')),
+  name: z
+    .string()
+    .min(2, 'Tên ngành nghề phải có ít nhất 2 ký tự')
+    .max(100, 'Tên ngành nghề không được vượt quá 100 ký tự'),
+  description: z
+    .string()
+    .max(500, 'Mô tả không được vượt quá 500 ký tự')
+    .optional()
+    .or(z.literal('')),
   iconUrl: z.string().url('URL icon không hợp lệ').optional().or(z.literal('')),
-  sortOrder: z.coerce.number().int('Thứ tự phải là số nguyên').min(0, 'Thứ tự không được âm').optional(),
+  sortOrder: z.number().int('Thứ tự phải là số nguyên').min(0, 'Thứ tự không được âm').optional(),
   isActive: z.boolean().optional(),
 });
 
@@ -126,7 +133,7 @@ const IndustryFormModal: React.FC<IndustryFormModalProps> = ({
             {mode === 'create' ? 'Thêm ngành nghề mới' : 'Chỉnh sửa ngành nghề'}
           </DialogTitle>
           <DialogDescription>
-            {mode === 'create' 
+            {mode === 'create'
               ? 'Điền thông tin để tạo ngành nghề mới.'
               : 'Cập nhật thông tin ngành nghề.'}
           </DialogDescription>
@@ -139,13 +146,11 @@ const IndustryFormModal: React.FC<IndustryFormModalProps> = ({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tên ngành nghề <span className="text-red-500">*</span></FormLabel>
+                  <FormLabel>
+                    Tên ngành nghề <span className="text-red-500">*</span>
+                  </FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="VD: Công nghệ thông tin"
-                      {...field}
-                      disabled={loading}
-                    />
+                    <Input placeholder="VD: Công nghệ thông tin" {...field} disabled={loading} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -167,9 +172,7 @@ const IndustryFormModal: React.FC<IndustryFormModalProps> = ({
                       disabled={loading}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Mô tả ngắn gọn về ngành nghề (tối đa 500 ký tự)
-                  </FormDescription>
+                  <FormDescription>Mô tả ngắn gọn về ngành nghề (tối đa 500 ký tự)</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -189,9 +192,7 @@ const IndustryFormModal: React.FC<IndustryFormModalProps> = ({
                       disabled={loading}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Đường dẫn đến icon của ngành nghề
-                  </FormDescription>
+                  <FormDescription>Đường dẫn đến icon của ngành nghề</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -204,12 +205,7 @@ const IndustryFormModal: React.FC<IndustryFormModalProps> = ({
                 <FormItem>
                   <FormLabel>Thứ tự hiển thị</FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="0"
-                      {...field}
-                      disabled={loading}
-                    />
+                    <Input type="number" placeholder="0" {...field} disabled={loading} />
                   </FormControl>
                   <FormDescription>
                     Thứ tự hiển thị của ngành nghề (số càng nhỏ càng ưu tiên)
@@ -244,12 +240,7 @@ const IndustryFormModal: React.FC<IndustryFormModalProps> = ({
             )}
 
             <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleClose}
-                disabled={loading}
-              >
+              <Button type="button" variant="outline" onClick={handleClose} disabled={loading}>
                 Hủy
               </Button>
               <Button type="submit" disabled={loading}>

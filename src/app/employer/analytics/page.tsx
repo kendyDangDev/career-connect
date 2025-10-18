@@ -1,34 +1,131 @@
 'use client';
 
-import { BarChart3, Users, Briefcase, TrendingUp, Eye, Clock, Target, Award, Download, Calendar } from 'lucide-react';
+import { useState } from 'react';
+import {
+  BarChart3,
+  Users,
+  Briefcase,
+  TrendingUp,
+  Eye,
+  Clock,
+  Target,
+  Award,
+  Download,
+  Calendar,
+  Loader2,
+  AlertCircle,
+} from 'lucide-react';
 import { MetricsCard } from '@/components/employer/analytics/MetricsCard';
+import { useApplicationStats, TimeRange } from '@/hooks/useApplicationStats';
 
-const conversionData = [
-  { stage: 'Ứng tuyển', count: 328, percentage: 100, color: 'bg-blue-500' },
-  { stage: 'Xem xét', count: 156, percentage: 47.6, color: 'bg-purple-500' },
-  { stage: 'Phỏng vấn', count: 95, percentage: 29, color: 'bg-yellow-500' },
-  { stage: 'Offer', count: 42, percentage: 12.8, color: 'bg-orange-500' },
-  { stage: 'Chấp nhận', count: 28, percentage: 8.5, color: 'bg-green-500' },
-];
-
-const jobPerformance = [
-  { job: 'Senior Frontend Developer', applications: 45, views: 342, conversion: 12.5, status: 'Active' },
-  { job: 'Product Manager', applications: 38, views: 298, conversion: 15.8, status: 'Active' },
-  { job: 'Backend Developer', applications: 52, views: 421, conversion: 10.2, status: 'Active' },
-  { job: 'UI/UX Designer', applications: 31, views: 267, conversion: 18.3, status: 'Closed' },
-  { job: 'DevOps Engineer', applications: 28, views: 189, conversion: 14.2, status: 'Active' },
-];
-
-const timeToHire = [
-  { month: 'Tháng 1', days: 28, applications: 45 },
-  { month: 'Tháng 2', days: 32, applications: 52 },
-  { month: 'Tháng 3', days: 25, applications: 48 },
-  { month: 'Tháng 4', days: 22, applications: 61 },
-  { month: 'Tháng 5', days: 19, applications: 55 },
-  { month: 'Tháng 6', days: 21, applications: 67 },
+const TIME_RANGE_OPTIONS: { value: TimeRange; label: string }[] = [
+  { value: '7days', label: '7 ngày qua' },
+  { value: '30days', label: '30 ngày qua' },
+  { value: '90days', label: '90 ngày qua' },
+  { value: 'year', label: '1 năm qua' },
 ];
 
 export default function AnalyticsPage() {
+  const [timeRange, setTimeRange] = useState<TimeRange>('30days');
+  const { data, loading, error, refetch } = useApplicationStats({ timeRange });
+
+  // Handle export functionality
+  const handleExport = () => {
+    // TODO: Implement export to CSV/PDF
+    alert('Tính năng xuất báo cáo sẽ sớm được bổ sung');
+  };
+
+  // Loading state
+  if (loading && !data) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="mx-auto mb-4 h-12 w-12 animate-spin text-purple-600" />
+          <p className="text-gray-600">Đang tải dữ liệu phân tích...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error && !data) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <div className="max-w-md rounded-xl border border-red-200 bg-red-50 p-6 text-center">
+          <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-600" />
+          <h3 className="mb-2 text-lg font-semibold text-red-900">Lỗi tải dữ liệu</h3>
+          <p className="mb-4 text-red-700">{error}</p>
+          <button
+            onClick={() => refetch()}
+            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
+          >
+            Thử lại
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Prepare conversion funnel data from API
+  const conversionData = data
+    ? [
+        {
+          stage: 'Ứng tuyển',
+          count: data.conversionFunnel.applied,
+          percentage: 100,
+          color: 'bg-blue-500',
+        },
+        {
+          stage: 'Xem xét',
+          count: data.conversionFunnel.reviewed,
+          percentage:
+            data.conversionFunnel.applied > 0
+              ? Math.round((data.conversionFunnel.reviewed / data.conversionFunnel.applied) * 100)
+              : 0,
+          color: 'bg-purple-500',
+        },
+        {
+          stage: 'Phỏng vấn',
+          count: data.conversionFunnel.interviewed,
+          percentage:
+            data.conversionFunnel.applied > 0
+              ? Math.round(
+                  (data.conversionFunnel.interviewed / data.conversionFunnel.applied) * 100
+                )
+              : 0,
+          color: 'bg-yellow-500',
+        },
+        {
+          stage: 'Tuyển dụng',
+          count: data.conversionFunnel.hired,
+          percentage:
+            data.conversionFunnel.applied > 0
+              ? Math.round((data.conversionFunnel.hired / data.conversionFunnel.applied) * 100)
+              : 0,
+          color: 'bg-green-500',
+        },
+        {
+          stage: 'Từ chối',
+          count: data.conversionFunnel.rejected,
+          percentage:
+            data.conversionFunnel.applied > 0
+              ? Math.round((data.conversionFunnel.rejected / data.conversionFunnel.applied) * 100)
+              : 0,
+          color: 'bg-red-500',
+        },
+      ]
+    : [];
+
+  // Get top performer from applicationsByJob
+  const topPerformer =
+    data?.applicationsByJob && data.applicationsByJob.length > 0 ? data.applicationsByJob[0] : null;
+
+  // Get most popular job
+  const mostPopular =
+    data?.applicationsByJob && data.applicationsByJob.length > 0
+      ? data.applicationsByJob.reduce((max, job) => (job.count > max.count ? job : max))
+      : null;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -37,20 +134,28 @@ export default function AnalyticsPage() {
           <div className="flex items-center gap-3">
             <BarChart3 className="h-8 w-8 text-white" />
             <div>
-              <h1 className="text-2xl font-bold text-white mb-1">Báo cáo & Thống kê</h1>
+              <h1 className="mb-1 text-2xl font-bold text-white">Báo cáo & Thống kê</h1>
               <p className="text-purple-100">Phân tích hiệu quả tuyển dụng và xu hướng</p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-3">
-            <select className="rounded-lg bg-white/20 backdrop-blur-sm border-0 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-white/30">
-              <option>30 ngày qua</option>
-              <option>60 ngày qua</option>
-              <option>90 ngày qua</option>
-              <option>1 năm qua</option>
+            <select
+              value={timeRange}
+              onChange={(e) => setTimeRange(e.target.value as TimeRange)}
+              className="cursor-pointer rounded-lg border-0 bg-white/20 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition-all hover:bg-white/30"
+            >
+              {TIME_RANGE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value} className="text-gray-900">
+                  {option.label}
+                </option>
+              ))}
             </select>
-            
-            <button className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-purple-700 shadow-md transition-all hover:shadow-lg">
+
+            <button
+              onClick={handleExport}
+              className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-purple-700 shadow-md transition-all hover:shadow-lg"
+            >
               <Download className="h-4 w-4" />
               Xuất báo cáo
             </button>
@@ -62,34 +167,30 @@ export default function AnalyticsPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <MetricsCard
           title="Tổng ứng tuyển"
-          value={328}
-          change={{ value: '+18.2%', isPositive: true }}
+          value={data?.summary.totalApplications || 0}
           icon={Users}
-          description="So với tháng trước"
+          description={`Trong ${TIME_RANGE_OPTIONS.find((o) => o.value === timeRange)?.label.toLowerCase() || ''}`}
           gradient="from-blue-500 to-indigo-600"
         />
         <MetricsCard
-          title="Công việc đang tuyển"
-          value={8}
-          change={{ value: '+2', isPositive: true }}
+          title="Công việc hoạt động"
+          value={data?.applicationsByJob.length || 0}
           icon={Briefcase}
-          description="3 sắp hết hạn"
+          description="Có ứng viên ứng tuyển"
           gradient="from-purple-500 to-purple-600"
         />
         <MetricsCard
-          title="Tỷ lệ chuyển đổi"
-          value="8.5%"
-          change={{ value: '+2.3%', isPositive: true }}
+          title="Tỷ lệ tuyển dụng"
+          value={`${data?.summary.hireRate || 0}%`}
           icon={Target}
-          description="Từ ứng tuyển đến chấp nhận"
+          description="Từ ứng tuyển đến tuyển dụng"
           gradient="from-green-500 to-emerald-600"
         />
         <MetricsCard
           title="Thời gian tuyển dụng"
-          value="21 ngày"
-          change={{ value: '-3 ngày', isPositive: true }}
+          value={`${data?.summary.averageTimeToHire || 0} ngày`}
           icon={Clock}
-          description="Trung bình tháng này"
+          description="Trung bình thời gian từ ứng tuyển"
           gradient="from-orange-500 to-red-500"
         />
       </div>
@@ -97,15 +198,15 @@ export default function AnalyticsPage() {
       {/* Charts Row */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Conversion Funnel */}
-        <div className="rounded-xl border border-purple-100 bg-white p-6 shadow-soft">
+        <div className="shadow-soft rounded-xl border border-purple-100 bg-white p-6">
           <div className="mb-6 flex items-center justify-between">
             <div>
               <h2 className="text-lg font-bold text-gray-900">Phễu chuyển đổi</h2>
-              <p className="text-sm text-gray-500 mt-1">Từ ứng tuyển đến chấp nhận</p>
+              <p className="mt-1 text-sm text-gray-500">Từ ứng tuyển đến tuyển dụng</p>
             </div>
             <div className="text-right">
-              <p className="text-2xl font-bold text-purple-600">8.5%</p>
-              <p className="text-xs text-gray-500">Tỷ lệ chuyển đổi</p>
+              <p className="text-2xl font-bold text-purple-600">{data?.summary.hireRate || 0}%</p>
+              <p className="text-xs text-gray-500">Tỷ lệ tuyển dụng</p>
             </div>
           </div>
 
@@ -119,14 +220,14 @@ export default function AnalyticsPage() {
                     <span className="text-gray-500">({stage.percentage}%)</span>
                   </div>
                 </div>
-                <div className="h-3 w-full rounded-full bg-gray-100 overflow-hidden">
+                <div className="h-3 w-full overflow-hidden rounded-full bg-gray-100">
                   <div
-                    className={`h-full ${stage.color} transition-all duration-500 rounded-full`}
+                    className={`h-full ${stage.color} rounded-full transition-all duration-500`}
                     style={{ width: `${stage.percentage}%` }}
                   />
                 </div>
                 {index < conversionData.length - 1 && (
-                  <div className="absolute -bottom-2 left-0 right-0 flex justify-center">
+                  <div className="absolute right-0 -bottom-2 left-0 flex justify-center">
                     <div className="h-4 w-px bg-gray-300" />
                   </div>
                 )}
@@ -135,147 +236,149 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
-        {/* Time to Hire Trend */}
-        <div className="rounded-xl border border-purple-100 bg-white p-6 shadow-soft">
+        {/* Top Skills */}
+        <div className="shadow-soft rounded-xl border border-purple-100 bg-white p-6">
           <div className="mb-6">
-            <h2 className="text-lg font-bold text-gray-900">Thời gian tuyển dụng</h2>
-            <p className="text-sm text-gray-500 mt-1">Số ngày trung bình theo tháng</p>
+            <h2 className="text-lg font-bold text-gray-900">Kỹ năng phổ biến</h2>
+            <p className="mt-1 text-sm text-gray-500">
+              Kỹ năng xuất hiện nhiều nhất trong ứng viên
+            </p>
           </div>
 
           <div className="space-y-3">
-            {timeToHire.map((item, index) => {
-              const maxDays = Math.max(...timeToHire.map(t => t.days));
-              const barWidth = (item.days / maxDays) * 100;
-              
-              return (
-                <div key={index} className="flex items-center gap-3">
-                  <div className="w-20 text-sm font-medium text-gray-600">{item.month}</div>
-                  <div className="flex-1">
-                    <div className="relative h-8 w-full rounded-lg bg-gray-100 overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-purple-500 to-purple-600 transition-all duration-500 flex items-center justify-center"
-                        style={{ width: `${barWidth}%` }}
-                      >
-                        <span className="text-xs font-semibold text-white">{item.days} ngày</span>
+            {data?.topSkills && data.topSkills.length > 0 ? (
+              data.topSkills.slice(0, 6).map((skill, index) => {
+                const maxCount = data.topSkills[0]?.count || 1;
+                const barWidth = (skill.count / maxCount) * 100;
+
+                return (
+                  <div key={index} className="flex items-center gap-3">
+                    <div className="w-32 truncate text-sm font-medium text-gray-700">
+                      {skill.skill}
+                    </div>
+                    <div className="flex-1">
+                      <div className="relative h-7 w-full overflow-hidden rounded-lg bg-gray-100">
+                        <div
+                          className="flex h-full items-center bg-gradient-to-r from-purple-500 to-purple-600 px-3 transition-all duration-500"
+                          style={{ width: `${barWidth}%` }}
+                        >
+                          <span className="text-xs font-semibold text-white">{skill.count}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <div className="w-16 text-right text-sm text-gray-500">{item.applications} UV</div>
-                </div>
-              );
-            })}
+                );
+              })
+            ) : (
+              <div className="py-8 text-center text-gray-500">
+                <p>Chưa có dữ liệu kỹ năng</p>
+              </div>
+            )}
           </div>
 
-          <div className="mt-6 grid grid-cols-3 gap-4 border-t border-gray-100 pt-4">
+          <div className="mt-6 grid grid-cols-2 gap-4 border-t border-gray-100 pt-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-gray-900">21</p>
-              <p className="text-xs text-gray-500 mt-1">Trung bình</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {data?.summary.averageTimeToHire || 0}
+              </p>
+              <p className="mt-1 text-xs text-gray-500">Ngày tuyển dụng TB</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-green-600">19</p>
-              <p className="text-xs text-gray-500 mt-1">Tốt nhất</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-orange-600">32</p>
-              <p className="text-xs text-gray-500 mt-1">Chậm nhất</p>
+              <p className="text-2xl font-bold text-purple-600">{data?.topSkills.length || 0}</p>
+              <p className="mt-1 text-xs text-gray-500">Kỹ năng khác nhau</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Job Performance Table */}
-      <div className="rounded-xl border border-purple-100 bg-white p-6 shadow-soft">
+      <div className="shadow-soft rounded-xl border border-purple-100 bg-white p-6">
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold text-gray-900">Hiệu suất công việc</h2>
-            <p className="text-sm text-gray-500 mt-1">So sánh hiệu quả các tin tuyển dụng</p>
+            <p className="mt-1 text-sm text-gray-500">So sánh hiệu quả các tin tuyển dụng</p>
           </div>
-          <button className="text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors">
-            Xem chi tiết
-          </button>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200 text-left text-sm font-semibold text-gray-700">
-                <th className="pb-3">Vị trí</th>
-                <th className="pb-3 text-center">Ứng tuyển</th>
-                <th className="pb-3 text-center">Lượt xem</th>
-                <th className="pb-3 text-center">Tỷ lệ chuyển đổi</th>
-                <th className="pb-3 text-center">Trạng thái</th>
-                <th className="pb-3 text-center">Hiệu suất</th>
-              </tr>
-            </thead>
-            <tbody className="text-sm">
-              {jobPerformance.map((job, index) => (
-                <tr key={index} className="border-b border-gray-100 hover:bg-purple-50/50 transition-colors">
-                  <td className="py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 shadow-sm">
-                        <Briefcase className="h-5 w-5 text-white" />
-                      </div>
-                      <span className="font-medium text-gray-900">{job.job}</span>
-                    </div>
-                  </td>
-                  <td className="py-4 text-center font-semibold text-gray-900">{job.applications}</td>
-                  <td className="py-4 text-center text-gray-600">{job.views}</td>
-                  <td className="py-4 text-center">
-                    <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-700">
-                      {job.conversion}%
-                    </span>
-                  </td>
-                  <td className="py-4 text-center">
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                      job.status === 'Active' 
-                        ? 'bg-blue-100 text-blue-700' 
-                        : 'bg-gray-100 text-gray-700'
-                    }`}>
-                      {job.status}
-                    </span>
-                  </td>
-                  <td className="py-4 text-center">
-                    <div className="flex items-center justify-center gap-1">
-                      {[...Array(5)].map((_, i) => (
-                        <Award
-                          key={i}
-                          className={`h-4 w-4 ${
-                            i < Math.floor(job.conversion / 4)
-                              ? 'fill-yellow-400 text-yellow-400'
-                              : 'text-gray-300'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  </td>
+          {data?.applicationsByJob && data.applicationsByJob.length > 0 ? (
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200 text-left text-sm font-semibold text-gray-700">
+                  <th className="pb-3">Vị trí</th>
+                  <th className="pb-3 text-center">Ứng tuyển</th>
+                  <th className="pb-3 text-center">% Tổng ứng tuyển</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="text-sm">
+                {data.applicationsByJob.map((job, index) => {
+                  const percentage =
+                    data.summary.totalApplications > 0
+                      ? ((job.count / data.summary.totalApplications) * 100).toFixed(1)
+                      : 0;
+
+                  return (
+                    <tr
+                      key={job.jobId}
+                      className="border-b border-gray-100 transition-colors hover:bg-purple-50/50"
+                    >
+                      <td className="py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 shadow-sm">
+                            <Briefcase className="h-5 w-5 text-white" />
+                          </div>
+                          <span className="font-medium text-gray-900">{job.jobTitle}</span>
+                        </div>
+                      </td>
+                      <td className="py-4 text-center font-semibold text-gray-900">{job.count}</td>
+                      <td className="py-4 text-center">
+                        <span className="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-semibold text-purple-700">
+                          {percentage}%
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          ) : (
+            <div className="py-12 text-center text-gray-500">
+              <Briefcase className="mx-auto mb-3 h-12 w-12 text-gray-300" />
+              <p>Chưa có dữ liệu công việc</p>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Additional Insights */}
       <div className="grid gap-6 md:grid-cols-3">
-        <div className="rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100/50 p-6">
-          <Eye className="h-8 w-8 text-blue-600 mb-3" />
-          <h3 className="font-semibold text-blue-900 mb-1">Top Performer</h3>
-          <p className="text-2xl font-bold text-blue-700">UI/UX Designer</p>
-          <p className="text-sm text-blue-600 mt-2">18.3% tỷ lệ chuyển đổi cao nhất</p>
+        <div className="rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100/50 p-6">
+          <Users className="mb-3 h-8 w-8 text-purple-600" />
+          <h3 className="mb-1 font-semibold text-purple-900">Nhiều nhất</h3>
+          <p className="truncate text-2xl font-bold text-purple-700">
+            {mostPopular?.jobTitle || 'Chưa có dữ liệu'}
+          </p>
+          <p className="mt-2 text-sm text-purple-600">
+            {mostPopular ? `${mostPopular.count} ứng tuyển` : 'Không có ứng tuyển'}
+          </p>
         </div>
 
-        <div className="rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100/50 p-6">
-          <Users className="h-8 w-8 text-purple-600 mb-3" />
-          <h3 className="font-semibold text-purple-900 mb-1">Most Popular</h3>
-          <p className="text-2xl font-bold text-purple-700">Backend Developer</p>
-          <p className="text-sm text-purple-600 mt-2">52 ứng tuyển trong tháng</p>
+        <div className="rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100/50 p-6">
+          <Target className="mb-3 h-8 w-8 text-blue-600" />
+          <h3 className="mb-1 font-semibold text-blue-900">Tỷ lệ tuyển dụng</h3>
+          <p className="text-2xl font-bold text-blue-700">{data?.summary.hireRate || 0}%</p>
+          <p className="mt-2 text-sm text-blue-600">
+            {data?.conversionFunnel.hired || 0} người được tuyển dụng
+          </p>
         </div>
 
         <div className="rounded-xl border border-green-200 bg-gradient-to-br from-green-50 to-green-100/50 p-6">
-          <TrendingUp className="h-8 w-8 text-green-600 mb-3" />
-          <h3 className="font-semibold text-green-900 mb-1">Trending Up</h3>
-          <p className="text-2xl font-bold text-green-700">+18.2%</p>
-          <p className="text-sm text-green-600 mt-2">Tăng trưởng ứng tuyển tháng này</p>
+          <Clock className="mb-3 h-8 w-8 text-green-600" />
+          <h3 className="mb-1 font-semibold text-green-900">Thời gian TB</h3>
+          <p className="text-2xl font-bold text-green-700">
+            {data?.summary.averageTimeToHire || 0} ngày
+          </p>
+          <p className="mt-2 text-sm text-green-600">Từ ứng tuyển đến tuyển dụng</p>
         </div>
       </div>
     </div>

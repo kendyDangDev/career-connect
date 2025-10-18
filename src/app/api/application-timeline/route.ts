@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Additional filtering based on user type
-    if (session.user.role === 'CANDIDATE') {
+    if (session.user.userType === 'CANDIDATE') {
       // Candidates can only see their own application timelines
       const candidateApplications = await ApplicationTimelineService.getRecentActivities(
         session.user.id,
@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Only employers and admins can create timeline entries
-    if (session.user.role !== 'EMPLOYER' && session.user.role !== 'ADMIN') {
+    if (session.user.userType !== 'EMPLOYER' && session.user.userType !== 'ADMIN') {
       return forbiddenResponse('Only employers and admins can update application status');
     }
 
@@ -115,10 +115,14 @@ export async function POST(req: NextRequest) {
 
     // Validate required fields
     if (!body.applicationId || !body.status) {
-      return validationErrorResponse({
-        applicationId: !body.applicationId ? 'Application ID is required' : undefined,
-        status: !body.status ? 'Status is required' : undefined,
-      });
+      const errors: Record<string, string> = {};
+      if (!body.applicationId) {
+        errors.applicationId = 'Application ID is required';
+      }
+      if (!body.status) {
+        errors.status = 'Status is required';
+      }
+      return validationErrorResponse(errors);
     }
 
     // Validate status value
@@ -138,12 +142,12 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if user has access to the application
-    if (session.user.role === 'EMPLOYER') {
+    if (session.user.userType === 'EMPLOYER') {
       // Verify employer has access to this application
       const hasAccess = await ApplicationTimelineService.checkAccess(
         body.applicationId,
         session.user.id,
-        session.user.role
+        session.user.userType
       );
 
       if (!hasAccess) {

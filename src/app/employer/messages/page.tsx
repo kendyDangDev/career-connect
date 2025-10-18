@@ -20,29 +20,41 @@ export default function MessagesPage() {
     onlineUsers,
     isLoading,
     isConnected,
-    loadConversations,
+    initializeChat,
+    disconnectChat,
   } = useChatContext();
 
-  // Load conversations on mount
+  // Initialize chat on mount, cleanup on unmount
   useEffect(() => {
-    loadConversations();
+    initializeChat();
+
+    return () => {
+      // Optionally disconnect when leaving messages page
+      // Uncomment if you want to disconnect immediately
+      // disconnectChat();
+    };
   }, []);
 
   // Transform conversations for ConversationList component
   const formattedConversations = useMemo(() => {
     return conversations.map((conv) => {
       // Get other participant (not current user)
-      const otherParticipant = conv.participants.find(
-        (p) => p.userId !== session?.user?.id
-      );
+      const otherParticipant = conv.participants.find((p) => p.userId !== session?.user?.id);
 
-      const lastMessage = conv.messages[0];
+      const lastMessage = conv.messages?.[0];
       const isOnline = onlineUsers.some((u) => u.userId === otherParticipant?.userId);
+
+      // Split name into first and last name
+      // const fullName = otherParticipant?.user?.name || '';
+      // const nameParts = fullName.trim().split(' ');
+      const firstName = otherParticipant?.user?.firstName || '';
+      const lastName = otherParticipant?.user?.lastName || '';
 
       return {
         id: conv.id,
-        name: otherParticipant?.user?.name || 'Unknown User',
-        avatar: otherParticipant?.user?.avatar,
+        firstName,
+        lastName,
+        avatarUrl: otherParticipant?.user?.avatarUrl || undefined,
         lastMessage: lastMessage?.content || 'Chưa có tin nhắn',
         timestamp: conv.lastMessageAt
           ? formatDistanceToNow(new Date(conv.lastMessageAt), {
@@ -96,22 +108,23 @@ export default function MessagesPage() {
 
     return {
       id: activeConversation.id,
-      name: otherParticipant?.user?.name || 'Unknown User',
-      avatar: otherParticipant?.user?.avatar,
+      name:
+        `${otherParticipant?.user?.firstName} ${otherParticipant?.user?.lastName}` ||
+        'Unknown User',
+      avatar: otherParticipant?.user?.avatarUrl || undefined,
       position: undefined, // TODO: Get position from user profile
       online: isOnline,
     };
   }, [activeConversation, onlineUsers, session]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-96px)]">
+    <div className="flex h-[calc(100vh-96px)] flex-col">
       {/* Header */}
-      
 
       {/* Chat Interface */}
-      <div className="flex-1 grid gap-6 lg:grid-cols-3 min-h-0">
+      <div className="grid min-h-0 flex-1 gap-6 lg:grid-cols-3">
         {/* Conversations List */}
-        <div className="lg:col-span-1 h-full min-h-0">
+        <div className="h-full min-h-0 lg:col-span-1">
           {isLoading ? (
             <div className="flex h-full items-center justify-center rounded-xl border border-gray-200 bg-white">
               <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
@@ -126,7 +139,7 @@ export default function MessagesPage() {
         </div>
 
         {/* Message Thread */}
-        <div className="lg:col-span-2 h-full min-h-0">
+        <div className="h-full min-h-0 lg:col-span-2">
           {activeConvData ? (
             <MessageThread
               conversation={activeConvData}
@@ -137,7 +150,9 @@ export default function MessagesPage() {
             <div className="flex h-full items-center justify-center rounded-xl border border-gray-200 bg-white">
               <div className="text-center">
                 <MessageSquare className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-4 text-lg font-semibold text-gray-900">Chọn một cuộc trò chuyện</h3>
+                <h3 className="mt-4 text-lg font-semibold text-gray-900">
+                  Chọn một cuộc trò chuyện
+                </h3>
                 <p className="mt-2 text-sm text-gray-600">
                   Chọn một cuộc trò chuyện từ danh sách bên trái để bắt đầu
                 </p>

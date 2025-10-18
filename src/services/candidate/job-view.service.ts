@@ -1,11 +1,11 @@
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/generated/prisma';
-import { 
-  JobView, 
-  JobViewInput, 
-  JobViewsQuery, 
-  JobViewsResponse, 
-  JobViewStats 
+import {
+  JobView,
+  JobViewInput,
+  JobViewsQuery,
+  JobViewsResponse,
+  JobViewStats,
 } from '@/types/candidate/job-view.types';
 import { startOfDay, endOfDay, subDays, format } from 'date-fns';
 
@@ -13,17 +13,15 @@ export class JobViewService {
   /**
    * Create a new job view record
    */
-  static async createJobView(
-    data: JobViewInput & { userId?: string }
-  ): Promise<JobView> {
+  static async createJobView(data: JobViewInput & { userId?: string }): Promise<JobView> {
     const { jobId, userId, ipAddress = '', userAgent = '' } = data;
 
     // Check if job exists and is active
     const job = await prisma.job.findFirst({
       where: {
         id: jobId,
-        status: 'ACTIVE'
-      }
+        status: 'ACTIVE',
+      },
     });
 
     if (!job) {
@@ -36,15 +34,15 @@ export class JobViewService {
         jobId,
         userId,
         ipAddress,
-        userAgent
+        userAgent,
       },
       include: {
         job: {
           include: {
-            company: true
-          }
-        }
-      }
+            company: true,
+          },
+        },
+      },
     });
 
     // Increment view count on the job
@@ -52,9 +50,9 @@ export class JobViewService {
       where: { id: jobId },
       data: {
         viewCount: {
-          increment: 1
-        }
-      }
+          increment: 1,
+        },
+      },
     });
 
     return this.formatJobView(jobView);
@@ -63,37 +61,34 @@ export class JobViewService {
   /**
    * Get job views for a specific user
    */
-  static async getJobViews(
-    userId: string,
-    query: JobViewsQuery
-  ): Promise<JobViewsResponse> {
+  static async getJobViews(userId: string, query: JobViewsQuery): Promise<JobViewsResponse> {
     const {
       page = 1,
       limit = 10,
       sortBy = 'viewedAt',
       sortOrder = 'desc',
       startDate,
-      endDate
+      endDate,
     } = query;
 
     const skip = (page - 1) * limit;
 
     // Build where clause
     const where: Prisma.JobViewWhereInput = {
-      userId
+      userId,
     };
 
     if (startDate) {
       where.viewedAt = {
-        ...where.viewedAt,
-        gte: startOfDay(new Date(startDate))
+        ...(where.viewedAt as Prisma.DateTimeFilter),
+        gte: startOfDay(new Date(startDate)),
       };
     }
 
     if (endDate) {
       where.viewedAt = {
-        ...where.viewedAt,
-        lte: endOfDay(new Date(endDate))
+        ...(where.viewedAt as Prisma.DateTimeFilter),
+        lte: endOfDay(new Date(endDate)),
       };
     }
 
@@ -103,7 +98,7 @@ export class JobViewService {
       orderBy.viewedAt = sortOrder;
     } else if (sortBy === 'jobTitle') {
       orderBy.job = {
-        title: sortOrder
+        title: sortOrder,
       };
     }
 
@@ -114,15 +109,15 @@ export class JobViewService {
         include: {
           job: {
             include: {
-              company: true
-            }
-          }
+              company: true,
+            },
+          },
         },
         orderBy,
         skip,
-        take: limit
+        take: limit,
       }),
-      prisma.jobView.count({ where })
+      prisma.jobView.count({ where }),
     ]);
 
     return {
@@ -131,8 +126,8 @@ export class JobViewService {
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit)
-      }
+        totalPages: Math.ceil(total / limit),
+      },
     };
   }
 
@@ -145,22 +140,24 @@ export class JobViewService {
     // Get total views and unique jobs
     const [totalViews, uniqueJobsResult] = await Promise.all([
       prisma.jobView.count({
-        where: { userId }
+        where: { userId },
       }),
       prisma.jobView.groupBy({
         by: ['jobId'],
         where: { userId },
-        _count: true
-      })
+        _count: true,
+      }),
     ]);
 
     const uniqueJobs = uniqueJobsResult.length;
 
     // Get views by date for last 30 days
-    const viewsByDateResult = await prisma.$queryRaw<Array<{
-      date: Date;
-      count: bigint;
-    }>>`
+    const viewsByDateResult = await prisma.$queryRaw<
+      Array<{
+        date: Date;
+        count: bigint;
+      }>
+    >`
       SELECT DATE(viewed_at) as date, COUNT(*) as count
       FROM job_views
       WHERE user_id = ${userId}
@@ -169,9 +166,9 @@ export class JobViewService {
       ORDER BY date DESC
     `;
 
-    const viewsByDate = viewsByDateResult.map(row => ({
+    const viewsByDate = viewsByDateResult.map((row) => ({
       date: format(row.date, 'yyyy-MM-dd'),
-      count: Number(row.count)
+      count: Number(row.count),
     }));
 
     // Get top viewed jobs
@@ -179,28 +176,28 @@ export class JobViewService {
       by: ['jobId'],
       where: { userId },
       _count: {
-        jobId: true
+        jobId: true,
       },
       orderBy: {
         _count: {
-          jobId: 'desc'
-        }
+          jobId: 'desc',
+        },
       },
-      take: 5
+      take: 5,
     });
 
     const topViewedJobs = await Promise.all(
       topViewedJobsResult.map(async (result) => {
         const job = await prisma.job.findUnique({
           where: { id: result.jobId },
-          include: { company: true }
+          include: { company: true },
         });
-        
+
         return {
           jobId: result.jobId,
           jobTitle: job?.title || 'Unknown',
           companyName: job?.company.companyName || 'Unknown',
-          viewCount: result._count.jobId
+          viewCount: result._count.jobId,
         };
       })
     );
@@ -211,14 +208,14 @@ export class JobViewService {
       include: {
         job: {
           include: {
-            company: true
-          }
-        }
+            company: true,
+          },
+        },
       },
       orderBy: {
-        viewedAt: 'desc'
+        viewedAt: 'desc',
       },
-      take: 10
+      take: 10,
     });
 
     const recentViews = recentViewsResult.map(this.formatJobView);
@@ -228,22 +225,19 @@ export class JobViewService {
       uniqueJobs,
       viewsByDate,
       topViewedJobs,
-      recentViews
+      recentViews,
     };
   }
 
   /**
    * Check if a user has viewed a specific job
    */
-  static async hasUserViewedJob(
-    userId: string,
-    jobId: string
-  ): Promise<boolean> {
+  static async hasUserViewedJob(userId: string, jobId: string): Promise<boolean> {
     const count = await prisma.jobView.count({
       where: {
         userId,
-        jobId
-      }
+        jobId,
+      },
     });
 
     return count > 0;
@@ -252,13 +246,9 @@ export class JobViewService {
   /**
    * Get all views for a specific job (for analytics)
    */
-  static async getJobViewsAnalytics(
-    jobId: string,
-    startDate?: Date,
-    endDate?: Date
-  ) {
+  static async getJobViewsAnalytics(jobId: string, startDate?: Date, endDate?: Date) {
     const where: Prisma.JobViewWhereInput = {
-      jobId
+      jobId,
     };
 
     if (startDate || endDate) {
@@ -274,8 +264,8 @@ export class JobViewService {
     const views = await prisma.jobView.findMany({
       where,
       orderBy: {
-        viewedAt: 'desc'
-      }
+        viewedAt: 'desc',
+      },
     });
 
     return views;
@@ -292,23 +282,25 @@ export class JobViewService {
       ipAddress: jobView.ipAddress,
       userAgent: jobView.userAgent,
       viewedAt: jobView.viewedAt,
-      job: jobView.job ? {
-        id: jobView.job.id,
-        title: jobView.job.title,
-        slug: jobView.job.slug,
-        company: {
-          id: jobView.job.company.id,
-          companyName: jobView.job.company.companyName,
-          logoUrl: jobView.job.company.logoUrl
-        },
-        locationCity: jobView.job.locationCity,
-        locationProvince: jobView.job.locationProvince,
-        jobType: jobView.job.jobType,
-        salaryMin: jobView.job.salaryMin?.toNumber() || null,
-        salaryMax: jobView.job.salaryMax?.toNumber() || null,
-        currency: jobView.job.currency,
-        status: jobView.job.status
-      } : undefined
+      job: jobView.job
+        ? {
+            id: jobView.job.id,
+            title: jobView.job.title,
+            slug: jobView.job.slug,
+            company: {
+              id: jobView.job.company.id,
+              companyName: jobView.job.company.companyName,
+              logoUrl: jobView.job.company.logoUrl,
+            },
+            locationCity: jobView.job.locationCity,
+            locationProvince: jobView.job.locationProvince,
+            jobType: jobView.job.jobType,
+            salaryMin: jobView.job.salaryMin?.toNumber() || null,
+            salaryMax: jobView.job.salaryMax?.toNumber() || null,
+            currency: jobView.job.currency,
+            status: jobView.job.status,
+          }
+        : undefined,
     };
   }
 }

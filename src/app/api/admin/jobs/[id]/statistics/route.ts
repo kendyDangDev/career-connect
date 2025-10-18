@@ -8,9 +8,9 @@ import { prisma } from '@/lib/prisma';
  */
 export const GET = withPermission(
   'job.view',
-  async (req: AuthenticatedRequest, { params }: { params: { id: string } }) => {
+  async (req: AuthenticatedRequest, { params }: { params: Promise<{ id: string }> }) => {
     try {
-      const jobId = params.id;
+      const { id: jobId } = await params;
       const job = await prisma.job.findUnique({
         where: { id: jobId },
         select: {

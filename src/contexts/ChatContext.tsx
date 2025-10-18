@@ -33,7 +33,8 @@ interface MessageAttachment {
 
 interface Conversation {
   id: string;
-  name?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
   type: 'DIRECT' | 'GROUP' | 'APPLICATION_RELATED';
   lastMessageAt?: Date | null;
   createdAt: Date;
@@ -51,9 +52,10 @@ interface ConversationParticipant {
   joinedAt: Date;
   user: {
     id: string;
-    name: string | null;
+    firstName: string | null;
+    lastName: string | null;
     email: string;
-    avatar?: string | null;
+    avatarUrl?: string | null;
   };
 }
 
@@ -79,6 +81,7 @@ interface ChatContextType {
   socket: Socket | null;
   isConnected: boolean;
   isConnecting: boolean;
+  isChatEnabled: boolean;
 
   // Conversations
   conversations: Conversation[];
@@ -100,6 +103,8 @@ interface ChatContextType {
   error: string | null;
 
   // Functions
+  initializeChat: () => void; // New: manually initialize chat
+  disconnectChat: () => void; // New: manually disconnect chat
   loadConversations: () => Promise<void>;
   loadMessages: (conversationId: string) => Promise<void>;
   createConversation: (
@@ -128,6 +133,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const { token: chatToken, isLoading: tokenLoading } = useChatToken();
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [isChatEnabled, setIsChatEnabled] = useState(false); // New: track if chat is enabled
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -138,10 +144,11 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   const [error, setError] = useState<string | null>(null);
 
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const socketRef = useRef<Socket | null>(null);
 
-  // Initialize socket connection
+  // Initialize socket connection - only when chat is enabled
   useEffect(() => {
-    if (!chatToken || tokenLoading) return;
+    if (!chatToken || tokenLoading || !isChatEnabled) return;
 
     setIsConnecting(true);
     console.log('Attempting to connect to Socket.IO server...');
@@ -308,11 +315,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     });
 
     setSocket(newSocket);
+    socketRef.current = newSocket;
 
     return () => {
+      console.log('Cleaning up socket connection');
       newSocket.disconnect();
+      socketRef.current = null;
     };
-  }, [chatToken, tokenLoading]);
+  }, [chatToken, tokenLoading, isChatEnabled]);
 
   // Load conversations
   const loadConversations = async () => {
@@ -521,12 +531,12 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     }
   };
 
-  // Load conversations on mount
+  // Load conversations on mount - only when chat is enabled
   useEffect(() => {
-    if (session) {
+    if (session && isChatEnabled) {
       loadConversations();
     }
-  }, [session]);
+  }, [session, isChatEnabled]);
 
   // Load messages when active conversation changes
   useEffect(() => {
@@ -542,10 +552,42 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     }
   }, [activeConversation, socket, isConnected]);
 
+  // Initialize chat - enable socket connection and load conversations
+  const initializeChat = () => {
+    if (!isChatEnabled) {
+      console.log('Initializing chat...');
+      setIsChatEnabled(true);
+    }
+  };
+
+  // Disconnect chat - cleanup socket and conversations
+  const disconnectChat = () => {
+    if (isChatEnabled) {
+      console.log('Disconnecting chat...');
+      setIsChatEnabled(false);
+
+      // Disconnect socket
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+
+      // Clear state
+      setSocket(null);
+      setIsConnected(false);
+      setConversations([]);
+      setActiveConversation(null);
+      setMessages([]);
+      setOnlineUsers([]);
+      setTypingUsers([]);
+    }
+  };
+
   const value: ChatContextType = {
     socket,
     isConnected,
     isConnecting,
+    isChatEnabled,
     conversations,
     activeConversation,
     setActiveConversation,
@@ -557,6 +599,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     stopTyping,
     isLoading,
     error,
+    initializeChat,
+    disconnectChat,
     loadConversations,
     loadMessages,
     createConversation,

@@ -19,18 +19,22 @@ import {
   LineChart,
   Line,
 } from 'recharts';
-import {
-  Building2,
-  TrendingUp,
-  TrendingDown,
-  Activity,
-  AlertCircle,
-  Factory,
-} from 'lucide-react';
+import { Building2, TrendingUp, TrendingDown, Activity, AlertCircle, Factory } from 'lucide-react';
 import { useIndustriesAnalytics } from '@/hooks/use-industries';
 import { cn } from '@/lib/utils';
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#FFC658', '#FF6B6B', '#4ECDC4', '#45B7D1'];
+const COLORS = [
+  '#0088FE',
+  '#00C49F',
+  '#FFBB28',
+  '#FF8042',
+  '#8884D8',
+  '#82CA9D',
+  '#FFC658',
+  '#FF6B6B',
+  '#4ECDC4',
+  '#45B7D1',
+];
 
 const IndustriesAnalytics: React.FC = () => {
   const { data: analytics, isLoading, error } = useIndustriesAnalytics();
@@ -38,9 +42,9 @@ const IndustriesAnalytics: React.FC = () => {
   if (error) {
     return (
       <Card>
-        <CardContent className="flex items-center justify-center h-[400px]">
+        <CardContent className="flex h-[400px] items-center justify-center">
           <div className="text-center">
-            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
             <p className="text-muted-foreground">Không thể tải dữ liệu phân tích</p>
           </div>
         </CardContent>
@@ -57,7 +61,7 @@ const IndustriesAnalytics: React.FC = () => {
               <Skeleton className="h-4 w-24" />
             </CardHeader>
             <CardContent>
-              <Skeleton className="h-8 w-16 mb-2" />
+              <Skeleton className="mb-2 h-8 w-16" />
               <Skeleton className="h-3 w-32" />
             </CardContent>
           </Card>
@@ -82,25 +86,32 @@ const IndustriesAnalytics: React.FC = () => {
 
   // Prepare data for usage distribution
   const usageData = [
-    { 
-      name: 'Có công ty', 
+    {
+      name: 'Có công ty',
       value: analytics.totalIndustries - analytics.industriesWithoutCompanies,
-      percentage: ((analytics.totalIndustries - analytics.industriesWithoutCompanies) / analytics.totalIndustries * 100).toFixed(1)
+      percentage: (
+        ((analytics.totalIndustries - analytics.industriesWithoutCompanies) /
+          analytics.totalIndustries) *
+        100
+      ).toFixed(1),
     },
-    { 
-      name: 'Chưa có công ty', 
+    {
+      name: 'Chưa có công ty',
       value: analytics.industriesWithoutCompanies,
-      percentage: (analytics.industriesWithoutCompanies / analytics.totalIndustries * 100).toFixed(1)
+      percentage: (
+        (analytics.industriesWithoutCompanies / analytics.totalIndustries) *
+        100
+      ).toFixed(1),
     },
   ];
 
-  const StatCard = ({ 
-    title, 
-    value, 
-    description, 
-    icon: Icon, 
+  const StatCard = ({
+    title,
+    value,
+    description,
+    icon: Icon,
     trend,
-    className 
+    className,
   }: {
     title: string;
     value: string | number;
@@ -112,27 +123,27 @@ const IndustriesAnalytics: React.FC = () => {
     <Card className={className}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
+        <Icon className="text-muted-foreground h-4 w-4" />
       </CardHeader>
       <CardContent>
         <div className="flex items-baseline gap-2">
           <div className="text-2xl font-bold">{value}</div>
           {trend && (
-            <div className={cn(
-              "flex items-center text-xs",
-              trend === 'up' && "text-green-600",
-              trend === 'down' && "text-red-600",
-              trend === 'neutral' && "text-gray-600"
-            )}>
-              {trend === 'up' && <TrendingUp className="h-3 w-3 mr-1" />}
-              {trend === 'down' && <TrendingDown className="h-3 w-3 mr-1" />}
-              {trend === 'neutral' && <Activity className="h-3 w-3 mr-1" />}
+            <div
+              className={cn(
+                'flex items-center text-xs',
+                trend === 'up' && 'text-green-600',
+                trend === 'down' && 'text-red-600',
+                trend === 'neutral' && 'text-gray-600'
+              )}
+            >
+              {trend === 'up' && <TrendingUp className="mr-1 h-3 w-3" />}
+              {trend === 'down' && <TrendingDown className="mr-1 h-3 w-3" />}
+              {trend === 'neutral' && <Activity className="mr-1 h-3 w-3" />}
             </div>
           )}
         </div>
-        {description && (
-          <p className="text-xs text-muted-foreground mt-1">{description}</p>
-        )}
+        {description && <p className="text-muted-foreground mt-1 text-xs">{description}</p>}
       </CardContent>
     </Card>
   );
@@ -140,10 +151,10 @@ const IndustriesAnalytics: React.FC = () => {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 border rounded-lg shadow-lg">
+        <div className="rounded-lg border bg-white p-3 shadow-lg">
           <p className="font-medium">{label}</p>
-          <p className="text-sm text-muted-foreground">
-            Số công ty: <span className="font-medium text-foreground">{payload[0].value}</span>
+          <p className="text-muted-foreground text-sm">
+            Số công ty: <span className="text-foreground font-medium">{payload[0].value}</span>
           </p>
         </div>
       );
@@ -164,7 +175,7 @@ const IndustriesAnalytics: React.FC = () => {
         <StatCard
           title="Đang hoạt động"
           value={analytics.activeIndustries}
-          description={`${(analytics.activeIndustries / analytics.totalIndustries * 100).toFixed(1)}% tổng số`}
+          description={`${((analytics.activeIndustries / analytics.totalIndustries) * 100).toFixed(1)}% tổng số`}
           icon={Activity}
           trend="up"
         />
@@ -177,7 +188,10 @@ const IndustriesAnalytics: React.FC = () => {
         />
         <StatCard
           title="Trung bình công ty"
-          value={(analytics.companiesPerIndustry.reduce((sum, item) => sum + item.companies, 0) / analytics.totalIndustries).toFixed(1)}
+          value={(
+            analytics.companiesPerIndustry.reduce((sum, item) => sum + item.companies, 0) /
+            analytics.totalIndustries
+          ).toFixed(1)}
           description="Số công ty trung bình mỗi ngành"
           icon={Building2}
         />
@@ -199,7 +213,9 @@ const IndustriesAnalytics: React.FC = () => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, value, percent }) => `${name}: ${value} (${(percent * 100).toFixed(0)}%)`}
+                  label={({ name, value, percent }) =>
+                    `${name}: ${value} (${((percent as number) * 100).toFixed(0)}%)`
+                  }
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
@@ -245,13 +261,15 @@ const IndustriesAnalytics: React.FC = () => {
               {usageData.map((item, index) => (
                 <div key={item.name} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
-                    <div 
-                      className="w-3 h-3 rounded-full" 
+                    <div
+                      className="h-3 w-3 rounded-full"
                       style={{ backgroundColor: COLORS[index % COLORS.length] }}
                     />
                     <span>{item.name}</span>
                   </div>
-                  <span className="font-medium">{item.value} ({item.percentage}%)</span>
+                  <span className="font-medium">
+                    {item.value} ({item.percentage}%)
+                  </span>
                 </div>
               ))}
             </div>
@@ -272,13 +290,7 @@ const IndustriesAnalytics: React.FC = () => {
               margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="name" 
-                angle={-45}
-                textAnchor="end"
-                height={100}
-                interval={0}
-              />
+              <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} interval={0} />
               <YAxis />
               <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="companies" fill="#0088FE" radius={[8, 8, 0, 0]}>
@@ -289,7 +301,7 @@ const IndustriesAnalytics: React.FC = () => {
             </BarChart>
           </ResponsiveContainer>
           {analytics.topIndustries.length === 0 && (
-            <div className="flex items-center justify-center h-[400px] text-muted-foreground">
+            <div className="text-muted-foreground flex h-[400px] items-center justify-center">
               Chưa có dữ liệu
             </div>
           )}
@@ -303,14 +315,14 @@ const IndustriesAnalytics: React.FC = () => {
           <CardDescription>Danh sách tất cả ngành nghề và số lượng công ty</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2 max-h-[400px] overflow-y-auto">
+          <div className="max-h-[400px] space-y-2 overflow-y-auto">
             {analytics.companiesPerIndustry.map((industry, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-medium">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-sm font-medium">
                     {index + 1}
                   </div>
                   <span className="font-medium">{industry.name}</span>

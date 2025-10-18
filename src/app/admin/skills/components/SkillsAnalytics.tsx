@@ -86,7 +86,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, className, tren
             )}
           </div>
           <div className="p-3 bg-primary/10 rounded-lg">
-            {React.cloneElement(icon as React.ReactElement, { className: 'h-6 w-6 text-primary' })}
+            {React.cloneElement(icon as any, { className: 'h-6 w-6 text-primary' })}
           </div>
         </div>
       </CardContent>

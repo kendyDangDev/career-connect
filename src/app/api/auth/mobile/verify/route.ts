@@ -101,9 +101,9 @@ export async function GET(request: NextRequest) {
         user.candidate && {
           candidate: {
             id: user.candidate.id,
-            title: user.candidate.title,
-            level: user.candidate.level,
-            isAvailable: user.candidate.isAvailable,
+            currentPosition: user.candidate.currentPosition,
+            experienceYears: user.candidate.experienceYears,
+            availabilityStatus: user.candidate.availabilityStatus,
           },
         }),
     };
@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
         user: userData,
         token: {
           valid: true,
-          expiresAt: new Date(decoded.exp * 1000).toISOString(),
+          expiresAt: decoded.exp ? new Date(decoded.exp * 1000).toISOString() : null,
         },
       },
     });

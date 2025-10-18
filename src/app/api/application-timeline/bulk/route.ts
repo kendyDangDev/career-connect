@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Only employers and admins can bulk create timeline entries
-    if (session.user.role !== 'EMPLOYER' && session.user.role !== 'ADMIN') {
+    if (session.user.userType !== 'EMPLOYER' && session.user.userType !== 'ADMIN') {
       return forbiddenResponse('Only employers and admins can bulk update application statuses');
     }
 
@@ -112,7 +112,7 @@ export async function PUT(req: NextRequest) {
     }
 
     // Only employers and admins can bulk update
-    if (session.user.role !== 'EMPLOYER' && session.user.role !== 'ADMIN') {
+    if (session.user.userType !== 'EMPLOYER' && session.user.userType !== 'ADMIN') {
       return forbiddenResponse('Only employers and admins can bulk update application statuses');
     }
 

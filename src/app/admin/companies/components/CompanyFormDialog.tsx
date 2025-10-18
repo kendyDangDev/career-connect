@@ -28,17 +28,17 @@ import { CompanySize, VerificationStatus } from '@/generated/prisma';
 
 const companySchema = z.object({
   companyName: z.string().min(2, 'Tên công ty phải có ít nhất 2 ký tự'),
-  industryId: z.string().optional(),
-  companySize: z.nativeEnum(CompanySize).optional(),
-  websiteUrl: z.string().url('URL không hợp lệ').optional().or(z.literal('')),
-  description: z.string().optional(),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  province: z.string().optional(),
-  country: z.string().optional(),
-  phone: z.string().optional(),
-  email: z.string().email('Email không hợp lệ').optional().or(z.literal('')),
-  foundedYear: z.number().min(1900).max(new Date().getFullYear()).optional(),
+  industryId: z.string().optional().nullable(),
+  companySize: z.nativeEnum(CompanySize).optional().nullable(),
+  websiteUrl: z.string().url('URL không hợp lệ').optional().or(z.literal('')).nullable(),
+  description: z.string().optional().nullable(),
+  address: z.string().optional().nullable(),
+  city: z.string().optional().nullable(),
+  province: z.string().optional().nullable(),
+  country: z.string().optional().nullable(),
+  phone: z.string().optional().nullable(),
+  email: z.string().email('Email không hợp lệ').optional().or(z.literal('')).nullable(),
+  foundedYear: z.number().min(1900).max(new Date().getFullYear()).optional().nullable(),
   verificationStatus: z.nativeEnum(VerificationStatus).optional(),
 });
 
@@ -166,11 +166,11 @@ export function CompanyFormDialog({
   };
 
   const companySizeOptions = [
-    { value: CompanySize.STARTUP, label: '1-10 nhân viên' },
-    { value: CompanySize.SMALL, label: '11-50 nhân viên' },
-    { value: CompanySize.MEDIUM, label: '51-200 nhân viên' },
-    { value: CompanySize.LARGE, label: '201-1000 nhân viên' },
-    { value: CompanySize.ENTERPRISE, label: '1000+ nhân viên' },
+    { value: CompanySize.STARTUP_1_10, label: '1-10 nhân viên' },
+    { value: CompanySize.SMALL_11_50, label: '11-50 nhân viên' },
+    { value: CompanySize.MEDIUM_51_200, label: '51-200 nhân viên' },
+    { value: CompanySize.LARGE_201_500, label: '201-500 nhân viên' },
+    { value: CompanySize.ENTERPRISE_500_PLUS, label: '500+ nhân viên' },
   ];
 
   const verificationStatusOptions = [
@@ -211,7 +211,7 @@ export function CompanyFormDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Ngành nghề</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || undefined}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Chọn ngành nghề" />
@@ -244,7 +244,7 @@ export function CompanyFormDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Quy mô công ty</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || undefined}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Chọn quy mô" />
@@ -272,7 +272,7 @@ export function CompanyFormDialog({
                   <FormItem>
                     <FormLabel>Website</FormLabel>
                     <FormControl>
-                      <Input placeholder="https://example.com" {...field} />
+                      <Input placeholder="https://example.com" {...field} value={field.value || ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -287,7 +287,7 @@ export function CompanyFormDialog({
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="contact@company.com" {...field} />
+                      <Input placeholder="contact@company.com" {...field} value={field.value || ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -302,7 +302,7 @@ export function CompanyFormDialog({
                   <FormItem>
                     <FormLabel>Điện thoại</FormLabel>
                     <FormControl>
-                      <Input placeholder="0123456789" {...field} />
+                      <Input placeholder="0123456789" {...field} value={field.value || ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -320,7 +320,7 @@ export function CompanyFormDialog({
                       <Input
                         type="number"
                         placeholder="2020"
-                        {...field}
+                        value={field.value || ''}
                         onChange={(e) => {
                           const value = e.target.value;
                           field.onChange(value ? parseInt(value) : undefined);
@@ -340,7 +340,7 @@ export function CompanyFormDialog({
                   <FormItem className="md:col-span-2">
                     <FormLabel>Địa chỉ</FormLabel>
                     <FormControl>
-                      <Input placeholder="Nhập địa chỉ" {...field} />
+                      <Input placeholder="Nhập địa chỉ" {...field} value={field.value || ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -355,7 +355,7 @@ export function CompanyFormDialog({
                   <FormItem>
                     <FormLabel>Thành phố</FormLabel>
                     <FormControl>
-                      <Input placeholder="Hồ Chí Minh" {...field} />
+                      <Input placeholder="Hồ Chí Minh" {...field} value={field.value || ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -370,7 +370,7 @@ export function CompanyFormDialog({
                   <FormItem>
                     <FormLabel>Tỉnh/Thành phố</FormLabel>
                     <FormControl>
-                      <Input placeholder="Hồ Chí Minh" {...field} />
+                      <Input placeholder="Hồ Chí Minh" {...field} value={field.value || ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -385,7 +385,7 @@ export function CompanyFormDialog({
                   <FormItem>
                     <FormLabel>Quốc gia</FormLabel>
                     <FormControl>
-                      <Input placeholder="Việt Nam" {...field} />
+                      <Input placeholder="Việt Nam" {...field} value={field.value || ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -399,7 +399,7 @@ export function CompanyFormDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Trạng thái xác minh</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || undefined}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Chọn trạng thái" />
@@ -431,6 +431,7 @@ export function CompanyFormDialog({
                       placeholder="Nhập mô tả về công ty..."
                       className="min-h-[100px]"
                       {...field}
+                      value={field.value || ''}
                     />
                   </FormControl>
                   <FormMessage />

@@ -44,7 +44,7 @@ function buildCategoryTree(categories: any[]): any[] {
 
 // GET /api/admin/system-categories/categories
 export const GET = withRole(
-  [UserType.ADMIN | UserType.EMPLOYER],
+  [UserType.ADMIN, UserType.EMPLOYER],
   async (req: AuthenticatedRequest) => {
     try {
       // Parse query parameters

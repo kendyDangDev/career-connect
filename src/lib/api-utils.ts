@@ -5,19 +5,25 @@ import { authOptions } from '@/lib/auth-config';
 
 // Response utilities
 export function successResponse(data: any, message: string = 'Success', statusCode: number = 200) {
-  return NextResponse.json({
-    success: true,
-    message,
-    data,
-  }, { status: statusCode });
+  return NextResponse.json(
+    {
+      success: true,
+      message,
+      data,
+    },
+    { status: statusCode }
+  );
 }
 
 export function errorResponse(message: string, statusCode: number = 400, errors?: any) {
-  return NextResponse.json({
-    success: false,
-    message,
-    ...(errors && { errors }),
-  }, { status: statusCode });
+  return NextResponse.json(
+    {
+      success: false,
+      message,
+      ...(errors && { errors }),
+    },
+    { status: statusCode }
+  );
 }
 
 // Pagination response
@@ -52,7 +58,7 @@ export function handleApiError(error: unknown) {
   console.error('API Error:', error);
 
   if (error instanceof ZodError) {
-    const formattedErrors = error.errors.map(err => ({
+    const formattedErrors = error.issues.map((err) => ({
       field: err.path.join('.'),
       message: err.message,
     }));
@@ -129,7 +135,7 @@ export function buildSearchWhere(search?: string, fields: string[] = []) {
   }
 
   return {
-    OR: fields.map(field => ({
+    OR: fields.map((field) => ({
       [field]: {
         contains: search,
         mode: 'insensitive',

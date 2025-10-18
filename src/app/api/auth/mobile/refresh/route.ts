@@ -164,8 +164,8 @@ export async function POST(request: NextRequest) {
         user.companyUsers.length > 0 && {
           employer: {
             id: user.companyUsers[0].id,
-            position: user.companyUsers[0].position,
-            isVerified: user.companyUsers[0].isVerified,
+            role: user.companyUsers[0].role,
+            isPrimaryContact: user.companyUsers[0].isPrimaryContact,
             companyId: user.companyUsers[0].companyId,
             company: user.companyUsers[0].company,
           },
@@ -175,9 +175,9 @@ export async function POST(request: NextRequest) {
         user.candidate && {
           candidate: {
             id: user.candidate.id,
-            title: user.candidate.title,
-            level: user.candidate.level,
-            isAvailable: user.candidate.isAvailable,
+            currentPosition: user.candidate.currentPosition,
+            experienceYears: user.candidate.experienceYears,
+            availabilityStatus: user.candidate.availabilityStatus,
           },
         }),
     };

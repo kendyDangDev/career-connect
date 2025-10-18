@@ -97,4 +97,3 @@ export const GET = withAuth(async (req: AuthenticatedRequest) => {
     return serverErrorResponse('Failed to retrieve application statistics', error);
   }
 });
-

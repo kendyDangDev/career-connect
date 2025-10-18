@@ -3,9 +3,9 @@ import { CompanyJobService } from '@/services/public/company-job.service';
 import { prisma } from '@/lib/prisma';
 
 interface Params {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 /**
@@ -34,7 +34,7 @@ export async function OPTIONS(request: NextRequest) {
  */
 export async function GET(request: NextRequest, { params }: Params) {
   try {
-    const { slug } = params;
+    const { slug } = await params;
     const origin = request.headers.get('origin');
 
     if (!slug) {

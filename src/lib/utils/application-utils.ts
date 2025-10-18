@@ -1,10 +1,10 @@
-import { 
-  ApplicationFilterCriteria, 
-  ScoringConfig, 
+import {
+  ApplicationFilterCriteria,
+  ScoringConfig,
   MatchDetails,
-  ApplicationListItem 
-} from "@/types/employer/application";
-import { ApplicationStatus, ProficiencyLevel, RequiredLevel } from "@/generated/prisma";
+  ApplicationListItem,
+} from '@/types/employer/application';
+import { ApplicationStatus, ProficiencyLevel, RequiredLevel } from '@/generated/prisma';
 
 /**
  * Calculate match score for a candidate based on job requirements
@@ -30,15 +30,12 @@ export function calculateMatchScore(
       jobRequirements.salaryMin,
       jobRequirements.salaryMax
     ),
-    location: calculateLocationScore(
-      candidate,
-      jobRequirements
-    ),
-    availability: calculateAvailabilityScore(candidate.availabilityStatus)
+    location: calculateLocationScore(candidate, jobRequirements),
+    availability: calculateAvailabilityScore(candidate.availabilityStatus),
   };
 
   // Calculate weighted overall score
-  const totalWeight = 
+  const totalWeight =
     config.skillsWeight +
     config.experienceWeight +
     config.educationWeight +
@@ -48,11 +45,12 @@ export function calculateMatchScore(
 
   const overallScore = Math.round(
     (breakdown.skills.score * config.skillsWeight +
-     breakdown.experience.score * config.experienceWeight +
-     breakdown.education.score * config.educationWeight +
-     breakdown.salary.score * config.salaryExpectationWeight +
-     breakdown.location.score * config.locationWeight +
-     breakdown.availability.score * config.availabilityWeight) / totalWeight
+      breakdown.experience.score * config.experienceWeight +
+      breakdown.education.score * config.educationWeight +
+      breakdown.salary.score * config.salaryExpectationWeight +
+      breakdown.location.score * config.locationWeight +
+      breakdown.availability.score * config.availabilityWeight) /
+      totalWeight
   );
 
   // Generate insights
@@ -67,18 +65,15 @@ export function calculateMatchScore(
       breakdown,
       strengths,
       concerns,
-      recommendation
-    }
+      recommendation,
+    },
   };
 }
 
 /**
  * Calculate skills matching score
  */
-function calculateSkillsScore(
-  candidateSkills: any[],
-  requiredSkills: any[]
-): any {
+function calculateSkillsScore(candidateSkills: any[], requiredSkills: any[]): any {
   if (!requiredSkills.length) {
     return { score: 100, matched: [], missing: [], details: [] };
   }
@@ -89,12 +84,12 @@ function calculateSkillsScore(
   let totalScore = 0;
   let totalWeight = 0;
 
-  requiredSkills.forEach(reqSkill => {
+  requiredSkills.forEach((reqSkill) => {
     const weight = getSkillWeight(reqSkill.requiredLevel);
     totalWeight += weight;
 
     const candidateSkill = candidateSkills.find(
-      cs => cs.skillId === reqSkill.skillId || cs.skill?.id === reqSkill.skillId
+      (cs) => cs.skillId === reqSkill.skillId || cs.skill?.id === reqSkill.skillId
     );
 
     if (candidateSkill) {
@@ -102,20 +97,22 @@ function calculateSkillsScore(
         candidateSkill.proficiencyLevel,
         reqSkill.requiredLevel
       );
-      
-      const yearsScore = candidateSkill.yearsExperience >= (reqSkill.minYearsExperience || 0) 
-        ? 100 : (candidateSkill.yearsExperience / (reqSkill.minYearsExperience || 1)) * 100;
-      
-      const skillScore = (levelScore * 0.7 + yearsScore * 0.3);
+
+      const yearsScore =
+        candidateSkill.yearsExperience >= (reqSkill.minYearsExperience || 0)
+          ? 100
+          : (candidateSkill.yearsExperience / (reqSkill.minYearsExperience || 1)) * 100;
+
+      const skillScore = levelScore * 0.7 + yearsScore * 0.3;
       totalScore += skillScore * weight;
-      
+
       matched.push(reqSkill.skill?.name || reqSkill.skillId);
       details.push({
         skillName: reqSkill.skill?.name || reqSkill.skillId,
         required: reqSkill.requiredLevel === RequiredLevel.REQUIRED,
         candidateLevel: candidateSkill.proficiencyLevel,
         requiredLevel: reqSkill.requiredLevel,
-        match: skillScore >= 70
+        match: skillScore >= 70,
       });
     } else {
       missing.push(reqSkill.skill?.name || reqSkill.skillId);
@@ -123,7 +120,7 @@ function calculateSkillsScore(
         skillName: reqSkill.skill?.name || reqSkill.skillId,
         required: reqSkill.requiredLevel === RequiredLevel.REQUIRED,
         requiredLevel: reqSkill.requiredLevel,
-        match: false
+        match: false,
       });
     }
   });
@@ -132,7 +129,7 @@ function calculateSkillsScore(
     score: totalWeight > 0 ? Math.round(totalScore / totalWeight) : 0,
     matched,
     missing,
-    details
+    details,
   };
 }
 
@@ -156,11 +153,11 @@ function getSkillWeight(requiredLevel: RequiredLevel): number {
  * Compare skill proficiency levels
  */
 function compareSkillLevels(candidateLevel: string, requiredLevel: string): number {
-  const levels = {
+  const levels: Record<string, number> = {
     [ProficiencyLevel.BEGINNER]: 1,
     [ProficiencyLevel.INTERMEDIATE]: 2,
     [ProficiencyLevel.ADVANCED]: 3,
-    [ProficiencyLevel.EXPERT]: 4
+    [ProficiencyLevel.EXPERT]: 4,
   };
 
   const candidateScore = levels[candidateLevel] || 1;
@@ -173,18 +170,15 @@ function compareSkillLevels(candidateLevel: string, requiredLevel: string): numb
 /**
  * Calculate experience score
  */
-function calculateExperienceScore(
-  candidateYears: number,
-  requiredLevel: string
-): any {
+function calculateExperienceScore(candidateYears: number, requiredLevel: string): any {
   const requiredYears = getRequiredExperience(requiredLevel);
-  
+
   if (candidateYears >= requiredYears) {
     return {
       score: 100,
       required: requiredYears,
       actual: candidateYears,
-      relevantExperience: []
+      relevantExperience: [],
     };
   }
 
@@ -193,7 +187,7 @@ function calculateExperienceScore(
     score,
     required: requiredYears,
     actual: candidateYears,
-    relevantExperience: []
+    relevantExperience: [],
   };
 }
 
@@ -220,16 +214,13 @@ function getRequiredExperience(level: string): number {
 /**
  * Calculate education score
  */
-function calculateEducationScore(
-  candidateEducation: any[],
-  requirements: any
-): any {
+function calculateEducationScore(candidateEducation: any[], requirements: any): any {
   if (!requirements || candidateEducation.length === 0) {
     return {
       score: 50, // Neutral score if not specified
       matchedDegree: false,
       matchedField: false,
-      details: "Education not specified"
+      details: 'Education not specified',
     };
   }
 
@@ -238,7 +229,7 @@ function calculateEducationScore(
     score: 80,
     matchedDegree: true,
     matchedField: true,
-    details: "Education matches requirements"
+    details: 'Education matches requirements',
   };
 }
 
@@ -255,7 +246,7 @@ function calculateSalaryScore(
     return {
       score: 100, // Assume negotiable
       withinBudget: true,
-      percentDifference: 0
+      percentDifference: 0,
     };
   }
 
@@ -263,7 +254,7 @@ function calculateSalaryScore(
     return {
       score: 100, // No budget specified
       withinBudget: true,
-      percentDifference: 0
+      percentDifference: 0,
     };
   }
 
@@ -271,21 +262,23 @@ function calculateSalaryScore(
   const jobAvg = ((jobMin || 0) + (jobMax || jobMin || 0)) / 2;
 
   if (candidateMin && jobMax && candidateMin <= jobMax) {
-    const overlap = Math.min(candidateMax || candidateMin, jobMax || 0) - 
-                   Math.max(candidateMin || 0, jobMin || 0);
-    const score = overlap > 0 ? 100 : Math.max(0, 100 - Math.abs(candidateAvg - jobAvg) / jobAvg * 100);
-    
+    const overlap =
+      Math.min(candidateMax || candidateMin, jobMax || 0) -
+      Math.max(candidateMin || 0, jobMin || 0);
+    const score =
+      overlap > 0 ? 100 : Math.max(0, 100 - (Math.abs(candidateAvg - jobAvg) / jobAvg) * 100);
+
     return {
       score: Math.round(score),
       withinBudget: candidateMin <= (jobMax || Infinity),
-      percentDifference: Math.round((candidateAvg - jobAvg) / jobAvg * 100)
+      percentDifference: Math.round(((candidateAvg - jobAvg) / jobAvg) * 100),
     };
   }
 
   return {
     score: 0,
     withinBudget: false,
-    percentDifference: Math.round((candidateAvg - jobAvg) / jobAvg * 100)
+    percentDifference: Math.round(((candidateAvg - jobAvg) / jobAvg) * 100),
   };
 }
 
@@ -305,17 +298,14 @@ function calculateLocationScore(candidate: any, job: any): any {
 
   // Check work type match
   if (job.workLocationType && candidate.preferredLocationType) {
-    matchesWorkType = isWorkTypeCompatible(
-      candidate.preferredLocationType,
-      job.workLocationType
-    );
+    matchesWorkType = isWorkTypeCompatible(candidate.preferredLocationType, job.workLocationType);
     if (!matchesWorkType) score -= 20;
   }
 
   return {
     score: Math.max(0, score),
     matchesLocation,
-    matchesWorkType
+    matchesWorkType,
   };
 }
 
@@ -325,7 +315,8 @@ function calculateLocationScore(candidate: any, job: any): any {
 function isWorkTypeCompatible(candidatePref: string, jobType: string): boolean {
   if (candidatePref === jobType) return true;
   if (candidatePref === 'HYBRID' && (jobType === 'REMOTE' || jobType === 'ONSITE')) return true;
-  if (jobType === 'HYBRID' && (candidatePref === 'REMOTE' || candidatePref === 'ONSITE')) return true;
+  if (jobType === 'HYBRID' && (candidatePref === 'REMOTE' || candidatePref === 'ONSITE'))
+    return true;
   return false;
 }
 
@@ -334,11 +325,11 @@ function isWorkTypeCompatible(candidatePref: string, jobType: string): boolean {
  */
 function calculateAvailabilityScore(status: string): any {
   const score = status === 'AVAILABLE' ? 100 : status === 'PASSIVE' ? 70 : 30;
-  
+
   return {
     score,
     isAvailable: status === 'AVAILABLE',
-    startDate: status === 'AVAILABLE' ? 'Immediate' : 'To be discussed'
+    startDate: status === 'AVAILABLE' ? 'Immediate' : 'To be discussed',
   };
 }
 
@@ -347,7 +338,7 @@ function calculateAvailabilityScore(status: string): any {
  */
 function generateStrengths(breakdown: any): string[] {
   const strengths = [];
-  
+
   if (breakdown.skills.score >= 80) {
     strengths.push(`Strong skill match (${breakdown.skills.matched.length} matching skills)`);
   }
@@ -355,12 +346,12 @@ function generateStrengths(breakdown: any): string[] {
     strengths.push(`Meets experience requirements (${breakdown.experience.actual} years)`);
   }
   if (breakdown.salary.score >= 90) {
-    strengths.push("Salary expectations within budget");
+    strengths.push('Salary expectations within budget');
   }
   if (breakdown.availability.score === 100) {
-    strengths.push("Available immediately");
+    strengths.push('Available immediately');
   }
-  
+
   return strengths;
 }
 
@@ -369,27 +360,31 @@ function generateStrengths(breakdown: any): string[] {
  */
 function generateConcerns(breakdown: any): string[] {
   const concerns = [];
-  
+
   if (breakdown.skills.score < 50) {
     concerns.push(`Missing key skills: ${breakdown.skills.missing.slice(0, 3).join(', ')}`);
   }
   if (breakdown.experience.score < 70) {
-    concerns.push(`Limited experience (${breakdown.experience.actual} years vs ${breakdown.experience.required} required)`);
+    concerns.push(
+      `Limited experience (${breakdown.experience.actual} years vs ${breakdown.experience.required} required)`
+    );
   }
   if (breakdown.salary.score < 50) {
-    concerns.push("Salary expectations above budget");
+    concerns.push('Salary expectations above budget');
   }
   if (!breakdown.location.matchesLocation) {
-    concerns.push("Different location than job");
+    concerns.push('Different location than job');
   }
-  
+
   return concerns;
 }
 
 /**
  * Get recommendation based on overall score
  */
-function getRecommendation(score: number): 'STRONG_MATCH' | 'GOOD_MATCH' | 'POTENTIAL_MATCH' | 'POOR_MATCH' {
+function getRecommendation(
+  score: number
+): 'STRONG_MATCH' | 'GOOD_MATCH' | 'POTENTIAL_MATCH' | 'POOR_MATCH' {
   if (score >= 85) return 'STRONG_MATCH';
   if (score >= 70) return 'GOOD_MATCH';
   if (score >= 50) return 'POTENTIAL_MATCH';
@@ -403,7 +398,7 @@ export function filterApplications(
   applications: ApplicationListItem[],
   filters: ApplicationFilterCriteria
 ): ApplicationListItem[] {
-  return applications.filter(app => {
+  return applications.filter((app) => {
     // Status filter
     if (filters.status?.length && !filters.status.includes(app.status)) {
       return false;
@@ -424,11 +419,19 @@ export function filterApplications(
     if (filters.expectedSalary) {
       const minSalary = app.candidate.expectedSalaryMin;
       const maxSalary = app.candidate.expectedSalaryMax;
-      
-      if (filters.expectedSalary.max !== undefined && minSalary && minSalary > filters.expectedSalary.max) {
+
+      if (
+        filters.expectedSalary.max !== undefined &&
+        minSalary &&
+        minSalary > filters.expectedSalary.max
+      ) {
         return false;
       }
-      if (filters.expectedSalary.min !== undefined && maxSalary && maxSalary < filters.expectedSalary.min) {
+      if (
+        filters.expectedSalary.min !== undefined &&
+        maxSalary &&
+        maxSalary < filters.expectedSalary.min
+      ) {
         return false;
       }
     }
@@ -491,8 +494,10 @@ export function sortApplications(
         compareValue = (a.rating || 0) - (b.rating || 0);
         break;
       case 'candidate':
-        const nameA = `${a.candidate.user.firstName || ''} ${a.candidate.user.lastName || ''}`.trim();
-        const nameB = `${b.candidate.user.firstName || ''} ${b.candidate.user.lastName || ''}`.trim();
+        const nameA =
+          `${a.candidate.user.firstName || ''} ${a.candidate.user.lastName || ''}`.trim();
+        const nameB =
+          `${b.candidate.user.firstName || ''} ${b.candidate.user.lastName || ''}`.trim();
         compareValue = nameA.localeCompare(nameB);
         break;
     }
@@ -513,6 +518,6 @@ export function getDefaultScoringConfig(): ScoringConfig {
     educationWeight: 15,
     salaryExpectationWeight: 10,
     locationWeight: 10,
-    availabilityWeight: 5
+    availabilityWeight: 5,
   };
 }

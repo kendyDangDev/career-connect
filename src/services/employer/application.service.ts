@@ -1,5 +1,5 @@
-import { prisma } from "@/lib/prisma";
-import { Prisma, ApplicationStatus } from "@/generated/prisma";
+import { prisma } from '@/lib/prisma';
+import { Prisma, ApplicationStatus } from '@/generated/prisma';
 import {
   ApplicationListItem,
   ApplicationDetail,
@@ -10,14 +10,14 @@ import {
   BulkUpdateApplicationsDTO,
   AddApplicationNoteDTO,
   ApplicationFilterCriteria,
-  ScoringConfig
-} from "@/types/employer/application";
-import { 
-  calculateMatchScore, 
-  filterApplications, 
+  ScoringConfig,
+} from '@/types/employer/application';
+import {
+  calculateMatchScore,
+  filterApplications,
   sortApplications,
-  getDefaultScoringConfig 
-} from "@/lib/utils/application-utils";
+  getDefaultScoringConfig,
+} from '@/lib/utils/application-utils';
 
 export class EmployerApplicationService {
   /**
@@ -35,31 +35,31 @@ export class EmployerApplicationService {
       sortOrder = 'desc',
       search,
       filter,
-      includeMatchScores = false
+      includeMatchScores = false,
     } = params;
 
     // Verify job belongs to company
     const job = await prisma.job.findFirst({
       where: {
         id: jobId,
-        companyId
+        companyId,
       },
       include: {
         jobSkills: {
           include: {
-            skill: true
-          }
-        }
-      }
+            skill: true,
+          },
+        },
+      },
     });
 
     if (!job) {
-      throw new Error("Job not found or access denied");
+      throw new Error('Job not found or access denied');
     }
 
     // Build where clause
     const where: Prisma.ApplicationWhereInput = {
-      jobId
+      jobId,
     };
 
     // Add search filter
@@ -71,11 +71,11 @@ export class EmployerApplicationService {
               OR: [
                 { firstName: { contains: search, mode: 'insensitive' } },
                 { lastName: { contains: search, mode: 'insensitive' } },
-                { email: { contains: search, mode: 'insensitive' } }
-              ]
-            }
-          }
-        }
+                { email: { contains: search, mode: 'insensitive' } },
+              ],
+            },
+          },
+        },
       ];
     }
 
@@ -96,23 +96,23 @@ export class EmployerApplicationService {
                 profile: {
                   select: {
                     city: true,
-                    province: true
-                  }
-                }
-              }
+                    province: true,
+                  },
+                },
+              },
             },
             skills: {
               include: {
-                skill: true
-              }
-            }
-          }
-        }
-      }
+                skill: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     // Transform to ApplicationListItem format
-    let applications: ApplicationListItem[] = allApplications.map(app => ({
+    let applications: ApplicationListItem[] = allApplications.map((app) => ({
       id: app.id,
       jobId: app.jobId,
       candidateId: app.candidateId,
@@ -131,21 +131,21 @@ export class EmployerApplicationService {
         expectedSalaryMin: app.candidate.expectedSalaryMin?.toNumber() || null,
         expectedSalaryMax: app.candidate.expectedSalaryMax?.toNumber() || null,
         user: app.candidate.user,
-        skills: app.candidate.skills.map(cs => ({
+        skills: app.candidate.skills.map((cs) => ({
           skill: {
             id: cs.skill.id,
-            name: cs.skill.name
+            name: cs.skill.name,
           },
           proficiencyLevel: cs.proficiencyLevel,
-          yearsExperience: cs.yearsExperience
-        }))
-      }
+          yearsExperience: cs.yearsExperience,
+        })),
+      },
     }));
 
     // Calculate match scores if requested
     if (includeMatchScores) {
       const scoringConfig = getDefaultScoringConfig();
-      applications = applications.map(app => {
+      applications = applications.map((app) => {
         const matchResult = calculateMatchScore(
           app.candidate,
           {
@@ -154,7 +154,7 @@ export class EmployerApplicationService {
             salaryMin: job.salaryMin?.toNumber(),
             salaryMax: job.salaryMax?.toNumber(),
             locationCity: job.locationCity,
-            workLocationType: job.workLocationType
+            workLocationType: job.workLocationType,
           },
           scoringConfig
         );
@@ -162,7 +162,7 @@ export class EmployerApplicationService {
         return {
           ...app,
           matchScore: matchResult.score,
-          matchDetails: matchResult.details
+          matchDetails: matchResult.details,
         };
       });
     }
@@ -188,10 +188,10 @@ export class EmployerApplicationService {
         page,
         limit,
         total: applications.length,
-        totalPages: Math.ceil(applications.length / limit)
+        totalPages: Math.ceil(applications.length / limit),
       },
       stats,
-      filters: filter || {}
+      filters: filter || {},
     };
   }
 
@@ -202,45 +202,47 @@ export class EmployerApplicationService {
     applications: ApplicationListItem[]
   ): Promise<ApplicationStats> {
     const total = applications.length;
-    
+
     // Group by status
-    const statusGroups = applications.reduce((acc, app) => {
-      acc[app.status] = (acc[app.status] || 0) + 1;
-      return acc;
-    }, {} as Record<ApplicationStatus, number>);
+    const statusGroups = applications.reduce(
+      (acc, app) => {
+        acc[app.status] = (acc[app.status] || 0) + 1;
+        return acc;
+      },
+      {} as Record<ApplicationStatus, number>
+    );
 
     const byStatus = Object.entries(statusGroups).map(([status, count]) => ({
       status: status as ApplicationStatus,
       count,
-      percentage: Math.round((count / total) * 100)
+      percentage: Math.round((count / total) * 100),
     }));
 
     // Calculate average match score
     const scoresArray = applications
-      .filter(app => app.matchScore !== undefined)
-      .map(app => app.matchScore!);
-    const averageMatchScore = scoresArray.length > 0
-      ? Math.round(scoresArray.reduce((a, b) => a + b, 0) / scoresArray.length)
-      : 0;
+      .filter((app) => app.matchScore !== undefined)
+      .map((app) => app.matchScore!);
+    const averageMatchScore =
+      scoresArray.length > 0
+        ? Math.round(scoresArray.reduce((a, b) => a + b, 0) / scoresArray.length)
+        : 0;
 
     // Count top candidates (score >= 80)
-    const topCandidates = applications.filter(app => 
-      app.matchScore && app.matchScore >= 80
+    const topCandidates = applications.filter(
+      (app) => app.matchScore && app.matchScore >= 80
     ).length;
 
     // Count new today
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const newToday = applications.filter(app => 
-      new Date(app.appliedAt) >= today
-    ).length;
+    const newToday = applications.filter((app) => new Date(app.appliedAt) >= today).length;
 
     // Count pending review (APPLIED status)
     const pendingReview = statusGroups[ApplicationStatus.APPLIED] || 0;
 
     // Count scheduled interviews
-    const scheduledInterviews = applications.filter(app => 
-      app.interviewScheduledAt && new Date(app.interviewScheduledAt) >= new Date()
+    const scheduledInterviews = applications.filter(
+      (app) => app.interviewScheduledAt && new Date(app.interviewScheduledAt) >= new Date()
     ).length;
 
     return {
@@ -250,7 +252,7 @@ export class EmployerApplicationService {
       topCandidates,
       newToday,
       pendingReview,
-      scheduledInterviews
+      scheduledInterviews,
     };
   }
 
@@ -265,8 +267,8 @@ export class EmployerApplicationService {
       where: {
         id: applicationId,
         job: {
-          companyId
-        }
+          companyId,
+        },
       },
       include: {
         job: {
@@ -276,41 +278,41 @@ export class EmployerApplicationService {
             company: {
               select: {
                 id: true,
-                companyName: true
-              }
-            }
-          }
+                companyName: true,
+              },
+            },
+          },
         },
         candidate: {
           include: {
             user: {
               include: {
-                profile: true
-              }
+                profile: true,
+              },
             },
             skills: {
               include: {
-                skill: true
-              }
+                skill: true,
+              },
             },
             education: {
               orderBy: {
-                endDate: 'desc'
-              }
+                endDate: 'desc',
+              },
             },
             experience: {
               orderBy: {
-                endDate: 'desc'
-              }
-            }
-          }
+                endDate: 'desc',
+              },
+            },
+          },
         },
         timeline: {
           orderBy: {
-            createdAt: 'desc'
-          }
-        }
-      }
+            createdAt: 'desc',
+          },
+        },
+      },
     });
 
     if (!application) return null;
@@ -322,11 +324,11 @@ export class EmployerApplicationService {
         ...application.candidate,
         expectedSalaryMin: application.candidate.expectedSalaryMin?.toNumber() || null,
         expectedSalaryMax: application.candidate.expectedSalaryMax?.toNumber() || null,
-        education: application.candidate.education.map(edu => ({
+        education: application.candidate.education.map((edu) => ({
           ...edu,
-          gpa: edu.gpa || null
-        }))
-      }
+          gpa: edu.gpa || null,
+        })),
+      },
     } as ApplicationDetail;
   }
 
@@ -344,40 +346,58 @@ export class EmployerApplicationService {
       where: {
         id: applicationId,
         job: {
-          companyId
-        }
-      }
+          companyId,
+        },
+      },
     });
 
     if (!application) {
-      throw new Error("Application not found or access denied");
+      throw new Error('Application not found or access denied');
     }
 
     // Update application in transaction
     await prisma.$transaction(async (tx) => {
+      // Prepare update data - only include fields that are provided
+      const updatePayload: Prisma.ApplicationUpdateInput = {
+        statusUpdatedAt: new Date(),
+      };
+
+      if (data.status !== undefined) {
+        updatePayload.status = data.status;
+      }
+
+      if (data.rating !== undefined) {
+        updatePayload.rating = data.rating;
+      }
+
+      if (data.notes !== undefined) {
+        // Append notes if there are existing notes, otherwise just set the new notes
+        updatePayload.recruiterNotes = application.recruiterNotes
+          ? `${application.recruiterNotes}\n\n${data.notes}`
+          : data.notes;
+      }
+
+      if (data.interviewScheduledAt !== undefined) {
+        updatePayload.interviewScheduledAt = new Date(data.interviewScheduledAt);
+      }
+
       // Update application
       await tx.application.update({
         where: { id: applicationId },
-        data: {
-          status: data.status,
-          rating: data.rating,
-          recruiterNotes: data.notes ? 
-            (application.recruiterNotes ? `${application.recruiterNotes}\n\n${data.notes}` : data.notes) : 
-            undefined,
-          interviewScheduledAt: data.interviewScheduledAt ? new Date(data.interviewScheduledAt) : undefined,
-          statusUpdatedAt: new Date()
-        }
+        data: updatePayload,
       });
 
-      // Add to timeline
-      await tx.applicationTimeline.create({
-        data: {
-          applicationId,
-          status: data.status,
-          note: data.notes,
-          changedBy: userId
-        }
-      });
+      // Only add to timeline if status is changed
+      if (data.status !== undefined) {
+        await tx.applicationTimeline.create({
+          data: {
+            applicationId,
+            status: data.status,
+            note: data.notes,
+            changedBy: userId,
+          },
+        });
+      }
     });
 
     // TODO: Send notification to candidate if requested
@@ -401,13 +421,13 @@ export class EmployerApplicationService {
       where: {
         id: applicationId,
         job: {
-          companyId
-        }
-      }
+          companyId,
+        },
+      },
     });
 
     if (!application) {
-      throw new Error("Application not found or access denied");
+      throw new Error('Application not found or access denied');
     }
 
     // Append note
@@ -420,8 +440,8 @@ export class EmployerApplicationService {
       where: { id: applicationId },
       data: {
         recruiterNotes: updatedNotes,
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     });
 
     return true;
@@ -440,13 +460,13 @@ export class EmployerApplicationService {
       where: {
         id: { in: data.applicationIds },
         job: {
-          companyId
-        }
-      }
+          companyId,
+        },
+      },
     });
 
     if (applications.length !== data.applicationIds.length) {
-      throw new Error("Some applications not found or access denied");
+      throw new Error('Some applications not found or access denied');
     }
 
     let success = 0;
@@ -457,7 +477,7 @@ export class EmployerApplicationService {
       try {
         await prisma.$transaction(async (tx) => {
           const updateData: Prisma.ApplicationUpdateInput = {
-            statusUpdatedAt: new Date()
+            statusUpdatedAt: new Date(),
           };
 
           // Handle different actions
@@ -465,15 +485,15 @@ export class EmployerApplicationService {
             case 'UPDATE_STATUS':
               if (data.status) {
                 updateData.status = data.status;
-                
+
                 // Add to timeline
                 await tx.applicationTimeline.create({
                   data: {
                     applicationId: application.id,
                     status: data.status,
                     note: data.notes || 'Bulk status update',
-                    changedBy: userId
-                  }
+                    changedBy: userId,
+                  },
                 });
               }
               break;
@@ -492,14 +512,14 @@ export class EmployerApplicationService {
           // Add notes if provided
           if (data.notes) {
             const currentNotes = application.recruiterNotes || '';
-            updateData.recruiterNotes = currentNotes ? 
-              `${currentNotes}\n\n[Bulk Update] ${data.notes}` : 
-              `[Bulk Update] ${data.notes}`;
+            updateData.recruiterNotes = currentNotes
+              ? `${currentNotes}\n\n[Bulk Update] ${data.notes}`
+              : `[Bulk Update] ${data.notes}`;
           }
 
           await tx.application.update({
             where: { id: application.id },
-            data: updateData
+            data: updateData,
           });
         });
 
@@ -528,16 +548,12 @@ export class EmployerApplicationService {
     scoringConfig?: ScoringConfig
   ): Promise<ApplicationListItem[]> {
     // Get all applications
-    const result = await this.getJobApplications(
-      jobId,
-      companyId,
-      {
-        page: 1,
-        limit: 1000, // Get all for filtering
-        includeMatchScores: true,
-        filter: filterCriteria
-      }
-    );
+    const result = await this.getJobApplications(jobId, companyId, {
+      page: 1,
+      limit: 1000, // Get all for filtering
+      includeMatchScores: true,
+      filter: filterCriteria,
+    });
 
     // Use custom scoring config if provided
     if (scoringConfig) {
@@ -546,15 +562,15 @@ export class EmployerApplicationService {
         include: {
           jobSkills: {
             include: {
-              skill: true
-            }
-          }
-        }
+              skill: true,
+            },
+          },
+        },
       });
 
       if (job) {
         // Recalculate scores with custom config
-        result.applications = result.applications.map(app => {
+        result.applications = result.applications.map((app) => {
           const matchResult = calculateMatchScore(
             app.candidate,
             {
@@ -563,7 +579,7 @@ export class EmployerApplicationService {
               salaryMin: job.salaryMin?.toNumber(),
               salaryMax: job.salaryMax?.toNumber(),
               locationCity: job.locationCity,
-              workLocationType: job.workLocationType
+              workLocationType: job.workLocationType,
             },
             scoringConfig
           );
@@ -571,34 +587,29 @@ export class EmployerApplicationService {
           return {
             ...app,
             matchScore: matchResult.score,
-            matchDetails: matchResult.details
+            matchDetails: matchResult.details,
           };
         });
       }
     }
 
     // Sort by match score
-    return result.applications.sort((a, b) => 
-      (b.matchScore || 0) - (a.matchScore || 0)
-    );
+    return result.applications.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
   }
 
   /**
    * Compare multiple candidates
    */
-  static async compareCandidates(
-    applicationIds: string[],
-    companyId: string
-  ): Promise<any> {
+  static async compareCandidates(applicationIds: string[], companyId: string): Promise<any> {
     // Get applications with full details
     const applications = await Promise.all(
-      applicationIds.map(id => this.getApplicationDetail(id, companyId))
+      applicationIds.map((id) => this.getApplicationDetail(id, companyId))
     );
 
-    const validApplications = applications.filter(app => app !== null);
+    const validApplications = applications.filter((app) => app !== null);
 
     if (validApplications.length < 2) {
-      throw new Error("Need at least 2 candidates to compare");
+      throw new Error('Need at least 2 candidates to compare');
     }
 
     // TODO: Implement detailed comparison logic
@@ -609,8 +620,8 @@ export class EmployerApplicationService {
         'Experience',
         'Education',
         'Salary Expectation',
-        'Availability'
-      ]
+        'Availability',
+      ],
     };
   }
 }

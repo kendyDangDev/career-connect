@@ -2,9 +2,10 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 
 // JWT configuration
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-key-change-in-production';
-const JWT_ACCESS_TOKEN_EXPIRES = process.env.JWT_ACCESS_TOKEN_EXPIRES || '1h'; // 1 hour
-const JWT_REFRESH_TOKEN_EXPIRES = process.env.JWT_REFRESH_TOKEN_EXPIRES || '30d'; // 30 days
+const JWT_REFRESH_SECRET =
+  process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-key-change-in-production';
+const JWT_ACCESS_TOKEN_EXPIRES = (process.env.JWT_ACCESS_TOKEN_EXPIRES || '1h') as string; // 1 hour
+const JWT_REFRESH_TOKEN_EXPIRES = (process.env.JWT_REFRESH_TOKEN_EXPIRES || '30d') as string; // 30 days
 
 export interface TokenPayload {
   id: string;
@@ -22,7 +23,7 @@ export interface DecodedToken extends TokenPayload, JwtPayload {}
 export function generateAccessToken(payload: TokenPayload): string {
   return jwt.sign(payload, JWT_SECRET, {
     expiresIn: JWT_ACCESS_TOKEN_EXPIRES,
-  });
+  } as jwt.SignOptions);
 }
 
 /**
@@ -31,7 +32,7 @@ export function generateAccessToken(payload: TokenPayload): string {
 export function generateRefreshToken(payload: TokenPayload): string {
   return jwt.sign(payload, JWT_REFRESH_SECRET, {
     expiresIn: JWT_REFRESH_TOKEN_EXPIRES,
-  });
+  } as jwt.SignOptions);
 }
 
 /**

@@ -46,15 +46,21 @@ export const ConversationList: React.FC<ConversationListProps> = ({ className })
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
 
-        // Search in conversation name
-        if (conv.name && conv.name.toLowerCase().includes(query)) {
+        // Search in conversation name (for group/application conversations)
+        const conversationName =
+          conv.firstName && conv.lastName ? `${conv.firstName} ${conv.lastName}`.toLowerCase() : '';
+        if (conversationName && conversationName.includes(query)) {
           return true;
         }
 
         // Search in participant names
-        const participantMatch = conv.participants.some(
-          (p) => p.user.name && p.user.name.toLowerCase().includes(query)
-        );
+        const participantMatch = conv.participants.some((p) => {
+          const fullName =
+            p.user.firstName && p.user.lastName
+              ? `${p.user.firstName} ${p.user.lastName}`.toLowerCase()
+              : '';
+          return fullName.includes(query) || p.user.email.toLowerCase().includes(query);
+        });
         if (participantMatch) {
           return true;
         }
@@ -81,15 +87,20 @@ export const ConversationList: React.FC<ConversationListProps> = ({ className })
       const otherParticipant = conversation.participants.find(
         (p: any) => p.userId !== conversation.currentUserId
       );
+
       return {
-        name: otherParticipant?.user.name || 'Unknown User',
-        avatar: otherParticipant?.user.avatar,
+        name:
+          `${otherParticipant?.user?.firstName} ${otherParticipant?.user?.lastName}` ||
+          'Unknown User',
+        avatar: otherParticipant?.user?.avatarUrl,
         isOnline: onlineUsers.some((u) => u.userId === otherParticipant?.userId),
       };
     } else {
       // For group or application-related conversations
       return {
-        name: conversation.name || `${conversation.type.replace('_', ' ')} Chat`,
+        name:
+          `${conversation.firstName} ${conversation.lastName}` ||
+          `${conversation.type.replace('_', ' ')} Chat`,
         avatar: null,
         isOnline: false,
       };

@@ -1,5 +1,5 @@
-import { prisma } from "@/lib/prisma";
-import { Prisma, JobStatus, Job } from "@/generated/prisma";
+import { prisma } from '@/lib/prisma';
+import { Prisma, JobStatus, Job } from '@/generated/prisma';
 import {
   CreateJobDTO,
   UpdateJobDTO,
@@ -9,18 +9,15 @@ import {
   JobListParams,
   JobStatistics,
   DuplicateJobDTO,
-  UpdateJobStatusDTO
-} from "@/types/employer/job";
-import { generateJobSlug } from "@/lib/utils/job-utils";
+  UpdateJobStatusDTO,
+} from '@/types/employer/job';
+import { generateJobSlug } from '@/lib/utils/job-utils';
 
 export class EmployerJobService {
   /**
    * Get paginated list of jobs for a company
    */
-  static async getCompanyJobs(
-    companyId: string,
-    params: JobListParams
-  ): Promise<JobListResponse> {
+  static async getCompanyJobs(companyId: string, params: JobListParams): Promise<JobListResponse> {
     const {
       page = 1,
       limit = 10,
@@ -31,18 +28,18 @@ export class EmployerJobService {
       sortBy = 'createdAt',
       sortOrder = 'desc',
       fromDate,
-      toDate
+      toDate,
     } = params;
 
     // Build where clause
     const where: Prisma.JobWhereInput = {
-      companyId
+      companyId,
     };
 
     if (search) {
       where.OR = [
         { title: { contains: search, mode: 'insensitive' } },
-        { locationCity: { contains: search, mode: 'insensitive' } }
+        { locationCity: { contains: search, mode: 'insensitive' } },
       ];
     }
 
@@ -100,13 +97,13 @@ export class EmployerJobService {
           urgent: true,
           createdAt: true,
           updatedAt: true,
-          publishedAt: true
+          publishedAt: true,
         },
         orderBy,
         skip: (page - 1) * limit,
-        take: limit
+        take: limit,
       }),
-      prisma.job.count({ where })
+      prisma.job.count({ where }),
     ]);
 
     // Get job stats
@@ -118,9 +115,9 @@ export class EmployerJobService {
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit)
+        totalPages: Math.ceil(total / limit),
       },
-      stats
+      stats,
     };
   }
 
@@ -131,14 +128,14 @@ export class EmployerJobService {
     const statusCounts = await prisma.job.groupBy({
       by: ['status'],
       where: { companyId },
-      _count: true
+      _count: true,
     });
 
     const stats = {
       totalJobs: 0,
       activeJobs: 0,
       pendingJobs: 0,
-      closedJobs: 0
+      closedJobs: 0,
     };
 
     statusCounts.forEach(({ status, _count }) => {
@@ -167,7 +164,7 @@ export class EmployerJobService {
     const job = await prisma.job.findFirst({
       where: {
         id: jobId,
-        companyId
+        companyId,
       },
       include: {
         company: {
@@ -176,27 +173,27 @@ export class EmployerJobService {
             companyName: true,
             companySlug: true,
             logoUrl: true,
-            verificationStatus: true
-          }
+            verificationStatus: true,
+          },
         },
         jobSkills: {
           include: {
-            skill: true
-          }
+            skill: true,
+          },
         },
         jobCategories: {
           include: {
-            category: true
-          }
+            category: true,
+          },
         },
         _count: {
           select: {
             applications: true,
             savedJobs: true,
-            jobViews: true
-          }
-        }
-      }
+            jobViews: true,
+          },
+        },
+      },
     });
 
     return job as JobDetail;
@@ -205,27 +202,23 @@ export class EmployerJobService {
   /**
    * Create a new job posting
    */
-  static async createJob(
-    companyId: string,
-    recruiterId: string,
-    data: CreateJobDTO
-  ): Promise<Job> {
+  static async createJob(companyId: string, recruiterId: string, data: CreateJobDTO): Promise<Job> {
     // Get company name for slug
     const company = await prisma.company.findUnique({
       where: { id: companyId },
-      select: { companyName: true }
+      select: { companyName: true },
     });
 
     // Generate unique slug
     let slug = generateJobSlug(data.title, company?.companyName);
-    
+
     // Check if slug exists
     const existingCount = await prisma.job.count({
       where: {
         slug: {
-          startsWith: slug
-        }
-      }
+          startsWith: slug,
+        },
+      },
     });
 
     if (existingCount > 0) {
@@ -244,24 +237,26 @@ export class EmployerJobService {
         recruiterId,
         status: JobStatus.PENDING,
         // Create skill relations
-        ...(skills && skills.length > 0 && {
-          jobSkills: {
-            create: skills.map(skill => ({
-              skillId: skill.skillId,
-              requiredLevel: skill.requiredLevel,
-              minYearsExperience: skill.minYearsExperience
-            }))
-          }
-        }),
+        ...(skills &&
+          skills.length > 0 && {
+            jobSkills: {
+              create: skills.map((skill) => ({
+                skillId: skill.skillId,
+                requiredLevel: skill.requiredLevel,
+                minYearsExperience: skill.minYearsExperience,
+              })),
+            },
+          }),
         // Create category relations
-        ...(categories && categories.length > 0 && {
-          jobCategories: {
-            create: categories.map(categoryId => ({
-              categoryId
-            }))
-          }
-        })
-      }
+        ...(categories &&
+          categories.length > 0 && {
+            jobCategories: {
+              create: categories.map((categoryId) => ({
+                categoryId,
+              })),
+            },
+          }),
+      },
     });
 
     return job;
@@ -279,8 +274,8 @@ export class EmployerJobService {
     const existingJob = await prisma.job.findFirst({
       where: {
         id: jobId,
-        companyId
-      }
+        companyId,
+      },
     });
 
     if (!existingJob) {
@@ -294,19 +289,19 @@ export class EmployerJobService {
     if (data.title && data.title !== existingJob.title) {
       const company = await prisma.company.findUnique({
         where: { id: companyId },
-        select: { companyName: true }
+        select: { companyName: true },
       });
 
       let newSlug = generateJobSlug(data.title, company?.companyName);
-      
+
       // Check if new slug exists
       const existingCount = await prisma.job.count({
         where: {
           slug: {
-            startsWith: newSlug
+            startsWith: newSlug,
           },
-          id: { not: jobId }
-        }
+          id: { not: jobId },
+        },
       });
 
       if (existingCount > 0) {
@@ -323,26 +318,26 @@ export class EmployerJobService {
         where: { id: jobId },
         data: {
           ...jobData,
-          updatedAt: new Date()
-        }
+          updatedAt: new Date(),
+        },
       });
 
       // Update skills if provided
       if (skills !== undefined) {
         // Delete existing skills
         await tx.jobSkill.deleteMany({
-          where: { jobId }
+          where: { jobId },
         });
 
         // Create new skills
         if (skills.length > 0) {
           await tx.jobSkill.createMany({
-            data: skills.map(skill => ({
+            data: skills.map((skill) => ({
               jobId,
               skillId: skill.skillId,
               requiredLevel: skill.requiredLevel,
-              minYearsExperience: skill.minYearsExperience
-            }))
+              minYearsExperience: skill.minYearsExperience,
+            })),
           });
         }
       }
@@ -351,16 +346,16 @@ export class EmployerJobService {
       if (categories !== undefined) {
         // Delete existing categories
         await tx.jobCategory.deleteMany({
-          where: { jobId }
+          where: { jobId },
         });
 
         // Create new categories
         if (categories.length > 0) {
           await tx.jobCategory.createMany({
-            data: categories.map(categoryId => ({
+            data: categories.map((categoryId) => ({
               jobId,
-              categoryId
-            }))
+              categoryId,
+            })),
           });
         }
       }
@@ -382,12 +377,12 @@ export class EmployerJobService {
     const job = await prisma.job.findFirst({
       where: {
         id: jobId,
-        companyId
-      }
+        companyId,
+      },
     });
 
     if (!job) {
-      return { success: false, message: "Job not found" };
+      return { success: false, message: 'Job not found' };
     }
 
     // Update status
@@ -395,11 +390,12 @@ export class EmployerJobService {
       where: { id: jobId },
       data: {
         status: data.status,
-        ...(data.status === JobStatus.ACTIVE && !job.publishedAt && {
-          publishedAt: new Date()
-        }),
-        updatedAt: new Date()
-      }
+        ...(data.status === JobStatus.ACTIVE &&
+          !job.publishedAt && {
+            publishedAt: new Date(),
+          }),
+        updatedAt: new Date(),
+      },
     });
 
     // TODO: If notifyApplicants is true, send notifications to all applicants
@@ -420,12 +416,12 @@ export class EmployerJobService {
     const originalJob = await prisma.job.findFirst({
       where: {
         id: jobId,
-        companyId
+        companyId,
       },
       include: {
         jobSkills: true,
-        jobCategories: true
-      }
+        jobCategories: true,
+      },
     });
 
     if (!originalJob) {
@@ -436,7 +432,7 @@ export class EmployerJobService {
     const newTitle = data?.title || `${originalJob.title} (Copy)`;
     const company = await prisma.company.findUnique({
       where: { id: companyId },
-      select: { companyName: true }
+      select: { companyName: true },
     });
 
     // Generate unique slug
@@ -444,9 +440,9 @@ export class EmployerJobService {
     const existingCount = await prisma.job.count({
       where: {
         slug: {
-          startsWith: slug
-        }
-      }
+          startsWith: slug,
+        },
+      },
     });
 
     if (existingCount > 0) {
@@ -479,19 +475,19 @@ export class EmployerJobService {
         recruiterId,
         // Duplicate skills
         jobSkills: {
-          create: originalJob.jobSkills.map(skill => ({
+          create: originalJob.jobSkills.map((skill) => ({
             skillId: skill.skillId,
             requiredLevel: skill.requiredLevel,
-            minYearsExperience: skill.minYearsExperience
-          }))
+            minYearsExperience: skill.minYearsExperience,
+          })),
         },
         // Duplicate categories
         jobCategories: {
-          create: originalJob.jobCategories.map(cat => ({
-            categoryId: cat.categoryId
-          }))
-        }
-      }
+          create: originalJob.jobCategories.map((cat) => ({
+            categoryId: cat.categoryId,
+          })),
+        },
+      },
     });
 
     return duplicatedJob;
@@ -500,15 +496,12 @@ export class EmployerJobService {
   /**
    * Delete a job (soft delete by changing status)
    */
-  static async deleteJob(
-    jobId: string,
-    companyId: string
-  ): Promise<boolean> {
+  static async deleteJob(jobId: string, companyId: string): Promise<boolean> {
     const job = await prisma.job.findFirst({
       where: {
         id: jobId,
-        companyId
-      }
+        companyId,
+      },
     });
 
     if (!job) {
@@ -520,8 +513,8 @@ export class EmployerJobService {
       where: { id: jobId },
       data: {
         status: JobStatus.CLOSED,
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     });
 
     return true;
@@ -530,16 +523,13 @@ export class EmployerJobService {
   /**
    * Get job statistics
    */
-  static async getJobStatistics(
-    jobId: string,
-    companyId: string
-  ): Promise<JobStatistics | null> {
+  static async getJobStatistics(jobId: string, companyId: string): Promise<JobStatistics | null> {
     // Verify job belongs to company
     const job = await prisma.job.findFirst({
       where: {
         id: jobId,
-        companyId
-      }
+        companyId,
+      },
     });
 
     if (!job) {
@@ -553,75 +543,170 @@ export class EmployerJobService {
     // Get view statistics
     const [totalViews, uniqueViews, viewsLastWeek, viewsLastMonth] = await Promise.all([
       prisma.jobView.count({ where: { jobId } }),
-      prisma.jobView.groupBy({
-        by: ['userId'],
-        where: { jobId, userId: { not: null } },
-        _count: true
-      }).then(result => result.length),
+      prisma.jobView
+        .groupBy({
+          by: ['userId'],
+          where: { jobId, userId: { not: null } },
+          _count: true,
+        })
+        .then((result) => result.length),
       prisma.jobView.count({
         where: {
           jobId,
-          viewedAt: { gte: lastWeek }
-        }
+          viewedAt: { gte: lastWeek },
+        },
       }),
       prisma.jobView.count({
         where: {
           jobId,
-          viewedAt: { gte: lastMonth }
-        }
-      })
+          viewedAt: { gte: lastMonth },
+        },
+      }),
     ]);
 
+    // Get previous week for comparison
+    const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+    const viewsPreviousWeek = await prisma.jobView.count({
+      where: {
+        jobId,
+        viewedAt: { gte: twoWeeksAgo, lt: lastWeek },
+      },
+    });
+
     // Get application statistics
-    const [
-      totalApplications,
-      applicationsLastWeek,
-      applicationsLastMonth,
-      applicationsByStatus
-    ] = await Promise.all([
-      prisma.application.count({ where: { jobId } }),
-      prisma.application.count({
-        where: {
-          jobId,
-          appliedAt: { gte: lastWeek }
-        }
-      }),
-      prisma.application.count({
-        where: {
-          jobId,
-          appliedAt: { gte: lastMonth }
-        }
-      }),
-      prisma.application.groupBy({
-        by: ['status'],
-        where: { jobId },
-        _count: true
-      })
-    ]);
+    const [totalApplications, applicationsLastWeek, applicationsLastMonth, applicationsByStatus] =
+      await Promise.all([
+        prisma.application.count({ where: { jobId } }),
+        prisma.application.count({
+          where: {
+            jobId,
+            appliedAt: { gte: lastWeek },
+          },
+        }),
+        prisma.application.count({
+          where: {
+            jobId,
+            appliedAt: { gte: lastMonth },
+          },
+        }),
+        prisma.application.groupBy({
+          by: ['status'],
+          where: { jobId },
+          _count: true,
+        }),
+      ]);
+
+    // Get previous week applications for comparison
+    const applicationsPreviousWeek = await prisma.application.count({
+      where: {
+        jobId,
+        appliedAt: { gte: twoWeeksAgo, lt: lastWeek },
+      },
+    });
+
+    // Get saved jobs count
+    const totalSaved = await prisma.savedJob.count({ where: { jobId } });
+    const savedLastWeek = await prisma.savedJob.count({
+      where: {
+        jobId,
+        createdAt: { gte: lastWeek },
+      },
+    });
+    const savedPreviousWeek = await prisma.savedJob.count({
+      where: {
+        jobId,
+        createdAt: { gte: twoWeeksAgo, lt: lastWeek },
+      },
+    });
+
+    // Calculate conversion rates
+    const currentWeekConversion =
+      viewsLastWeek > 0 ? (applicationsLastWeek / viewsLastWeek) * 100 : 0;
+    const previousWeekConversion =
+      viewsPreviousWeek > 0 ? (applicationsPreviousWeek / viewsPreviousWeek) * 100 : 0;
+    const overallConversion = totalViews > 0 ? (totalApplications / totalViews) * 100 : 0;
+
+    // Calculate changes
+    const viewsChange =
+      viewsPreviousWeek > 0
+        ? Math.abs(((viewsLastWeek - viewsPreviousWeek) / viewsPreviousWeek) * 100).toFixed(1)
+        : '0';
+    const viewsChangeType = viewsLastWeek >= viewsPreviousWeek ? 'increase' : 'decrease';
+
+    const applicationsChange =
+      applicationsPreviousWeek > 0
+        ? Math.abs(
+            ((applicationsLastWeek - applicationsPreviousWeek) / applicationsPreviousWeek) * 100
+          ).toFixed(1)
+        : '0';
+    const applicationsChangeType =
+      applicationsLastWeek >= applicationsPreviousWeek ? 'increase' : 'decrease';
+
+    const savedChange =
+      savedPreviousWeek > 0
+        ? Math.abs(((savedLastWeek - savedPreviousWeek) / savedPreviousWeek) * 100).toFixed(1)
+        : '0';
+    const savedChangeType = savedLastWeek >= savedPreviousWeek ? 'increase' : 'decrease';
+
+    const conversionChange =
+      previousWeekConversion > 0
+        ? Math.abs(
+            ((currentWeekConversion - previousWeekConversion) / previousWeekConversion) * 100
+          ).toFixed(1)
+        : '0';
+    const conversionChangeType =
+      currentWeekConversion >= previousWeekConversion ? 'increase' : 'decrease';
 
     // Calculate conversion rate
     const conversionRate = totalViews > 0 ? (totalApplications / totalViews) * 100 : 0;
 
     // TODO: Calculate average time to apply and get referrers from analytics
-
     return {
+      // Basic stats
       totalViews,
+      totalApplications,
+      totalSaved,
+      conversionRate: overallConversion.toFixed(2) + '%',
+
+      // Weekly comparison
+      viewsChange: viewsChange + '%',
+      viewsChangeType: viewsChangeType as 'increase' | 'decrease',
+      applicationsChange: applicationsChange + '%',
+      applicationsChangeType: applicationsChangeType as 'increase' | 'decrease',
+      savedChange: savedChange + '%',
+      savedChangeType: savedChangeType as 'increase' | 'decrease',
+      conversionChange: conversionChange + '%',
+      conversionChangeType: conversionChangeType as 'increase' | 'decrease',
+
+      // Detailed weekly stats
+      currentWeek: {
+        views: viewsLastWeek,
+        applications: applicationsLastWeek,
+        saved: savedLastWeek,
+        conversionRate: currentWeekConversion.toFixed(2) + '%',
+      },
+      previousWeek: {
+        views: viewsPreviousWeek,
+        applications: applicationsPreviousWeek,
+        saved: savedPreviousWeek,
+        conversionRate: previousWeekConversion.toFixed(2) + '%',
+      },
+
+      // Legacy fields for backward compatibility
       uniqueViews,
       viewsLastWeek,
       viewsLastMonth,
-      totalApplications,
       applicationsLastWeek,
       applicationsLastMonth,
-      applicationsByStatus: applicationsByStatus.map(item => ({
+      applicationsByStatus: applicationsByStatus.map((item) => ({
         status: item.status,
-        count: item._count
+        count: item._count,
       })),
       viewsByDate: [], // TODO: Implement daily view tracking
       applicationsByDate: [], // TODO: Implement daily application tracking
-      conversionRate: Math.round(conversionRate * 100) / 100,
       averageTimeToApply: 0, // TODO: Implement
-      topReferrers: [] // TODO: Implement referrer tracking
-    };
+      topReferrers: [], // TODO: Implement referrer tracking
+    } as unknown as JobStatistics;
   }
 
   /**
@@ -635,8 +720,8 @@ export class EmployerJobService {
     const job = await prisma.job.findFirst({
       where: {
         id: jobId,
-        companyId
-      }
+        companyId,
+      },
     });
 
     if (!job) return false;
@@ -645,8 +730,8 @@ export class EmployerJobService {
     const companyUser = await prisma.companyUser.findFirst({
       where: {
         companyId,
-        userId
-      }
+        userId,
+      },
     });
 
     return !!companyUser;
@@ -660,13 +745,13 @@ export class EmployerJobService {
       where: {
         status: JobStatus.ACTIVE,
         applicationDeadline: {
-          lt: new Date()
-        }
+          lt: new Date(),
+        },
       },
       data: {
         status: JobStatus.EXPIRED,
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     });
 
     return result.count;

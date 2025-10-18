@@ -9,7 +9,7 @@ import {
 } from '@/utils/api-response';
 import { updateCandidateCertificationSchema } from '@/lib/validations/candidate/certification.validation';
 import { UserType } from '@/generated/prisma';
-import prisma from '@/lib/prisma';
+import {prisma} from '@/lib/prisma';
 
 interface RouteParams {
   params: { id: string };

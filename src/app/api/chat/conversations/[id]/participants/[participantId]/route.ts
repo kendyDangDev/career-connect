@@ -10,7 +10,7 @@ const updateParticipantSchema = z.object({
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string; participantId: string } }
+  { params }: { params: Promise<{ id: string; participantId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -18,7 +18,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id: conversationId, participantId } = params;
+    const { id: conversationId, participantId } = await params;
     const body = await request.json();
     const data = updateParticipantSchema.parse(body);
 
@@ -27,7 +27,7 @@ export async function PATCH(
       where: {
         conversationId,
         userId: session.user.id,
-        isActive: true,
+        leftAt: null,
         role: 'ADMIN',
       },
     });
@@ -74,7 +74,7 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; participantId: string } }
+  { params }: { params: Promise<{ id: string; participantId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -82,7 +82,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id: conversationId, participantId } = params;
+    const { id: conversationId, participantId } = await params;
 
     // Get the participant to be removed
     const targetParticipant = await prisma.conversationParticipant.findUnique({
@@ -101,7 +101,7 @@ export async function DELETE(
         where: {
           conversationId,
           userId: session.user.id,
-          isActive: true,
+          leftAt: null,
           role: 'ADMIN',
         },
       }));
@@ -115,7 +115,7 @@ export async function DELETE(
       const adminCount = await prisma.conversationParticipant.count({
         where: {
           conversationId,
-          isActive: true,
+          leftAt: null,
           role: 'ADMIN',
         },
       });
@@ -128,7 +128,7 @@ export async function DELETE(
     // Remove participant
     await prisma.conversationParticipant.update({
       where: { id: participantId },
-      data: { isActive: false },
+      data: { leftAt: new Date() },
     });
 
     return NextResponse.json({ success: true });

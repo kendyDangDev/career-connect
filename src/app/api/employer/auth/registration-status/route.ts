@@ -7,18 +7,18 @@ export async function GET(request: NextRequest) {
     const userId = searchParams.get('userId');
     const companyId = searchParams.get('companyId');
     const email = searchParams.get('email');
-    
+
     if (!userId && !companyId && !email) {
       return NextResponse.json(
         { error: 'Vui lòng cung cấp userId, companyId hoặc email' },
         { status: 400 }
       );
     }
-    
+
     // Find user and company information
     let user = null;
     let company = null;
-    
+
     if (userId) {
       user = await prisma.user.findUnique({
         where: { id: userId },
@@ -54,25 +54,21 @@ export async function GET(request: NextRequest) {
       });
       user = company?.companyUsers[0]?.user;
     }
-    
+
     if (!user) {
-      return NextResponse.json(
-        { error: 'Không tìm thấy thông tin người dùng' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Không tìm thấy thông tin người dùng' }, { status: 404 });
     }
-    
-    if (!company && user.companyUsers.length > 0) {
-      company = user.companyUsers[0].company;
-    }
-    
+
+    //Chưa fix lỗi
+
+    // if (!company && user.companyUsers.length > 0) {
+    //   company = user.companyUsers[0].company;
+    // }
+
     if (!company) {
-      return NextResponse.json(
-        { error: 'Không tìm thấy thông tin công ty' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Không tìm thấy thông tin công ty' }, { status: 404 });
     }
-    
+
     // Check verification status
     const emailVerificationCount = await prisma.emailVerificationToken.count({
       where: {
@@ -80,21 +76,21 @@ export async function GET(request: NextRequest) {
         used: true,
       },
     });
-    
+
     const phoneVerificationCount = await prisma.phoneVerificationToken.count({
       where: {
         userId: user.id,
         used: true,
       },
     });
-    
+
     const emailVerified = user.emailVerified || emailVerificationCount > 0;
     const phoneVerified = phoneVerificationCount > 0;
-    
+
     // Determine current step
     let currentStep: string;
     let nextAction: string | null = null;
-    
+
     if (!emailVerified) {
       currentStep = 'EMAIL_VERIFICATION';
       nextAction = 'Vui lòng kiểm tra email và xác thực tài khoản';
@@ -114,10 +110,10 @@ export async function GET(request: NextRequest) {
       currentStep = 'UNKNOWN';
       nextAction = null;
     }
-    
+
     // Get timeline of verification steps
     const timeline = [];
-    
+
     // Registration
     timeline.push({
       step: 'REGISTRATION',
@@ -125,14 +121,14 @@ export async function GET(request: NextRequest) {
       completedAt: user.createdAt,
       description: 'Đăng ký tài khoản',
     });
-    
+
     // Email verification
     if (emailVerified) {
       const emailToken = await prisma.emailVerificationToken.findFirst({
         where: { userId: user.id, used: true },
         orderBy: { createdAt: 'desc' },
       });
-      
+
       timeline.push({
         step: 'EMAIL_VERIFICATION',
         status: 'COMPLETED',
@@ -146,14 +142,14 @@ export async function GET(request: NextRequest) {
         description: 'Xác thực email',
       });
     }
-    
+
     // Phone verification
     if (phoneVerified) {
       const phoneToken = await prisma.phoneVerificationToken.findFirst({
         where: { userId: user.id, used: true },
         orderBy: { createdAt: 'desc' },
       });
-      
+
       timeline.push({
         step: 'PHONE_VERIFICATION',
         status: 'COMPLETED',
@@ -167,7 +163,7 @@ export async function GET(request: NextRequest) {
         description: 'Xác thực số điện thoại',
       });
     }
-    
+
     // Admin approval
     if (emailVerified && phoneVerified) {
       if (company.verificationStatus === 'VERIFIED') {
@@ -198,7 +194,7 @@ export async function GET(request: NextRequest) {
         description: 'Phê duyệt từ quản trị viên',
       });
     }
-    
+
     return NextResponse.json({
       status: {
         currentStep,
@@ -222,7 +218,6 @@ export async function GET(request: NextRequest) {
       },
       timeline,
     });
-    
   } catch (error) {
     console.error('Registration status error:', error);
     return NextResponse.json(

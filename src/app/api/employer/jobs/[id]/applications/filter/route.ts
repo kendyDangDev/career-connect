@@ -5,7 +5,7 @@ import { EmployerApplicationService } from '@/services/employer/application.serv
 import { ApplicationFilterCriteria, ScoringConfig } from '@/types/employer/application';
 import { ErrorCode } from '@/lib/errors/application-errors';
 
-export async function POST(req: NextRequest, { params }: { params: { jobId: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest, { params }: { params: { jobId: stri
     }
 
     // Check role
-    if (session.user.role !== 'EMPLOYER') {
+    if (session.user.userType !== 'EMPLOYER') {
       return NextResponse.json(
         { success: false, error: 'Forbidden - Employer access only' },
         { status: 403 }
@@ -40,21 +40,34 @@ export async function POST(req: NextRequest, { params }: { params: { jobId: stri
 
     // Validate scoring config if provided
     if (scoringConfig) {
-      const weights = scoringConfig.weights;
-      const totalWeight = Object.values(weights).reduce((sum, w) => sum + w, 0);
+      const weights = [
+        scoringConfig.skillsWeight,
+        scoringConfig.experienceWeight,
+        scoringConfig.educationWeight,
+        scoringConfig.salaryExpectationWeight,
+        scoringConfig.locationWeight,
+        scoringConfig.availabilityWeight,
+      ];
 
-      if (Math.abs(totalWeight - 1) > 0.001) {
+      // Add custom criteria weights if present
+      if (scoringConfig.customCriteria) {
+        weights.push(...scoringConfig.customCriteria.map((c) => c.weight));
+      }
+
+      const totalWeight = weights.reduce((sum: number, w: number) => sum + w, 0);
+
+      if (Math.abs(totalWeight - 100) > 0.001) {
         return NextResponse.json(
-          { success: false, error: 'Scoring weights must sum to 1' },
+          { success: false, error: 'Scoring weights must sum to 100' },
           { status: 400 }
         );
       }
 
-      // Validate all weights are between 0 and 1
-      for (const weight of Object.values(weights)) {
-        if (weight < 0 || weight > 1) {
+      // Validate all weights are between 0 and 100
+      for (const weight of weights) {
+        if (weight < 0 || weight > 100) {
           return NextResponse.json(
-            { success: false, error: 'All weights must be between 0 and 1' },
+            { success: false, error: 'All weights must be between 0 and 100' },
             { status: 400 }
           );
         }
@@ -62,8 +75,9 @@ export async function POST(req: NextRequest, { params }: { params: { jobId: stri
     }
 
     // Get filtered applications
+    const { id: jobId } = await params;
     const filteredApplications = await EmployerApplicationService.filterApplicationsWithAI(
-      params.jobId,
+      jobId,
       companyId,
       filterCriteria,
       scoringConfig

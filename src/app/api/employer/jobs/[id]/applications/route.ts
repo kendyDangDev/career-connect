@@ -6,7 +6,7 @@ import { ApplicationListParams } from '@/types/employer/application';
 import { ErrorCode } from '@/lib/errors/application-errors';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(req: NextRequest, { params }: { params: { jobId: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
@@ -69,9 +69,10 @@ export async function GET(req: NextRequest, { params }: { params: { jobId: strin
       }
     }
 
+    const { id } = await params;
     // Get applications
     const result = await EmployerApplicationService.getJobApplications(
-      params.jobId,
+      id,
       companyId,
       applicationParams
     );

@@ -67,14 +67,18 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ className, onBack }) => 
         (p) => p.userId !== session?.user?.id
       );
       return {
-        name: otherParticipant?.user.name || 'Unknown User',
-        avatar: otherParticipant?.user.avatar,
+        name:
+          `${otherParticipant?.user.firstName} ${otherParticipant?.user.lastName}` ||
+          'Unknown User',
+        avatar: otherParticipant?.user.avatarUrl,
         isOnline: onlineUsers.some((u) => u.userId === otherParticipant?.userId),
         participantCount: 2,
       };
     } else {
       return {
-        name: activeConversation.name || `${activeConversation.type.replace('_', ' ')} Chat`,
+        name:
+          `${activeConversation.firstName} ${activeConversation.lastName}` ||
+          `${activeConversation.type.replace('_', ' ')} Chat`,
         avatar: null,
         isOnline: false,
         participantCount: activeConversation.participants.length,

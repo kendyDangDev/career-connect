@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, Suspense } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useSkills } from '@/hooks/useSkills';
 import { SkillsTable } from './components/SkillsTable';
@@ -41,7 +41,7 @@ import {
   FileText,
 } from 'lucide-react';
 
-export default function SkillsManagementPage() {
+function SkillsManagementPageContent() {
   const router = useRouter();
   const pathname = usePathname();
   const {
@@ -380,5 +380,17 @@ export default function SkillsManagementPage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+export default function SkillsManagementPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-[400px] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    }>
+      <SkillsManagementPageContent />
+    </Suspense>
   );
 }

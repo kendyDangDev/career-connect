@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import React from 'react'
+import React from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,16 +10,16 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { toast } from 'sonner'
-import { Loader2 } from 'lucide-react'
-import { Industry } from '@/types/system-categories'
+} from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
+import { Industry } from '@/types/system-categories';
 
 interface IndustryDeleteDialogProps {
-  open: boolean
-  onClose: () => void
-  onSuccess: () => void
-  industry: Industry | null
+  open: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+  industry: Industry | null;
 }
 
 export function IndustryDeleteDialog({
@@ -28,34 +28,31 @@ export function IndustryDeleteDialog({
   onSuccess,
   industry,
 }: IndustryDeleteDialogProps) {
-  const [loading, setLoading] = React.useState(false)
+  const [loading, setLoading] = React.useState(false);
 
   const handleDelete = async () => {
-    if (!industry) return
+    if (!industry) return;
 
-    setLoading(true)
+    setLoading(true);
     try {
-      const response = await fetch(
-        `/api/admin/system-categories/industries/${industry.id}`,
-        {
-          method: 'DELETE',
-        }
-      )
+      const response = await fetch(`/api/admin/system-categories/industries/${industry.id}`, {
+        method: 'DELETE',
+      });
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Có lỗi xảy ra')
+        const error = await response.json();
+        throw new Error(error.message || 'Có lỗi xảy ra');
       }
 
-      toast.success('Xóa ngành thành công')
-      onSuccess()
-      onClose()
+      toast.success('Xóa ngành thành công');
+      onSuccess();
+      onClose();
     } catch (error: any) {
-      toast.error(error.message || 'Có lỗi xảy ra khi xóa ngành')
+      toast.error(error.message || 'Có lỗi xảy ra khi xóa ngành');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <AlertDialog open={open} onOpenChange={onClose}>
@@ -67,10 +64,10 @@ export function IndustryDeleteDialog({
               Bạn có chắc chắn muốn xóa ngành{' '}
               <span className="font-semibold">{industry?.name}</span> không?
             </p>
-            {industry?.categoryCount && industry.categoryCount > 0 && (
+            {industry?._count?.companies && industry._count.companies > 0 && (
               <p className="text-destructive">
-                Lưu ý: Ngành này đang có {industry.categoryCount} danh mục liên quan.
-                Việc xóa có thể ảnh hưởng đến dữ liệu khác trong hệ thống.
+                Lưu ý: Ngành này đang có {industry._count.companies} công ty liên quan. Việc xóa có
+                thể ảnh hưởng đến dữ liệu khác trong hệ thống.
               </p>
             )}
             <p>Hành động này không thể hoàn tác.</p>
@@ -89,5 +86,5 @@ export function IndustryDeleteDialog({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }

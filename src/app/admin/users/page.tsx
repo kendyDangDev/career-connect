@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { UsersTable } from './components/UsersTable';
@@ -11,7 +11,7 @@ import { useUsersData } from '@/hooks/useUsersData';
 import { User, UserFormData } from './types';
 import { Loader2 } from 'lucide-react';
 
-export default function UsersPage() {
+function UsersPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -22,13 +22,13 @@ export default function UsersPage() {
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
 
   // Parse URL params
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '10');
-  const search = searchParams.get('search') || '';
-  const userType = searchParams.get('userType') || '';
-  const status = searchParams.get('status') || '';
-  const sortBy = searchParams.get('sortBy') || 'createdAt';
-  const sortOrder = searchParams.get('sortOrder') || 'desc';
+  const page = parseInt(searchParams?.get('page') || '1');
+  const limit = parseInt(searchParams?.get('limit') || '10');
+  const search = searchParams?.get('search') || '';
+  const userType = searchParams?.get('userType') || '';
+  const status = searchParams?.get('status') || '';
+  const sortBy = searchParams?.get('sortBy') || 'createdAt';
+  const sortOrder = searchParams?.get('sortOrder') || 'desc';
 
   const { users, loading, pagination, createUser, updateUser, deleteUser, refresh } = useUsersData({
     page,
@@ -43,7 +43,7 @@ export default function UsersPage() {
   // Update URL params
   const updateURLParams = useCallback(
     (params: Record<string, string | number | null>) => {
-      const newSearchParams = new URLSearchParams(searchParams.toString());
+      const newSearchParams = new URLSearchParams(searchParams?.toString() || '');
 
       Object.entries(params).forEach(([key, value]) => {
         if (value === null || value === '') {
@@ -189,5 +189,17 @@ export default function UsersPage() {
         userName={selectedUser ? `${selectedUser.firstName} ${selectedUser.lastName}` : ''}
       />
     </div>
+  );
+}
+
+export default function UsersPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-[400px] items-center justify-center">
+        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
+      </div>
+    }>
+      <UsersPageContent />
+    </Suspense>
   );
 }

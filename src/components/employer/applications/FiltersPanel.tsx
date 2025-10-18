@@ -1,4 +1,4 @@
-import { Search, Filter, X, Star, MapPin, Briefcase } from 'lucide-react';
+import { Search, Filter, X, Star, MapPin, Briefcase, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FiltersPanelProps {
@@ -10,26 +10,28 @@ interface FiltersPanelProps {
     experience: string[];
   };
   onFilterChange: (filters: any) => void;
+  isSearching?: boolean;
 }
 
 const statusOptions = [
-  { value: 'new', label: 'Mới', color: 'bg-blue-500' },
-  { value: 'reviewing', label: 'Đang xem xét', color: 'bg-purple-500' },
-  { value: 'interview', label: 'Phỏng vấn', color: 'bg-yellow-500' },
-  { value: 'accepted', label: 'Chấp nhận', color: 'bg-green-500' },
-  { value: 'rejected', label: 'Từ chối', color: 'bg-gray-500' },
+  { value: 'APPLIED', label: 'Mới', color: 'bg-blue-500' },
+  { value: 'SCREENING', label: 'Đang xem xét', color: 'bg-purple-500' },
+  { value: 'INTERVIEWING', label: 'Phỏng vấn', color: 'bg-yellow-500' },
+  { value: 'OFFERED', label: 'Đã gửi Offer', color: 'bg-orange-500' },
+  { value: 'HIRED', label: 'Tuyển dụng', color: 'bg-green-500' },
+  { value: 'REJECTED', label: 'Từ chối', color: 'bg-red-500' },
 ];
 
 const locationOptions = ['Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng', 'Cần Thơ', 'Hải Phòng'];
 const experienceOptions = ['0-1 năm', '1-3 năm', '3-5 năm', '5+ năm'];
 
-export function FiltersPanel({ filters, onFilterChange }: FiltersPanelProps) {
+export function FiltersPanel({ filters, onFilterChange, isSearching = false }: FiltersPanelProps) {
   const toggleFilter = (key: string, value: string) => {
     const currentValues = filters[key as keyof typeof filters] as string[];
     const newValues = currentValues.includes(value)
-      ? currentValues.filter(v => v !== value)
+      ? currentValues.filter((v) => v !== value)
       : [...currentValues, value];
-    
+
     onFilterChange({ ...filters, [key]: newValues });
   };
 
@@ -43,11 +45,14 @@ export function FiltersPanel({ filters, onFilterChange }: FiltersPanelProps) {
     });
   };
 
-  const hasActiveFilters = filters.status.length > 0 || filters.rating !== null || 
-                           filters.location.length > 0 || filters.experience.length > 0;
+  const hasActiveFilters =
+    filters.status.length > 0 ||
+    filters.rating !== null ||
+    filters.location.length > 0 ||
+    filters.experience.length > 0;
 
   return (
-    <div className="rounded-xl border border-purple-100 bg-white p-6 shadow-soft">
+    <div className="shadow-soft rounded-xl border border-purple-100 bg-white p-6">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -57,7 +62,7 @@ export function FiltersPanel({ filters, onFilterChange }: FiltersPanelProps) {
         {hasActiveFilters && (
           <button
             onClick={clearFilters}
-            className="flex items-center gap-1 text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors"
+            className="flex items-center gap-1 text-sm font-medium text-purple-600 transition-colors hover:text-purple-700"
           >
             <X className="h-4 w-4" />
             Xóa bộ lọc
@@ -69,13 +74,17 @@ export function FiltersPanel({ filters, onFilterChange }: FiltersPanelProps) {
       <div className="mb-6">
         <label className="mb-2 block text-sm font-medium text-gray-700">Tìm kiếm</label>
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          {isSearching ? (
+            <Loader2 className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 animate-spin text-purple-600" />
+          ) : (
+            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          )}
           <input
             type="text"
             value={filters.search}
             onChange={(e) => onFilterChange({ ...filters, search: e.target.value })}
             placeholder="Tên, email, kỹ năng..."
-            className="w-full rounded-lg border border-purple-100 bg-white pl-10 pr-4 py-2.5 text-sm outline-none transition-all focus:border-purple-300 focus:ring-2 focus:ring-purple-200"
+            className="w-full rounded-lg border border-purple-100 bg-white py-2.5 pr-4 pl-10 text-sm transition-all outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-200"
           />
         </div>
       </div>
@@ -98,7 +107,7 @@ export function FiltersPanel({ filters, onFilterChange }: FiltersPanelProps) {
               <div className={cn('h-2.5 w-2.5 rounded-full', option.color)} />
               <span className="flex-1 text-left">{option.label}</span>
               {filters.status.includes(option.value) && (
-                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-600 text-white text-xs">
+                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-600 text-xs text-white">
                   ✓
                 </div>
               )}
@@ -114,7 +123,9 @@ export function FiltersPanel({ filters, onFilterChange }: FiltersPanelProps) {
           {[5, 4, 3].map((rating) => (
             <button
               key={rating}
-              onClick={() => onFilterChange({ ...filters, rating: filters.rating === rating ? null : rating })}
+              onClick={() =>
+                onFilterChange({ ...filters, rating: filters.rating === rating ? null : rating })
+              }
               className={cn(
                 'flex w-full items-center gap-3 rounded-lg border px-3 py-2 text-sm font-medium transition-all',
                 filters.rating === rating
@@ -139,7 +150,7 @@ export function FiltersPanel({ filters, onFilterChange }: FiltersPanelProps) {
       {/* Location */}
       <div className="mb-6">
         <label className="mb-3 block text-sm font-medium text-gray-700">
-          <MapPin className="inline h-4 w-4 mr-1" />
+          <MapPin className="mr-1 inline h-4 w-4" />
           Địa điểm
         </label>
         <div className="flex flex-wrap gap-2">
@@ -163,7 +174,7 @@ export function FiltersPanel({ filters, onFilterChange }: FiltersPanelProps) {
       {/* Experience */}
       <div>
         <label className="mb-3 block text-sm font-medium text-gray-700">
-          <Briefcase className="inline h-4 w-4 mr-1" />
+          <Briefcase className="mr-1 inline h-4 w-4" />
           Kinh nghiệm
         </label>
         <div className="flex flex-wrap gap-2">

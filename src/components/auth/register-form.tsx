@@ -117,7 +117,7 @@ export default function RegisterForm() {
       firstName: '',
       lastName: '',
       phone: null,
-      dateOfBirth: null,
+      dateOfBirth: undefined,
       acceptTerms: false,
       acceptPrivacy: false,
     },

@@ -6,7 +6,7 @@ import { UpdateApplicationStatusDTO } from '@/types/employer/application';
 import { ErrorCode } from '@/lib/errors/application-errors';
 import { ApplicationStatus } from '@/generated/prisma';
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
@@ -16,7 +16,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     }
 
     // Check role
-    if (session.user.role !== 'EMPLOYER') {
+    if (session.user.userType !== 'EMPLOYER') {
       return NextResponse.json(
         { success: false, error: 'Forbidden - Employer access only' },
         { status: 403 }
@@ -35,8 +35,20 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     // Parse request body
     const body = await req.json();
 
-    // Validate status
-    if (!body.status || !Object.values(ApplicationStatus).includes(body.status)) {
+    // Validate that at least one field is provided
+    if (!body.status && body.rating === undefined && !body.notes && !body.interviewScheduledAt) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            'At least one field (status, rating, notes, or interviewScheduledAt) must be provided',
+        },
+        { status: 400 }
+      );
+    }
+
+    // Validate status if provided
+    if (body.status && !Object.values(ApplicationStatus).includes(body.status)) {
       return NextResponse.json({ success: false, error: 'Invalid status value' }, { status: 400 });
     }
 
@@ -57,9 +69,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       notifyCandidate: body.notifyCandidate || false,
     };
 
+    const { id } = await params;
     // Update application status
     const result = await EmployerApplicationService.updateApplicationStatus(
-      params.id,
+      id,
       companyId,
       session.user.id,
       updateData

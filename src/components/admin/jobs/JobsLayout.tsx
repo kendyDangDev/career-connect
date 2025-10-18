@@ -85,7 +85,7 @@ export function JobsLayout({ children, title, description }: JobsLayoutProps) {
     if (href === '/admin/jobs') {
       return pathname === '/admin/jobs';
     }
-    return pathname.startsWith(href);
+    return pathname?.startsWith(href);
   };
 
   const getTabColorClasses = (color?: string, active?: boolean) => {

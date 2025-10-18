@@ -75,11 +75,11 @@ export default function EditJobPage() {
           jobType: data.jobType,
           workLocationType: data.workLocationType,
           experienceLevel: data.experienceLevel,
-          salaryMin: data.salaryMin || undefined,
-          salaryMax: data.salaryMax || undefined,
+          salaryMin: data.salaryMin ? Number(data.salaryMin) : undefined,
+          salaryMax: data.salaryMax ? Number(data.salaryMax) : undefined,
           currency: data.currency || 'VND',
           salaryNegotiable: data.salaryNegotiable,
-          locationCity: data.locationCity || '',
+          address: data.address || '',
           locationProvince: data.locationProvince || '',
           locationCountry: data.locationCountry || 'Việt Nam',
           applicationDeadline: data.applicationDeadline
@@ -646,7 +646,11 @@ export default function EditJobPage() {
                 type="date"
                 id="applicationDeadline"
                 name="applicationDeadline"
-                value={formData.applicationDeadline}
+                value={
+                  formData.applicationDeadline instanceof Date
+                    ? formData.applicationDeadline.toISOString().split('T')[0]
+                    : formData.applicationDeadline || ''
+                }
                 onChange={handleChange}
                 min={new Date().toISOString().split('T')[0]}
                 className="w-full rounded-lg border border-purple-100 bg-white px-4 py-2.5 text-sm transition-all outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-200"

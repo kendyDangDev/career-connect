@@ -1,7 +1,7 @@
 // Import the reanimated fix FIRST, before any other imports
-import "../utils/reanimatedFix";
+import '../utils/reanimatedFix';
 
-import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import {
   Bell,
   Book,
@@ -11,15 +11,15 @@ import {
   Home,
   Mails,
   User,
-} from "lucide-react-native";
-import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+} from 'lucide-react-native';
+import React from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   withSpring,
   withTiming,
-} from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+} from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const TAB_BAR_HEIGHT = 60;
 const ACTIVE_ICON_SIZE = 28;
@@ -36,10 +36,10 @@ const TabIcon: React.FC<TabIconProps> = ({ name, focused }) => {
   const iconMap: Record<string, React.ComponentType<any>> = {
     index: Home,
     jobs: Briefcase,
-    "cv-management": CloudUpload,
+    'cv-management': CloudUpload,
     chat: Mails,
     notifications: Bell,
-    "saved-jobs": Clipboard,
+    'saved-jobs': Clipboard,
     profile: User,
   };
 
@@ -48,9 +48,9 @@ const TabIcon: React.FC<TabIconProps> = ({ name, focused }) => {
   return (
     <Icon
       size={iconSize}
-      color={focused ? "white" : "#6B7280"}
+      color={focused ? 'white' : '#6B7280'}
       strokeWidth={focused ? 2.5 : 2}
-      fill={focused ? "white" : "transparent"}
+      fill={focused ? 'white' : 'transparent'}
     />
   );
 };
@@ -72,12 +72,12 @@ const AnimatedTabBar: React.FC<BottomTabBarProps> = ({
       className="bg-white border-t border-gray-200"
       style={{
         paddingBottom: insets.bottom || 10,
-        shadowColor: "#000",
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: -3 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 8,
-        position: "relative",
+        position: 'relative',
         bottom: 0,
         left: 0,
         right: 0,
@@ -100,7 +100,7 @@ const AnimatedTabBar: React.FC<BottomTabBarProps> = ({
 
           const onPress = () => {
             const event = navigation.emit({
-              type: "tabPress",
+              type: 'tabPress',
               target: route.key,
               canPreventDefault: true,
             });
@@ -143,7 +143,7 @@ const AnimatedTabBar: React.FC<BottomTabBarProps> = ({
                   }),
                 },
                 {
-                  rotate: withSpring(isFocused ? "0deg" : "45deg", {
+                  rotate: withSpring(isFocused ? '0deg' : '45deg', {
                     damping: 15,
                     stiffness: 150,
                   }),
@@ -170,10 +170,10 @@ const AnimatedTabBar: React.FC<BottomTabBarProps> = ({
                         width: 56,
                         height: 56,
                         borderRadius: 28,
-                        backgroundColor: "#3B82F6",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        shadowColor: "#3B82F6",
+                        backgroundColor: '#7e22ce',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        shadowColor: '#7e22ce',
                         shadowOffset: { width: 0, height: 4 },
                         shadowOpacity: 0.3,
                         shadowRadius: 8,
@@ -186,28 +186,28 @@ const AnimatedTabBar: React.FC<BottomTabBarProps> = ({
                     {badges[route.name] > 0 && (
                       <View
                         style={{
-                          position: "absolute",
+                          position: 'absolute',
                           top: 5,
                           right: 5,
-                          backgroundColor: "#EF4444",
+                          backgroundColor: '#EF4444',
                           borderRadius: 10,
                           minWidth: 18,
                           height: 18,
-                          alignItems: "center",
-                          justifyContent: "center",
+                          alignItems: 'center',
+                          justifyContent: 'center',
                           paddingHorizontal: 4,
                           borderWidth: 2,
-                          borderColor: "#FFFFFF",
+                          borderColor: '#FFFFFF',
                         }}
                       >
                         <Text
                           style={{
-                            color: "white",
+                            color: 'white',
                             fontSize: 10,
-                            fontWeight: "bold",
+                            fontWeight: 'bold',
                           }}
                         >
-                          {badges[route.name] > 99 ? "99+" : badges[route.name]}
+                          {badges[route.name] > 99 ? '99+' : badges[route.name]}
                         </Text>
                       </View>
                     )}
@@ -224,7 +224,7 @@ const AnimatedTabBar: React.FC<BottomTabBarProps> = ({
                           <View className="absolute -top-1 -right-1 bg-red-500 rounded-full min-w-[16px] h-4 items-center justify-center px-1">
                             <Text className="text-white text-[10px] font-bold">
                               {badges[route.name] > 99
-                                ? "99+"
+                                ? '99+'
                                 : badges[route.name]}
                             </Text>
                           </View>
@@ -253,7 +253,7 @@ const InactiveTabIcon: React.FC<{ name: string }> = ({ name }) => {
   const iconMap: Record<string, React.ComponentType<any>> = {
     index: Home,
     jobs: Briefcase,
-    "create-cv": Book,
+    'create-cv': Book,
     notifications: Bell,
     profile: User,
   };

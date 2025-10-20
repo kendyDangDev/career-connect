@@ -38,6 +38,14 @@ export async function GET(request: NextRequest) {
       search: searchParams.get('search') || undefined,
       jobType: searchParams.get('jobType') || undefined,
       experienceLevel: searchParams.get('experienceLevel') || undefined,
+      salaryMin:
+        searchParams.get('salaryMin') && !isNaN(parseInt(searchParams.get('salaryMin')!))
+          ? parseInt(searchParams.get('salaryMin')!)
+          : undefined,
+      salaryMax:
+        searchParams.get('salaryMax') && !isNaN(parseInt(searchParams.get('salaryMax')!))
+          ? parseInt(searchParams.get('salaryMax')!)
+          : undefined,
       locationCity: searchParams.get('locationCity') || undefined,
       locationProvince: searchParams.get('locationProvince') || undefined,
       categoryId: searchParams.get('categoryId') || undefined,
@@ -49,6 +57,22 @@ export async function GET(request: NextRequest) {
     // Validate pagination params
     if (params.page! < 1) params.page = 1;
     if (params.limit! < 1 || params.limit! > 50) params.limit = 10;
+
+    // Validate salary params
+    if (
+      params.salaryMin !== undefined &&
+      params.salaryMax !== undefined &&
+      params.salaryMin > params.salaryMax
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Invalid salary range',
+          message: 'salaryMin cannot be greater than salaryMax',
+        },
+        { status: 400 }
+      );
+    }
 
     // Get jobs list
     const result = await PublicJobService.list(params);

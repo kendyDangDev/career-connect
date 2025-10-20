@@ -1,7 +1,6 @@
-import { AuthMobileDebug } from "@/components/AuthMobileDebug";
-import { useAuthContext, useSafeAuthContext } from "@/contexts/AuthContext";
-import { Image } from "expo-image";
-import { router } from "expo-router";
+import { useAuthContext, useSafeAuthContext } from '@/contexts/AuthContext';
+import { Image } from 'expo-image';
+import { router } from 'expo-router';
 import {
   Bell,
   Bookmark,
@@ -19,10 +18,10 @@ import {
   NotebookTabs,
   Shield,
   User,
-} from "lucide-react-native";
-import React from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+} from 'lucide-react-native';
+import React from 'react';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type MenuItem = {
   id: string;
@@ -41,11 +40,11 @@ export default function ProfileScreen() {
   console.log({ authContextValue });
   console.log({ authContext });
 
-  console.log("[ProfileScreen] authContext:", authContext);
+  console.log('[ProfileScreen] authContext:', authContext);
 
   // If context is not available, show loading or fallback
   if (!authContext) {
-    console.log("[ProfileScreen] AuthContext is null, showing loading...");
+    console.log('[ProfileScreen] AuthContext is null, showing loading...');
     return (
       <SafeAreaView className="flex-1 bg-gray-50">
         <View className="flex-1 justify-center items-center p-6">
@@ -60,7 +59,7 @@ export default function ProfileScreen() {
           </Text>
           <TouchableOpacity
             className="bg-blue-600 px-6 py-3 rounded-xl"
-            onPress={() => router.push("/(auth)/login")}
+            onPress={() => router.push('/(auth)/login')}
           >
             <Text className="text-white font-semibold text-base">
               Đăng nhập
@@ -74,7 +73,7 @@ export default function ProfileScreen() {
   // Access auth context safely
   const { user, logout, isAuthenticated, isLoading } = authContext;
 
-  console.log("[ProfileScreen] Auth state:", {
+  console.log('[ProfileScreen] Auth state:', {
     user: !!user,
     isAuthenticated,
     isLoading,
@@ -82,7 +81,7 @@ export default function ProfileScreen() {
 
   // Show loading state while checking authentication
   if (isLoading) {
-    console.log("[ProfileScreen] Showing loading state, isLoading:", isLoading);
+    console.log('[ProfileScreen] Showing loading state, isLoading:', isLoading);
     return (
       <SafeAreaView className="flex-1 bg-gray-50">
         <View className="flex-1 justify-center items-center p-6">
@@ -98,7 +97,7 @@ export default function ProfileScreen() {
           <TouchableOpacity
             className="mt-4 bg-gray-200 px-4 py-2 rounded-lg"
             onPress={() => {
-              console.log("[ProfileScreen] Force refresh auth state");
+              console.log('[ProfileScreen] Force refresh auth state');
               authContext?.checkAuthStatus?.();
             }}
           >
@@ -111,92 +110,92 @@ export default function ProfileScreen() {
 
   const profileMenuItems: MenuItem[] = [
     {
-      id: "1",
-      title: "Thông tin cá nhân",
+      id: '1',
+      title: 'Thông tin cá nhân',
       icon: <User size={20} color="#6B7280" />,
       showArrow: true,
       onPress: () => {
-        router.push("/profile-info");
+        router.push('/profile-info');
       },
     },
     {
-      id: "2",
-      title: "CV của tôi",
+      id: '2',
+      title: 'CV của tôi',
       icon: <FileText size={20} color="#6B7280" />,
-      value: "3",
+      value: '3',
       showArrow: true,
       onPress: () => {
-        router.push("/cv-management");
+        router.push('/cv-management');
       },
     },
     {
-      id: "6",
-      title: "Công việc đã xem",
+      id: '6',
+      title: 'Công việc đã xem',
       icon: <NotebookTabs size={20} color="#6B7280" />,
-      value: "12",
+      value: '12',
       showArrow: true,
       onPress: () => {
-        router.push("/job-views");
+        router.push('/job-views');
       },
     },
     {
-      id: "3",
-      title: "Việc làm đã lưu",
+      id: '3',
+      title: 'Việc làm đã lưu',
       icon: <Bookmark size={20} color="#6B7280" />,
-      value: "12",
+      value: '12',
       showArrow: true,
       onPress: () => {
-        router.push("/saved-jobs");
+        router.push('/saved-jobs');
       },
     },
     {
-      id: "4",
-      title: "Công việc đã ứng tuyển",
+      id: '4',
+      title: 'Công việc đã ứng tuyển',
       icon: <Briefcase size={20} color="#6B7280" />,
-      value: "5",
+      value: '5',
       showArrow: true,
       onPress: () => {
-        router.push("/applied-jobs");
+        router.push('/applied-jobs');
       },
     },
     {
-      id: "5",
-      title: "Công ty đang theo dõi",
+      id: '5',
+      title: 'Công ty đang theo dõi',
       icon: <Building2 size={20} color="#6B7280" />,
-      value: "5",
+      value: '5',
       showArrow: true,
       onPress: () => {
-        router.push("/company-followers");
+        router.push('/company-followers');
       },
     },
   ];
 
   const settingsMenuItems: MenuItem[] = [
     {
-      id: "5",
-      title: "Cài đặt thông báo",
+      id: '5',
+      title: 'Cài đặt thông báo',
       icon: <Bell size={20} color="#6B7280" />,
       showArrow: true,
     },
     {
-      id: "6",
-      title: "Đổi mật khẩu",
+      id: '6',
+      title: 'Đổi mật khẩu',
       icon: <Lock size={20} color="#6B7280" />,
       showArrow: true,
       onPress: () => {
-        router.push("/change-password");
+        router.push('/change-password');
       },
     },
     {
-      id: "7",
-      title: "Ngôn ngữ",
+      id: '7',
+      title: 'Ngôn ngữ',
       icon: <Globe size={20} color="#6B7280" />,
-      value: "Tiếng Việt",
+      value: 'Tiếng Việt',
       showArrow: true,
     },
     {
-      id: "8",
-      title: "Chế độ tối",
+      id: '8',
+      title: 'Chế độ tối',
       icon: <Moon size={20} color="#6B7280" />,
       showArrow: false,
     },
@@ -204,26 +203,26 @@ export default function ProfileScreen() {
 
   const supportMenuItems: MenuItem[] = [
     {
-      id: "9",
-      title: "Trung tâm trợ giúp",
+      id: '9',
+      title: 'Trung tâm trợ giúp',
       icon: <HelpCircle size={20} color="#6B7280" />,
       showArrow: true,
     },
     {
-      id: "10",
-      title: "Điều khoản sử dụng",
+      id: '10',
+      title: 'Điều khoản sử dụng',
       icon: <FileText size={20} color="#6B7280" />,
       showArrow: true,
     },
     {
-      id: "11",
-      title: "Chính sách bảo mật",
+      id: '11',
+      title: 'Chính sách bảo mật',
       icon: <Shield size={20} color="#6B7280" />,
       showArrow: true,
     },
     {
-      id: "12",
-      title: "Về chúng tôi",
+      id: '12',
+      title: 'Về chúng tôi',
       icon: <Info size={20} color="#6B7280" />,
       showArrow: true,
     },
@@ -265,7 +264,7 @@ export default function ProfileScreen() {
     if (user?.firstName && user?.lastName) {
       return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
     }
-    return "U";
+    return 'U';
   };
 
   const handleLogout = async () => {
@@ -288,7 +287,7 @@ export default function ProfileScreen() {
           </Text>
           <TouchableOpacity
             className="bg-blue-600 px-8 py-3 rounded-xl"
-            onPress={() => router.push("/(auth)/login")}
+            onPress={() => router.push('/(auth)/login')}
           >
             <Text className="text-white font-semibold text-base">
               Đăng nhập ngay
@@ -318,7 +317,7 @@ export default function ProfileScreen() {
               className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-blue-600 justify-center items-center border-2 border-white"
               activeOpacity={0.8}
               onPress={() => {
-                router.push("/profile-info");
+                router.push('/profile-info');
               }}
             >
               <Edit2 size={14} color="white" />
@@ -411,7 +410,6 @@ export default function ProfileScreen() {
             <Text className="text-sm font-semibold text-gray-600 uppercase tracking-wider px-4 mb-2">
               Debug Authentication (Dev Only)
             </Text>
-            <AuthMobileDebug />
           </View>
         )}
       </ScrollView>

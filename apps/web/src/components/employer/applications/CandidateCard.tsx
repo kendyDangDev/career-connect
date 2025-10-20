@@ -15,7 +15,8 @@ import { ApplicationStatus } from '@/generated/prisma';
 interface CandidateCardProps {
   candidate: {
     id: string;
-    name: string;
+    firstName?: string;
+    lastName?: string;
     email: string;
     phone?: string;
     position: string;
@@ -24,7 +25,7 @@ interface CandidateCardProps {
     appliedDate: string;
     status: ApplicationStatus;
     rating?: number;
-    avatar?: string;
+    avatarUrl?: string;
     skills?: string[];
     notes?: string;
     cvFileUrl?: string;
@@ -73,6 +74,26 @@ export function CandidateCard({
 }: CandidateCardProps) {
   const status = statusConfig[candidate.status];
 
+  // Get full name from firstName and lastName
+  const getFullName = () => {
+    const { firstName, lastName } = candidate;
+    if (firstName && lastName) return `${firstName} ${lastName}`;
+    if (firstName) return firstName;
+    if (lastName) return lastName;
+    return candidate.email.split('@')[0];
+  };
+
+  const fullName = getFullName();
+
+  // Get initials for avatar
+  const getInitials = () => {
+    const { firstName, lastName } = candidate;
+    if (firstName && lastName) return `${firstName[0]}${lastName[0]}`.toUpperCase();
+    if (firstName) return firstName.slice(0, 2).toUpperCase();
+    if (lastName) return lastName.slice(0, 2).toUpperCase();
+    return candidate.email.slice(0, 2).toUpperCase();
+  };
+
   return (
     <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-6 transition-all duration-200 hover:border-purple-200 hover:shadow-md">
       {/* Header */}
@@ -80,19 +101,22 @@ export function CandidateCard({
         <div className="flex min-w-0 flex-1 items-start gap-4">
           {/* Avatar */}
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-purple-600 text-lg font-bold text-white shadow-md">
-            {candidate.avatar ||
-              candidate.name
-                .split(' ')
-                .map((n) => n[0])
-                .join('')
-                .slice(0, 2)}
+            {candidate.avatarUrl ? (
+              <img
+                src={candidate.avatarUrl}
+                alt={fullName}
+                className="h-full w-full rounded-full object-cover"
+              />
+            ) : (
+              getInitials()
+            )}
           </div>
 
           {/* Info */}
           <div className="min-w-0 flex-1">
             <div className="mb-1 flex items-start gap-2">
               <h3 className="text-lg font-semibold text-gray-900 transition-colors group-hover:text-purple-700">
-                {candidate.name}
+                {fullName}
               </h3>
               {candidate.rating && (
                 <div className="flex items-center gap-1">
@@ -119,7 +143,9 @@ export function CandidateCard({
               </div>
               <div className="flex items-center gap-1">
                 <Briefcase className="h-3.5 w-3.5" />
-                {candidate.experience}
+                {candidate?.experience === 'null+ năm'
+                  ? 'Chưa có kinh nghiệm'
+                  : candidate.experience}
               </div>
               <div className="flex items-center gap-1">
                 <Calendar className="h-3.5 w-3.5" />

@@ -2,7 +2,9 @@ import React, { createContext, useContext, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import type { AuthContextType } from '@/types/auth.types';
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
 export const useAuthContext = (): AuthContextType => {
   const context = useContext(AuthContext);
@@ -14,23 +16,16 @@ export const useAuthContext = (): AuthContextType => {
 
 // Safe hook that doesn't throw
 export const useSafeAuthContext = (): AuthContextType | null => {
-  console.log('[useSafeAuthContext] Called from component');
-  
   try {
     const context = useContext(AuthContext);
-    console.log('[useSafeAuthContext] Raw context:', context);
-    
+
     if (!context) {
-      console.warn('[AuthContext] Context not found, returning null. This usually means the component is not wrapped by AuthProvider.');
+      console.warn(
+        '[AuthContext] Context not found, returning null. This usually means the component is not wrapped by AuthProvider.'
+      );
       return null;
     }
-    
-    console.log('[useSafeAuthContext] Context found successfully:', {
-      isAuthenticated: context.isAuthenticated,
-      isLoading: context.isLoading,
-      hasUser: !!context.user
-    });
-    
+
     return context;
   } catch (error) {
     console.error('[AuthContext] Error accessing context:', error);
@@ -44,16 +39,16 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   console.log('[AuthProvider] Rendering with children:', !!children);
-  
+
   const auth = useAuth();
-  
+
   // Add debug logging for initial render
   useEffect(() => {
     console.log('[AuthProvider] Initial mount - Auth state:', {
       isAuthenticated: auth.isAuthenticated,
       isLoading: auth.isLoading,
       hasUser: !!auth.user,
-      error: auth.error
+      error: auth.error,
     });
   }, []);
 
@@ -64,7 +59,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       isLoading: auth.isLoading,
       hasUser: !!auth.user,
       error: auth.error,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }, [auth.isAuthenticated, auth.isLoading, auth.user, auth.error]);
 
@@ -76,9 +71,5 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   console.log('[AuthProvider] Rendering Provider with auth value');
 
-  return (
-    <AuthContext.Provider value={auth}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
 };

@@ -155,6 +155,7 @@ export interface UpdateApplicationData {
   notes?: string;
   rating?: number;
   interviewScheduledAt?: string;
+  notifyCandidate?: boolean;
 }
 
 // Delete Job Response

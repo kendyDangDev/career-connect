@@ -34,8 +34,8 @@ export default function ApplicationsPage() {
   const [selectedCandidate, setSelectedCandidate] = useState<{
     id: string;
     candidateId: string;
-    name: string;
-    avatar?: string;
+    fullName: string;
+    avatarUrl?: string;
   } | null>(null);
 
   // Build API query parameters with debounced search
@@ -96,12 +96,12 @@ export default function ApplicationsPage() {
     setSelectedCandidate({
       id: candidate.id,
       candidateId: candidate.userId, // Use userId for conversation
-      name: candidate.name,
-      avatar: candidate.avatar,
+      fullName: candidate.firstName + ' ' + candidate.lastName,
+      avatarUrl: candidate.avatarUrl,
     });
 
     // Start conversation with userId (not candidateId)
-    await startConversation(candidate.userId, candidate.name);
+    await startConversation(candidate.userId, candidate.firstName + ' ' + candidate.lastName);
 
     // Open modal
     setMessageModalOpen(true);
@@ -298,8 +298,8 @@ export default function ApplicationsPage() {
             setSelectedCandidate(null);
           }}
           candidateId={selectedCandidate.candidateId}
-          candidateName={selectedCandidate.name}
-          candidateAvatar={selectedCandidate.avatar}
+          candidateName={selectedCandidate.fullName}
+          candidateAvatar={selectedCandidate.avatarUrl}
         />
       )}
     </div>

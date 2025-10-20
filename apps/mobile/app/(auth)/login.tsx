@@ -1,5 +1,5 @@
-import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import {
   ArrowRight,
   Briefcase,
@@ -11,8 +11,8 @@ import {
   Mail,
   Phone,
   User,
-} from "lucide-react-native";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+} from 'lucide-react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -23,67 +23,63 @@ import {
   Text,
   TextInput,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Hooks and contexts
-import { useSafeAuthContext } from "@/contexts/AuthContext";
-import { useAlert } from "@/contexts/AlertContext";
-import { authService } from "@/services/authService";
-import type { LoginCredentials, RegisterCredentials } from "@/types/auth.types";
-// import { AuthDebug } from "@/components/AuthDebug";
+import { useSafeAuthContext } from '@/contexts/AuthContext';
+import { useAlert } from '@/contexts/AlertContext';
+import { authService } from '@/services/authService';
+import type { LoginCredentials, RegisterCredentials } from '@/types/auth.types';
 
 export default function LoginScreen() {
   const router = useRouter();
   const alert = useAlert();
-  
+
   // Use safe auth context to prevent crash if not wrapped by AuthProvider
   const authContext = useSafeAuthContext();
-  
-  // Check if authContext is available
-  // useEffect(() => {
-  //   console.log('[LoginScreen] AuthContext status:', {
-  //     available: !!authContext,
-  //     isAuthenticated: authContext?.isAuthenticated,
-  //     isLoading: authContext?.isLoading
-  //   });
-  // }, [authContext]);
-  
+
   // Use auth context login if available
-  const login = useCallback(async (credentials: LoginCredentials) => {
-    if (authContext?.login) {
-      // console.log('[LoginScreen] Using AuthContext login');
-      return await authContext.login(credentials);
-    } else {
-      // console.log('[LoginScreen] AuthContext not available, using authService directly');
-      const response = await authService.login(credentials);
-      if (response.success) {
-        // console.log('[LoginScreen] Login successful via authService, will navigate after state update');
-        // Delay navigation to allow state to update
-        setTimeout(() => {
-          // console.log('[LoginScreen] Navigating to home...');
-          router.replace("/(tabs)/");
-        }, 100);
+  const login = useCallback(
+    async (credentials: LoginCredentials) => {
+      if (authContext?.login) {
+        // console.log('[LoginScreen] Using AuthContext login');
+        return await authContext.login(credentials);
+      } else {
+        // console.log('[LoginScreen] AuthContext not available, using authService directly');
+        const response = await authService.login(credentials);
+        if (response.success) {
+          // console.log('[LoginScreen] Login successful via authService, will navigate after state update');
+          // Delay navigation to allow state to update
+          setTimeout(() => {
+            // console.log('[LoginScreen] Navigating to home...');
+            router.replace('/(tabs)/');
+          }, 100);
+        }
+        return response;
       }
-      return response;
-    }
-  }, [authContext?.login, router]);
-  
-  const register = useCallback(async (credentials: RegisterCredentials) => {
-    if (authContext?.register) {
-      return await authContext.register(credentials);
-    } else {
-      // console.log('[LoginScreen] AuthContext not available for register, using authService directly');
-      return await authService.register(credentials);
-    }
-  }, [authContext?.register]);
-  
+    },
+    [authContext?.login, router]
+  );
+
+  const register = useCallback(
+    async (credentials: RegisterCredentials) => {
+      if (authContext?.register) {
+        return await authContext.register(credentials);
+      } else {
+        // console.log('[LoginScreen] AuthContext not available for register, using authService directly');
+        return await authService.register(credentials);
+      }
+    },
+    [authContext?.register]
+  );
+
   const clearError = useCallback(() => {
     if (authContext?.clearError) {
       authContext.clearError();
     }
   }, [authContext?.clearError]);
-  
+
   const isLoading = authContext?.isLoading ?? false;
   const error = authContext?.error ?? null;
 
@@ -91,18 +87,18 @@ export default function LoginScreen() {
 
   // State management (must come after all hooks)
   const [formData, setFormData] = useState<LoginCredentials>({
-    email: "candidate@gmail.com",  // Default test credentials
-    password: "SecurePassword123!",
+    email: 'candidate@gmail.com', // Default test credentials
+    password: 'SecurePassword123!',
   });
 
   // Check if we're coming from register route
   const [isSignUp, setIsSignUp] = useState(false);
   const [signupData, setSignupData] = useState<RegisterCredentials>({
-    email: "",
-    password: "",
-    confirmPassword: "",
-    firstName: "",
-    lastName: "",
+    email: '',
+    password: '',
+    confirmPassword: '',
+    firstName: '',
+    lastName: '',
     acceptTerms: false,
     acceptPrivacy: false,
   });
@@ -141,7 +137,7 @@ export default function LoginScreen() {
   // Show error alert when there's an error
   useEffect(() => {
     if (error) {
-      alert.error("Lỗi", error, () => clearError());
+      alert.error('Lỗi', error, () => clearError());
     }
   }, [error, clearError, alert]);
 
@@ -155,7 +151,7 @@ export default function LoginScreen() {
 
   const validatePhone = useCallback((phone: string): boolean => {
     const phoneRegex = /^0[0-9]{9}$/;
-    return phone === "" || phoneRegex.test(phone);
+    return phone === '' || phoneRegex.test(phone);
   }, []);
 
   const validatePassword = useCallback((password: string): boolean => {
@@ -163,18 +159,18 @@ export default function LoginScreen() {
   }, []);
 
   const getPasswordStrengthText = useCallback(() => {
-    if (passwordStrength === 0) return "";
-    if (passwordStrength <= 2) return "Yếu";
-    if (passwordStrength <= 3) return "Trung bình";
-    if (passwordStrength <= 4) return "Mạnh";
-    return "Rất mạnh";
+    if (passwordStrength === 0) return '';
+    if (passwordStrength <= 2) return 'Yếu';
+    if (passwordStrength <= 3) return 'Trung bình';
+    if (passwordStrength <= 4) return 'Mạnh';
+    return 'Rất mạnh';
   }, [passwordStrength]);
 
   const getPasswordStrengthColor = useCallback(() => {
-    if (passwordStrength <= 2) return "bg-red-500";
-    if (passwordStrength <= 3) return "bg-yellow-500";
-    if (passwordStrength <= 4) return "bg-blue-500";
-    return "bg-green-500";
+    if (passwordStrength <= 2) return 'bg-red-500';
+    if (passwordStrength <= 3) return 'bg-yellow-500';
+    if (passwordStrength <= 4) return 'bg-blue-500';
+    return 'bg-green-500';
   }, [passwordStrength]);
 
   const validateForm = useCallback((): boolean => {
@@ -183,52 +179,52 @@ export default function LoginScreen() {
     if (isSignUp) {
       // Signup validation
       if (!signupData.email) {
-        errors.email = "Email không được để trống";
+        errors.email = 'Email không được để trống';
       } else if (!validateEmail(signupData.email)) {
-        errors.email = "Email không hợp lệ";
+        errors.email = 'Email không hợp lệ';
       }
 
       if (!signupData.password) {
-        errors.password = "Mật khẩu không được để trống";
+        errors.password = 'Mật khẩu không được để trống';
       } else if (!validatePassword(signupData.password)) {
-        errors.password = "Mật khẩu phải có ít nhất 8 ký tự";
+        errors.password = 'Mật khẩu phải có ít nhất 8 ký tự';
       }
 
       if (!signupData.confirmPassword) {
-        errors.confirmPassword = "Vui lòng xác nhận mật khẩu";
+        errors.confirmPassword = 'Vui lòng xác nhận mật khẩu';
       } else if (signupData.password !== signupData.confirmPassword) {
-        errors.confirmPassword = "Mật khẩu xác nhận không khớp";
+        errors.confirmPassword = 'Mật khẩu xác nhận không khớp';
       }
 
       if (!signupData.firstName) {
-        errors.firstName = "Họ không được để trống";
+        errors.firstName = 'Họ không được để trống';
       }
       if (!signupData.lastName) {
-        errors.lastName = "Tên không được để trống";
+        errors.lastName = 'Tên không được để trống';
       }
 
       if (signupData.phone && !validatePhone(signupData.phone)) {
-        errors.phone = "Số điện thoại không hợp lệ";
+        errors.phone = 'Số điện thoại không hợp lệ';
       }
 
       if (!signupData.acceptTerms) {
-        errors.acceptTerms = "Bạn phải đồng ý với điều khoản sử dụng";
+        errors.acceptTerms = 'Bạn phải đồng ý với điều khoản sử dụng';
       }
       if (!signupData.acceptPrivacy) {
-        errors.acceptPrivacy = "Bạn phải đồng ý với chính sách bảo mật";
+        errors.acceptPrivacy = 'Bạn phải đồng ý với chính sách bảo mật';
       }
     } else {
       // Login validation
       if (!formData.email) {
-        errors.email = "Email không được để trống";
+        errors.email = 'Email không được để trống';
       } else if (!validateEmail(formData.email)) {
-        errors.email = "Email không hợp lệ";
+        errors.email = 'Email không hợp lệ';
       }
 
       if (!formData.password) {
-        errors.password = "Mật khẩu không được để trống";
+        errors.password = 'Mật khẩu không được để trống';
       } else if (formData.password.length < 6) {
-        errors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+        errors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
       }
     }
 
@@ -253,63 +249,72 @@ export default function LoginScreen() {
         // console.log(signupData);
         const response = await register(signupData);
         if (response?.success) {
-          console.log("Đăng ký thành công");
+          console.log('Đăng ký thành công');
           alert.success(
-            "Đăng ký thành công!",
-            "Vui lòng kiểm tra email để xác thực tài khoản.",
+            'Đăng ký thành công!',
+            'Vui lòng kiểm tra email để xác thực tài khoản.',
             () => {
               // Navigate to verify email screen with the email
               router.push({
-                pathname: "/(auth)/verify-email",
+                pathname: '/(auth)/verify-email',
                 params: { email: signupData.email },
               });
             }
           );
         } else {
           // Handle registration error
-          alert.error("Lỗi", response?.message || "Đăng ký thất bại");
+          alert.error('Lỗi', response?.message || 'Đăng ký thất bại');
         }
       } catch (err) {
         // console.error("Registration error:", err);
-        alert.error("Lỗi", "Đã xảy ra lỗi khi đăng ký");
+        alert.error('Lỗi', 'Đã xảy ra lỗi khi đăng ký');
       }
     } else {
       try {
         // console.log('[LoginScreen] Submitting login form...');
         const response = await login(formData);
-        
+
         if (!response.success) {
           // Handle login error
           // console.log('[LoginScreen] Login failed:', response.error);
-          alert.error("Lỗi", response.error || "Đăng nhập thất bại");
+          alert.error('Lỗi', response.error || 'Đăng nhập thất bại');
         } else {
           // console.log('[LoginScreen] Login successful!');
           // Navigate after successful login
           setTimeout(() => {
             // console.log('[LoginScreen] Navigating to home tabs...');
-            router.replace("/(tabs)/");
+            router.replace('/(tabs)/');
           }, 100);
         }
       } catch (err) {
         // console.error("Login error:", err);
-        alert.error("Lỗi", "Đã xảy ra lỗi khi đăng nhập");
+        alert.error('Lỗi', 'Đã xảy ra lỗi khi đăng nhập');
       }
     }
-  }, [validateForm, isSignUp, signupData, formData, register, login, router, alert]);
+  }, [
+    validateForm,
+    isSignUp,
+    signupData,
+    formData,
+    register,
+    login,
+    router,
+    alert,
+  ]);
 
   const handleInputChange = useCallback(
     (field: keyof LoginCredentials | keyof RegisterCredentials, value: any) => {
       if (isSignUp) {
-        setSignupData((prev) => ({ ...prev, [field]: value }));
+        setSignupData(prev => ({ ...prev, [field]: value }));
       } else {
-        if (field === "email" || field === "password") {
-          setFormData((prev) => ({ ...prev, [field]: value }));
+        if (field === 'email' || field === 'password') {
+          setFormData(prev => ({ ...prev, [field]: value }));
         }
       }
 
       // Clear validation error when user starts typing
       if (validationErrors[field as keyof typeof validationErrors]) {
-        setValidationErrors((prev) => ({ ...prev, [field]: "" }));
+        setValidationErrors(prev => ({ ...prev, [field]: '' }));
       }
       // Clear auth error when user starts typing
       if (error) {
@@ -328,24 +333,23 @@ export default function LoginScreen() {
       // Reset forms
       if (isSignUpMode) {
         setSignupData({
-          email: "",
-          password: "",
-          confirmPassword: "",
-          firstName: "",
-          lastName: "",
+          email: '',
+          password: '',
+          confirmPassword: '',
+          firstName: '',
+          lastName: '',
           acceptTerms: false,
           acceptPrivacy: false,
         });
       } else {
         setFormData({
-          email: "",
-          password: "",
+          email: '',
+          password: '',
         });
       }
     },
     [clearError]
   );
-
 
   // Custom Checkbox Component
   const Checkbox = ({ checked, onChange, children }: any) => (
@@ -354,7 +358,7 @@ export default function LoginScreen() {
       className="flex-row items-center"
     >
       <View
-        className={`w-5 h-5 mr-2 rounded border-2 ${checked ? "bg-blue-600 border-blue-600" : "border-gray-300"}`}
+        className={`w-5 h-5 mr-2 rounded border-2 ${checked ? 'bg-blue-600 border-blue-600' : 'border-gray-300'}`}
       >
         {checked && <Check size={14} color="white" />}
       </View>
@@ -362,16 +366,11 @@ export default function LoginScreen() {
     </Pressable>
   );
 
-  // Debug: Show warning if auth context is still not available (should not happen now)
-  // if (!authContext) {
-  //   console.warn('[LoginScreen] AuthContext is still null even after adding AuthProvider to auth layout');
-  // }
-
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* <AuthDebug location="LoginScreen" /> */}
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
       >
         <ScrollView
@@ -380,7 +379,7 @@ export default function LoginScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <LinearGradient
-            colors={["#EBF5FF", "#F5F3FF", "#FFF0F7"]}
+            colors={['#EBF5FF', '#F5F3FF', '#FFF0F7']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={{ flex: 1 }}
@@ -410,12 +409,12 @@ export default function LoginScreen() {
                   >
                     <View
                       className={`py-3 px-4 rounded-xl ${
-                        !isSignUp ? "bg-white shadow-sm" : ""
+                        !isSignUp ? 'bg-white shadow-sm' : ''
                       }`}
                     >
                       <Text
                         className={`text-center font-semibold ${
-                          !isSignUp ? "text-blue-600" : "text-gray-600"
+                          !isSignUp ? 'text-blue-600' : 'text-gray-600'
                         }`}
                       >
                         Đăng nhập
@@ -428,12 +427,12 @@ export default function LoginScreen() {
                   >
                     <View
                       className={`py-3 px-4 rounded-xl ${
-                        isSignUp ? "bg-white shadow-sm" : ""
+                        isSignUp ? 'bg-white shadow-sm' : ''
                       }`}
                     >
                       <Text
                         className={`text-center font-semibold ${
-                          isSignUp ? "text-blue-600" : "text-gray-600"
+                          isSignUp ? 'text-blue-600' : 'text-gray-600'
                         }`}
                       >
                         Đăng ký
@@ -449,12 +448,12 @@ export default function LoginScreen() {
                   {/* Welcome Text */}
                   <View className="mb-6">
                     <Text className="text-2xl font-bold text-gray-800">
-                      {isSignUp ? "Tạo tài khoản mới" : "Chào mừng trở lại!"}
+                      {isSignUp ? 'Tạo tài khoản mới' : 'Chào mừng trở lại!'}
                     </Text>
                     <Text className="text-gray-600 mt-1">
                       {isSignUp
-                        ? "Tham gia cùng hàng ngàn người tìm việc khác"
-                        : "Đăng nhập để tiếp tục hành trình tìm việc"}
+                        ? 'Tham gia cùng hàng ngàn người tìm việc khác'
+                        : 'Đăng nhập để tiếp tục hành trình tìm việc'}
                     </Text>
                   </View>
 
@@ -472,8 +471,8 @@ export default function LoginScreen() {
                               className="flex-1 ml-2 text-base"
                               placeholder="Nguyễn"
                               value={signupData.firstName}
-                              onChangeText={(text) =>
-                                handleInputChange("firstName", text)
+                              onChangeText={text =>
+                                handleInputChange('firstName', text)
                               }
                             />
                           </View>
@@ -494,8 +493,8 @@ export default function LoginScreen() {
                               className="flex-1 ml-2 text-base"
                               placeholder="Văn A"
                               value={signupData.lastName}
-                              onChangeText={(text) =>
-                                handleInputChange("lastName", text)
+                              onChangeText={text =>
+                                handleInputChange('lastName', text)
                               }
                             />
                           </View>
@@ -512,20 +511,18 @@ export default function LoginScreen() {
                   {/* Email field */}
                   <View className="mb-4">
                     <Text className="text-gray-700 mb-2 font-medium">
-                      Email{" "}
+                      Email{' '}
                       {isSignUp && <Text className="text-red-500">*</Text>}
                     </Text>
                     <View
-                      className={`flex-row items-center border ${validationErrors.email ? "border-red-500" : "border-gray-300"} rounded-xl px-3 py-3`}
+                      className={`flex-row items-center border ${validationErrors.email ? 'border-red-500' : 'border-gray-300'} rounded-xl px-3 py-3`}
                     >
                       <Mail size={20} color="#9CA3AF" />
                       <TextInput
                         className="flex-1 ml-2 text-base"
                         placeholder="your.email@example.com"
                         value={isSignUp ? signupData.email : formData.email}
-                        onChangeText={(text) =>
-                          handleInputChange("email", text)
-                        }
+                        onChangeText={text => handleInputChange('email', text)}
                         keyboardType="email-address"
                         autoCapitalize="none"
                       />
@@ -542,7 +539,7 @@ export default function LoginScreen() {
                     <View>
                       <View className="mb-4">
                         <Text className="text-gray-700 mb-2 font-medium">
-                          Số điện thoại{" "}
+                          Số điện thoại{' '}
                           <Text className="text-gray-400 text-xs">
                             (Tùy chọn)
                           </Text>
@@ -553,8 +550,8 @@ export default function LoginScreen() {
                             className="flex-1 ml-2 text-base"
                             placeholder="0901234567"
                             value={signupData.phone}
-                            onChangeText={(text) =>
-                              handleInputChange("phone", text)
+                            onChangeText={text =>
+                              handleInputChange('phone', text)
                             }
                             keyboardType="phone-pad"
                           />
@@ -571,25 +568,25 @@ export default function LoginScreen() {
                   {/* Password field */}
                   <View className="mb-4">
                     <Text className="text-gray-700 mb-2 font-medium">
-                      Mật khẩu{" "}
+                      Mật khẩu{' '}
                       {isSignUp && <Text className="text-red-500">*</Text>}
                     </Text>
                     <View
-                      className={`flex-row items-center border ${validationErrors.password ? "border-red-500" : "border-gray-300"} rounded-xl px-3 py-3`}
+                      className={`flex-row items-center border ${validationErrors.password ? 'border-red-500' : 'border-gray-300'} rounded-xl px-3 py-3`}
                     >
                       <Lock size={20} color="#9CA3AF" />
                       <TextInput
                         className="flex-1 ml-2 text-base"
                         placeholder={
                           isSignUp
-                            ? "Nhập mật khẩu mạnh"
-                            : "Nhập mật khẩu của bạn"
+                            ? 'Nhập mật khẩu mạnh'
+                            : 'Nhập mật khẩu của bạn'
                         }
                         value={
                           isSignUp ? signupData.password : formData.password
                         }
-                        onChangeText={(text) =>
-                          handleInputChange("password", text)
+                        onChangeText={text =>
+                          handleInputChange('password', text)
                         }
                         secureTextEntry={!showPassword}
                       />
@@ -618,23 +615,23 @@ export default function LoginScreen() {
                             <View
                               className={`px-2 py-1 rounded ${
                                 passwordStrength <= 2
-                                  ? "bg-red-100"
+                                  ? 'bg-red-100'
                                   : passwordStrength <= 3
-                                    ? "bg-yellow-100"
+                                    ? 'bg-yellow-100'
                                     : passwordStrength <= 4
-                                      ? "bg-blue-100"
-                                      : "bg-green-100"
+                                      ? 'bg-blue-100'
+                                      : 'bg-green-100'
                               }`}
                             >
                               <Text
                                 className={`text-xs font-medium ${
                                   passwordStrength <= 2
-                                    ? "text-red-600"
+                                    ? 'text-red-600'
                                     : passwordStrength <= 3
-                                      ? "text-yellow-600"
+                                      ? 'text-yellow-600'
                                       : passwordStrength <= 4
-                                        ? "text-blue-600"
-                                        : "text-green-600"
+                                        ? 'text-blue-600'
+                                        : 'text-green-600'
                                 }`}
                               >
                                 {getPasswordStrengthText()}
@@ -657,19 +654,19 @@ export default function LoginScreen() {
                     <View>
                       <View className="mb-4">
                         <Text className="text-gray-700 mb-2 font-medium">
-                          Xác nhận mật khẩu{" "}
+                          Xác nhận mật khẩu{' '}
                           <Text className="text-red-500">*</Text>
                         </Text>
                         <View
-                          className={`flex-row items-center border ${validationErrors.confirmPassword ? "border-red-500" : "border-gray-300"} rounded-xl px-3 py-3`}
+                          className={`flex-row items-center border ${validationErrors.confirmPassword ? 'border-red-500' : 'border-gray-300'} rounded-xl px-3 py-3`}
                         >
                           <Lock size={20} color="#9CA3AF" />
                           <TextInput
                             className="flex-1 ml-2 text-base"
                             placeholder="Nhập lại mật khẩu"
                             value={signupData.confirmPassword}
-                            onChangeText={(text) =>
-                              handleInputChange("confirmPassword", text)
+                            onChangeText={text =>
+                              handleInputChange('confirmPassword', text)
                             }
                             secureTextEntry={!showConfirmPassword}
                           />
@@ -713,20 +710,22 @@ export default function LoginScreen() {
                         <Checkbox
                           checked={signupData.acceptTerms}
                           onChange={(checked: boolean) =>
-                            handleInputChange("acceptTerms", checked)
+                            handleInputChange('acceptTerms', checked)
                           }
                         >
                           <View className="flex-row items-center flex-1">
                             <Text className="text-gray-600">
-                              Tôi đồng ý với{" "}
+                              Tôi đồng ý với{' '}
                             </Text>
-                          <Pressable
-                            onPress={() => {/* Open terms */}}
-                          >
-                            <Text className="text-blue-600 font-medium">
-                              Điều khoản sử dụng
-                            </Text>
-                          </Pressable>
+                            <Pressable
+                              onPress={() => {
+                                /* Open terms */
+                              }}
+                            >
+                              <Text className="text-blue-600 font-medium">
+                                Điều khoản sử dụng
+                              </Text>
+                            </Pressable>
                             <Text className="text-red-500"> *</Text>
                           </View>
                         </Checkbox>
@@ -740,20 +739,22 @@ export default function LoginScreen() {
                           <Checkbox
                             checked={signupData.acceptPrivacy}
                             onChange={(checked: boolean) =>
-                              handleInputChange("acceptPrivacy", checked)
+                              handleInputChange('acceptPrivacy', checked)
                             }
                           >
                             <View className="flex-row items-center flex-1">
                               <Text className="text-gray-600">
-                                Tôi đã đọc và đồng ý với{" "}
+                                Tôi đã đọc và đồng ý với{' '}
                               </Text>
-                            <Pressable
-                              onPress={() => {/* Open privacy */}}
-                            >
-                              <Text className="text-blue-600 font-medium">
-                                Chính sách bảo mật
-                              </Text>
-                            </Pressable>
+                              <Pressable
+                                onPress={() => {
+                                  /* Open privacy */
+                                }}
+                              >
+                                <Text className="text-blue-600 font-medium">
+                                  Chính sách bảo mật
+                                </Text>
+                              </Pressable>
                               <Text className="text-red-500"> *</Text>
                             </View>
                           </Checkbox>
@@ -788,7 +789,7 @@ export default function LoginScreen() {
                     onPress={handleSubmit}
                     disabled={isLoading}
                     className={`${
-                      isLoading ? "bg-blue-400" : "bg-blue-600"
+                      isLoading ? 'bg-blue-400' : 'bg-blue-600'
                     } py-4 rounded-xl flex-row items-center justify-center`}
                   >
                     {isLoading ? (
@@ -796,7 +797,7 @@ export default function LoginScreen() {
                     ) : (
                       <View className="flex-row items-center">
                         <Text className="text-white font-semibold text-base mr-2">
-                          {isSignUp ? "Đăng ký" : "Đăng nhập"}
+                          {isSignUp ? 'Đăng ký' : 'Đăng nhập'}
                         </Text>
                         <ArrowRight size={20} color="white" />
                       </View>
@@ -814,22 +815,26 @@ export default function LoginScreen() {
 
                   {/* Social login buttons */}
                   <View className="flex-row gap-3">
-                  <Pressable
-                    className="flex-1 border border-gray-300 py-3 rounded-xl flex-row items-center justify-center"
-                    onPress={() => {/* Google login */}}
-                  >
+                    <Pressable
+                      className="flex-1 border border-gray-300 py-3 rounded-xl flex-row items-center justify-center"
+                      onPress={() => {
+                        /* Google login */
+                      }}
+                    >
                       <Image
-                        source={require("@/assets/images/icons8-google-72.png")}
+                        source={require('@/assets/images/icons8-google-72.png')}
                         style={{ width: 20, height: 20, marginRight: 8 }}
                       />
                       <Text className="text-gray-700 font-medium">Google</Text>
                     </Pressable>
-                  <Pressable
-                    className="flex-1 border border-gray-300 py-3 rounded-xl flex-row items-center justify-center"
-                    onPress={() => {/* Facebook login */}}
-                  >
+                    <Pressable
+                      className="flex-1 border border-gray-300 py-3 rounded-xl flex-row items-center justify-center"
+                      onPress={() => {
+                        /* Facebook login */
+                      }}
+                    >
                       <Image
-                        source={require("@/assets/images/facebook.png")}
+                        source={require('@/assets/images/facebook.png')}
                         style={{ width: 20, height: 20, marginRight: 8 }}
                       />
                       <Text className="text-gray-700 font-medium">

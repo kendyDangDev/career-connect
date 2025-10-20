@@ -129,10 +129,11 @@ export const GET = withCompanyAuth(async (request: CompanyAuthenticatedRequest) 
       candidateId: app.candidateId,
       userId: app.candidate.userId, // User ID for conversations
       jobId: app.jobId,
-      name: `${app.candidate.user.firstName || ''} ${app.candidate.user.lastName || ''}`.trim(),
+      firstName: app.candidate.user.firstName || '',
+      lastName: app.candidate.user.lastName || '',
       email: app.candidate.user.email,
       phone: app.candidate.user.phone,
-      avatar: app.candidate.user.avatarUrl,
+      avatarUrl: app.candidate.user.avatarUrl,
       position: app.job.title,
       location:
         [app.job.locationCity, app.job.locationProvince].filter(Boolean).join(', ') ||

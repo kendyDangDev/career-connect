@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,9 +10,9 @@ import {
   Modal,
   ScrollView,
   Alert,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import {
   Search,
   Filter,
@@ -27,16 +27,16 @@ import {
   XCircle,
   Star,
   ArrowLeft,
-} from "lucide-react-native";
-import { useAuthContext } from "@/contexts/AuthContext";
-import { useAlert } from "@/contexts/AlertContext";
-import applicationService from "@/services/applicationService";
-import ApplicationCard from "./ApplicationCard";
+} from 'lucide-react-native';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { useAlert } from '@/contexts/AlertContext';
+import applicationService from '@/services/applicationService';
+import ApplicationCard from './ApplicationCard';
 import {
   Application,
   ApplicationStatus,
   ApplicationsFilters,
-} from "@/types/application.types";
+} from '@/types/application.types';
 
 const ApplicationsScreen: React.FC = () => {
   const router = useRouter();
@@ -54,7 +54,7 @@ const ApplicationsScreen: React.FC = () => {
     logout = authContext.logout;
   } catch (error) {
     console.log(
-      "[ApplicationsScreen] AuthContext not available, using defaults"
+      '[ApplicationsScreen] AuthContext not available, using defaults'
     );
   }
 
@@ -63,7 +63,7 @@ const ApplicationsScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -78,10 +78,10 @@ const ApplicationsScreen: React.FC = () => {
   // Filters
   const [selectedStatus, setSelectedStatus] = useState<ApplicationStatus[]>([]);
   const [selectedSort, setSelectedSort] = useState<
-    "appliedAt" | "statusUpdatedAt" | "rating"
-  >("appliedAt");
-  const [selectedSortOrder, setSelectedSortOrder] = useState<"asc" | "desc">(
-    "desc"
+    'appliedAt' | 'statusUpdatedAt' | 'rating'
+  >('appliedAt');
+  const [selectedSortOrder, setSelectedSortOrder] = useState<'asc' | 'desc'>(
+    'desc'
   );
 
   // Statistics
@@ -94,59 +94,59 @@ const ApplicationsScreen: React.FC = () => {
   const statusOptions = [
     {
       value: ApplicationStatus.APPLIED,
-      label: "Đã nộp",
+      label: 'Đã nộp',
       icon: FileText,
-      color: "#2563eb",
+      color: '#2563eb',
     },
     {
       value: ApplicationStatus.SCREENING,
-      label: "Đang xét duyệt",
+      label: 'Đang xét duyệt',
       icon: Eye,
-      color: "#ca8a04",
+      color: '#ca8a04',
     },
     {
       value: ApplicationStatus.INTERVIEWING,
-      label: "Phỏng vấn",
+      label: 'Phỏng vấn',
       icon: Calendar,
-      color: "#7c3aed",
+      color: '#7c3aed',
     },
     {
       value: ApplicationStatus.OFFERED,
-      label: "Đã nhận offer",
+      label: 'Đã nhận offer',
       icon: CheckCircle,
-      color: "#16a34a",
+      color: '#16a34a',
     },
     {
       value: ApplicationStatus.HIRED,
-      label: "Đã tuyển",
+      label: 'Đã tuyển',
       icon: Star,
-      color: "#10b981",
+      color: '#10b981',
     },
     {
       value: ApplicationStatus.REJECTED,
-      label: "Từ chối",
+      label: 'Từ chối',
       icon: XCircle,
-      color: "#dc2626",
+      color: '#dc2626',
     },
     {
       value: ApplicationStatus.WITHDRAWN,
-      label: "Đã rút",
+      label: 'Đã rút',
       icon: AlertCircle,
-      color: "#6b7280",
+      color: '#6b7280',
     },
   ];
 
   const sortOptions = [
-    { value: "appliedAt", label: "Ngày nộp" },
-    { value: "statusUpdatedAt", label: "Cập nhật gần nhất" },
-    { value: "rating", label: "Đánh giá" },
+    { value: 'appliedAt', label: 'Ngày nộp' },
+    { value: 'statusUpdatedAt', label: 'Cập nhật gần nhất' },
+    { value: 'rating', label: 'Đánh giá' },
   ];
 
   // Load applications
   const loadApplications = useCallback(
     async (page: number = 1, append: boolean = false) => {
       if (!isAuthenticated) {
-        setError("Vui lòng đăng nhập để xem đơn ứng tuyển");
+        setError('Vui lòng đăng nhập để xem đơn ứng tuyển');
         setLoading(false);
         return;
       }
@@ -165,7 +165,7 @@ const ApplicationsScreen: React.FC = () => {
 
         if (response.success) {
           if (append) {
-            setApplications((prev) => [...prev, ...response.data.applications]);
+            setApplications(prev => [...prev, ...response.data.applications]);
           } else {
             setApplications(response.data.applications);
           }
@@ -177,18 +177,18 @@ const ApplicationsScreen: React.FC = () => {
           setError(null);
         }
       } catch (err: any) {
-        console.error("Error loading applications:", err);
+        console.error('Error loading applications:', err);
 
         // Check if token expired
-        if (err.message && err.message.includes("Phiên đăng nhập đã hết hạn")) {
+        if (err.message && err.message.includes('Phiên đăng nhập đã hết hạn')) {
           setError(err.message);
           // Auto logout after 2 seconds
           setTimeout(() => {
             if (logout) logout();
-            router.replace("/(auth)/login");
+            router.replace('/(auth)/login');
           }, 2000);
         } else {
-          setError(err.message || "Không thể tải danh sách đơn ứng tuyển");
+          setError(err.message || 'Không thể tải danh sách đơn ứng tuyển');
         }
       } finally {
         setLoading(false);
@@ -217,7 +217,7 @@ const ApplicationsScreen: React.FC = () => {
         setStats(response.data.byStatus);
       }
     } catch (err) {
-      console.error("Error loading stats:", err);
+      console.error('Error loading stats:', err);
       // Don't show error for stats, just log it
     } finally {
       setStatsLoading(false);
@@ -273,13 +273,13 @@ const ApplicationsScreen: React.FC = () => {
   // Handle withdraw application
   const handleWithdraw = async (applicationId: string) => {
     Alert.alert(
-      "Xác nhận rút hồ sơ",
-      "Bạn có chắc chắn muốn rút hồ sơ ứng tuyển này?",
+      'Xác nhận rút hồ sơ',
+      'Bạn có chắc chắn muốn rút hồ sơ ứng tuyển này?',
       [
-        { text: "Hủy", style: "cancel" },
+        { text: 'Hủy', style: 'cancel' },
         {
-          text: "Rút hồ sơ",
-          style: "destructive",
+          text: 'Rút hồ sơ',
+          style: 'destructive',
           onPress: async () => {
             try {
               const response =
@@ -288,11 +288,11 @@ const ApplicationsScreen: React.FC = () => {
                 // Reload the applications list to get updated data
                 await loadApplications(1);
                 await loadStats();
-                alert.success("Thành công", "Đã rút hồ sơ ứng tuyển");
+                alert.success('Thành công', 'Đã rút hồ sơ ứng tuyển');
               }
             } catch (err) {
-              console.error("Error withdrawing application:", err);
-              alert.error("Lỗi", "Không thể rút hồ sơ. Vui lòng thử lại.");
+              console.error('Error withdrawing application:', err);
+              alert.error('Lỗi', 'Không thể rút hồ sơ. Vui lòng thử lại.');
             }
           },
         },
@@ -320,15 +320,15 @@ const ApplicationsScreen: React.FC = () => {
   // Reset filters
   const resetFilters = () => {
     setSelectedStatus([]);
-    setSelectedSort("appliedAt");
-    setSelectedSortOrder("desc");
-    setSearchQuery("");
+    setSelectedSort('appliedAt');
+    setSelectedSortOrder('desc');
+    setSearchQuery('');
   };
 
   // Toggle status selection
   const toggleStatusSelection = (status: ApplicationStatus) => {
     if (selectedStatus.includes(status)) {
-      setSelectedStatus(selectedStatus.filter((s) => s !== status));
+      setSelectedStatus(selectedStatus.filter(s => s !== status));
     } else {
       setSelectedStatus([...selectedStatus, status]);
     }
@@ -345,8 +345,8 @@ const ApplicationsScreen: React.FC = () => {
         Bắt đầu ứng tuyển công việc phù hợp với bạn
       </Text>
       <TouchableOpacity
-        onPress={() => router.push("/(tabs)/")}
-        className="mt-6 bg-blue-600 px-6 py-3 rounded-lg"
+        onPress={() => router.push('/(tabs)/')}
+        className="mt-6 bg-purple-600 px-6 py-3 rounded-lg"
       >
         <Text className="text-white font-medium">Khám phá công việc</Text>
       </TouchableOpacity>
@@ -363,15 +363,15 @@ const ApplicationsScreen: React.FC = () => {
       <Text className="text-sm text-gray-500 text-center mt-2">{error}</Text>
       {!isAuthenticated ? (
         <TouchableOpacity
-          onPress={() => router.push("/(auth)/login")}
-          className="mt-6 bg-blue-600 px-6 py-3 rounded-lg"
+          onPress={() => router.push('/(auth)/login')}
+          className="mt-6 bg-purple-600 px-6 py-3 rounded-lg"
         >
           <Text className="text-white font-medium">Đăng nhập</Text>
         </TouchableOpacity>
       ) : (
         <TouchableOpacity
           onPress={() => loadApplications(1)}
-          className="mt-6 bg-blue-600 px-6 py-3 rounded-lg"
+          className="mt-6 bg-purple-600 px-6 py-3 rounded-lg"
         >
           <Text className="text-white font-medium">Thử lại</Text>
         </TouchableOpacity>
@@ -420,7 +420,7 @@ const ApplicationsScreen: React.FC = () => {
             <Filter size={16} color="#6b7280" />
             <Text className="text-gray-700 text-sm font-medium ml-1">Lọc</Text>
             {(selectedStatus.length > 0 || searchQuery) && (
-              <View className="bg-blue-600 w-2 h-2 rounded-full ml-2" />
+              <View className="bg-purple-600 w-2 h-2 rounded-full ml-2" />
             )}
           </TouchableOpacity>
         </View>
@@ -436,7 +436,7 @@ const ApplicationsScreen: React.FC = () => {
             placeholderTextColor="#9ca3af"
           />
           {searchQuery ? (
-            <TouchableOpacity onPress={() => setSearchQuery("")}>
+            <TouchableOpacity onPress={() => setSearchQuery('')}>
               <X size={20} color="#6b7280" />
             </TouchableOpacity>
           ) : null}
@@ -450,7 +450,7 @@ const ApplicationsScreen: React.FC = () => {
             className="mt-3"
           >
             <View className="flex-row space-x-3">
-              {[1, 2, 3, 4].map((i) => (
+              {[1, 2, 3, 4].map(i => (
                 <View
                   key={i}
                   className="bg-gray-100 px-4 py-2 rounded-lg w-24 h-8 animate-pulse"
@@ -465,7 +465,7 @@ const ApplicationsScreen: React.FC = () => {
             className="mt-3"
           >
             <View className="flex-row space-x-3">
-              {statusOptions.map((option) => {
+              {statusOptions.map(option => {
                 const count = stats[option.value] || 0;
                 const Icon = option.icon;
                 return (
@@ -497,7 +497,7 @@ const ApplicationsScreen: React.FC = () => {
       {/* Applications List */}
       <FlatList
         data={applications}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <ApplicationCard
             application={item}
@@ -516,7 +516,7 @@ const ApplicationsScreen: React.FC = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={handleRefresh}
-            colors={["#2563eb"]}
+            colors={['#2563eb']}
           />
         }
         onEndReached={handleLoadMore}
@@ -564,7 +564,7 @@ const ApplicationsScreen: React.FC = () => {
                   Trạng thái đơn ứng tuyển
                 </Text>
                 <View className="flex-row flex-wrap">
-                  {statusOptions.map((option) => {
+                  {statusOptions.map(option => {
                     const Icon = option.icon;
                     const isSelected = selectedStatus.includes(option.value);
                     return (
@@ -573,17 +573,17 @@ const ApplicationsScreen: React.FC = () => {
                         onPress={() => toggleStatusSelection(option.value)}
                         className={`mr-2 mb-2 px-3 py-2 rounded-lg flex-row items-center ${
                           isSelected
-                            ? "bg-blue-100 border border-blue-600"
-                            : "bg-gray-100 border border-gray-200"
+                            ? 'bg-purple-100 border border-blue-600'
+                            : 'bg-gray-100 border border-gray-200'
                         }`}
                       >
                         <Icon
                           size={14}
-                          color={isSelected ? "#2563eb" : option.color}
+                          color={isSelected ? '#2563eb' : option.color}
                         />
                         <Text
                           className={`ml-1.5 text-sm font-medium ${
-                            isSelected ? "text-blue-700" : "text-gray-700"
+                            isSelected ? 'text-blue-700' : 'text-gray-700'
                           }`}
                         >
                           {option.label}
@@ -599,19 +599,19 @@ const ApplicationsScreen: React.FC = () => {
                 <Text className="text-base font-semibold text-gray-900 mb-3">
                   Sắp xếp theo
                 </Text>
-                {sortOptions.map((option) => (
+                {sortOptions.map(option => (
                   <TouchableOpacity
                     key={option.value}
                     onPress={() => setSelectedSort(option.value as any)}
                     className={`flex-row items-center justify-between py-3 border-b border-gray-100 ${
-                      selectedSort === option.value ? "bg-blue-50" : ""
+                      selectedSort === option.value ? 'bg-purple-50' : ''
                     }`}
                   >
                     <Text
                       className={`text-base ${
                         selectedSort === option.value
-                          ? "text-blue-700 font-medium"
-                          : "text-gray-700"
+                          ? 'text-blue-700 font-medium'
+                          : 'text-gray-700'
                       }`}
                     >
                       {option.label}
@@ -621,15 +621,15 @@ const ApplicationsScreen: React.FC = () => {
                         <TouchableOpacity
                           onPress={() =>
                             setSelectedSortOrder(
-                              selectedSortOrder === "asc" ? "desc" : "asc"
+                              selectedSortOrder === 'asc' ? 'desc' : 'asc'
                             )
                           }
-                          className="bg-blue-100 px-3 py-1 rounded-full flex-row items-center"
+                          className="bg-purple-100 px-3 py-1 rounded-full flex-row items-center"
                         >
                           <Text className="text-blue-700 text-sm mr-1">
-                            {selectedSortOrder === "asc"
-                              ? "Tăng dần"
-                              : "Giảm dần"}
+                            {selectedSortOrder === 'asc'
+                              ? 'Tăng dần'
+                              : 'Giảm dần'}
                           </Text>
                           <ChevronDown
                             size={14}
@@ -638,9 +638,9 @@ const ApplicationsScreen: React.FC = () => {
                               transform: [
                                 {
                                   rotate:
-                                    selectedSortOrder === "asc"
-                                      ? "180deg"
-                                      : "0deg",
+                                    selectedSortOrder === 'asc'
+                                      ? '180deg'
+                                      : '0deg',
                                 },
                               ],
                             }}
@@ -660,7 +660,7 @@ const ApplicationsScreen: React.FC = () => {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={applyFilters}
-                className="bg-blue-600 px-8 py-3 rounded-lg"
+                className="bg-purple-600 px-8 py-3 rounded-lg"
               >
                 <Text className="text-white font-medium">Áp dụng</Text>
               </TouchableOpacity>

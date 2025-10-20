@@ -43,6 +43,8 @@ export default function ApplicationDetailPage({ params }: PageProps) {
   const { id: applicationId } = use(params);
   const [notes, setNotes] = useState('');
   const [showNotesInput, setShowNotesInput] = useState(false);
+  const [showInterviewScheduler, setShowInterviewScheduler] = useState(false);
+  const [interviewDateTime, setInterviewDateTime] = useState('');
 
   // Fetch application detail
   const { data: applicationData, isLoading, error } = useApplicationDetail(applicationId);
@@ -109,6 +111,38 @@ export default function ApplicationDetailPage({ params }: PageProps) {
     });
     setShowNotesInput(false);
     setNotes('');
+  };
+
+  // Handle schedule interview
+  const handleScheduleInterview = () => {
+    if (!interviewDateTime) {
+      alert('Vui lòng chọn ngày giờ phỏng vấn');
+      return;
+    }
+
+    const confirmMessage = `Bạn muốn lên lịch phỏng vấn vào ${format(
+      new Date(interviewDateTime),
+      "dd/MM/yyyy 'lúc' HH:mm",
+      { locale: vi }
+    )}?`;
+
+    if (confirm(confirmMessage)) {
+      updateApplicationMutation.mutate(
+        {
+          applicationId,
+          data: {
+            interviewScheduledAt: interviewDateTime,
+            notifyCandidate: true, // Notify candidate about interview
+          },
+        },
+        {
+          onSuccess: () => {
+            setShowInterviewScheduler(false);
+            setInterviewDateTime('');
+          },
+        }
+      );
+    }
   };
 
   // Format date
@@ -589,6 +623,18 @@ export default function ApplicationDetailPage({ params }: PageProps) {
                   <p className="text-sm font-medium text-gray-900">{candidate.preferredWorkType}</p>
                 </div>
               )}
+
+              {application.interviewScheduledAt && (
+                <div className="rounded-lg bg-purple-50 p-3">
+                  <p className="mb-1 flex items-center gap-1.5 text-xs text-purple-700">
+                    <Calendar className="h-3.5 w-3.5" />
+                    Lịch phỏng vấn
+                  </p>
+                  <p className="text-sm font-semibold text-purple-900">
+                    {formatDateTime(application.interviewScheduledAt)}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -667,6 +713,79 @@ export default function ApplicationDetailPage({ params }: PageProps) {
           <div className="shadow-soft rounded-xl border border-purple-100 bg-white p-6">
             <h3 className="mb-4 text-sm font-bold text-gray-900">Đánh giá</h3>
             <RatingStars rating={application.rating} />
+          </div>
+
+          {/* Interview Schedule */}
+          <div className="shadow-soft rounded-xl border border-purple-100 bg-white p-6">
+            <h3 className="mb-4 text-sm font-bold text-gray-900">Lịch phỏng vấn</h3>
+
+            {application.interviewScheduledAt && (
+              <div className="mb-4 rounded-lg bg-purple-50 p-4">
+                <div className="flex items-start gap-3">
+                  <Calendar className="mt-0.5 h-5 w-5 text-purple-600" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">
+                      {formatDateTime(application.interviewScheduledAt)}
+                    </p>
+                    <p className="mt-1 text-xs text-gray-500">Đã lên lịch phỏng vấn</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {!showInterviewScheduler ? (
+              <button
+                onClick={() => setShowInterviewScheduler(true)}
+                className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-purple-300 bg-purple-50 px-4 py-3 text-purple-700 transition-colors hover:border-purple-400 hover:bg-purple-100"
+              >
+                <Calendar className="h-4 w-4" />
+                <span className="text-sm font-medium">
+                  {application.interviewScheduledAt ? 'Thay đổi lịch' : 'Lên lịch phỏng vấn'}
+                </span>
+              </button>
+            ) : (
+              <div className="space-y-3">
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                    Chọn ngày & giờ phỏng vấn
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={interviewDateTime}
+                    onChange={(e) => setInterviewDateTime(e.target.value)}
+                    min={new Date().toISOString().slice(0, 16)}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 focus:outline-none"
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleScheduleInterview}
+                    disabled={!interviewDateTime || updateApplicationMutation.isPending}
+                    className="flex-1 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {updateApplicationMutation.isPending ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Đang lưu...
+                      </span>
+                    ) : (
+                      'Xác nhận'
+                    )}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowInterviewScheduler(false);
+                      setInterviewDateTime('');
+                    }}
+                    disabled={updateApplicationMutation.isPending}
+                    className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Hủy
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* CV Download */}

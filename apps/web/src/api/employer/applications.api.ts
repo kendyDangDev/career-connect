@@ -17,10 +17,11 @@ export interface CandidateApplication {
   candidateId: string;
   userId: string; // User ID for conversations
   jobId: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone?: string;
-  avatar?: string;
+  avatarUrl?: string;
   position: string;
   location: string;
   experience: string;

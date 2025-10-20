@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import {
   FileText,
   Download,
@@ -11,9 +11,9 @@ import {
   Edit3,
   Clock,
   HardDrive,
-} from "lucide-react-native";
-import { CandidateCv, formatFileSize } from "@/types/candidateCv.types";
-import { useAlert } from "@/contexts/AlertContext";
+} from 'lucide-react-native';
+import { CandidateCv, formatFileSize } from '@/types/candidateCv.types';
+import { useAlert } from '@/contexts/AlertContext';
 
 interface CVCardProps {
   cv: CandidateCv;
@@ -42,29 +42,29 @@ const CVCard: React.FC<CVCardProps> = ({
 
   const formatDate = (dateString: string | Date) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
+    return date.toLocaleDateString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
     });
   };
 
   const getFileIcon = () => {
-    const extension = cv.cvName.split(".").pop()?.toLowerCase();
+    const extension = cv.cvName.split('.').pop()?.toLowerCase();
     switch (extension) {
-      case "pdf":
-        return "#E74C3C";
-      case "doc":
-      case "docx":
-        return "#3498DB";
+      case 'pdf':
+        return '#E74C3C';
+      case 'doc':
+      case 'docx':
+        return '#7e22ce';
       default:
-        return "#95A5A6";
+        return '#95A5A6';
     }
   };
 
   const handleDelete = () => {
     alert.confirm(
-      "Xác nhận xóa",
+      'Xác nhận xóa',
       `Bạn có chắc chắn muốn xóa CV "${cv.cvName}"?`,
       () => onDelete(cv)
     );
@@ -81,8 +81,8 @@ const CVCard: React.FC<CVCardProps> = ({
       <LinearGradient
         colors={
           cv.isPrimary
-            ? ["#a855f7", "#9333ea", "#7e22ce"]
-            : ["#FFFFFF", "#F8F9FA"]
+            ? ['#a855f7', '#9333ea', '#7e22ce']
+            : ['#FFFFFF', '#F8F9FA']
         }
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -97,7 +97,7 @@ const CVCard: React.FC<CVCardProps> = ({
             {/* File Icon Section */}
             <View
               className={`w-14 h-14 rounded-xl justify-center items-center mr-3 relative`}
-              style={{ backgroundColor: getFileIcon() + "20" }}
+              style={{ backgroundColor: getFileIcon() + '20' }}
             >
               <FileText size={28} color={getFileIcon()} />
               {cv.isPrimary && (
@@ -110,7 +110,7 @@ const CVCard: React.FC<CVCardProps> = ({
             {/* Content Section */}
             <View className="flex-1 mr-2">
               <Text
-                className={`text-base font-semibold mb-1 ${cv.isPrimary ? "text-white" : "text-gray-800"}`}
+                className={`text-base font-semibold mb-1 ${cv.isPrimary ? 'text-white' : 'text-gray-800'}`}
                 numberOfLines={1}
               >
                 {cv.cvName}
@@ -118,7 +118,7 @@ const CVCard: React.FC<CVCardProps> = ({
 
               {cv.description && (
                 <Text
-                  className={`text-sm ${cv.isPrimary ? "text-white/80" : "text-gray-600"} mb-2 leading-5`}
+                  className={`text-sm ${cv.isPrimary ? 'text-white/80' : 'text-gray-600'} mb-2 leading-5`}
                   numberOfLines={2}
                 >
                   {cv.description}
@@ -129,10 +129,10 @@ const CVCard: React.FC<CVCardProps> = ({
                 <View className="flex-row items-center gap-1">
                   <HardDrive
                     size={12}
-                    color={cv.isPrimary ? "#FFFFFF80" : "#7F8C8D"}
+                    color={cv.isPrimary ? '#FFFFFF80' : '#7F8C8D'}
                   />
                   <Text
-                    className={`text-xs ${cv.isPrimary ? "text-white/70" : "text-gray-500"}`}
+                    className={`text-xs ${cv.isPrimary ? 'text-white/70' : 'text-gray-500'}`}
                   >
                     {formatFileSize(cv.fileSize)}
                   </Text>
@@ -141,10 +141,10 @@ const CVCard: React.FC<CVCardProps> = ({
                 <View className="flex-row items-center gap-1">
                   <Clock
                     size={12}
-                    color={cv.isPrimary ? "#FFFFFF80" : "#7F8C8D"}
+                    color={cv.isPrimary ? '#FFFFFF80' : '#7F8C8D'}
                   />
                   <Text
-                    className={`text-xs ${cv.isPrimary ? "text-white/70" : "text-gray-500"}`}
+                    className={`text-xs ${cv.isPrimary ? 'text-white/70' : 'text-gray-500'}`}
                   >
                     {formatDate(cv.uploadedAt)}
                   </Text>
@@ -154,10 +154,10 @@ const CVCard: React.FC<CVCardProps> = ({
                   <View className="flex-row items-center gap-1">
                     <Eye
                       size={12}
-                      color={cv.isPrimary ? "#FFFFFF80" : "#7F8C8D"}
+                      color={cv.isPrimary ? '#FFFFFF80' : '#7F8C8D'}
                     />
                     <Text
-                      className={`text-xs ${cv.isPrimary ? "text-white/70" : "text-gray-500"}`}
+                      className={`text-xs ${cv.isPrimary ? 'text-white/70' : 'text-gray-500'}`}
                     >
                       {cv.viewCount}
                     </Text>
@@ -174,7 +174,7 @@ const CVCard: React.FC<CVCardProps> = ({
               >
                 <MoreVertical
                   size={20}
-                  color={cv.isPrimary ? "#FFF" : "#6b7280"}
+                  color={cv.isPrimary ? '#FFF' : '#6b7280'}
                 />
               </TouchableOpacity>
             </View>
@@ -183,7 +183,7 @@ const CVCard: React.FC<CVCardProps> = ({
           {/* Action Menu */}
           {showActions && (
             <View
-              className={`border-t pt-2 ${cv.isPrimary ? "bg-white/10 border-white/20 backdrop-blur-sm" : "bg-white border-gray-200"}`}
+              className={`border-t pt-2 ${cv.isPrimary ? 'bg-white/10 border-white/20 backdrop-blur-sm' : 'bg-white border-gray-200'}`}
             >
               <TouchableOpacity
                 className="flex-row items-center py-3 px-4 gap-3"
@@ -192,9 +192,9 @@ const CVCard: React.FC<CVCardProps> = ({
                   onPreview(cv);
                 }}
               >
-                <Eye size={16} color={cv.isPrimary ? "#FFF" : "#a855f7"} />
+                <Eye size={16} color={cv.isPrimary ? '#FFF' : '#a855f7'} />
                 <Text
-                  className={`text-sm font-medium ${cv.isPrimary ? "text-white" : "text-purple-700"}`}
+                  className={`text-sm font-medium ${cv.isPrimary ? 'text-white' : 'text-purple-700'}`}
                 >
                   Xem trước
                 </Text>
@@ -208,16 +208,16 @@ const CVCard: React.FC<CVCardProps> = ({
                 {isDownloading ? (
                   <ActivityIndicator
                     size="small"
-                    color={cv.isPrimary ? "#FFF" : "#10b981"}
+                    color={cv.isPrimary ? '#FFF' : '#10b981'}
                   />
                 ) : (
                   <Download
                     size={16}
-                    color={cv.isPrimary ? "#FFF" : "#10b981"}
+                    color={cv.isPrimary ? '#FFF' : '#10b981'}
                   />
                 )}
                 <Text
-                  className={`text-sm font-medium ${cv.isPrimary ? "text-white" : "text-emerald-600"}`}
+                  className={`text-sm font-medium ${cv.isPrimary ? 'text-white' : 'text-emerald-600'}`}
                 >
                   Tải xuống
                 </Text>
@@ -230,9 +230,9 @@ const CVCard: React.FC<CVCardProps> = ({
                   onEdit(cv);
                 }}
               >
-                <Edit3 size={16} color={cv.isPrimary ? "#FFF" : "#f59e0b"} />
+                <Edit3 size={16} color={cv.isPrimary ? '#FFF' : '#f59e0b'} />
                 <Text
-                  className={`text-sm font-medium ${cv.isPrimary ? "text-white" : "text-amber-600"}`}
+                  className={`text-sm font-medium ${cv.isPrimary ? 'text-white' : 'text-amber-600'}`}
                 >
                   Chỉnh sửa
                 </Text>

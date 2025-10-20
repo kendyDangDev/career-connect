@@ -1,10 +1,10 @@
-import CVPreviewModal from "@/components/cv/CVPreviewModal";
-import CvUploadModalSimple from "@/components/cv/CvUploadModalSimple";
-import candidateCvService from "@/services/candidateCvService";
-import { jobApplicationService } from "@/services/jobApplicationService";
-import { CandidateCv } from "@/types/candidateCv.types";
-import { Job } from "@/types/job";
-import { LinearGradient } from "expo-linear-gradient";
+import CVPreviewModal from '@/components/cv/CVPreviewModal';
+import CvUploadModalSimple from '@/components/cv/CvUploadModalSimple';
+import candidateCvService from '@/services/candidateCvService';
+import { jobApplicationService } from '@/services/jobApplicationService';
+import { CandidateCv } from '@/types/candidateCv.types';
+import { Job } from '@/types/job';
+import { LinearGradient } from 'expo-linear-gradient';
 import {
   AlertCircle,
   CheckCircle,
@@ -15,8 +15,8 @@ import {
   FileText,
   Upload,
   X,
-} from "lucide-react-native";
-import React, { useCallback, useEffect, useState } from "react";
+} from 'lucide-react-native';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Modal,
@@ -25,12 +25,12 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from "react-native";
+} from 'react-native';
 
 // Component thông báo nội bộ
 const InlineNotification: React.FC<{
   visible: boolean;
-  type: "success" | "error";
+  type: 'success' | 'error';
   title: string;
   message: string;
   onClose: () => void;
@@ -43,10 +43,10 @@ const InlineNotification: React.FC<{
       <View className="bg-white rounded-lg p-6 max-w-sm w-full">
         <View
           className={`w-12 h-12 rounded-full items-center justify-center mb-4 self-center ${
-            type === "success" ? "bg-green-100" : "bg-red-100"
+            type === 'success' ? 'bg-green-100' : 'bg-red-100'
           }`}
         >
-          {type === "success" ? (
+          {type === 'success' ? (
             <CheckCircle size={24} color="#22C55E" />
           ) : (
             <AlertCircle size={24} color="#EF4444" />
@@ -60,7 +60,7 @@ const InlineNotification: React.FC<{
         <Text className="text-gray-600 text-center mb-6">{message}</Text>
 
         <View className="flex-row justify-center">
-          {type === "success" && onAction ? (
+          {type === 'success' && onAction ? (
             <TouchableOpacity
               className="bg-green-500 px-6 py-3 rounded-lg flex-1 mr-2"
               onPress={onAction}
@@ -70,12 +70,12 @@ const InlineNotification: React.FC<{
           ) : (
             <TouchableOpacity
               className={`px-6 py-3 rounded-lg flex-1 ${
-                type === "success" ? "bg-green-500" : "bg-red-500"
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
               }`}
               onPress={onClose}
             >
               <Text className="text-white font-medium text-center">
-                {type === "success" ? "OK" : "Đóng"}
+                {type === 'success' ? 'OK' : 'Đóng'}
               </Text>
             </TouchableOpacity>
           )}
@@ -115,26 +115,26 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
   // State cho thông báo nội bộ
   const [notification, setNotification] = useState<{
     visible: boolean;
-    type: "success" | "error";
+    type: 'success' | 'error';
     title: string;
     message: string;
-  }>({ visible: false, type: "success", title: "", message: "" });
+  }>({ visible: false, type: 'success', title: '', message: '' });
 
   const [formData, setFormData] = useState<ApplyFormData>({
     selectedCvId: null,
-    coverLetter: "",
+    coverLetter: '',
     agreedToTerms: false,
   });
 
   const steps = [
-    { id: 1, title: "Chọn CV", icon: FileText },
-    { id: 2, title: "Thư giới thiệu", icon: Upload },
-    { id: 3, title: "Xác nhận", icon: CheckCircle },
+    { id: 1, title: 'Chọn CV', icon: FileText },
+    { id: 2, title: 'Thư giới thiệu', icon: Upload },
+    { id: 3, title: 'Xác nhận', icon: CheckCircle },
   ];
 
   // Helper function để hiển thị thông báo
   const showNotification = (
-    type: "success" | "error",
+    type: 'success' | 'error',
     title: string,
     message: string
   ) => {
@@ -144,9 +144,9 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
   const hideNotification = () => {
     setNotification({
       visible: false,
-      type: "success",
-      title: "",
-      message: "",
+      type: 'success',
+      title: '',
+      message: '',
     });
   };
 
@@ -157,7 +157,7 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
       // Reset form when opening
       setFormData({
         selectedCvId: null,
-        coverLetter: "",
+        coverLetter: '',
         agreedToTerms: false,
       });
       setCurrentStep(1);
@@ -170,8 +170,8 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
       const cvs = await candidateCvService.getAllCVs();
       setUserCvs(cvs || []);
     } catch (error) {
-      console.error("Error loading CVs:", error);
-      showNotification("error", "Lỗi", "Không thể tải danh sách CV");
+      console.error('Error loading CVs:', error);
+      showNotification('error', 'Lỗi', 'Không thể tải danh sách CV');
       setUserCvs([]);
     } finally {
       setIsLoadingCvs(false);
@@ -180,7 +180,7 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
 
   const handleCvUploaded = (newCv: CandidateCv) => {
     // Add new CV to the list and select it
-    setUserCvs((prevCvs) => [newCv, ...prevCvs]);
+    setUserCvs(prevCvs => [newCv, ...prevCvs]);
     setFormData({ ...formData, selectedCvId: newCv.id });
     setShowUploadModal(false);
   };
@@ -194,11 +194,11 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
     // Handle CV download functionality
     if (cv.fileUrl) {
       // Open download URL
-      if (typeof window !== "undefined") {
-        window.open(cv.fileUrl, "_blank");
+      if (typeof window !== 'undefined') {
+        window.open(cv.fileUrl, '_blank');
       }
     } else {
-      showNotification("error", "Lỗi", "Không thể tải xuống CV");
+      showNotification('error', 'Lỗi', 'Không thể tải xuống CV');
     }
   };
 
@@ -216,23 +216,23 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
 
   const handleSubmit = async () => {
     if (!formData.selectedCvId) {
-      showNotification("error", "Lỗi", "Vui lòng chọn CV");
+      showNotification('error', 'Lỗi', 'Vui lòng chọn CV');
       return;
     }
 
     if (!formData.coverLetter.trim()) {
-      showNotification("error", "Lỗi", "Vui lòng viết thư giới thiệu");
+      showNotification('error', 'Lỗi', 'Vui lòng viết thư giới thiệu');
       return;
     }
 
     if (!formData.agreedToTerms) {
-      showNotification("error", "Lỗi", "Vui lòng đồng ý với điều khoản");
+      showNotification('error', 'Lỗi', 'Vui lòng đồng ý với điều khoản');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const selectedCv = userCvs.find((cv) => cv.id === formData.selectedCvId);
+      const selectedCv = userCvs.find(cv => cv.id === formData.selectedCvId);
 
       const applicationData = {
         jobId: job!.id,
@@ -246,9 +246,9 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
 
       if (response.success) {
         showNotification(
-          "success",
-          "Thành công",
-          "Đơn ứng tuyển đã được gửi thành công!"
+          'success',
+          'Thành công',
+          'Đơn ứng tuyển đã được gửi thành công!'
         );
         // Delay để người dùng thấy thông báo trước khi đóng modal
         setTimeout(() => {
@@ -258,14 +258,14 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
         }, 2000);
       } else {
         showNotification(
-          "error",
-          "Lỗi",
-          response.error || "Không thể gửi đơn ứng tuyển"
+          'error',
+          'Lỗi',
+          response.error || 'Không thể gửi đơn ứng tuyển'
         );
       }
     } catch (error) {
-      console.error("Error submitting application:", error);
-      showNotification("error", "Lỗi", "Đã xảy ra lỗi khi gửi đơn ứng tuyển");
+      console.error('Error submitting application:', error);
+      showNotification('error', 'Lỗi', 'Đã xảy ra lỗi khi gửi đơn ứng tuyển');
     } finally {
       setIsSubmitting(false);
     }
@@ -284,10 +284,10 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
               <View
                 className={`w-10 h-10 rounded-full items-center justify-center ${
                   isCompleted
-                    ? "bg-green-500"
+                    ? 'bg-green-500'
                     : isActive
-                      ? "bg-blue-500"
-                      : "bg-gray-300"
+                      ? 'bg-purple-500'
+                      : 'bg-gray-300'
                 }`}
               >
                 <IconComponent size={20} color="white" />
@@ -295,8 +295,8 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
 
               {index < steps.length - 1 && (
                 <View
-                  className={`flex-1 h-0.5 mx-2 ${
-                    isCompleted ? "bg-green-500" : "bg-gray-300"
+                  className={`flex-1 h-0.5 ${
+                    isCompleted ? 'bg-green-500' : 'bg-gray-300'
                   }`}
                 />
               )}
@@ -304,7 +304,7 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
 
             <Text
               className={`text-xs font-medium text-center ${
-                isActive ? "text-blue-600" : "text-gray-500"
+                isActive ? 'text-purple-600' : 'text-gray-500'
               }`}
             >
               {step.title}
@@ -323,7 +323,7 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
 
       {isLoadingCvs ? (
         <View className="flex-1 justify-center items-center py-8">
-          <ActivityIndicator size="large" color="#3B82F6" />
+          <ActivityIndicator size="large" color="#7e22ce" />
           <Text className="text-gray-500 mt-2">Đang tải CV...</Text>
         </View>
       ) : userCvs.length === 0 ? (
@@ -333,7 +333,7 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
             Bạn chưa có CV nào
           </Text>
           <TouchableOpacity
-            className="bg-blue-500 px-6 py-3 rounded-lg"
+            className="bg-purple-500 px-6 py-3 rounded-lg"
             onPress={() => setShowUploadModal(true)}
           >
             <Text className="text-white font-medium">Tải lên CV mới</Text>
@@ -341,13 +341,13 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
         </View>
       ) : (
         <View>
-          {userCvs.map((cv) => (
+          {userCvs.map(cv => (
             <View
               key={cv.id}
               className={`p-4 rounded-lg border mb-3 ${
                 formData.selectedCvId === cv.id
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200 bg-white"
+                  ? 'border-purple-500 bg-blue-50'
+                  : 'border-gray-200 bg-white'
               }`}
             >
               <TouchableOpacity
@@ -359,8 +359,8 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
                 <View
                   className={`w-4 h-4 rounded-full border-2 mr-3 ${
                     formData.selectedCvId === cv.id
-                      ? "border-blue-500 bg-blue-500"
-                      : "border-gray-300"
+                      ? 'border-purple-500 bg-purple-500'
+                      : 'border-gray-300'
                   }`}
                 >
                   {formData.selectedCvId === cv.id && (
@@ -371,8 +371,8 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
                 <View className="flex-1">
                   <Text className="font-medium text-gray-900">{cv.cvName}</Text>
                   <Text className="text-sm text-gray-500 mt-1">
-                    Tải lên:{" "}
-                    {new Date(cv.uploadedAt).toLocaleDateString("vi-VN")}
+                    Tải lên:{' '}
+                    {new Date(cv.uploadedAt).toLocaleDateString('vi-VN')}
                   </Text>
                   <Text className="text-sm text-gray-500">
                     Lượt xem: {cv.viewCount}
@@ -385,11 +385,11 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
               {/* CV Action Buttons */}
               <View className="flex-row justify-end mt-3 pt-3 border-t border-gray-100">
                 <TouchableOpacity
-                  className="flex-row items-center px-3 py-2 bg-blue-100 rounded-lg mr-2"
+                  className="flex-row items-center px-3 py-2 bg-purple-100 rounded-lg mr-2"
                   onPress={() => handlePreviewCv(cv)}
                 >
-                  <Eye size={16} color="#3B82F6" />
-                  <Text className="text-blue-600 text-sm font-medium ml-1">
+                  <Eye size={16} color="#7e22ce" />
+                  <Text className="text-purple-600 text-sm font-medium ml-1">
                     Xem trước
                   </Text>
                 </TouchableOpacity>
@@ -436,12 +436,10 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
           multiline
           numberOfLines={10}
           value={formData.coverLetter}
-          onChangeText={(text) =>
-            setFormData({ ...formData, coverLetter: text })
-          }
+          onChangeText={text => setFormData({ ...formData, coverLetter: text })}
           placeholder="Viết thư giới thiệu của bạn ở đây..."
           className="border border-gray-300 rounded-lg p-3 text-gray-900"
-          style={{ textAlignVertical: "top", minHeight: 200 }}
+          style={{ textAlignVertical: 'top', minHeight: 200 }}
         />
 
         <Text className="text-xs text-gray-500 mt-2">
@@ -454,8 +452,8 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
           💡 Gợi ý viết thư giới thiệu:
         </Text>
         <Text className="text-blue-700 text-sm">
-          • Giới thiệu ngắn gọn về bản thân{"\n"}• Nêu kinh nghiệm và kỹ năng
-          liên quan{"\n"}• Giải thích tại sao bạn quan tâm đến vị trí này{"\n"}•
+          • Giới thiệu ngắn gọn về bản thân{'\n'}• Nêu kinh nghiệm và kỹ năng
+          liên quan{'\n'}• Giải thích tại sao bạn quan tâm đến vị trí này{'\n'}•
           Thể hiện sự nhiệt tình và cam kết
         </Text>
       </View>
@@ -483,8 +481,8 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
       <View className="bg-gray-50 p-4 rounded-lg mb-4">
         <Text className="font-medium text-gray-900 mb-2">CV đã chọn:</Text>
         <Text className="text-gray-800">
-          {userCvs.find((cv) => cv.id === formData.selectedCvId)?.cvName ||
-            "Chưa chọn"}
+          {userCvs.find(cv => cv.id === formData.selectedCvId)?.cvName ||
+            'Chưa chọn'}
         </Text>
       </View>
 
@@ -492,7 +490,7 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
       <View className="bg-gray-50 p-4 rounded-lg mb-4">
         <Text className="font-medium text-gray-900 mb-2">Thư giới thiệu:</Text>
         <Text className="text-gray-800" numberOfLines={3}>
-          {formData.coverLetter || "Chưa viết"}
+          {formData.coverLetter || 'Chưa viết'}
         </Text>
       </View>
 
@@ -506,8 +504,8 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
         <View
           className={`w-5 h-5 rounded border mr-3 items-center justify-center ${
             formData.agreedToTerms
-              ? "bg-blue-500 border-blue-500"
-              : "border-gray-300"
+              ? 'bg-purple-500 border-purple-500'
+              : 'border-gray-300'
           }`}
         >
           {formData.agreedToTerms && <CheckCircle size={16} color="white" />}
@@ -528,8 +526,8 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
         </View>
         <Text className="text-yellow-700 text-sm">
           • Hãy chắc chắn thông tin trong CV và thư giới thiệu là chính xác
-          {"\n"}• Nhà tuyển dụng sẽ liên hệ với bạn qua email hoặc số điện thoại
-          {"\n"}• Bạn có thể theo dõi trạng thái đơn ứng tuyển trong mục
+          {'\n'}• Nhà tuyển dụng sẽ liên hệ với bạn qua email hoặc số điện thoại
+          {'\n'}• Bạn có thể theo dõi trạng thái đơn ứng tuyển trong mục
           &ldquo;Đơn của tôi&rdquo;
         </Text>
       </View>
@@ -574,9 +572,9 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
       <View className="flex-1 bg-white absolute w-full h-full">
         {/* Header */}
         <LinearGradient
-          colors={["#3B82F6", "#1D4ED8"]}
+          colors={['#7e22ce', '#9333ea']}
           start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
+          end={{ x: 0, y: 1 }}
           className="pt-12 pb-6"
         >
           <View className="flex-row items-center justify-between px-4">
@@ -608,7 +606,7 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
               onPress={handleBack}
               disabled={currentStep === 1}
               className={`flex-row items-center px-6 py-3 rounded-lg ${
-                currentStep === 1 ? "opacity-50" : ""
+                currentStep === 1 ? 'opacity-50' : ''
               }`}
             >
               <ChevronLeft size={20} color="#6B7280" />
@@ -620,17 +618,17 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
                 onPress={handleNext}
                 disabled={!canProceed()}
                 className={`flex-row items-center px-6 py-3 rounded-lg ${
-                  canProceed() ? "bg-blue-500" : "bg-gray-300"
+                  canProceed() ? 'bg-purple-500' : 'bg-gray-300'
                 }`}
               >
                 <Text
-                  className={`mr-1 ${canProceed() ? "text-white" : "text-gray-500"}`}
+                  className={`mr-1 ${canProceed() ? 'text-white' : 'text-gray-500'}`}
                 >
                   Tiếp theo
                 </Text>
                 <ChevronRight
                   size={20}
-                  color={canProceed() ? "white" : "#6B7280"}
+                  color={canProceed() ? 'white' : '#6B7280'}
                 />
               </TouchableOpacity>
             ) : (
@@ -638,7 +636,7 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
                 onPress={handleSubmit}
                 disabled={!canProceed() || isSubmitting}
                 className={`flex-row items-center px-6 py-3 rounded-lg ${
-                  canProceed() && !isSubmitting ? "bg-green-500" : "bg-gray-300"
+                  canProceed() && !isSubmitting ? 'bg-green-500' : 'bg-gray-300'
                 }`}
               >
                 {isSubmitting ? (
@@ -646,13 +644,13 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
                 ) : (
                   <CheckCircle
                     size={20}
-                    color={canProceed() ? "white" : "#6B7280"}
+                    color={canProceed() ? 'white' : '#6B7280'}
                   />
                 )}
                 <Text
-                  className={`ml-2 ${canProceed() && !isSubmitting ? "text-white" : "text-gray-500"}`}
+                  className={`ml-2 ${canProceed() && !isSubmitting ? 'text-white' : 'text-gray-500'}`}
                 >
-                  {isSubmitting ? "Đang gửi..." : "Gửi đơn"}
+                  {isSubmitting ? 'Đang gửi...' : 'Gửi đơn'}
                 </Text>
               </TouchableOpacity>
             )}
@@ -686,7 +684,7 @@ const JobApplyModal: React.FC<JobApplyModalProps> = ({
         message={notification.message}
         onClose={hideNotification}
         onAction={
-          notification.type === "success"
+          notification.type === 'success'
             ? () => {
                 hideNotification();
                 onSuccess();

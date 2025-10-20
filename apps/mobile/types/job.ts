@@ -94,6 +94,8 @@ export interface JobFilters {
   experienceLevel?: 'ENTRY' | 'MID' | 'SENIOR' | 'LEAD' | 'EXECUTIVE';
   locationCity?: string;
   locationProvince?: string;
+  salaryMin?: number;
+  salaryMax?: number;
   categoryId?: string;
   companyId?: string;
   sortBy?: 'createdAt' | 'publishedAt' | 'viewCount' | 'applicationCount';

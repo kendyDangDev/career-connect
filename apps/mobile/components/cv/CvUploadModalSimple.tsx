@@ -1,15 +1,15 @@
-import candidateCvService from "@/services/candidateCvService";
-import { formatFileSize } from "@/types/candidateCv.types";
-import * as DocumentPicker from "expo-document-picker";
-import { LinearGradient } from "expo-linear-gradient";
+import candidateCvService from '@/services/candidateCvService';
+import { formatFileSize } from '@/types/candidateCv.types';
+import * as DocumentPicker from 'expo-document-picker';
+import { LinearGradient } from 'expo-linear-gradient';
 import {
   AlertCircle,
   CheckCircle,
   FileText,
   Upload,
   X,
-} from "lucide-react-native";
-import React, { useState } from "react";
+} from 'lucide-react-native';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Modal,
@@ -18,7 +18,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from "react-native";
+} from 'react-native';
 
 interface CvUploadModalProps {
   visible: boolean;
@@ -29,7 +29,7 @@ interface CvUploadModalProps {
 // Component thông báo nội bộ
 const InlineNotification: React.FC<{
   visible: boolean;
-  type: "success" | "error";
+  type: 'success' | 'error';
   title: string;
   message: string;
   onClose: () => void;
@@ -42,10 +42,10 @@ const InlineNotification: React.FC<{
       <View className="bg-white rounded-lg p-6 max-w-sm w-full">
         <View
           className={`w-12 h-12 rounded-full items-center justify-center mb-4 self-center ${
-            type === "success" ? "bg-green-100" : "bg-red-100"
+            type === 'success' ? 'bg-green-100' : 'bg-red-100'
           }`}
         >
-          {type === "success" ? (
+          {type === 'success' ? (
             <CheckCircle size={24} color="#22C55E" />
           ) : (
             <AlertCircle size={24} color="#EF4444" />
@@ -59,7 +59,7 @@ const InlineNotification: React.FC<{
         <Text className="text-gray-600 text-center mb-6">{message}</Text>
 
         <View className="flex-row justify-center">
-          {type === "success" && onAction ? (
+          {type === 'success' && onAction ? (
             <TouchableOpacity
               className="bg-green-500 px-6 py-3 rounded-lg flex-1 mr-2"
               onPress={onAction}
@@ -69,12 +69,12 @@ const InlineNotification: React.FC<{
           ) : (
             <TouchableOpacity
               className={`px-6 py-3 rounded-lg flex-1 ${
-                type === "success" ? "bg-green-500" : "bg-red-500"
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
               }`}
               onPress={onClose}
             >
               <Text className="text-white font-medium text-center">
-                {type === "success" ? "OK" : "Đóng"}
+                {type === 'success' ? 'OK' : 'Đóng'}
               </Text>
             </TouchableOpacity>
           )}
@@ -91,16 +91,16 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const validateCvFile = (file: any): { valid: boolean; error?: string } => {
   // Check file type using mimeType (more reliable)
   const allowedTypes = [
-    "application/pdf",
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   ];
 
   const mimeType = file.mimeType || file.type;
   if (mimeType && !allowedTypes.includes(mimeType)) {
     return {
       valid: false,
-      error: "Chỉ hỗ trợ file PDF, DOC, DOCX",
+      error: 'Chỉ hỗ trợ file PDF, DOC, DOCX',
     };
   }
 
@@ -120,8 +120,8 @@ const CvUploadModalSimple: React.FC<CvUploadModalProps> = ({
   onClose,
   onSuccess,
 }) => {
-  const [cvName, setCvName] = useState("");
-  const [description, setDescription] = useState("");
+  const [cvName, setCvName] = useState('');
+  const [description, setDescription] = useState('');
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -129,14 +129,14 @@ const CvUploadModalSimple: React.FC<CvUploadModalProps> = ({
   // State cho thông báo nội bộ
   const [notification, setNotification] = useState<{
     visible: boolean;
-    type: "success" | "error";
+    type: 'success' | 'error';
     title: string;
     message: string;
-  }>({ visible: false, type: "success", title: "", message: "" });
+  }>({ visible: false, type: 'success', title: '', message: '' });
 
   // Helper function để hiển thị thông báo
   const showNotification = (
-    type: "success" | "error",
+    type: 'success' | 'error',
     title: string,
     message: string
   ) => {
@@ -146,15 +146,15 @@ const CvUploadModalSimple: React.FC<CvUploadModalProps> = ({
   const hideNotification = () => {
     setNotification({
       visible: false,
-      type: "success",
-      title: "",
-      message: "",
+      type: 'success',
+      title: '',
+      message: '',
     });
   };
 
   const resetForm = () => {
-    setCvName("");
-    setDescription("");
+    setCvName('');
+    setDescription('');
     setSelectedFile(null);
     setUploadProgress(0);
     hideNotification();
@@ -169,14 +169,14 @@ const CvUploadModalSimple: React.FC<CvUploadModalProps> = ({
     try {
       const result = await DocumentPicker.getDocumentAsync({
         type: [
-          "application/pdf",
-          "application/msword",
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          'application/pdf',
+          'application/msword',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         ],
         copyToCacheDirectory: true,
       });
 
-      console.log("DocumentPicker result:", result);
+      console.log('DocumentPicker result:', result);
 
       // Kiểm tra nếu user đã chọn file (không bị cancel)
       if (!result.canceled && result.assets && result.assets.length > 0) {
@@ -185,8 +185,8 @@ const CvUploadModalSimple: React.FC<CvUploadModalProps> = ({
         // Validate file size
         if (selectedAsset.size && selectedAsset.size > MAX_FILE_SIZE) {
           showNotification(
-            "error",
-            "File quá lớn",
+            'error',
+            'File quá lớn',
             `File không được vượt quá ${formatFileSize(MAX_FILE_SIZE)}. File của bạn có dung lượng ${formatFileSize(selectedAsset.size)}.`
           );
           return;
@@ -195,60 +195,60 @@ const CvUploadModalSimple: React.FC<CvUploadModalProps> = ({
         // Validate file type
         const mimeType = selectedAsset.mimeType;
         const allowedTypes = [
-          "application/pdf",
-          "application/msword",
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          'application/pdf',
+          'application/msword',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         ];
 
         if (mimeType && !allowedTypes.includes(mimeType)) {
           showNotification(
-            "error",
-            "Định dạng file không hỗ trợ",
-            "Vui lòng chọn file PDF, DOC hoặc DOCX."
+            'error',
+            'Định dạng file không hỗ trợ',
+            'Vui lòng chọn file PDF, DOC hoặc DOCX.'
           );
           return;
         }
 
         setSelectedFile(selectedAsset);
         console.log(
-          "Selected file structure:",
+          'Selected file structure:',
           JSON.stringify(selectedAsset, null, 2)
         );
 
         // Auto-generate CV name from file name if not set
         if (!cvName && selectedAsset.name) {
-          const nameWithoutExt = selectedAsset.name.replace(/\.[^/.]+$/, "");
+          const nameWithoutExt = selectedAsset.name.replace(/\.[^/.]+$/, '');
           setCvName(nameWithoutExt);
         }
       } else {
         // User cancelled selection
-        console.log("User cancelled document selection");
+        console.log('User cancelled document selection');
       }
     } catch (error) {
-      console.error("Error picking file:", error);
+      console.error('Error picking file:', error);
       showNotification(
-        "error",
-        "Lỗi",
-        "Không thể chọn file. Vui lòng thử lại."
+        'error',
+        'Lỗi',
+        'Không thể chọn file. Vui lòng thử lại.'
       );
     }
   };
 
   const handleUpload = async () => {
     if (!cvName.trim()) {
-      showNotification("error", "Lỗi", "Vui lòng nhập tên CV");
+      showNotification('error', 'Lỗi', 'Vui lòng nhập tên CV');
       return;
     }
 
     if (!selectedFile) {
-      showNotification("error", "Lỗi", "Vui lòng chọn file CV");
+      showNotification('error', 'Lỗi', 'Vui lòng chọn file CV');
       return;
     }
 
     // Final validation before upload
     const validation = validateCvFile(selectedFile);
     if (!validation.valid) {
-      showNotification("error", "Lỗi", validation.error!);
+      showNotification('error', 'Lỗi', validation.error!);
       return;
     }
 
@@ -257,7 +257,7 @@ const CvUploadModalSimple: React.FC<CvUploadModalProps> = ({
 
     // Simulate upload progress
     const progressInterval = setInterval(() => {
-      setUploadProgress((prev) => {
+      setUploadProgress(prev => {
         if (prev >= 90) {
           clearInterval(progressInterval);
           return 90;
@@ -267,7 +267,7 @@ const CvUploadModalSimple: React.FC<CvUploadModalProps> = ({
     }, 200);
 
     try {
-      console.log("Uploading CV with data:", {
+      console.log('Uploading CV with data:', {
         file: selectedFile.name,
         name: cvName.trim(),
         description: description.trim(),
@@ -278,24 +278,24 @@ const CvUploadModalSimple: React.FC<CvUploadModalProps> = ({
       // Create a proper File object for candidateCvService (following CVManagementScreen pattern)
       let fileToUpload: File | Blob;
 
-      console.log("Platform:", Platform.OS);
-      console.log("Selected file structure:", selectedFile);
+      console.log('Platform:', Platform.OS);
+      console.log('Selected file structure:', selectedFile);
 
       if (selectedFile.uri) {
         // For React Native/Expo (DocumentPicker result with uri)
-        console.log("Converting React Native file to Blob/File...");
+        console.log('Converting React Native file to Blob/File...');
         const response = await fetch(selectedFile.uri);
         const blob = await response.blob();
-        fileToUpload = new File([blob], selectedFile.name || "cv.pdf", {
-          type: selectedFile.mimeType || "application/pdf",
+        fileToUpload = new File([blob], selectedFile.name || 'cv.pdf', {
+          type: selectedFile.mimeType || 'application/pdf',
         });
-        console.log("Created File object:", fileToUpload);
+        console.log('Created File object:', fileToUpload);
       } else if (selectedFile instanceof File || selectedFile instanceof Blob) {
         // For web platform (already proper File/Blob)
-        console.log("Using existing File/Blob object");
+        console.log('Using existing File/Blob object');
         fileToUpload = selectedFile;
       } else {
-        throw new Error("Invalid file format");
+        throw new Error('Invalid file format');
       }
 
       const response = await candidateCvService.uploadCV(
@@ -313,9 +313,9 @@ const CvUploadModalSimple: React.FC<CvUploadModalProps> = ({
 
         setTimeout(() => {
           showNotification(
-            "success",
-            "Thành công",
-            "CV đã được tải lên thành công!"
+            'success',
+            'Thành công',
+            'CV đã được tải lên thành công!'
           );
           // Delay để người dùng thấy thông báo trước khi đóng modal
           setTimeout(() => {
@@ -325,18 +325,18 @@ const CvUploadModalSimple: React.FC<CvUploadModalProps> = ({
         }, 500);
       } else {
         showNotification(
-          "error",
-          "Lỗi",
-          response.error || "Không thể tải lên CV"
+          'error',
+          'Lỗi',
+          response.error || 'Không thể tải lên CV'
         );
       }
     } catch (error) {
       clearInterval(progressInterval);
-      console.error("Error uploading CV:", error);
+      console.error('Error uploading CV:', error);
       showNotification(
-        "error",
-        "Lỗi",
-        "Đã xảy ra lỗi khi tải lên CV. Vui lòng thử lại."
+        'error',
+        'Lỗi',
+        'Đã xảy ra lỗi khi tải lên CV. Vui lòng thử lại.'
       );
     } finally {
       setIsUploading(false);
@@ -353,7 +353,7 @@ const CvUploadModalSimple: React.FC<CvUploadModalProps> = ({
       <View className="flex-1 bg-white/10 absolute w-full h-full">
         {/* Header */}
         <LinearGradient
-          colors={["#3B82F6", "#1D4ED8"]}
+          colors={['#3B82F6', '#1D4ED8']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           className="pt-12 pb-6"
@@ -401,7 +401,7 @@ const CvUploadModalSimple: React.FC<CvUploadModalProps> = ({
               onChangeText={setDescription}
               placeholder="Mô tả ngắn gọn về CV này..."
               className="border border-gray-300 rounded-lg p-3 text-gray-900"
-              style={{ textAlignVertical: "top" }}
+              style={{ textAlignVertical: 'top' }}
             />
           </View>
 
@@ -452,7 +452,7 @@ const CvUploadModalSimple: React.FC<CvUploadModalProps> = ({
             <View className="mb-4">
               <View className="h-2 bg-gray-200 rounded-full overflow-hidden">
                 <View
-                  className="h-full bg-blue-500 transition-all duration-300"
+                  className="h-full bg-purple-500 transition-all duration-300"
                   style={{ width: `${uploadProgress}%` }}
                 />
               </View>
@@ -463,11 +463,11 @@ const CvUploadModalSimple: React.FC<CvUploadModalProps> = ({
           )}
 
           {/* Info */}
-          <View className="bg-blue-50 p-4 rounded-lg mb-6">
+          <View className="bg-purple-50 p-4 rounded-lg mb-6">
             <Text className="text-blue-800 font-medium mb-2">💡 Lưu ý:</Text>
             <Text className="text-blue-700 text-sm">
-              • Chỉ hỗ trợ file PDF, DOC, DOCX{"\n"}• Dung lượng tối đa 5MB
-              {"\n"}• Nên đặt tên CV rõ ràng để dễ quản lý{"\n"}• CV sẽ được lưu
+              • Chỉ hỗ trợ file PDF, DOC, DOCX{'\n'}• Dung lượng tối đa 5MB
+              {'\n'}• Nên đặt tên CV rõ ràng để dễ quản lý{'\n'}• CV sẽ được lưu
               trữ an toàn trên cloud
             </Text>
           </View>
@@ -488,8 +488,8 @@ const CvUploadModalSimple: React.FC<CvUploadModalProps> = ({
               disabled={!cvName.trim() || !selectedFile || isUploading}
               className={`flex-1 ml-2 py-3 rounded-lg flex-row items-center justify-center ${
                 cvName.trim() && selectedFile && !isUploading
-                  ? "bg-blue-500"
-                  : "bg-gray-300"
+                  ? 'bg-purple-500'
+                  : 'bg-gray-300'
               }`}
             >
               {isUploading ? (
@@ -497,17 +497,17 @@ const CvUploadModalSimple: React.FC<CvUploadModalProps> = ({
               ) : (
                 <Upload
                   size={20}
-                  color={cvName.trim() && selectedFile ? "white" : "#6B7280"}
+                  color={cvName.trim() && selectedFile ? 'white' : '#6B7280'}
                 />
               )}
               <Text
                 className={`ml-2 font-medium ${
                   cvName.trim() && selectedFile && !isUploading
-                    ? "text-white"
-                    : "text-gray-500"
+                    ? 'text-white'
+                    : 'text-gray-500'
                 }`}
               >
-                {isUploading ? "Đang tải lên..." : "Tải lên"}
+                {isUploading ? 'Đang tải lên...' : 'Tải lên'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -521,7 +521,7 @@ const CvUploadModalSimple: React.FC<CvUploadModalProps> = ({
           message={notification.message}
           onClose={hideNotification}
           onAction={
-            notification.type === "success"
+            notification.type === 'success'
               ? () => {
                   hideNotification();
                   // Success action đã được xử lý trong handleUpload

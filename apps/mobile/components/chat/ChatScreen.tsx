@@ -4,7 +4,7 @@ import React, {
   useRef,
   useCallback,
   useMemo,
-} from "react";
+} from 'react';
 import {
   View,
   Text,
@@ -14,15 +14,15 @@ import {
   ActivityIndicator,
   RefreshControl,
   SafeAreaView,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { useChatStore } from "@/stores/chatStore";
-import { Message } from "@/types/chat.types";
-import MessageBubble from "./MessageBubble";
-import ChatInput from "./ChatInput";
-import TypingIndicator from "./TypingIndicator";
-import UserAvatar from "./UserAvatar";
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import { useChatStore } from '@/stores/chatStore';
+import { Message } from '@/types/chat.types';
+import MessageBubble from './MessageBubble';
+import ChatInput from './ChatInput';
+import TypingIndicator from './TypingIndicator';
+import UserAvatar from './UserAvatar';
 
 interface ChatScreenProps {
   conversationId: string;
@@ -62,7 +62,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ conversationId }) => {
   } = useChatStore();
 
   // Get current conversation
-  const conversation = conversations.find((c) => c.id === conversationId);
+  const conversation = conversations.find(c => c.id === conversationId);
   const conversationMessages = useMemo(
     () => messages[conversationId] || [],
     [messages, conversationId]
@@ -221,32 +221,32 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ conversationId }) => {
   }, [isLoadingMore]);
 
   const getConversationTitle = (): string => {
-    if (!conversation) return "Chat";
+    if (!conversation) return 'Chat';
 
     if (conversation.name) return conversation.name;
 
     // For direct conversations, show the other participant's name
-    if (conversation.type === "DIRECT") {
+    if (conversation.type === 'DIRECT') {
       const otherParticipant = conversation.participants.find(
-        (p) => p.userId !== currentUserId
+        p => p.userId !== currentUserId
       );
       if (otherParticipant?.user) {
         return `${otherParticipant.user.firstName} ${otherParticipant.user.lastName}`;
       }
     }
 
-    return "Cuộc trò chuyện";
+    return 'Cuộc trò chuyện';
   };
 
   const getOtherUser = () => {
-    if (!conversation || conversation.type !== "DIRECT") return undefined;
+    if (!conversation || conversation.type !== 'DIRECT') return undefined;
 
-    console.log("participant:", conversation.participants);
+    console.log('participant:', conversation.participants);
 
-    console.log("current user id:", currentUserId);
+    console.log('current user id:', currentUserId);
 
     const otherParticipant = conversation.participants.find(
-      (p) => p.user.id !== currentUserId
+      p => p.user.id !== currentUserId
       // (p) => {
       //   console.log(p);
       // }
@@ -269,7 +269,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ conversationId }) => {
 
     const pagination = messagesPagination[conversationId];
     if (pagination?.hasMore) {
-      console.log("[ChatScreen] Loading more messages...", {
+      console.log('[ChatScreen] Loading more messages...', {
         currentPage: pagination.page,
         hasMore: pagination.hasMore,
         messagesCount: conversationMessages.length,
@@ -283,7 +283,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ conversationId }) => {
         try {
           await fetchMoreMessages(conversationId);
         } catch (error) {
-          console.error("[ChatScreen] Load more messages failed:", error);
+          console.error('[ChatScreen] Load more messages failed:', error);
           // Could add retry logic here
         }
       }, 150); // Reduced from 300ms to 150ms
@@ -303,11 +303,11 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ conversationId }) => {
     const pagination = messagesPagination[conversationId];
     if (pagination?.hasMore) {
       try {
-        console.log("[ChatScreen] Pull to refresh - loading older messages");
+        console.log('[ChatScreen] Pull to refresh - loading older messages');
         await fetchMoreMessages(conversationId);
         clearError();
       } catch (error) {
-        console.error("[ChatScreen] Refresh error:", error);
+        console.error('[ChatScreen] Refresh error:', error);
       }
     }
   }, [
@@ -323,24 +323,24 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ conversationId }) => {
 
     const options = [
       {
-        text: "Trả lời",
+        text: 'Trả lời',
         onPress: () => handleReplyToMessage(message),
       },
     ];
 
     if (isCurrentUser && !message.isDeleted) {
       options.push({
-        text: "Xóa",
+        text: 'Xóa',
         onPress: () => handleDeleteMessage(message),
       } as any);
     }
 
     options.push({
-      text: "Hủy",
-      style: "cancel",
+      text: 'Hủy',
+      style: 'cancel',
     } as any);
 
-    Alert.alert("Tùy chọn tin nhắn", "", options);
+    Alert.alert('Tùy chọn tin nhắn', '', options);
   };
 
   const handleReplyToMessage = (message: Message) => {
@@ -352,17 +352,17 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ conversationId }) => {
   };
 
   const handleDeleteMessage = (message: Message) => {
-    Alert.alert("Xóa tin nhắn", "Bạn có chắc chắn muốn xóa tin nhắn này?", [
-      { text: "Hủy", style: "cancel" },
+    Alert.alert('Xóa tin nhắn', 'Bạn có chắc chắn muốn xóa tin nhắn này?', [
+      { text: 'Hủy', style: 'cancel' },
       {
-        text: "Xóa",
-        style: "destructive",
+        text: 'Xóa',
+        style: 'destructive',
         onPress: async () => {
           try {
-            console.log("Delete message:", message.id);
+            console.log('Delete message:', message.id);
           } catch (error) {
-            console.error("[ChatScreen] Delete message error:", error);
-            Alert.alert("Lỗi", "Không thể xóa tin nhắn");
+            console.error('[ChatScreen] Delete message error:', error);
+            Alert.alert('Lỗi', 'Không thể xóa tin nhắn');
           }
         },
       },
@@ -448,7 +448,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ conversationId }) => {
         onReplyPress={() => {
           // Scroll to replied message
           const replyIndex = conversationMessages.findIndex(
-            (m) => m.id === item.replyToId
+            m => m.id === item.replyToId
           );
           if (replyIndex !== -1) {
             flatListRef.current?.scrollToIndex({
@@ -479,7 +479,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ conversationId }) => {
           user={getOtherUser()}
           size="medium"
           isOnline={isUserOnline()}
-          showOnlineIndicator={conversation?.type === "DIRECT"}
+          showOnlineIndicator={conversation?.type === 'DIRECT'}
         />
 
         {/* Title & Status */}
@@ -491,20 +491,20 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ conversationId }) => {
             {getConversationTitle()}
           </Text>
 
-          {conversation?.type === "DIRECT" && (
+          {conversation?.type === 'DIRECT' && (
             <Text className="text-sm text-gray-500">
-              {isUserOnline() ? "Đang hoạt động" : "Không hoạt động"}
+              {isUserOnline() ? 'Đang hoạt động' : 'Không hoạt động'}
             </Text>
           )}
 
-          {conversation?.type === "GROUP" && (
+          {conversation?.type === 'GROUP' && (
             <Text className="text-sm text-gray-500">
               {conversation.participants.length} thành viên
             </Text>
           )}
 
-          {conversation?.type === "APPLICATION_RELATED" && (
-            <Text className="text-sm text-blue-600">
+          {conversation?.type === 'APPLICATION_RELATED' && (
+            <Text className="text-sm text-purple-600">
               Liên quan đến ứng tuyển
             </Text>
           )}
@@ -513,7 +513,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ conversationId }) => {
         {/* Connection Status */}
         <View
           className={`w-2 h-2 rounded-full ${
-            isConnected ? "bg-green-500" : "bg-red-500"
+            isConnected ? 'bg-green-500' : 'bg-red-500'
           }`}
         />
       </View>
@@ -593,7 +593,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ conversationId }) => {
             <RefreshControl
               refreshing={isLoadingMore}
               onRefresh={handleRefresh}
-              colors={["#3B82F6"]}
+              colors={['#3B82F6']}
               tintColor="#3B82F6"
               title="Kéo để tải tin nhắn cũ hơn"
             />
@@ -616,9 +616,9 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ conversationId }) => {
         {showScrollToBottom && (
           <TouchableOpacity
             onPress={handleScrollToBottomPress}
-            className="absolute bottom-4 right-4 bg-blue-500 rounded-full p-3 shadow-lg"
+            className="absolute bottom-4 right-4 bg-purple-500 rounded-full p-3 shadow-lg"
             style={{
-              shadowColor: "#000",
+              shadowColor: '#000',
               shadowOffset: {
                 width: 0,
                 height: 2,

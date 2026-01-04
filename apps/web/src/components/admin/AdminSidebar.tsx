@@ -101,54 +101,53 @@ const getNavItems = (jobStats: JobStatistics | null, isLoading: boolean): NavIte
       },
     ],
   },
+  // {
+  //   title: 'Quản lý ứng viên',
+  //   icon: Users,
+  //   children: [
   {
-    title: 'Quản lý ứng viên',
+    title: 'Danh sách ứng viên',
+    href: '/admin/candidates',
     icon: Users,
-    children: [
-      {
-        title: 'Danh sách',
-        href: '/admin/candidates',
-        icon: Users,
-        badge: '1.2k',
-      },
-      {
-        title: 'Hồ sơ',
-        href: '/admin/candidates/profiles',
-        icon: FileSearch,
-      },
-      {
-        title: 'Đánh giá',
-        href: '/admin/candidates/reviews',
-        icon: Star,
-      },
-    ],
   },
-  {
-    title: 'Báo cáo & Thống kê',
-    icon: BarChart3,
-    children: [
-      {
-        title: 'Tổng quan',
-        href: '/admin/reports',
-        icon: TrendingUp,
-      },
-      {
-        title: 'Doanh thu',
-        href: '/admin/reports/revenue',
-        icon: DollarSign,
-      },
-      // {
-      //   title: 'Người dùng',
-      //   href: '/admin/users',
-      //   icon: Users,
-      // },
-      {
-        title: 'Tuyển dụng',
-        href: '/admin/reports/recruitment',
-        icon: Briefcase,
-      },
-    ],
-  },
+  //     {
+  //       title: 'Hồ sơ',
+  //       href: '/admin/candidates/profiles',
+  //       icon: FileSearch,
+  //     },
+  //     {
+  //       title: 'Đánh giá',
+  //       href: '/admin/candidates/reviews',
+  //       icon: Star,
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: 'Báo cáo & Thống kê',
+  //   icon: BarChart3,
+  //   children: [
+  //     {
+  //       title: 'Tổng quan',
+  //       href: '/admin/reports',
+  //       icon: TrendingUp,
+  //     },
+  //     {
+  //       title: 'Doanh thu',
+  //       href: '/admin/reports/revenue',
+  //       icon: DollarSign,
+  //     },
+  // {
+  //   title: 'Người dùng',
+  //   href: '/admin/users',
+  //   icon: Users,
+  // },
+  //     {
+  //       title: 'Tuyển dụng',
+  //       href: '/admin/reports/recruitment',
+  //       icon: Briefcase,
+  //     },
+  //   ],
+  // },
   // {
   //   title: 'Quản lý nhà tuyển dụng',
   //   icon: Building2,
@@ -157,7 +156,6 @@ const getNavItems = (jobStats: JobStatistics | null, isLoading: boolean): NavIte
     title: 'Công ty',
     href: '/admin/companies',
     icon: Building2,
-    badge: '85',
   },
   {
     title: 'Tài khoản',
@@ -200,11 +198,11 @@ const getNavItems = (jobStats: JobStatistics | null, isLoading: boolean): NavIte
     href: '/admin/skills',
     icon: Star,
   },
-  {
-    title: 'Địa điểm',
-    href: '/admin/locations',
-    icon: Globe,
-  },
+  // {
+  //   title: 'Địa điểm',
+  //   href: '/admin/locations',
+  //   icon: Globe,
+  // },
 
   // ],
   // },
@@ -345,7 +343,7 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
                 variant="ghost"
                 className={cn(
                   'h-12 w-full justify-center p-2 transition-all duration-200',
-                  'hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10',
+                  'hover:bg-gradient-to-r hover:from-purple-500 hover:to-purple-500',
                   'hover:scale-105 hover:shadow-md',
                   active && 'bg-gradient-to-r from-purple-500/20 to-blue-500/20',
                   active && 'scale-105 shadow-lg shadow-purple-500/10'
@@ -445,7 +443,7 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
             variant="ghost"
             className={cn(
               'h-11 w-full justify-start gap-3 rounded-lg transition-all duration-200',
-              'hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-blue-500/10',
+              'hover:bg-gradient-to-r hover:from-purple-500/20 hover:to-blue-500/20',
               'hover:translate-x-1 hover:shadow-md',
               level === 1 && 'pl-10',
               level === 2 && 'pl-14',

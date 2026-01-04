@@ -7,7 +7,8 @@ import { CandidatesTable } from './components/CandidatesTable';
 import { CandidateDetailDialog } from './components/CandidateDetailDialog';
 import { useCandidatesData } from '@/hooks/useCandidatesData';
 import { CandidateListItem } from './types';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Users } from 'lucide-react';
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 
 function CandidatesPageContent() {
   const router = useRouter();
@@ -103,13 +104,14 @@ function CandidatesPageContent() {
   }
 
   return (
-    <div className="container mx-auto space-y-6 py-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Quản lý ứng viên</h1>
-        <p className="text-muted-foreground">
-          Danh sách và quản lý thông tin các ứng viên trong hệ thống
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <div className="container mx-auto space-y-5 p-4 md:p-6">
+        <AdminPageHeader
+          title="Quản lý ứng viên"
+          description="👥 Danh sách và quản lý thông tin các ứng viên trong hệ thống"
+          icon={Users}
+          gradient="from-blue-600 via-cyan-600 to-teal-600"
+        />
 
       <CandidatesTable
         candidates={candidates}
@@ -137,6 +139,7 @@ function CandidatesPageContent() {
         candidateId={selectedCandidate?.id}
         fetchCandidateDetails={fetchCandidateDetails}
       />
+      </div>
     </div>
   );
 }

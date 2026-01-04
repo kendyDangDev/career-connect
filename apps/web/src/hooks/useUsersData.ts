@@ -10,7 +10,7 @@ import type {
 
 export interface UsersData {
   users: User[];
-  totalCount: number;
+  total: number;
   page: number;
   limit: number;
   totalPages: number;
@@ -68,10 +68,12 @@ export function useUsersData(options?: UseUsersDataOptions) {
 
       const apiResponse: ApiUsersResponse = await response.json();
 
+      console.log('API Response:', apiResponse.pagination);
+
       if (apiResponse.success && apiResponse.data) {
         setData({
           users: apiResponse.data,
-          totalCount: apiResponse.pagination.totalCount,
+          total: apiResponse.pagination.total,
           page: apiResponse.pagination.page,
           limit: apiResponse.pagination.limit,
           totalPages: apiResponse.pagination.totalPages,
@@ -246,26 +248,28 @@ export function useUsersData(options?: UseUsersDataOptions) {
     }
   }, []);
 
-  const pagination = data ? {
-    page: data.page,
-    limit: data.limit,
-    totalCount: data.totalCount,
-    totalPages: data.totalPages,
-    hasNextPage: data.hasNextPage,
-    hasPreviousPage: data.hasPreviousPage,
-  } : {
-    page: currentPage,
-    limit: pageSize,
-    totalCount: 0,
-    totalPages: 0,
-    hasNextPage: false,
-    hasPreviousPage: false,
-  };
+  const pagination = data
+    ? {
+        page: data.page,
+        limit: data.limit,
+        total: data.total,
+        totalPages: data.totalPages,
+        hasNextPage: data.hasNextPage,
+        hasPreviousPage: data.hasPreviousPage,
+      }
+    : {
+        page: currentPage,
+        limit: pageSize,
+        total: 0,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      };
 
   return {
     // Data
     users: data?.users || [],
-    total: data?.totalCount || 0,
+    total: data?.total || 0,
     totalPages: data?.totalPages || 0,
     hasNextPage: data?.hasNextPage || false,
     hasPreviousPage: data?.hasPreviousPage || false,

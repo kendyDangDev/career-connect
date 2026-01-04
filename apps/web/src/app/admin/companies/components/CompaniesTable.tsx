@@ -86,6 +86,8 @@ export function CompaniesTable({
   const [searchValue, setSearchValue] = useState(filters.search);
   const [industries, setIndustries] = useState<{ id: string; name: string }[]>([]);
 
+  console.log('industries:', companies);
+
   // Load industries for filter
   useEffect(() => {
     const fetchIndustries = async () => {

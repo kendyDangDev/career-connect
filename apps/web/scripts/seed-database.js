@@ -12,7 +12,7 @@ function getRandomNumber(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function getRandomDate(start = new Date(2020, 0, 1), end = new Date()) {
+function getRandomDate(start = new Date(2025, 0, 1), end = new Date()) {
   return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
 }
 
@@ -383,7 +383,7 @@ async function seedDatabase() {
         province: 'Đà Nẵng',
         phone: '0236-1234-567',
         email: 'contact@fintechpro.vn',
-        foundedYear: 2020,
+        foundedYear: 2025,
         companySize: 'SMALL_11_50',
         logoUrl:
           'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYe1NtZ0TJwo0P6Z26X2GxA3s124zX8TTa3Q&s',
@@ -429,10 +429,10 @@ async function seedDatabase() {
         province: 'Hải Phòng',
         phone: '031-2345-678',
         email: 'contact@edutechhub.vn',
-        foundedYear: 2021,
+        foundedYear: 2025,
         companySize: 'SMALL_11_50',
         logoUrl:
-          'https://i0.wp.com/edtechhub.org/wp-content/uploads/2020/09/favicon.png?fit=300%2C300&ssl=1',
+          'https://i0.wp.com/edtechhub.org/wp-content/uploads/2025/09/favicon.png?fit=300%2C300&ssl=1',
       },
       {
         companyName: 'HealthCare Plus',
@@ -459,7 +459,7 @@ async function seedDatabase() {
         province: 'Hà Nội',
         phone: '024-3456-789',
         email: 'support@logitech.vn',
-        foundedYear: 2022,
+        foundedYear: 2025,
         companySize: 'SMALL_11_50',
         logoUrl:
           'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Logitech.svg/250px-Logitech.svg.png',
@@ -489,7 +489,7 @@ async function seedDatabase() {
         province: 'Đà Nẵng',
         phone: '0236-7890-123',
         email: 'info@smartbuild.vn',
-        foundedYear: 2023,
+        foundedYear: 2025,
         companySize: 'SMALL_11_50',
         logoUrl:
           'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzEsYoKLzHCaSClK_XqnS3-KiDysxC3zGFww&s',
@@ -519,7 +519,7 @@ async function seedDatabase() {
         province: 'Hồ Chí Minh',
         phone: '028-4321-876',
         email: 'contact@traveleasy.vn',
-        foundedYear: 2020,
+        foundedYear: 2025,
         companySize: 'SMALL_11_50',
         logoUrl:
           'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLgmzPGLPRZtbU5LKSpCvBQkdEcMhBs_O7Kw&s',
@@ -604,14 +604,14 @@ async function seedDatabase() {
             'Kinh tế',
           ]),
           startDate: getRandomDate(new Date(2015, 0, 1), new Date(2018, 11, 31)),
-          endDate: getRandomDate(new Date(2019, 0, 1), new Date(2022, 11, 31)),
+          endDate: getRandomDate(new Date(2019, 0, 1), new Date(2025, 11, 31)),
           gpa: parseFloat((Math.random() * (4.0 - 2.5) + 2.5).toFixed(2)),
           description: 'Tốt nghiệp loại khá',
         },
       });
 
       // Add experience
-      const startDate = getRandomDate(new Date(2020, 0, 1), new Date(2022, 11, 31));
+      const startDate = getRandomDate(new Date(2025, 0, 1), new Date(2025, 11, 31));
       await prisma.candidateExperience.create({
         data: {
           candidateId: candidateRecord.id,

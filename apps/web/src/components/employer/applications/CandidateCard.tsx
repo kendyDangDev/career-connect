@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ApplicationStatus } from '@/generated/prisma';
+import { Router } from 'next/router';
+import Link from 'next/link';
 
 interface CandidateCardProps {
   candidate: {
@@ -115,9 +117,12 @@ export function CandidateCard({
           {/* Info */}
           <div className="min-w-0 flex-1">
             <div className="mb-1 flex items-start gap-2">
-              <h3 className="text-lg font-semibold text-gray-900 transition-colors group-hover:text-purple-700">
+              <Link
+                href={`/employer/applications/${candidate.id}`}
+                className="text-lg font-semibold text-gray-900 transition-colors group-hover:text-purple-700"
+              >
                 {fullName}
-              </h3>
+              </Link>
               {candidate.rating && (
                 <div className="flex items-center gap-1">
                   {[...Array(5)].map((_, i) => (

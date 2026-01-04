@@ -20,12 +20,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.15.0
- * Query Engine version: 85179d7826409ee107a6ba334b5e305ae3fba9fb
+ * Prisma Client JS version: 6.17.1
+ * Query Engine version: 272a37d34178c2894197e17273bf937f25acdeac
  */
 Prisma.prismaVersion = {
-  client: "6.15.0",
-  engine: "85179d7826409ee107a6ba334b5e305ae3fba9fb"
+  client: "6.17.1",
+  engine: "272a37d34178c2894197e17273bf937f25acdeac"
 }
 
 Prisma.PrismaClientKnownRequestError = () => {
@@ -603,37 +603,6 @@ exports.Prisma.PasswordResetTokenScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
-exports.Prisma.TemplateScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  category: 'category',
-  previewImage: 'previewImage',
-  structure: 'structure',
-  styling: 'styling',
-  isPremium: 'isPremium',
-  createdAt: 'createdAt'
-};
-
-exports.Prisma.UserCvScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  templateId: 'templateId',
-  cv_name: 'cv_name',
-  cvData: 'cvData',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.CvSectionScalarFieldEnum = {
-  id: 'id',
-  cvId: 'cvId',
-  title: 'title',
-  content: 'content',
-  order: 'order',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -890,10 +859,7 @@ exports.Prisma.ModelName = {
   AuditLog: 'AuditLog',
   EmailVerificationToken: 'EmailVerificationToken',
   PhoneVerificationToken: 'PhoneVerificationToken',
-  PasswordResetToken: 'PasswordResetToken',
-  Template: 'Template',
-  UserCv: 'UserCv',
-  CvSection: 'CvSection'
+  PasswordResetToken: 'PasswordResetToken'
 };
 
 /**

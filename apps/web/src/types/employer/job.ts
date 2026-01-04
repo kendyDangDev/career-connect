@@ -204,6 +204,7 @@ export interface JobListItem {
   salaryMax?: number | null;
   currency?: string | null;
   salaryNegotiable: boolean;
+  address?: string;
   locationCity?: string | null;
   locationProvince?: string | null;
   applicationDeadline?: Date | null;

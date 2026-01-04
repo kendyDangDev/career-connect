@@ -203,7 +203,9 @@ export default function JobDetailPage({ params }: PageProps) {
                     </div>
                     <div className="flex items-center gap-1">
                       <MapPin className="h-4 w-4" />
-                      <span className="text-sm">{job.locationCity || job.locationProvince}</span>
+                      <span className="text-sm">{job.address}</span>
+                      <span>-</span>
+                      <span>{job.locationProvince}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <DollarSign className="h-4 w-4" />
@@ -469,19 +471,19 @@ export default function JobDetailPage({ params }: PageProps) {
           </div>
 
           {/* Created By */}
-          <div className="shadow-soft rounded-xl border border-purple-100 bg-white p-6">
+          {/* <div className="shadow-soft rounded-xl border border-purple-100 bg-white p-6">
             <h3 className="mb-4 text-sm font-bold text-gray-900">Người đăng</h3>
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 font-semibold text-purple-700">
-                {/* {job.createdBy.recruiterId.charAt(0).toUpperCase()} */}
-                Tên người tạo công việc
-              </div>
-              <div>
-                {/* <p className="text-sm font-medium text-gray-900">{job.createdBy.fullName}</p> */}
-                {/* <p className="text-xs text-gray-500">{job.createdBy.email}</p> */}
-              </div>
-            </div>
-          </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 font-semibold text-purple-700"> */}
+          {/* {job.createdBy.recruiterId.charAt(0).toUpperCase()} */}
+          {/* Tên người tạo công việc */}
+          {/* </div>
+              <div> */}
+          {/* <p className="text-sm font-medium text-gray-900">{job.createdBy.fullName}</p> */}
+          {/* <p className="text-xs text-gray-500">{job.createdBy.email}</p> */}
+          {/* </div> */}
+          {/* </div> */}
+          {/* </div> */}
         </div>
       </div>
     </div>

@@ -203,7 +203,7 @@ export default function JobsPage() {
   const mappedJobs = jobs.map((job) => ({
     ...job,
     type: job.jobType,
-    location: job.locationCity || job.locationProvince || 'Remote',
+    location: job.address ? `${job?.address} - ${job?.locationProvince}` : 'Remote',
     salary:
       job.salaryMin && job.salaryMax
         ? `${job.salaryMin / 1000000}-${job.salaryMax / 1000000} triệu`

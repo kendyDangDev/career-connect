@@ -54,7 +54,7 @@ export interface UsersQuery {
 export interface PaginationInfo {
   page: number;
   limit: number;
-  totalCount: number;
+  total: number;
   totalPages: number;
   hasNextPage: boolean;
   hasPreviousPage: boolean;

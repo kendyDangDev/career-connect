@@ -60,7 +60,7 @@ export interface CompaniesQuery {
 export interface PaginationInfo {
   page: number;
   limit: number;
-  totalCount: number;
+  total: number;
   totalPages: number;
 }
 

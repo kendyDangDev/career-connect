@@ -219,9 +219,11 @@ export function IndustriesDataTable({ onAdd, onEdit, onDelete, onView }: Industr
       if (!response.ok) throw new Error('Failed to fetch industries');
 
       const result = await response.json();
+
+      console.log('Fetched industries:', result);
       setData(result.data || []);
-      setTotalPages(result.totalPages || 0);
-      setTotalItems(result.total || 0);
+      setTotalPages(result.pagination.totalPages || 0);
+      setTotalItems(result.pagination.total || 0);
     } catch (error) {
       console.error('Error fetching industries:', error);
       setData([]);

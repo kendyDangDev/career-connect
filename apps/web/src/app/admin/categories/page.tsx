@@ -46,6 +46,7 @@ import {
   FileText,
   FolderTree,
 } from 'lucide-react';
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 
 function CategoriesManagementPageContent() {
   const router = useRouter();
@@ -226,25 +227,14 @@ function CategoriesManagementPageContent() {
   };
 
   return (
-    <div className="container mx-auto max-w-7xl space-y-6">
-      {/* Breadcrumbs */}
-      <nav className="mb-6 flex items-center space-x-2 text-sm">
-        <a
-          href="/admin"
-          className="text-muted-foreground hover:text-foreground flex items-center transition-colors"
-        >
-          <Home className="mr-1 h-4 w-4" />
-          Trang chủ
-        </a>
-        <ChevronRight className="text-muted-foreground h-4 w-4" />
-        <span className="text-foreground">Quản lý danh mục</span>
-      </nav>
-
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Quản lý danh mục</h1>
-        <p className="text-muted-foreground">Quản lý cây danh mục cho việc làm trong hệ thống</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <div className="container mx-auto max-w-7xl space-y-5 p-4 md:p-6">
+        <AdminPageHeader
+          title="Quản lý danh mục"
+          description="🗂️ Quản lý cây danh mục cho việc làm trong hệ thống"
+          icon={FolderTree}
+          gradient="from-green-600 via-emerald-600 to-teal-600"
+        />
 
       {/* Error Alert */}
       {error && (
@@ -404,6 +394,7 @@ function CategoriesManagementPageContent() {
           </div>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }

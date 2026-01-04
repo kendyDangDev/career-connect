@@ -21,7 +21,7 @@ import {
 interface TablePaginationProps {
   currentPage: number;
   totalPages: number;
-  totalCount: number;
+  total: number;
   pageSize: number;
   onPageChange: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
@@ -32,7 +32,7 @@ interface TablePaginationProps {
 export const TablePagination: React.FC<TablePaginationProps> = ({
   currentPage,
   totalPages,
-  totalCount,
+  total,
   pageSize,
   onPageChange,
   onPageSizeChange,
@@ -40,7 +40,7 @@ export const TablePagination: React.FC<TablePaginationProps> = ({
   hasPreviousPage,
 }) => {
   const startItem = (currentPage - 1) * pageSize + 1;
-  const endItem = Math.min(currentPage * pageSize, totalCount);
+  const endItem = Math.min(currentPage * pageSize, total);
 
   const renderPageNumbers = () => {
     const pages: React.ReactNode[] = [];
@@ -128,7 +128,7 @@ export const TablePagination: React.FC<TablePaginationProps> = ({
     <div className="flex items-center justify-between px-2 py-4">
       <div className="text-muted-foreground flex items-center space-x-2 text-sm">
         <span>
-          Hiển thị {startItem} - {endItem} trong tổng số {totalCount} kết quả
+          Hiển thị {startItem} - {endItem} trong tổng số {total} kết quả
         </span>
         {onPageSizeChange && (
           <div className="flex items-center space-x-2">

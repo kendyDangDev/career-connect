@@ -104,7 +104,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
   onView,
   onDelete,
 }) => {
-  console.log('pagination:', pagination);
+  console.log('pagination tại user table:', pagination);
 
   const [searchValue, setSearchValue] = useState(filters.search);
 
@@ -321,8 +321,8 @@ export const UsersTable: React.FC<UsersTableProps> = ({
       <div className="flex items-center justify-between px-2">
         <div className="text-muted-foreground text-sm">
           Hiển thị {(pagination?.page - 1) * pagination?.limit + 1}-
-          {Math.min(pagination?.page * pagination?.limit, pagination?.totalCount)} trong{' '}
-          {pagination?.totalCount} người dùng
+          {Math.min(pagination?.page * pagination?.limit, pagination?.total)} trong{' '}
+          {pagination?.total} người dùng
         </div>
         <div className="flex items-center space-x-6">
           <div className="flex items-center space-x-2">

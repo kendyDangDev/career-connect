@@ -1,6 +1,6 @@
-import React from "react";
-import { View, Text, Image, TouchableOpacity, Dimensions } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import React from 'react';
+import { View, Text, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import {
   ArrowLeft,
   ExternalLink,
@@ -8,10 +8,10 @@ import {
   Users,
   Briefcase,
   Star,
-} from "lucide-react-native";
-import { BlurView } from "expo-blur";
+} from 'lucide-react-native';
+import { BlurView } from 'expo-blur';
 
-const { width: screenWidth } = Dimensions.get("window");
+const { width: screenWidth } = Dimensions.get('window');
 
 interface CompanyHeaderProps {
   company: {
@@ -45,11 +45,11 @@ const CompanyHeader: React.FC<CompanyHeaderProps> = ({
 }) => {
   const getCompanySizeLabel = (size: string) => {
     const sizeMap: { [key: string]: string } = {
-      STARTUP_1_10: "1-10 employees",
-      SMALL_11_50: "11-50 employees",
-      MEDIUM_51_200: "51-200 employees",
-      LARGE_201_500: "201-500 employees",
-      ENTERPRISE_500_PLUS: "500+ employees",
+      STARTUP_1_10: '1-10 employees',
+      SMALL_11_50: '11-50 employees',
+      MEDIUM_51_200: '51-200 employees',
+      LARGE_201_500: '201-500 employees',
+      ENTERPRISE_500_PLUS: '500+ employees',
     };
     return sizeMap[size] || size;
   };
@@ -60,9 +60,7 @@ const CompanyHeader: React.FC<CompanyHeaderProps> = ({
       <View className="relative h-48">
         <Image
           source={{
-            uri:
-              company.coverImageUrl ||
-              "https://www.dochipo.com/wp-content/uploads/2022/07/LinkedIn-Banner-_-Business-10.png",
+            uri: 'https://www.dochipo.com/wp-content/uploads/2022/07/LinkedIn-Banner-_-Business-10.png',
           }}
           className="w-full h-full"
           resizeMode="cover"
@@ -115,7 +113,7 @@ const CompanyHeader: React.FC<CompanyHeaderProps> = ({
               <Text className="text-xl font-bold text-gray-900 flex-1">
                 {company.companyName}
               </Text>
-              {company.verificationStatus === "VERIFIED" && (
+              {company.verificationStatus === 'VERIFIED' && (
                 <CheckCircle size={20} color="#10B981" />
               )}
             </View>
@@ -163,7 +161,7 @@ const CompanyHeader: React.FC<CompanyHeaderProps> = ({
 
           <View className="items-center">
             <Text className="text-lg font-semibold text-gray-900">
-              {getCompanySizeLabel(company.companySize).split(" ")[0]}
+              {getCompanySizeLabel(company.companySize).split(' ')[0]}
             </Text>
             <Text className="text-xs text-gray-500 mt-1">Employees</Text>
           </View>
@@ -173,15 +171,15 @@ const CompanyHeader: React.FC<CompanyHeaderProps> = ({
         <TouchableOpacity
           onPress={onFollowPress}
           className={`mx-2 py-3 rounded-xl items-center ${
-            isFollowing ? "bg-gray-100 border border-gray-300" : "bg-blue-600"
+            isFollowing ? 'bg-gray-100 border border-gray-300' : 'bg-blue-600'
           }`}
         >
           <Text
             className={`font-semibold ${
-              isFollowing ? "text-gray-700" : "text-white"
+              isFollowing ? 'text-gray-700' : 'text-white'
             }`}
           >
-            {isFollowing ? "Following" : "Follow Company"}
+            {isFollowing ? 'Following' : 'Follow Company'}
           </Text>
         </TouchableOpacity>
       </View>

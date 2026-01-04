@@ -1,25 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
   RefreshControl,
   Text,
   View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import CategoryFilter from "./CategoryFilter";
-import Header from "./Header";
-import JobCard from "./JobCard";
-import JobMatchSection from "./JobMatchSection";
-import TopCompaniesSection from "./TopCompaniesSection";
-import UserReviewsSection from "./UserReviewsSection";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import CategoryFilter from './CategoryFilter';
+import Header from './Header';
+import JobCard from './JobCard';
+import JobMatchSection from './JobMatchSection';
+import TopCompaniesSection from './TopCompaniesSection';
+import UserReviewsSection from './UserReviewsSection';
 // import JobCategoriesSection from './JobCategoriesSection';
-import savedJobService from "@/services/savedJobService";
-import { router } from "expo-router";
-import jobService from "../services/jobService";
-import { Job, JobFilters } from "../types/job";
-import StatsSection from "./StatsSection";
-import { useAlert } from "@/contexts/AlertContext";
+import savedJobService from '@/services/savedJobService';
+import { router } from 'expo-router';
+import jobService from '../services/jobService';
+import { Job, JobFilters } from '../types/job';
+import StatsSection from './StatsSection';
+import { useAlert } from '@/contexts/AlertContext';
 
 interface HomePageProps {
   onJobPress?: (job: Job) => void;
@@ -36,8 +36,8 @@ const HomePage: React.FC<HomePageProps> = ({
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [pagination, setPagination] = useState({
     page: 1,
     totalPages: 1,
@@ -56,7 +56,7 @@ const HomePage: React.FC<HomePageProps> = ({
         page: 1,
         limit: 10,
         ...filters,
-        ...(selectedCategory !== "all" && { categoryId: selectedCategory }),
+        ...(selectedCategory !== 'all' && { categoryId: selectedCategory }),
         ...(searchQuery && { search: searchQuery }),
       });
 
@@ -75,9 +75,9 @@ const HomePage: React.FC<HomePageProps> = ({
         });
       }
     } catch (error) {
-      console.error("Error fetching jobs:", error);
+      console.error('Error fetching jobs:', error);
       // Use mock data as fallback
-      console.log("Using mock data as fallback");
+      console.log('Using mock data as fallback');
     }
   };
 
@@ -90,7 +90,7 @@ const HomePage: React.FC<HomePageProps> = ({
       const response = await jobService.getJobs({
         page: pagination.page + 1,
         limit: 10,
-        ...(selectedCategory !== "all" && { categoryId: selectedCategory }),
+        ...(selectedCategory !== 'all' && { categoryId: selectedCategory }),
         ...(searchQuery && { search: searchQuery }),
       });
 
@@ -109,7 +109,7 @@ const HomePage: React.FC<HomePageProps> = ({
         });
       }
     } catch (error) {
-      console.error("Error loading more jobs:", error);
+      console.error('Error loading more jobs:', error);
     } finally {
       setLoadingMore(false);
     }
@@ -155,7 +155,7 @@ const HomePage: React.FC<HomePageProps> = ({
   // Handle job card press
   const handleJobPress = (job: Job) => {
     onJobPress?.(job);
-    console.log("pressed:", job);
+    console.log('pressed:', job);
     router.push(`/job/${job.id}`); // Navigate to JobDetailScreen with job ID
   };
 
@@ -163,11 +163,11 @@ const HomePage: React.FC<HomePageProps> = ({
   const handleFavoritePress = async (jobId: string, isFavorited: boolean) => {
     // const {saved} = await savedJobService.toggleSaveJob(jobId)
 
-    console.log("saved:", isFavorited);
+    console.log('saved:', isFavorited);
     if (isFavorited) {
-      alert.success("Thành công", "Đã lưu công việc");
+      alert.success('Thành công', 'Đã lưu công việc');
     } else {
-      alert.success("", "Đã bỏ lưu công việc");
+      alert.success('', 'Đã bỏ lưu công việc');
     }
   };
 
@@ -270,8 +270,8 @@ const HomePage: React.FC<HomePageProps> = ({
   return (
     <SafeAreaView className="flex-1 bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50">
       <FlatList
-        data={jobs}
-        keyExtractor={(item) => item.id}
+        data={jobs.slice(0, 8)}
+        keyExtractor={item => item.id}
         renderItem={renderJobItem}
         ListHeaderComponent={() => (
           <View className="relative">
@@ -286,11 +286,11 @@ const HomePage: React.FC<HomePageProps> = ({
               onNotificationPress={onNotificationPress}
               onMicPress={() => {
                 // TODO: Implement voice search
-                console.log("Voice search pressed");
+                console.log('Voice search pressed');
               }}
               onFilterPress={() => {
                 // TODO: Implement advanced filter
-                console.log("Filter pressed");
+                console.log('Filter pressed');
               }}
             />
 
@@ -299,17 +299,17 @@ const HomePage: React.FC<HomePageProps> = ({
               <View className="absolute inset-0 bg-white/60 backdrop-blur-xs rounded-xl" />
               <View className="relative z-10">
                 <TopCompaniesSection
-                  onCompanyPress={(company) => {
+                  onCompanyPress={company => {
                     if (company.companySlug) {
                       router.push(`/company/${company.companySlug}`);
                     } else {
                       console.log(
-                        "Company slug not available:",
+                        'Company slug not available:',
                         company.companyName
                       );
                     }
                   }}
-                  onSeeAllPress={() => console.log("See all companies")}
+                  onSeeAllPress={() => console.log('See all companies')}
                 />
               </View>
             </View>
@@ -357,7 +357,7 @@ const HomePage: React.FC<HomePageProps> = ({
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={["#a855f7", "#6366f1", "#3b82f6"]}
+            colors={['#a855f7', '#6366f1', '#3b82f6']}
             tintColor="#a855f7"
             progressBackgroundColor="#f3e8ff"
           />

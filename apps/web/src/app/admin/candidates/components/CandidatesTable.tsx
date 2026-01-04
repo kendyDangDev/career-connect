@@ -60,6 +60,7 @@ import {
   userStatusColors,
 } from '../types';
 import { TablePagination } from './TablePagination';
+import Link from 'next/link';
 
 interface CandidatesTableProps {
   candidates: CandidateListItem[];
@@ -93,6 +94,7 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
   onPageSizeChange,
   onView,
 }) => {
+  console.log('danh sách candidate:', candidates);
   const [searchValue, setSearchValue] = useState(filters.search);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -354,7 +356,7 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
                     <TableCell onClick={() => onView(candidate)}>
                       {format(new Date(candidate.createdAt), 'dd/MM/yyyy', { locale: vi })}
                     </TableCell>
-                    <TableCell>
+                    {/* <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon">
@@ -362,23 +364,30 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
                             <span className="sr-only">Actions</span>
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        {/* <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => onView(candidate)}>
                             <Eye className="mr-2 h-4 w-4" />
                             Xem chi tiết
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem>
-                            <FileText className="mr-2 h-4 w-4" />
-                            Xem CV
+                            <Link
+                              href={candidate.cvFileUrl || '#'}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center"
+                            >
+                              <FileText className="mr-2 h-4 w-4" />
+                              Xem CV
+                            </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem>
                             <Download className="mr-2 h-4 w-4" />
                             Tải CV
                           </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+                        </DropdownMenuContent> */}
+                    {/* </DropdownMenu>
+                    </TableCell> */}
                   </TableRow>
                 ))}
               </TableBody>

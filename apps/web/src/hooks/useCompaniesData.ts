@@ -10,7 +10,7 @@ import type {
 
 export interface CompaniesData {
   companies: Company[];
-  totalCount: number;
+  total: number;
   page: number;
   limit: number;
   totalPages: number;
@@ -72,7 +72,7 @@ export function useCompaniesData(options?: UseCompaniesDataOptions) {
       if (apiResponse.success && apiResponse.data) {
         setData({
           companies: apiResponse.data.companies,
-          totalCount: apiResponse.data.pagination.totalCount,
+          total: apiResponse.data.pagination.total,
           page: apiResponse.data.pagination.page,
           limit: apiResponse.data.pagination.limit,
           totalPages: apiResponse.data.pagination.totalPages,
@@ -83,7 +83,16 @@ export function useCompaniesData(options?: UseCompaniesDataOptions) {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, currentSearch, currentStatus, currentCompanySize, currentIndustryId, currentSortBy, currentSortOrder, pageSize]);
+  }, [
+    currentPage,
+    currentSearch,
+    currentStatus,
+    currentCompanySize,
+    currentIndustryId,
+    currentSortBy,
+    currentSortOrder,
+    pageSize,
+  ]);
 
   useEffect(() => {
     fetchCompanies();
@@ -103,7 +112,12 @@ export function useCompaniesData(options?: UseCompaniesDataOptions) {
       });
 
       // Reset to page 1 if search/filter changes
-      if (params.search !== undefined || params.status !== undefined || params.companySize !== undefined || params.industryId !== undefined) {
+      if (
+        params.search !== undefined ||
+        params.status !== undefined ||
+        params.companySize !== undefined ||
+        params.industryId !== undefined
+      ) {
         newSearchParams.set('page', '1');
       }
 
@@ -129,7 +143,7 @@ export function useCompaniesData(options?: UseCompaniesDataOptions) {
 
   const handleStatusFilter = useCallback(
     (status: string) => {
-      updateParams({ status: status === 'all'? null : status  || null});
+      updateParams({ status: status === 'all' ? null : status || null });
     },
     [updateParams]
   );
@@ -244,17 +258,19 @@ export function useCompaniesData(options?: UseCompaniesDataOptions) {
     }
   }, []);
 
-  const pagination = data ? {
-    page: data.page,
-    limit: data.limit,
-    totalCount: data.totalCount,
-    totalPages: data.totalPages,
-  } : null;
+  const pagination = data
+    ? {
+        page: data.page,
+        limit: data.limit,
+        total: data.total,
+        totalPages: data.totalPages,
+      }
+    : null;
 
   return {
     // Data
     companies: data?.companies || [],
-    total: data?.totalCount || 0,
+    total: data?.total || 0,
     totalPages: data?.totalPages || 0,
     loading,
     error,

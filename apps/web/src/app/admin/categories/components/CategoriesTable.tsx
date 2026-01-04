@@ -140,41 +140,34 @@ export function CategoriesTable({
                   onClick={() => toggleExpanded(category.id)}
                 >
                   <ChevronDown
-                    className={cn(
-                      'h-4 w-4 transition-transform',
-                      !isExpanded && '-rotate-90'
-                    )}
+                    className={cn('h-4 w-4 transition-transform', !isExpanded && '-rotate-90')}
                   />
                 </Button>
               )}
               {!hasChildren && level > 0 && <div className="w-6" />}
               <div className="flex items-center gap-2">
                 {level === 0 ? (
-                  <Folder className="h-4 w-4 text-muted-foreground" />
+                  <Folder className="text-muted-foreground h-4 w-4" />
                 ) : (
-                  <FolderOpen className="h-4 w-4 text-muted-foreground" />
+                  <FolderOpen className="text-muted-foreground h-4 w-4" />
                 )}
                 <span className="font-medium">{category.name}</span>
               </div>
             </div>
           </TableCell>
           <TableCell className="max-w-[300px]">
-            <span className="truncate text-sm text-muted-foreground">
+            <span className="text-muted-foreground truncate text-sm">
               {category.description || 'Không có mô tả'}
             </span>
           </TableCell>
-          <TableCell className="text-center">
-            {category._count?.children || 0}
-          </TableCell>
-          <TableCell className="text-center">
-            {category._count?.jobCategories || 0}
-          </TableCell>
+          <TableCell className="text-center">{category._count?.children || 0}</TableCell>
+          <TableCell className="text-center">{category._count?.jobCategories || 0}</TableCell>
           <TableCell>
             <Badge variant={category.isActive ? 'default' : 'secondary'}>
               {category.isActive ? 'Hoạt động' : 'Không hoạt động'}
             </Badge>
           </TableCell>
-          <TableCell className="text-sm text-muted-foreground">
+          <TableCell className="text-muted-foreground text-sm">
             {formatDistanceToNow(new Date(category.createdAt), {
               locale: vi,
               addSuffix: true,
@@ -224,7 +217,7 @@ export function CategoriesTable({
   // Sort icon component
   const SortIcon = ({ field }: { field: string }) => {
     if (filters.sortBy !== field) {
-      return <ArrowUpDown className="ml-2 h-4 w-4 text-muted-foreground" />;
+      return <ArrowUpDown className="text-muted-foreground ml-2 h-4 w-4" />;
     }
     return filters.sortOrder === 'asc' ? (
       <ArrowUp className="ml-2 h-4 w-4" />
@@ -234,12 +227,12 @@ export function CategoriesTable({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 p-4">
       {/* Header Actions */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex flex-1 items-center gap-2">
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <div className="relative max-w-sm flex-1">
+            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
             <Input
               placeholder="Tìm kiếm danh mục..."
               value={searchValue}
@@ -257,14 +250,14 @@ export function CategoriesTable({
           </Button>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={onImport}>
+          {/* <Button variant="outline" size="sm" onClick={onImport}>
             <Upload className="mr-2 h-4 w-4" />
             Import
           </Button>
           <Button variant="outline" size="sm" onClick={onExport}>
             <Download className="mr-2 h-4 w-4" />
             Export
-          </Button>
+          </Button> */}
           <Button onClick={onAddNew}>
             <Plus className="mr-2 h-4 w-4" />
             Thêm mới
@@ -274,7 +267,7 @@ export function CategoriesTable({
 
       {/* Filters */}
       {showFilters && (
-        <div className="rounded-lg border bg-muted/50 p-4">
+        <div className="bg-muted/50 rounded-lg border p-4">
           <div className="grid gap-4 md:grid-cols-4">
             <div>
               <label className="text-sm font-medium">Trạng thái</label>
@@ -407,10 +400,10 @@ export function CategoriesTable({
                     <Skeleton className="h-4 w-[300px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-4 w-[50px] mx-auto" />
+                    <Skeleton className="mx-auto h-4 w-[50px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-4 w-[50px] mx-auto" />
+                    <Skeleton className="mx-auto h-4 w-[50px]" />
                   </TableCell>
                   <TableCell>
                     <Skeleton className="h-6 w-[80px]" />
@@ -426,9 +419,17 @@ export function CategoriesTable({
             ) : categories.length === 0 ? (
               // Empty state
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
+                <TableCell colSpan={7} className="py-8 text-center">
                   <div className="text-muted-foreground">
-                    {filters.search || Object.keys(filters).some(key => filters[key as keyof CategoryQuery] !== undefined && key !== 'page' && key !== 'limit' && key !== 'sortBy' && key !== 'sortOrder')
+                    {filters.search ||
+                    Object.keys(filters).some(
+                      (key) =>
+                        filters[key as keyof CategoryQuery] !== undefined &&
+                        key !== 'page' &&
+                        key !== 'limit' &&
+                        key !== 'sortBy' &&
+                        key !== 'sortOrder'
+                    )
                       ? 'Không tìm thấy danh mục phù hợp'
                       : 'Chưa có danh mục nào'}
                   </div>
@@ -445,11 +446,10 @@ export function CategoriesTable({
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex items-center gap-2 text-sm">
             <span>
               Hiển thị {(currentPage - 1) * pageSize + 1} -{' '}
-              {Math.min(currentPage * pageSize, totalItems)} trong tổng số{' '}
-              {totalItems} mục
+              {Math.min(currentPage * pageSize, totalItems)} trong tổng số {totalItems} mục
             </span>
             <Select
               value={pageSize.toString()}

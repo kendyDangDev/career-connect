@@ -568,19 +568,16 @@ export default function EditJobPage() {
             {/* Location */}
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <label
-                  htmlFor="locationCity"
-                  className="mb-2 block text-sm font-medium text-gray-700"
-                >
-                  Thành phố <span className="text-red-500">*</span>
+                <label htmlFor="address" className="mb-2 block text-sm font-medium text-gray-700">
+                  Địa chỉ <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  id="locationCity"
-                  name="locationCity"
+                  id="address"
+                  name="address"
                   value={formData.address}
                   onChange={handleChange}
-                  placeholder="VD: Hà Nội"
+                  placeholder="VD: 189 Cầu Giấy"
                   className="w-full rounded-lg border border-purple-100 bg-white px-4 py-2.5 text-sm transition-all outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-200"
                   required
                 />

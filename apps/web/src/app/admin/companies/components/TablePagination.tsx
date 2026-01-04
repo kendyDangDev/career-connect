@@ -29,7 +29,7 @@ export function TablePagination({
   onPageChange,
   onPageSizeChange,
 }: TablePaginationProps) {
-  const { page, limit, totalCount, totalPages } = pagination;
+  const { page, limit, total, totalPages } = pagination;
 
   // Calculate page range to display
   const getPageNumbers = () => {
@@ -63,8 +63,8 @@ export function TablePagination({
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div className="text-muted-foreground text-sm">
-        Hiển thị {Math.min((page - 1) * limit + 1, totalCount)} -{' '}
-        {Math.min(page * limit, totalCount)} trong tổng số {totalCount} kết quả
+        Hiển thị {Math.min((page - 1) * limit + 1, total)} -{' '}
+        {Math.min(page * limit, total)} trong tổng số {total} kết quả
       </div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
         <div className="flex items-center gap-2">

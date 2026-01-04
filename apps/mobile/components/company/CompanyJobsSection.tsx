@@ -1,6 +1,13 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
-import { Briefcase, MapPin, Clock, DollarSign, Users, ChevronRight } from 'lucide-react-native';
+import {
+  Briefcase,
+  MapPin,
+  Clock,
+  DollarSign,
+  Users,
+  ChevronRight,
+} from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
 interface Job {
@@ -56,12 +63,17 @@ interface CompanyJobsSectionProps {
 
 const JobCard: React.FC<{ job: Job }> = ({ job }) => {
   const router = useRouter();
-  
-  const formatSalary = (salaryMin: string, salaryMax: string, currency: string, salaryNegotiable: boolean) => {
+
+  const formatSalary = (
+    salaryMin: string,
+    salaryMax: string,
+    currency: string,
+    salaryNegotiable: boolean
+  ) => {
     const min = (parseInt(salaryMin) / 1000000).toFixed(0);
     const max = (parseInt(salaryMax) / 1000000).toFixed(0);
     const formattedSalary = `${min}-${max}M ${currency}`;
-    return salaryNegotiable ? `${formattedSalary} (Negotiable)` : formattedSalary;
+    return salaryNegotiable ? 'Negotiable' : formattedSalary;
   };
 
   const formatDate = (dateString: string) => {
@@ -69,7 +81,7 @@ const JobCard: React.FC<{ job: Job }> = ({ job }) => {
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays < 7) return `${diffDays} days ago`;
     if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
     return `${Math.floor(diffDays / 30)} months ago`;
@@ -77,22 +89,22 @@ const JobCard: React.FC<{ job: Job }> = ({ job }) => {
 
   const getEmploymentTypeColor = (type: string) => {
     const colors: { [key: string]: string } = {
-      'FULL_TIME': 'bg-blue-100 text-blue-700',
-      'PART_TIME': 'bg-purple-100 text-purple-700',
-      'CONTRACT': 'bg-orange-100 text-orange-700',
-      'INTERNSHIP': 'bg-green-100 text-green-700',
-      'FREELANCE': 'bg-pink-100 text-pink-700'
+      FULL_TIME: 'bg-blue-100 text-blue-700',
+      PART_TIME: 'bg-purple-100 text-purple-700',
+      CONTRACT: 'bg-orange-100 text-orange-700',
+      INTERNSHIP: 'bg-green-100 text-green-700',
+      FREELANCE: 'bg-pink-100 text-pink-700',
     };
     return colors[type] || 'bg-gray-100 text-gray-700';
   };
 
   const getEmploymentTypeLabel = (type: string) => {
     const labels: { [key: string]: string } = {
-      'FULL_TIME': 'Full-time',
-      'PART_TIME': 'Part-time',
-      'CONTRACT': 'Contract',
-      'INTERNSHIP': 'Internship',
-      'FREELANCE': 'Freelance'
+      FULL_TIME: 'Full-time',
+      PART_TIME: 'Part-time',
+      CONTRACT: 'Contract',
+      INTERNSHIP: 'Internship',
+      FREELANCE: 'Freelance',
     };
     return labels[type] || type;
   };
@@ -112,7 +124,9 @@ const JobCard: React.FC<{ job: Job }> = ({ job }) => {
         <Text className="text-base font-semibold text-gray-900 flex-1 mr-2">
           {job.title}
         </Text>
-        <View className={`px-2 py-1 rounded-lg ${getEmploymentTypeColor(job.jobType)}`}>
+        <View
+          className={`px-2 py-1 rounded-lg ${getEmploymentTypeColor(job.jobType)}`}
+        >
           <Text className="text-xs font-medium">
             {getEmploymentTypeLabel(job.jobType)}
           </Text>
@@ -134,7 +148,12 @@ const JobCard: React.FC<{ job: Job }> = ({ job }) => {
         <View className="flex-row items-center">
           <DollarSign size={14} color="#6B7280" />
           <Text className="text-sm text-gray-600 ml-1.5">
-            {formatSalary(job.salaryMin, job.salaryMax, job.currency, job.salaryNegotiable)}
+            {formatSalary(
+              job.salaryMin,
+              job.salaryMax,
+              job.currency,
+              job.salaryNegotiable
+            )}
           </Text>
         </View>
 
@@ -163,14 +182,16 @@ const JobCard: React.FC<{ job: Job }> = ({ job }) => {
   );
 };
 
-const CompanyJobsSection: React.FC<CompanyJobsSectionProps> = ({ 
-  jobs, 
-  onSeeAllPress 
+const CompanyJobsSection: React.FC<CompanyJobsSectionProps> = ({
+  jobs,
+  onSeeAllPress,
 }) => {
   if (!jobs || jobs.length === 0) {
     return (
       <View className="bg-white mx-4 mb-4 p-4 rounded-2xl shadow-sm border border-gray-100">
-        <Text className="text-lg font-bold text-gray-900 mb-4">Open Positions</Text>
+        <Text className="text-lg font-bold text-gray-900 mb-4">
+          Open Positions
+        </Text>
         <View className="py-8 items-center">
           <View className="w-16 h-16 rounded-full bg-gray-100 items-center justify-center mb-3">
             <Briefcase size={24} color="#9CA3AF" />
@@ -196,7 +217,9 @@ const CompanyJobsSection: React.FC<CompanyJobsSectionProps> = ({
             onPress={onSeeAllPress}
             className="flex-row items-center"
           >
-            <Text className="text-blue-600 font-medium text-sm mr-1">See All</Text>
+            <Text className="text-blue-600 font-medium text-sm mr-1">
+              See All
+            </Text>
             <ChevronRight size={16} color="#2563EB" />
           </TouchableOpacity>
         )}

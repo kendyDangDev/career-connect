@@ -350,7 +350,7 @@ export function JobsTable({
                 </td>
               )}
               <td className="px-4 py-4">
-                <div className="flex min-w-0 items-center">
+                <div className="flex max-w-80 min-w-0 items-center">
                   {job.company.logoUrl && (
                     <img
                       className="mr-3 h-8 w-8 flex-shrink-0 rounded-full"
@@ -359,12 +359,14 @@ export function JobsTable({
                     />
                   )}
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium text-gray-900">
+                    <div className="line-clamp-2 overflow-hidden text-sm font-medium text-ellipsis text-gray-900">
                       <Link href={`/admin/jobs/${job.id}`} className="hover:text-blue-600">
                         {job.title}
                       </Link>
                     </div>
-                    <div className="truncate text-sm text-gray-500">{job.company.companyName}</div>
+                    <div className="w-[200px] truncate text-sm text-gray-500">
+                      {job.company.companyName}
+                    </div>
                     <div className="mt-1 flex flex-wrap gap-1">
                       {job.featured && (
                         <span className="inline-flex items-center rounded bg-purple-100 px-1.5 py-0.5 text-xs font-medium text-purple-800">

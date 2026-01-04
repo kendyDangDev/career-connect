@@ -269,7 +269,7 @@ export const SkillsTable: React.FC<SkillsTableProps> = ({
                 <Plus className="mr-2 h-4 w-4" />
                 Thêm mới
               </Button>
-
+              {/*
               {onImport && (
                 <Button variant="outline" size="icon" onClick={onImport} title="Import">
                   <Upload className="h-4 w-4" />
@@ -280,7 +280,7 @@ export const SkillsTable: React.FC<SkillsTableProps> = ({
                 <Button variant="outline" size="icon" onClick={onExport} title="Export">
                   <Download className="h-4 w-4" />
                 </Button>
-              )}
+              )} */}
             </>
           )}
         </div>
@@ -295,7 +295,7 @@ export const SkillsTable: React.FC<SkillsTableProps> = ({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-10">
+                <TableHead className="w-8">
                   <Checkbox
                     checked={skills.length > 0 && selected.length === skills.length}
                     onCheckedChange={handleSelectAllChange}
@@ -354,7 +354,7 @@ export const SkillsTable: React.FC<SkillsTableProps> = ({
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        {skill.iconUrl ? (
+                        {/* {skill.iconUrl ? (
                           <Avatar className="h-8 w-8">
                             <AvatarImage src={skill.iconUrl} alt={skill.name} />
                             <AvatarFallback>{skill.name[0]}</AvatarFallback>
@@ -363,14 +363,14 @@ export const SkillsTable: React.FC<SkillsTableProps> = ({
                           <Avatar className="h-8 w-8">
                             <AvatarFallback>{skill.name[0]}</AvatarFallback>
                           </Avatar>
-                        )}
+                        )} */}
                         <span className="font-medium">{skill.name}</span>
                       </div>
                     </TableCell>
                     <TableCell>
                       <Badge
                         variant={skillCategoryColors[skill.category]}
-                        className="flex w-fit items-center gap-1"
+                        className="flex w-fit items-center"
                       >
                         {skillCategoryIcons[skill.category]}
                         {skillCategoryLabels[skill.category]}
@@ -384,7 +384,7 @@ export const SkillsTable: React.FC<SkillsTableProps> = ({
                     <TableCell className="text-center">
                       <div className="flex flex-col items-center">
                         <span className="font-medium">{usageCount}</span>
-                        <span className="text-muted-foreground text-xs">
+                        <span className="text-muted-foreground no-wrap text-xs">
                           {skill._count?.candidateSkills || 0} ứng viên
                         </span>
                         <span className="text-muted-foreground text-xs">

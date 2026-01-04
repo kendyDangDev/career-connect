@@ -705,47 +705,6 @@ model PasswordResetToken {
   @@map("password_reset_tokens")
 }
 
-model Template {
-  id           String   @id @default(cuid())
-  name         String   @db.VarChar(100)
-  category     String?  @db.VarChar(50)
-  previewImage String?  @db.VarChar(255)
-  structure    Json?
-  styling      Json?
-  isPremium    Boolean  @default(false)
-  createdAt    DateTime @default(now()) @db.Timestamp(6)
-  userCvs      UserCv[]
-
-  @@map("templates")
-}
-
-model UserCv {
-  id         String      @id @default(cuid())
-  userId     String?
-  templateId String?     @default(cuid())
-  cv_name    String
-  cvData     Json?
-  createdAt  DateTime    @default(now()) @db.Timestamp(6)
-  updatedAt  DateTime    @updatedAt @db.Timestamp(6)
-  sections   CvSection[]
-  template   Template?   @relation(fields: [templateId], references: [id])
-
-  @@map("user_cvs")
-}
-
-model CvSection {
-  id        String   @id @default(cuid())
-  cvId      String
-  title     String   @db.VarChar(100)
-  content   Json?
-  order     Int?
-  createdAt DateTime @default(now()) @db.Timestamp(6)
-  updatedAt DateTime @updatedAt @db.Timestamp(6)
-  cv        UserCv   @relation(fields: [cvId], references: [id], onDelete: Cascade)
-
-  @@map("cv_sections")
-}
-
 enum UserType {
   CANDIDATE
   EMPLOYER

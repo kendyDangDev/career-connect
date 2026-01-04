@@ -8,9 +8,19 @@ import { IndustryDeleteDialog } from '@/components/admin/industries/IndustryDele
 import { IndustryDetailView } from '@/components/admin/industries/IndustryDetailView';
 import { IndustriesAnalytics } from '@/components/admin/industries/IndustriesAnalytics';
 import { Industry } from '@/types/system-categories';
-import { BarChart3, FileText, Plus, Download, Upload, ChevronRight, Home } from 'lucide-react';
+import {
+  BarChart3,
+  FileText,
+  Plus,
+  Download,
+  Upload,
+  ChevronRight,
+  Home,
+  Building2,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 
 export default function IndustriesPage() {
   const [activeTab, setActiveTab] = useState('list');
@@ -49,7 +59,6 @@ export default function IndustriesPage() {
     // try {
     //   const response = await fetch('/api/admin/system-categories/industries/export');
     //   if (!response.ok) throw new Error('Export failed');
-
     //   const blob = await response.blob();
     //   const url = window.URL.createObjectURL(blob);
     //   const a = document.createElement('a');
@@ -83,12 +92,12 @@ export default function IndustriesPage() {
         <span className="text-foreground">Quản lý ngành nghề</span>
       </nav>
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      {/* <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Quản lý ngành</h1>
           <p className="text-muted-foreground">Quản lý danh sách các ngành nghề trong hệ thống</p>
-        </div>
-        <div className="flex items-center gap-2">
+        </div> */}
+      {/* <div className="flex items-center gap-2">
           <Button variant="outline" onClick={handleImport}>
             <Upload className="mr-2 h-4 w-4" />
             Nhập
@@ -97,44 +106,51 @@ export default function IndustriesPage() {
             <Download className="mr-2 h-4 w-4" />
             Xuất
           </Button>
-        </div>
-      </div>
+        </div> */}
+      {/* </div> */}
+
+      <AdminPageHeader
+        title="Quản lý ngành nghề"
+        description="📊 Quản lý tất cả ngành nghề trong hệ thống"
+        icon={Building2}
+        gradient="from-yellow-600 via-orange-600 to-red-600"
+      />
 
       {/* Main Content */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full max-w-[400px] grid-cols-2">
+      {/* <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-fit">
           <TabsTrigger value="list" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
             Danh sách
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-2">
+          </TabsTrigger> */}
+      {/* <TabsTrigger value="analytics" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             Thống kê
-          </TabsTrigger>
-        </TabsList>
+          </TabsTrigger> */}
+      {/* </TabsList> */}
 
-        <TabsContent value="list">
-          <Card>
-            {/* <CardHeader>
+      {/* <TabsContent value="list"> */}
+      <Card>
+        {/* <CardHeader>
               <CardTitle>Danh sách ngành</CardTitle>
               <CardDescription>Quản lý và theo dõi tất cả các ngành trong hệ thống</CardDescription>
             </CardHeader> */}
-            <CardContent>
-              <IndustriesDataTable
-                key={refreshKey}
-                onAdd={handleAdd}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onView={handleView}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
+        <CardContent>
+          <IndustriesDataTable
+            key={refreshKey}
+            onAdd={handleAdd}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onView={handleView}
+          />
+        </CardContent>
+      </Card>
+      {/* </TabsContent> */}
 
-        <TabsContent value="analytics" className="space-y-4">
+      {/* <TabsContent value="analytics" className="space-y-4">
           <IndustriesAnalytics />
         </TabsContent>
-      </Tabs>
+      </Tabs> */}
 
       {/* Modals */}
       <IndustryForm

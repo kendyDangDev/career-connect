@@ -9,7 +9,8 @@ import { UserDetailDialog } from './components/UserDetailDialog';
 import { DeleteConfirmDialog } from './components/DeleteConfirmDialog';
 import { useUsersData } from '@/hooks/useUsersData';
 import { User, UserFormData } from './types';
-import { Loader2 } from 'lucide-react';
+import { Loader2, UserCog } from 'lucide-react';
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 
 function UsersPageContent() {
   const router = useRouter();
@@ -39,6 +40,8 @@ function UsersPageContent() {
     sortBy,
     sortOrder,
   });
+
+  console.log('UsersPageContent - users:', pagination);
 
   // Update URL params
   const updateURLParams = useCallback(
@@ -140,11 +143,14 @@ function UsersPageContent() {
   }
 
   return (
-    <div className="container mx-auto space-y-6 py-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Quản lý người dùng</h1>
-        <p className="text-muted-foreground">Quản lý tất cả người dùng trong hệ thống</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <div className="container mx-auto space-y-5 p-4 md:p-6">
+        <AdminPageHeader
+          title="Quản lý người dùng"
+          description="👤 Quản lý tất cả người dùng trong hệ thống"
+          icon={UserCog}
+          gradient="from-indigo-600 via-purple-600 to-pink-600"
+        />
 
       <UsersTable
         users={users}
@@ -188,17 +194,20 @@ function UsersPageContent() {
         onConfirm={handleDeleteConfirm}
         userName={selectedUser ? `${selectedUser.firstName} ${selectedUser.lastName}` : ''}
       />
+      </div>
     </div>
   );
 }
 
 export default function UsersPage() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-[400px] items-center justify-center">
-        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-[400px] items-center justify-center">
+          <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
+        </div>
+      }
+    >
       <UsersPageContent />
     </Suspense>
   );

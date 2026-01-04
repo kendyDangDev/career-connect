@@ -39,7 +39,9 @@ import {
   Download,
   Upload,
   FileText,
+  Zap,
 } from 'lucide-react';
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 
 function SkillsManagementPageContent() {
   const router = useRouter();
@@ -217,25 +219,14 @@ function SkillsManagementPageContent() {
   };
 
   return (
-    <div className="container mx-auto max-w-7xl space-y-6">
-      {/* Breadcrumbs */}
-      <nav className="mb-6 flex items-center space-x-2 text-sm">
-        <a
-          href="/admin"
-          className="text-muted-foreground hover:text-foreground flex items-center transition-colors"
-        >
-          <Home className="mr-1 h-4 w-4" />
-          Trang chủ
-        </a>
-        <ChevronRight className="text-muted-foreground h-4 w-4" />
-        <span className="text-foreground">Quản lý kỹ năng</span>
-      </nav>
-
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Quản lý kỹ năng</h1>
-        <p className="text-muted-foreground">Quản lý danh sách kỹ năng cho ứng viên và việc làm</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <div className="container mx-auto max-w-7xl space-y-5 p-4 md:p-6">
+        <AdminPageHeader
+          title="Quản lý kỹ năng"
+          description="⚡ Quản lý danh sách kỹ năng cho ứng viên và việc làm"
+          icon={Zap}
+          gradient="from-yellow-600 via-orange-600 to-red-600"
+        />
 
       {/* Error Alert */}
       {error && (
@@ -330,7 +321,7 @@ function SkillsManagementPageContent() {
       </AlertDialog>
 
       {/* Import Dialog */}
-      <Dialog open={importDialogOpen} onOpenChange={() => !importing && setImportDialogOpen(false)}>
+      {/* <Dialog open={importDialogOpen} onOpenChange={() => !importing && setImportDialogOpen(false)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Import kỹ năng</DialogTitle>
@@ -346,17 +337,17 @@ function SkillsManagementPageContent() {
                 Chọn file CSV hoặc JSON để import danh sách kỹ năng. File phải có các cột: name,
                 category, description (tùy chọn), iconUrl (tùy chọn)
               </p>
-            </div>
+            </div> */}
 
-            <Button
+      {/* <Button
               className="w-full"
               disabled={importing}
               onClick={() => document.getElementById('file-upload')?.click()}
             >
               <Upload className="mr-2 h-4 w-4" />
               {importing ? 'Đang import...' : 'Chọn file'}
-            </Button>
-
+            </Button> */}
+      {/*
             <input
               id="file-upload"
               type="file"
@@ -368,28 +359,31 @@ function SkillsManagementPageContent() {
                   handleImport(file);
                 }
               }}
-            />
-
+            /> */}
+      {/*
             {importing && (
               <div className="space-y-2">
                 <Progress value={undefined} className="w-full" />
                 <p className="text-muted-foreground text-center text-sm">Đang xử lý file...</p>
               </div>
-            )}
-          </div>
+            )} */}
+      {/* </div>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
+      </div>
     </div>
   );
 }
 
 export default function SkillsManagementPage() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-[400px] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-[400px] items-center justify-center">
+          <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
+        </div>
+      }
+    >
       <SkillsManagementPageContent />
     </Suspense>
   );

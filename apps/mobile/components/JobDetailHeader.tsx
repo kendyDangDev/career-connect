@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, Image } from "react-native";
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import {
   ArrowLeft,
   Heart,
@@ -9,8 +9,8 @@ import {
   Clock,
   Eye,
   Users,
-} from "lucide-react-native";
-import { Job } from "../types/job";
+} from 'lucide-react-native';
+import { Job } from '../types/job';
 
 interface JobDetailHeaderProps {
   job: Job;
@@ -38,9 +38,9 @@ const JobDetailHeader: React.FC<JobDetailHeaderProps> = ({
     currency: string,
     negotiable: boolean
   ) => {
-    if (negotiable) return "Thỏa thuận";
+    if (negotiable) return 'Thỏa thuận';
 
-    if (currency === "VND") {
+    if (currency === 'VND') {
       const minFormatted =
         min >= 1000000
           ? `${(min / 1000000).toFixed(0)}`
@@ -66,16 +66,16 @@ const JobDetailHeader: React.FC<JobDetailHeaderProps> = ({
 
   const getJobTypeDisplay = (jobType: string, workLocationType: string) => {
     const typeMap: { [key: string]: string } = {
-      FULL_TIME: "Full-time",
-      PART_TIME: "Part-time",
-      CONTRACT: "Contract",
-      INTERNSHIP: "Internship",
+      FULL_TIME: 'Full-time',
+      PART_TIME: 'Part-time',
+      CONTRACT: 'Contract',
+      INTERNSHIP: 'Internship',
     };
 
     const locationMap: { [key: string]: string } = {
-      REMOTE: "Remote",
-      ONSITE: "Onsite",
-      HYBRID: "Hybrid",
+      REMOTE: 'Remote',
+      ONSITE: 'Onsite',
+      HYBRID: 'Hybrid',
     };
 
     return `${typeMap[jobType] || jobType} • ${locationMap[workLocationType] || workLocationType}`;
@@ -89,7 +89,7 @@ const JobDetailHeader: React.FC<JobDetailHeaderProps> = ({
     );
 
     if (diffInHours < 1) {
-      return "Just now";
+      return 'Just now';
     } else if (diffInHours < 24) {
       return `${diffInHours}h ago`;
     } else {
@@ -133,8 +133,8 @@ const JobDetailHeader: React.FC<JobDetailHeaderProps> = ({
           >
             <Heart
               size={24}
-              color={isFavorited ? "#EF4444" : "#6B7280"}
-              fill={isFavorited ? "#EF4444" : "transparent"}
+              color={isFavorited ? '#EF4444' : '#6B7280'}
+              fill={isFavorited ? '#EF4444' : 'transparent'}
             />
           </TouchableOpacity>
 
@@ -160,16 +160,16 @@ const JobDetailHeader: React.FC<JobDetailHeaderProps> = ({
               />
             ) : (
               <Text className="text-gray-500 font-bold text-xl">
-                {job.company.companyName?.charAt(0)?.toUpperCase() || "C"}
+                {job.company.companyName?.charAt(0)?.toUpperCase() || 'C'}
               </Text>
             )}
           </View>
 
           <View className="flex-1">
             <Text className="text-gray-600 font-medium mb-1">
-              {job.company.companyName || "Unknown Company"}
+              {job.company.companyName || 'Unknown Company'}
             </Text>
-            {job.company.verificationStatus === "VERIFIED" && (
+            {job.company.verificationStatus === 'VERIFIED' && (
               <View className="flex-row items-center mb-2">
                 <View className="w-2 h-2 bg-green-500 rounded-full mr-2" />
                 <Text className="text-green-600 text-sm font-medium">
@@ -180,8 +180,8 @@ const JobDetailHeader: React.FC<JobDetailHeaderProps> = ({
             <View className="flex-row items-center">
               <MapPin size={14} color="#6B7280" />
               <Text className="text-gray-500 text-sm ml-1">
-                {job.locationCity || "Unknown City"},{" "}
-                {job.locationProvince || "Unknown Province"}
+                {job.locationCity || 'Unknown City'},{' '}
+                {job.locationProvince || 'Unknown Province'}
               </Text>
             </View>
           </View>
@@ -189,11 +189,11 @@ const JobDetailHeader: React.FC<JobDetailHeaderProps> = ({
 
         {/* Job Title */}
         <Text className="text-2xl font-bold text-gray-900 mb-3">
-          {job.title || "Untitled Job"}
+          {job.title || 'Untitled Job'}
         </Text>
 
         {/* Salary */}
-        <Text className="text-blue-600 font-bold text-xl mb-4">
+        <Text className="text-purple-600 font-bold text-xl mb-4">
           {formatSalary(
             job.salaryMin,
             job.salaryMax,
@@ -204,8 +204,8 @@ const JobDetailHeader: React.FC<JobDetailHeaderProps> = ({
 
         {/* Job Details Badges */}
         <View className="flex-row flex-wrap items-center mb-4">
-          <View className="bg-blue-50 px-3 py-2 rounded-full mr-2 mb-2">
-            <Text className="text-blue-600 text-sm font-medium">
+          <View className="bg-purple-50 px-3 py-2 rounded-full mr-2 mb-2">
+            <Text className="text-purple-600 text-sm font-medium">
               {getJobTypeDisplay(job.jobType, job.workLocationType)}
             </Text>
           </View>

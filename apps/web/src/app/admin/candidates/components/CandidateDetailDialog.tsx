@@ -3,12 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
@@ -101,14 +96,14 @@ export const CandidateDetailDialog: React.FC<CandidateDetailDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh]">
+      <DialogContent className="max-h-[90vh] max-w-4xl">
         <DialogHeader>
           <DialogTitle>Chi tiết ứng viên</DialogTitle>
         </DialogHeader>
 
         {loading ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
           </div>
         ) : candidate ? (
           <div className="space-y-6">
@@ -129,18 +124,20 @@ export const CandidateDetailDialog: React.FC<CandidateDetailDialogProps> = ({
                     <p className="text-muted-foreground">
                       {candidate.candidateInfo?.currentPosition || 'Chưa cập nhật vị trí'}
                     </p>
-                    <div className="flex items-center gap-4 mt-2">
+                    <div className="mt-2 flex items-center gap-4">
                       <Badge variant={userStatusColors[candidate.status]}>
                         {userStatusLabels[candidate.status]}
                       </Badge>
                       {candidate.candidateInfo?.availabilityStatus && (
-                        <Badge 
-                          variant={availabilityStatusColors[candidate.candidateInfo.availabilityStatus]}
+                        <Badge
+                          variant={
+                            availabilityStatusColors[candidate.candidateInfo.availabilityStatus]
+                          }
                         >
                           {availabilityStatusLabels[candidate.candidateInfo.availabilityStatus]}
                         </Badge>
                       )}
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <div className="text-muted-foreground flex items-center gap-1 text-sm">
                         {candidate.emailVerified ? (
                           <CheckCircle className="h-4 w-4 text-green-500" />
                         ) : (
@@ -150,10 +147,10 @@ export const CandidateDetailDialog: React.FC<CandidateDetailDialogProps> = ({
                       </div>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm">
+                  {/* <Button variant="outline" size="sm">
                     <Download className="h-4 w-4 mr-2" />
                     Tải CV
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
             </div>
@@ -162,7 +159,7 @@ export const CandidateDetailDialog: React.FC<CandidateDetailDialogProps> = ({
 
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid grid-cols-5 w-full">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="overview">Tổng quan</TabsTrigger>
                 <TabsTrigger value="experience">Kinh nghiệm</TabsTrigger>
                 <TabsTrigger value="education">Học vấn</TabsTrigger>
@@ -170,7 +167,7 @@ export const CandidateDetailDialog: React.FC<CandidateDetailDialogProps> = ({
                 <TabsTrigger value="certifications">Chứng chỉ</TabsTrigger>
               </TabsList>
 
-              <ScrollArea className="h-[500px] mt-4">
+              <ScrollArea className="mt-4 h-[320px]">
                 {/* Overview Tab */}
                 <TabsContent value="overview" className="space-y-4">
                   {/* Contact Info */}
@@ -180,33 +177,37 @@ export const CandidateDetailDialog: React.FC<CandidateDetailDialogProps> = ({
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="flex items-center gap-3">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
+                        <Mail className="text-muted-foreground h-4 w-4" />
                         <span>{candidate.email}</span>
                       </div>
                       {candidate.phone && (
                         <div className="flex items-center gap-3">
-                          <Phone className="h-4 w-4 text-muted-foreground" />
+                          <Phone className="text-muted-foreground h-4 w-4" />
                           <span>{candidate.phone}</span>
                         </div>
                       )}
                       {candidate.profile?.city && (
                         <div className="flex items-center gap-3">
-                          <MapPin className="h-4 w-4 text-muted-foreground" />
+                          <MapPin className="text-muted-foreground h-4 w-4" />
                           <span>
                             {[
                               candidate.profile.address,
                               candidate.profile.city,
                               candidate.profile.province,
-                              candidate.profile.country
-                            ].filter(Boolean).join(', ')}
+                              candidate.profile.country,
+                            ]
+                              .filter(Boolean)
+                              .join(', ')}
                           </span>
                         </div>
                       )}
                       {candidate.profile?.dateOfBirth && (
                         <div className="flex items-center gap-3">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          <Calendar className="text-muted-foreground h-4 w-4" />
                           <span>
-                            {format(new Date(candidate.profile.dateOfBirth), 'dd/MM/yyyy', { locale: vi })}
+                            {format(new Date(candidate.profile.dateOfBirth), 'dd/MM/yyyy', {
+                              locale: vi,
+                            })}
                           </span>
                         </div>
                       )}
@@ -221,26 +222,37 @@ export const CandidateDetailDialog: React.FC<CandidateDetailDialogProps> = ({
                     <CardContent className="space-y-3">
                       {candidate.candidateInfo?.experienceYears !== undefined && (
                         <div className="flex items-center gap-3">
-                          <Briefcase className="h-4 w-4 text-muted-foreground" />
+                          <Briefcase className="text-muted-foreground h-4 w-4" />
                           <span>Kinh nghiệm: {candidate.candidateInfo.experienceYears} năm</span>
                         </div>
                       )}
                       {candidate.candidateInfo?.preferredWorkType && (
                         <div className="flex items-center gap-3">
-                          <Clock className="h-4 w-4 text-muted-foreground" />
-                          <span>Loại hình: {preferredWorkTypeLabels[candidate.candidateInfo.preferredWorkType]}</span>
+                          <Clock className="text-muted-foreground h-4 w-4" />
+                          <span>
+                            Loại hình:{' '}
+                            {preferredWorkTypeLabels[candidate.candidateInfo.preferredWorkType]}
+                          </span>
                         </div>
                       )}
                       {candidate.candidateInfo?.preferredLocationType && (
                         <div className="flex items-center gap-3">
-                          <MapPin className="h-4 w-4 text-muted-foreground" />
-                          <span>Nơi làm việc: {preferredLocationTypeLabels[candidate.candidateInfo.preferredLocationType]}</span>
+                          <MapPin className="text-muted-foreground h-4 w-4" />
+                          <span>
+                            Nơi làm việc:{' '}
+                            {
+                              preferredLocationTypeLabels[
+                                candidate.candidateInfo.preferredLocationType
+                              ]
+                            }
+                          </span>
                         </div>
                       )}
                       <div className="flex items-center gap-3">
-                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                        <DollarSign className="text-muted-foreground h-4 w-4" />
                         <span>
-                          Mức lương mong muốn: {formatSalary(
+                          Mức lương mong muốn:{' '}
+                          {formatSalary(
                             candidate.candidateInfo?.expectedSalaryMin,
                             candidate.candidateInfo?.expectedSalaryMax,
                             candidate.candidateInfo?.currency
@@ -251,9 +263,9 @@ export const CandidateDetailDialog: React.FC<CandidateDetailDialogProps> = ({
                   </Card>
 
                   {/* Social Links */}
-                  {(candidate.profile?.websiteUrl || 
-                    candidate.profile?.linkedinUrl || 
-                    candidate.profile?.githubUrl || 
+                  {(candidate.profile?.websiteUrl ||
+                    candidate.profile?.linkedinUrl ||
+                    candidate.profile?.githubUrl ||
                     candidate.profile?.portfolioUrl) && (
                     <Card>
                       <CardHeader>
@@ -262,36 +274,52 @@ export const CandidateDetailDialog: React.FC<CandidateDetailDialogProps> = ({
                       <CardContent className="space-y-3">
                         {candidate.profile.websiteUrl && (
                           <div className="flex items-center gap-3">
-                            <Globe className="h-4 w-4 text-muted-foreground" />
-                            <a href={candidate.profile.websiteUrl} target="_blank" rel="noopener noreferrer" 
-                               className="text-blue-600 hover:underline">
+                            <Globe className="text-muted-foreground h-4 w-4" />
+                            <a
+                              href={candidate.profile.websiteUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline"
+                            >
                               {candidate.profile.websiteUrl}
                             </a>
                           </div>
                         )}
                         {candidate.profile.linkedinUrl && (
                           <div className="flex items-center gap-3">
-                            <Linkedin className="h-4 w-4 text-muted-foreground" />
-                            <a href={candidate.profile.linkedinUrl} target="_blank" rel="noopener noreferrer"
-                               className="text-blue-600 hover:underline">
+                            <Linkedin className="text-muted-foreground h-4 w-4" />
+                            <a
+                              href={candidate.profile.linkedinUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline"
+                            >
                               LinkedIn Profile
                             </a>
                           </div>
                         )}
                         {candidate.profile.githubUrl && (
                           <div className="flex items-center gap-3">
-                            <Github className="h-4 w-4 text-muted-foreground" />
-                            <a href={candidate.profile.githubUrl} target="_blank" rel="noopener noreferrer"
-                               className="text-blue-600 hover:underline">
+                            <Github className="text-muted-foreground h-4 w-4" />
+                            <a
+                              href={candidate.profile.githubUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline"
+                            >
                               GitHub Profile
                             </a>
                           </div>
                         )}
                         {candidate.profile.portfolioUrl && (
                           <div className="flex items-center gap-3">
-                            <Link className="h-4 w-4 text-muted-foreground" />
-                            <a href={candidate.profile.portfolioUrl} target="_blank" rel="noopener noreferrer"
-                               className="text-blue-600 hover:underline">
+                            <Link className="text-muted-foreground h-4 w-4" />
+                            <a
+                              href={candidate.profile.portfolioUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline"
+                            >
                               Portfolio
                             </a>
                           </div>
@@ -315,14 +343,15 @@ export const CandidateDetailDialog: React.FC<CandidateDetailDialogProps> = ({
 
                 {/* Experience Tab */}
                 <TabsContent value="experience" className="space-y-4">
-                  {candidate.candidateInfo?.experience && candidate.candidateInfo.experience.length > 0 ? (
+                  {candidate.candidateInfo?.experience &&
+                  candidate.candidateInfo.experience.length > 0 ? (
                     candidate.candidateInfo.experience.map((exp) => (
                       <Card key={exp.id}>
                         <CardContent className="pt-6">
                           <div className="flex items-start justify-between">
                             <div className="space-y-2">
                               <h4 className="font-semibold">{exp.positionTitle}</h4>
-                              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                              <div className="text-muted-foreground flex items-center gap-3 text-sm">
                                 <span className="flex items-center gap-1">
                                   <Building className="h-4 w-4" />
                                   {exp.companyName}
@@ -331,10 +360,13 @@ export const CandidateDetailDialog: React.FC<CandidateDetailDialogProps> = ({
                                   {employmentTypeLabels[exp.employmentType]}
                                 </Badge>
                               </div>
-                              <div className="text-sm text-muted-foreground">
-                                {format(new Date(exp.startDate), 'MM/yyyy')} - {' '}
-                                {exp.isCurrent ? 'Hiện tại' : 
-                                  exp.endDate ? format(new Date(exp.endDate), 'MM/yyyy') : 'Hiện tại'}
+                              <div className="text-muted-foreground text-sm">
+                                {format(new Date(exp.startDate), 'MM/yyyy')} -{' '}
+                                {exp.isCurrent
+                                  ? 'Hiện tại'
+                                  : exp.endDate
+                                    ? format(new Date(exp.endDate), 'MM/yyyy')
+                                    : 'Hiện tại'}
                               </div>
                             </div>
                           </div>
@@ -343,7 +375,7 @@ export const CandidateDetailDialog: React.FC<CandidateDetailDialogProps> = ({
                           )}
                           {exp.achievements && (
                             <div className="mt-3">
-                              <p className="text-sm font-medium mb-1">Thành tích:</p>
+                              <p className="mb-1 text-sm font-medium">Thành tích:</p>
                               <p className="text-sm leading-relaxed">{exp.achievements}</p>
                             </div>
                           )}
@@ -351,7 +383,7 @@ export const CandidateDetailDialog: React.FC<CandidateDetailDialogProps> = ({
                       </Card>
                     ))
                   ) : (
-                    <div className="text-center py-8 text-muted-foreground">
+                    <div className="text-muted-foreground py-8 text-center">
                       Chưa có thông tin kinh nghiệm
                     </div>
                   )}
@@ -359,23 +391,22 @@ export const CandidateDetailDialog: React.FC<CandidateDetailDialogProps> = ({
 
                 {/* Education Tab */}
                 <TabsContent value="education" className="space-y-4">
-                  {candidate.candidateInfo?.education && candidate.candidateInfo.education.length > 0 ? (
+                  {candidate.candidateInfo?.education &&
+                  candidate.candidateInfo.education.length > 0 ? (
                     candidate.candidateInfo.education.map((edu) => (
                       <Card key={edu.id}>
                         <CardContent className="pt-6">
                           <div className="space-y-2">
                             <h4 className="font-semibold">{edu.fieldOfStudy}</h4>
-                            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                            <div className="text-muted-foreground flex items-center gap-3 text-sm">
                               <span className="flex items-center gap-1">
                                 <GraduationCap className="h-4 w-4" />
                                 {edu.institutionName}
                               </span>
-                              <Badge variant="outline">
-                                {degreeTypeLabels[edu.degreeType]}
-                              </Badge>
+                              <Badge variant="outline">{degreeTypeLabels[edu.degreeType]}</Badge>
                             </div>
-                            <div className="text-sm text-muted-foreground">
-                              {format(new Date(edu.startDate), 'MM/yyyy')} - {' '}
+                            <div className="text-muted-foreground text-sm">
+                              {format(new Date(edu.startDate), 'MM/yyyy')} -{' '}
                               {edu.endDate ? format(new Date(edu.endDate), 'MM/yyyy') : 'Hiện tại'}
                             </div>
                             {edu.gpa && (
@@ -391,7 +422,7 @@ export const CandidateDetailDialog: React.FC<CandidateDetailDialogProps> = ({
                       </Card>
                     ))
                   ) : (
-                    <div className="text-center py-8 text-muted-foreground">
+                    <div className="text-muted-foreground py-8 text-center">
                       Chưa có thông tin học vấn
                     </div>
                   )}
@@ -408,13 +439,15 @@ export const CandidateDetailDialog: React.FC<CandidateDetailDialogProps> = ({
                               <div className="space-y-2">
                                 <h4 className="font-semibold">{skill.skill.name}</h4>
                                 {skill.skill.category && (
-                                  <p className="text-sm text-muted-foreground">{skill.skill.category}</p>
+                                  <p className="text-muted-foreground text-sm">
+                                    {skill.skill.category}
+                                  </p>
                                 )}
                                 <Badge variant="secondary">
                                   {proficiencyLevelLabels[skill.proficiencyLevel]}
                                 </Badge>
                                 {skill.yearsExperience && (
-                                  <p className="text-sm text-muted-foreground">
+                                  <p className="text-muted-foreground text-sm">
                                     {skill.yearsExperience} năm kinh nghiệm
                                   </p>
                                 )}
@@ -424,8 +457,12 @@ export const CandidateDetailDialog: React.FC<CandidateDetailDialogProps> = ({
                                   <Star
                                     key={level}
                                     className={`h-4 w-4 ${
-                                      level <= (['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'].indexOf(skill.proficiencyLevel) + 1)
-                                        ? 'text-yellow-500 fill-yellow-500'
+                                      level <=
+                                      ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'].indexOf(
+                                        skill.proficiencyLevel
+                                      ) +
+                                        1
+                                        ? 'fill-yellow-500 text-yellow-500'
                                         : 'text-gray-300'
                                     }`}
                                   />
@@ -437,7 +474,7 @@ export const CandidateDetailDialog: React.FC<CandidateDetailDialogProps> = ({
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-muted-foreground">
+                    <div className="text-muted-foreground py-8 text-center">
                       Chưa có thông tin kỹ năng
                     </div>
                   )}
@@ -445,33 +482,38 @@ export const CandidateDetailDialog: React.FC<CandidateDetailDialogProps> = ({
 
                 {/* Certifications Tab */}
                 <TabsContent value="certifications" className="space-y-4">
-                  {candidate.candidateInfo?.certifications && candidate.candidateInfo.certifications.length > 0 ? (
+                  {candidate.candidateInfo?.certifications &&
+                  candidate.candidateInfo.certifications.length > 0 ? (
                     candidate.candidateInfo.certifications.map((cert) => (
                       <Card key={cert.id}>
                         <CardContent className="pt-6">
                           <div className="space-y-2">
                             <h4 className="font-semibold">{cert.certificationName}</h4>
-                            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                            <div className="text-muted-foreground flex items-center gap-3 text-sm">
                               <span className="flex items-center gap-1">
                                 <Award className="h-4 w-4" />
                                 {cert.issuingOrganization}
                               </span>
                             </div>
-                            <div className="text-sm text-muted-foreground">
+                            <div className="text-muted-foreground text-sm">
                               Cấp ngày: {format(new Date(cert.issueDate), 'dd/MM/yyyy')}
                               {cert.expiryDate && (
-                                <span> - Hết hạn: {format(new Date(cert.expiryDate), 'dd/MM/yyyy')}</span>
+                                <span>
+                                  {' '}
+                                  - Hết hạn: {format(new Date(cert.expiryDate), 'dd/MM/yyyy')}
+                                </span>
                               )}
                             </div>
                             {cert.credentialId && (
                               <div className="text-sm">
-                                <span className="font-medium">Mã chứng chỉ:</span> {cert.credentialId}
+                                <span className="font-medium">Mã chứng chỉ:</span>{' '}
+                                {cert.credentialId}
                               </div>
                             )}
                             {cert.credentialUrl && (
-                              <a 
-                                href={cert.credentialUrl} 
-                                target="_blank" 
+                              <a
+                                href={cert.credentialUrl}
+                                target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-sm text-blue-600 hover:underline"
                               >
@@ -483,7 +525,7 @@ export const CandidateDetailDialog: React.FC<CandidateDetailDialogProps> = ({
                       </Card>
                     ))
                   ) : (
-                    <div className="text-center py-8 text-muted-foreground">
+                    <div className="text-muted-foreground py-8 text-center">
                       Chưa có thông tin chứng chỉ
                     </div>
                   )}
@@ -492,9 +534,7 @@ export const CandidateDetailDialog: React.FC<CandidateDetailDialogProps> = ({
             </Tabs>
           </div>
         ) : (
-          <div className="text-center py-8 text-muted-foreground">
-            Không có dữ liệu
-          </div>
+          <div className="text-muted-foreground py-8 text-center">Không có dữ liệu</div>
         )}
       </DialogContent>
     </Dialog>

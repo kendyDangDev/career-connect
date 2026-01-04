@@ -1,8 +1,8 @@
-import { useAlert } from "@/contexts/AlertContext";
-import { Calendar, Users } from "lucide-react-native";
-import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAlert } from '@/contexts/AlertContext';
+import { Calendar, Users } from 'lucide-react-native';
+import React from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface ApplyButtonProps {
   deadline: string;
@@ -20,24 +20,26 @@ const ApplyButton: React.FC<ApplyButtonProps> = ({
   const insets = useSafeAreaInsets();
 
   const formatDeadline = (deadline: string) => {
-    if (deadline === null) return "Không giới hạn";
+    if (deadline === null) return 'Không giới hạn';
     const deadlineDate = new Date(deadline);
     const now = new Date();
     const diffTime = deadlineDate.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays < 0) {
-      return "Expired";
+      return 'Expired';
     } else if (diffDays === 0) {
-      return "Today";
+      return 'Today';
     } else if (diffDays === 1) {
-      return "Tomorrow";
+      return 'Tomorrow';
     } else if (diffDays <= 7) {
       return `${diffDays} days left`;
+    } else if (diffDays === null) {
+      return 'Không giới hạn';
     } else {
-      return deadlineDate.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
+      return deadlineDate.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
       });
     }
   };
@@ -46,13 +48,11 @@ const ApplyButton: React.FC<ApplyButtonProps> = ({
 
   const isExpired = deadline === null ? false : new Date(deadline) < new Date();
 
-  console.log("test giá trị expired:", isExpired);
-
   const handleApply = () => {
-    if (isExpired !== null) {
+    if (isExpired !== null && isExpired) {
       alert.warning(
-        "Application Closed",
-        "The application deadline for this job has passed."
+        'Application Closed',
+        'The application deadline for this job has passed.'
       );
       return;
     }
@@ -69,7 +69,7 @@ const ApplyButton: React.FC<ApplyButtonProps> = ({
       className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200"
       style={{
         paddingBottom: insets.bottom + 16,
-        shadowColor: "#000",
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: -2 },
         shadowOpacity: 0.1,
         shadowRadius: 8,
@@ -82,8 +82,8 @@ const ApplyButton: React.FC<ApplyButtonProps> = ({
           <View className="flex-row items-center">
             <Calendar size={16} color="#6B7280" />
             <Text className="text-gray-600 text-sm ml-1">
-              Deadline:{" "}
-              <Text className={isExpired ? "text-red-500" : "text-gray-900"}>
+              Deadline:{' '}
+              <Text className={isExpired ? 'text-red-500' : 'text-gray-900'}>
                 {formatDeadline(deadline)}
               </Text>
             </Text>
@@ -102,7 +102,7 @@ const ApplyButton: React.FC<ApplyButtonProps> = ({
           onPress={handleApply}
           className={`
             w-full rounded-2xl py-4 items-center
-            ${isExpired || disabled ? "bg-gray-300" : "bg-blue-600"}
+            ${isExpired || disabled ? 'bg-gray-300' : 'bg-purple-600'}
           `}
           activeOpacity={isExpired || disabled ? 1 : 0.8}
           disabled={disabled}
@@ -110,10 +110,10 @@ const ApplyButton: React.FC<ApplyButtonProps> = ({
           <Text
             className={`
             font-bold text-lg
-            ${isExpired || disabled ? "text-gray-500" : "text-white"}
+            ${isExpired || disabled ? 'text-gray-500' : 'text-white'}
           `}
           >
-            {isExpired ? "Application Closed" : "Apply Now"}
+            {isExpired ? 'Application Closed' : 'Apply Now'}
           </Text>
         </TouchableOpacity>
       </View>

@@ -118,7 +118,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
   const handleImagePicker = async () => {
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert(
           'Quyền truy cập',
@@ -137,7 +138,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
       if (!result.canceled && result.assets?.[0]) {
         const asset = result.assets[0];
-        
+
         // TODO: Upload image and send message with attachment
         Alert.alert('Thông báo', 'Tính năng gửi ảnh sẽ được cập nhật sớm!');
       }
@@ -165,24 +166,20 @@ const ChatInput: React.FC<ChatInputProps> = ({
   };
 
   const showAttachmentOptions = () => {
-    Alert.alert(
-      'Đính kèm',
-      'Chọn loại file muốn gửi',
-      [
-        {
-          text: 'Ảnh',
-          onPress: handleImagePicker,
-        },
-        {
-          text: 'File',
-          onPress: handleDocumentPicker,
-        },
-        {
-          text: 'Hủy',
-          style: 'cancel',
-        },
-      ]
-    );
+    Alert.alert('Đính kèm', 'Chọn loại file muốn gửi', [
+      {
+        text: 'Ảnh',
+        onPress: handleImagePicker,
+      },
+      {
+        text: 'File',
+        onPress: handleDocumentPicker,
+      },
+      {
+        text: 'Hủy',
+        style: 'cancel',
+      },
+    ]);
   };
 
   const canSend = message.trim().length > 0 && !isSendingMessage && isConnected;
@@ -195,9 +192,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
       <View className="bg-white border-t border-gray-200">
         {/* Reply Preview */}
         {replyTo && (
-          <View className="flex-row items-center justify-between px-4 py-2 bg-gray-50 border-l-4 border-blue-500">
+          <View className="flex-row items-center justify-between px-4 py-2 bg-gray-50 border-l-4 border-purple-500">
             <View className="flex-1">
-              <Text className="text-xs text-blue-600 font-medium">
+              <Text className="text-xs text-purple-600 font-medium">
                 Trả lời {replyTo.senderName}
               </Text>
               <Text className="text-sm text-gray-600 mt-0.5" numberOfLines={1}>
@@ -245,7 +242,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
               className="text-base text-gray-900 min-h-[36px]"
               editable={!disabled}
               maxLength={1000}
-              onSubmitEditing={Platform.OS === 'ios' ? handleSendMessage : undefined}
+              onSubmitEditing={
+                Platform.OS === 'ios' ? handleSendMessage : undefined
+              }
               blurOnSubmit={Platform.OS === 'ios'}
               returnKeyType={Platform.OS === 'ios' ? 'send' : 'default'}
             />
@@ -256,9 +255,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             onPress={handleSendMessage}
             disabled={!canSend || disabled}
             className={`ml-2 p-2 rounded-full ${
-              canSend && !disabled
-                ? 'bg-blue-500'
-                : 'bg-gray-300'
+              canSend && !disabled ? 'bg-purple-500' : 'bg-gray-300'
             }`}
             activeOpacity={0.7}
           >

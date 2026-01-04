@@ -9,7 +9,8 @@ import { CompanyDetailDialog } from './components/CompanyDetailDialog';
 import { DeleteConfirmDialog } from './components/DeleteConfirmDialog';
 import { useCompaniesData } from '@/hooks/useCompaniesData';
 import { Company, CompanyFormData } from './types';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Building2 } from 'lucide-react';
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 
 function CompaniesPageContent() {
   const router = useRouter();
@@ -57,6 +58,8 @@ function CompaniesPageContent() {
     sortBy,
     sortOrder,
   });
+
+  console.log('COMPANY PAGINATION:', pagination);
 
   // Update URL params
   const updateURLParams = useCallback(
@@ -161,11 +164,14 @@ function CompaniesPageContent() {
   }
 
   return (
-    <div className="container mx-auto space-y-6 py-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Quản lý công ty</h1>
-        <p className="text-muted-foreground">Quản lý tất cả công ty trong hệ thống</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <div className="container mx-auto space-y-5 p-4 md:p-6">
+        <AdminPageHeader
+          title="Quản lý công ty"
+          description="📊 Quản lý tất cả công ty trong hệ thống"
+          icon={Building2}
+          gradient="from-purple-600 via-blue-600 to-cyan-600"
+        />
 
       <CompaniesTable
         companies={companies}
@@ -212,17 +218,20 @@ function CompaniesPageContent() {
         companyName={selectedCompany ? selectedCompany.companyName : ''}
         loading={deleteLoading}
       />
+      </div>
     </div>
   );
 }
 
 export default function CompaniesPage() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-[400px] items-center justify-center">
-        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-[400px] items-center justify-center">
+          <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
+        </div>
+      }
+    >
       <CompaniesPageContent />
     </Suspense>
   );

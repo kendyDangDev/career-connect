@@ -115,6 +115,7 @@ export interface CandidateListItem {
   lastName: string;
   phone?: string;
   avatarUrl?: string;
+  cvFileUrl?: string;
   status: UserStatus;
   createdAt: string;
   candidateInfo?: {

@@ -1,17 +1,17 @@
-import { useAlert } from "@/contexts/AlertContext";
-import { useAuthContext } from "@/contexts/AuthContext";
-import userService from "@/services/userService";
+import { useAlert } from '@/contexts/AlertContext';
+import { useAuthContext } from '@/contexts/AuthContext';
+import userService from '@/services/userService';
 import type {
   Gender,
   UpdateUserProfileRequest,
   UpdateUserRequest,
   UserProfile,
   User as UserType,
-} from "@/types/user.types";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import * as ImagePicker from "expo-image-picker";
-import { useRouter } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
+} from '@/types/user.types';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import * as ImagePicker from 'expo-image-picker';
+import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import {
   ArrowLeft,
   Camera,
@@ -32,8 +32,8 @@ import {
   Link,
   Check,
   X,
-} from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+} from 'lucide-react-native';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -45,8 +45,8 @@ import {
   TouchableOpacity,
   View,
   Modal,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ProfileInfoScreen: React.FC = () => {
   const router = useRouter();
@@ -65,29 +65,29 @@ const ProfileInfoScreen: React.FC = () => {
 
   // Form states for editing
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    phone: "",
-    email: "",
+    firstName: '',
+    lastName: '',
+    phone: '',
+    email: '',
     dateOfBirth: new Date(),
-    gender: "PREFER_NOT_TO_SAY" as Gender,
-    address: "",
-    city: "",
-    province: "",
-    country: "Vietnam",
-    bio: "",
-    websiteUrl: "",
-    linkedinUrl: "",
-    githubUrl: "",
-    portfolioUrl: "",
+    gender: 'PREFER_NOT_TO_SAY' as Gender,
+    address: '',
+    city: '',
+    province: '',
+    country: 'Vietnam',
+    bio: '',
+    websiteUrl: '',
+    linkedinUrl: '',
+    githubUrl: '',
+    portfolioUrl: '',
   });
 
   // Gender options
   const genderOptions = [
-    { value: "MALE" as Gender, label: "Nam" },
-    { value: "FEMALE" as Gender, label: "Nữ" },
-    { value: "OTHER" as Gender, label: "Khác" },
-    { value: "PREFER_NOT_TO_SAY" as Gender, label: "Không muốn nói" },
+    { value: 'MALE' as Gender, label: 'Nam' },
+    { value: 'FEMALE' as Gender, label: 'Nữ' },
+    { value: 'OTHER' as Gender, label: 'Khác' },
+    { value: 'PREFER_NOT_TO_SAY' as Gender, label: 'Không muốn nói' },
   ];
 
   const loadUserData = React.useCallback(async () => {
@@ -95,10 +95,10 @@ const ProfileInfoScreen: React.FC = () => {
       setLoading(true);
       if (authUser?.id) {
         const userResponse = await userService.getUserById(authUser.id);
-        if ("data" in userResponse && userResponse.data) {
+        if ('data' in userResponse && userResponse.data) {
           setUserData(userResponse.data);
           const profileResponse = await userService.getUserProfile(authUser.id);
-          if ("data" in profileResponse && profileResponse.data) {
+          if ('data' in profileResponse && profileResponse.data) {
             updateFormData(userResponse.data, profileResponse.data);
           } else {
             updateFormData(userResponse.data, null);
@@ -106,8 +106,8 @@ const ProfileInfoScreen: React.FC = () => {
         }
       }
     } catch (error) {
-      console.error("Error loading user data:", error);
-      alert.error("Lỗi", "Không thể tải thông tin người dùng");
+      console.error('Error loading user data:', error);
+      alert.error('Lỗi', 'Không thể tải thông tin người dùng');
     } finally {
       setLoading(false);
     }
@@ -120,30 +120,30 @@ const ProfileInfoScreen: React.FC = () => {
 
   const updateFormData = (user: UserType, profile: UserProfile | null) => {
     setFormData({
-      firstName: user.firstName || "",
-      lastName: user.lastName || "",
-      phone: user.phone || "",
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      phone: user.phone || '',
       email: user.email,
       dateOfBirth: profile?.dateOfBirth
         ? new Date(profile.dateOfBirth)
         : new Date(),
-      gender: (profile?.gender as Gender) || ("PREFER_NOT_TO_SAY" as Gender),
-      address: profile?.address || "",
-      city: profile?.city || "",
-      province: profile?.province || "",
-      country: profile?.country || "Vietnam",
-      bio: profile?.bio || "",
-      websiteUrl: profile?.websiteUrl || "",
-      linkedinUrl: profile?.linkedinUrl || "",
-      githubUrl: profile?.githubUrl || "",
-      portfolioUrl: profile?.portfolioUrl || "",
+      gender: (profile?.gender as Gender) || ('PREFER_NOT_TO_SAY' as Gender),
+      address: profile?.address || '',
+      city: profile?.city || '',
+      province: profile?.province || '',
+      country: profile?.country || 'Vietnam',
+      bio: profile?.bio || '',
+      websiteUrl: profile?.websiteUrl || '',
+      linkedinUrl: profile?.linkedinUrl || '',
+      githubUrl: profile?.githubUrl || '',
+      portfolioUrl: profile?.portfolioUrl || '',
     });
   };
 
   const handleSave = async () => {
     setSaving(true);
     if (!authUser?.id) {
-      alert.error("Lỗi", "Không tìm thấy thông tin người dùng");
+      alert.error('Lỗi', 'Không tìm thấy thông tin người dùng');
       return;
     }
 
@@ -158,8 +158,8 @@ const ProfileInfoScreen: React.FC = () => {
         authUser.id,
         userUpdateData
       );
-      if ("error" in userResponse) {
-        alert.error("Lỗi", userResponse.error);
+      if ('error' in userResponse) {
+        alert.error('Lỗi', userResponse.error);
         return;
       }
 
@@ -181,21 +181,21 @@ const ProfileInfoScreen: React.FC = () => {
         authUser.id,
         profileUpdateData
       );
-      if ("error" in profileResponse) {
-        alert.error("Lỗi", profileResponse.error);
+      if ('error' in profileResponse) {
+        alert.error('Lỗi', profileResponse.error);
         return;
       }
 
-      if ("data" in userResponse && userResponse.data) {
+      if ('data' in userResponse && userResponse.data) {
         setUserData(userResponse.data);
       }
       // Profile updated successfully
 
       setIsEditing(false);
-      alert.success("Thành công", "Cập nhật thông tin thành công");
+      alert.success('Thành công', 'Cập nhật thông tin thành công');
     } catch (error) {
-      console.error("Error saving profile:", error);
-      alert.error("Lỗi", "Không thể lưu thông tin");
+      console.error('Error saving profile:', error);
+      alert.error('Lỗi', 'Không thể lưu thông tin');
     } finally {
       setSaving(false);
     }
@@ -205,7 +205,7 @@ const ProfileInfoScreen: React.FC = () => {
     const permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
-      alert.error("Lỗi", "Bạn cần cấp quyền truy cập thư viện ảnh");
+      alert.error('Lỗi', 'Bạn cần cấp quyền truy cập thư viện ảnh');
       return;
     }
 
@@ -221,8 +221,8 @@ const ProfileInfoScreen: React.FC = () => {
         authUser.id,
         result.assets[0].uri
       );
-      if ("avatarUrl" in uploadResponse) {
-        setUserData((prev) =>
+      if ('avatarUrl' in uploadResponse) {
+        setUserData(prev =>
           prev ? { ...prev, avatarUrl: uploadResponse.avatarUrl } : null
         );
       }
@@ -230,15 +230,15 @@ const ProfileInfoScreen: React.FC = () => {
   };
 
   const formatDate = (date: Date) => {
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
   };
 
   const getGenderLabel = (gender: Gender) => {
-    const option = genderOptions.find((opt) => opt.value === gender);
-    return option?.label || "Không muốn nói";
+    const option = genderOptions.find(opt => opt.value === gender);
+    return option?.label || 'Không muốn nói';
   };
 
   if (loading) {
@@ -255,14 +255,14 @@ const ProfileInfoScreen: React.FC = () => {
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
       >
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
           {/* Modern Header with Gradient */}
           <View className="relative">
             <LinearGradient
-              colors={["#3b82f6", "#1d4ed8", "#1e40af"]}
+              colors={['#3b82f6', '#1d4ed8', '#1e40af']}
               className="h-64 w-full"
             />
 
@@ -307,7 +307,7 @@ const ProfileInfoScreen: React.FC = () => {
               className="bg-white mx-4 rounded-3xl -mt-32 mb-6"
               style={{
                 elevation: 8,
-                shadowColor: "#000",
+                shadowColor: '#000',
                 shadowOffset: { width: 0, height: 4 },
                 shadowOpacity: 0.1,
                 shadowRadius: 12,
@@ -323,7 +323,7 @@ const ProfileInfoScreen: React.FC = () => {
                     className="w-28 h-28 rounded-full border-4 border-white"
                     style={{
                       elevation: 6,
-                      shadowColor: "#000",
+                      shadowColor: '#000',
                       shadowOffset: { width: 0, height: 3 },
                       shadowOpacity: 0.15,
                       shadowRadius: 8,
@@ -337,7 +337,7 @@ const ProfileInfoScreen: React.FC = () => {
                       />
                     ) : (
                       <LinearGradient
-                        colors={["#60a5fa", "#3b82f6"]}
+                        colors={['#60a5fa', '#3b82f6']}
                         className="w-full h-full rounded-full justify-center items-center"
                       >
                         <User size={48} color="white" />
@@ -357,7 +357,7 @@ const ProfileInfoScreen: React.FC = () => {
                 <Text className="text-2xl font-bold text-gray-900 mb-1">
                   {userData?.firstName && userData?.lastName
                     ? `${userData.firstName} ${userData.lastName}`
-                    : "Người dùng"}
+                    : 'Người dùng'}
                 </Text>
                 <Text className="text-gray-600 mb-4">{userData?.email}</Text>
 
@@ -398,7 +398,7 @@ const ProfileInfoScreen: React.FC = () => {
             className="bg-white mx-4 rounded-2xl p-6 mb-4"
             style={{
               elevation: 4,
-              shadowColor: "#000",
+              shadowColor: '#000',
               shadowOffset: { width: 0, height: 2 },
               shadowOpacity: 0.08,
               shadowRadius: 8,
@@ -425,7 +425,7 @@ const ProfileInfoScreen: React.FC = () => {
                     <TextInput
                       className="text-gray-900 text-base"
                       value={formData.firstName}
-                      onChangeText={(text) =>
+                      onChangeText={text =>
                         setFormData({ ...formData, firstName: text })
                       }
                       placeholder="Nhập họ"
@@ -435,7 +435,7 @@ const ProfileInfoScreen: React.FC = () => {
                 ) : (
                   <View className="bg-gray-50 rounded-xl px-4 py-3">
                     <Text className="text-base text-gray-900">
-                      {formData.firstName || "Chưa cập nhật"}
+                      {formData.firstName || 'Chưa cập nhật'}
                     </Text>
                   </View>
                 )}
@@ -451,7 +451,7 @@ const ProfileInfoScreen: React.FC = () => {
                     <TextInput
                       className="text-gray-900 text-base"
                       value={formData.lastName}
-                      onChangeText={(text) =>
+                      onChangeText={text =>
                         setFormData({ ...formData, lastName: text })
                       }
                       placeholder="Nhập tên"
@@ -461,7 +461,7 @@ const ProfileInfoScreen: React.FC = () => {
                 ) : (
                   <View className="bg-gray-50 rounded-xl px-4 py-3">
                     <Text className="text-base text-gray-900">
-                      {formData.lastName || "Chưa cập nhật"}
+                      {formData.lastName || 'Chưa cập nhật'}
                     </Text>
                   </View>
                 )}
@@ -478,7 +478,7 @@ const ProfileInfoScreen: React.FC = () => {
                     <TextInput
                       className="text-gray-900 text-base ml-3 flex-1"
                       value={formData.phone}
-                      onChangeText={(text) =>
+                      onChangeText={text =>
                         setFormData({ ...formData, phone: text })
                       }
                       placeholder="Nhập số điện thoại"
@@ -490,7 +490,7 @@ const ProfileInfoScreen: React.FC = () => {
                   <View className="bg-gray-50 rounded-xl px-4 py-3 flex-row items-center">
                     <Phone size={16} color="#6B7280" />
                     <Text className="ml-3 text-base text-gray-900">
-                      {formData.phone || "Chưa cập nhật"}
+                      {formData.phone || 'Chưa cập nhật'}
                     </Text>
                   </View>
                 )}
@@ -565,7 +565,7 @@ const ProfileInfoScreen: React.FC = () => {
             className="bg-white mx-4 rounded-2xl p-6 mb-4"
             style={{
               elevation: 4,
-              shadowColor: "#000",
+              shadowColor: '#000',
               shadowOffset: { width: 0, height: 2 },
               shadowOpacity: 0.08,
               shadowRadius: 8,
@@ -589,7 +589,7 @@ const ProfileInfoScreen: React.FC = () => {
                     <TextInput
                       className="text-gray-900 text-base"
                       value={formData.address}
-                      onChangeText={(text) =>
+                      onChangeText={text =>
                         setFormData({ ...formData, address: text })
                       }
                       placeholder="Nhập địa chỉ"
@@ -602,7 +602,7 @@ const ProfileInfoScreen: React.FC = () => {
                 ) : (
                   <View className="bg-gray-50 rounded-xl px-4 py-3">
                     <Text className="text-base text-gray-900">
-                      {formData.address || "Chưa cập nhật"}
+                      {formData.address || 'Chưa cập nhật'}
                     </Text>
                   </View>
                 )}
@@ -618,7 +618,7 @@ const ProfileInfoScreen: React.FC = () => {
                     <TextInput
                       className="text-gray-900 text-base"
                       value={formData.city}
-                      onChangeText={(text) =>
+                      onChangeText={text =>
                         setFormData({ ...formData, city: text })
                       }
                       placeholder="Nhập thành phố"
@@ -628,7 +628,7 @@ const ProfileInfoScreen: React.FC = () => {
                 ) : (
                   <View className="bg-gray-50 rounded-xl px-4 py-3">
                     <Text className="text-base text-gray-900">
-                      {formData.city || "Chưa cập nhật"}
+                      {formData.city || 'Chưa cập nhật'}
                     </Text>
                   </View>
                 )}
@@ -644,7 +644,7 @@ const ProfileInfoScreen: React.FC = () => {
                     <TextInput
                       className="text-gray-900 text-base"
                       value={formData.province}
-                      onChangeText={(text) =>
+                      onChangeText={text =>
                         setFormData({ ...formData, province: text })
                       }
                       placeholder="Nhập tỉnh/thành"
@@ -654,7 +654,7 @@ const ProfileInfoScreen: React.FC = () => {
                 ) : (
                   <View className="bg-gray-50 rounded-xl px-4 py-3">
                     <Text className="text-base text-gray-900">
-                      {formData.province || "Chưa cập nhật"}
+                      {formData.province || 'Chưa cập nhật'}
                     </Text>
                   </View>
                 )}
@@ -679,7 +679,7 @@ const ProfileInfoScreen: React.FC = () => {
             className="bg-white mx-4 rounded-2xl p-6 mb-4"
             style={{
               elevation: 4,
-              shadowColor: "#000",
+              shadowColor: '#000',
               shadowOffset: { width: 0, height: 2 },
               shadowOpacity: 0.08,
               shadowRadius: 8,
@@ -705,7 +705,7 @@ const ProfileInfoScreen: React.FC = () => {
                     <TextInput
                       className="text-gray-900 text-base"
                       value={formData.bio}
-                      onChangeText={(text) =>
+                      onChangeText={text =>
                         setFormData({ ...formData, bio: text })
                       }
                       placeholder="Giới thiệu về bản thân"
@@ -718,7 +718,7 @@ const ProfileInfoScreen: React.FC = () => {
                 ) : (
                   <View className="bg-gray-50 rounded-xl px-4 py-3">
                     <Text className="text-base text-gray-900">
-                      {formData.bio || "Chưa cập nhật"}
+                      {formData.bio || 'Chưa cập nhật'}
                     </Text>
                   </View>
                 )}
@@ -735,7 +735,7 @@ const ProfileInfoScreen: React.FC = () => {
                     <TextInput
                       className="text-gray-900 text-base ml-3 flex-1"
                       value={formData.websiteUrl}
-                      onChangeText={(text) =>
+                      onChangeText={text =>
                         setFormData({ ...formData, websiteUrl: text })
                       }
                       placeholder="https://example.com"
@@ -770,7 +770,7 @@ const ProfileInfoScreen: React.FC = () => {
                     <TextInput
                       className="text-gray-900 text-base ml-3 flex-1"
                       value={formData.linkedinUrl}
-                      onChangeText={(text) =>
+                      onChangeText={text =>
                         setFormData({ ...formData, linkedinUrl: text })
                       }
                       placeholder="https://linkedin.com/in/username"
@@ -805,7 +805,7 @@ const ProfileInfoScreen: React.FC = () => {
                     <TextInput
                       className="text-gray-900 text-base ml-3 flex-1"
                       value={formData.githubUrl}
-                      onChangeText={(text) =>
+                      onChangeText={text =>
                         setFormData({ ...formData, githubUrl: text })
                       }
                       placeholder="https://github.com/username"
@@ -840,7 +840,7 @@ const ProfileInfoScreen: React.FC = () => {
                     <TextInput
                       className="text-gray-900 text-base ml-3 flex-1"
                       value={formData.portfolioUrl}
-                      onChangeText={(text) =>
+                      onChangeText={text =>
                         setFormData({ ...formData, portfolioUrl: text })
                       }
                       placeholder="https://portfolio.dev"
@@ -902,7 +902,7 @@ const ProfileInfoScreen: React.FC = () => {
         </ScrollView>
 
         {/* Date Picker Modal */}
-        {showDatePicker && Platform.OS === "ios" && (
+        {showDatePicker && Platform.OS === 'ios' && (
           <Modal visible={showDatePicker} transparent animationType="slide">
             <View className="flex-1 justify-end bg-black/50">
               <View className="bg-white">
@@ -935,7 +935,7 @@ const ProfileInfoScreen: React.FC = () => {
           </Modal>
         )}
 
-        {showDatePicker && Platform.OS === "android" && (
+        {showDatePicker && Platform.OS === 'android' && (
           <DateTimePicker
             value={formData.dateOfBirth}
             mode="date"
@@ -965,7 +965,7 @@ const ProfileInfoScreen: React.FC = () => {
                 </TouchableOpacity>
               </View>
               <View className="py-2">
-                {genderOptions.map((option) => (
+                {genderOptions.map(option => (
                   <TouchableOpacity
                     key={option.value}
                     onPress={() => {

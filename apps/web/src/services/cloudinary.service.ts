@@ -30,12 +30,12 @@ export class CloudinaryService {
     // Check if environment variables are set
     const requiredEnvVars = [
       'CLOUDINARY_CLOUD_NAME',
-      'CLOUDINARY_API_KEY', 
-      'CLOUDINARY_API_SECRET'
+      'CLOUDINARY_API_KEY',
+      'CLOUDINARY_API_SECRET',
     ];
-    
-    const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
-    
+
+    const missingVars = requiredEnvVars.filter((varName) => !process.env[varName]);
+
     if (missingVars.length > 0) {
       console.error('⚠️  Missing Cloudinary environment variables:', missingVars.join(', '));
       console.error('Please add these to your .env file:');
@@ -48,7 +48,7 @@ export class CloudinaryService {
 `);
       throw new Error('Cloudinary configuration is required. Please set environment variables.');
     }
-    
+
     this.isConfigured = true;
 
     this.config = {
@@ -59,14 +59,15 @@ export class CloudinaryService {
       signedUrlExpires: parseInt(process.env.CLOUDINARY_SIGNED_URL_EXPIRES || '3600'),
     };
 
-    // Configure Cloudinary
+    // Configure Cloudinary with timeout settings
     cloudinary.config({
       cloud_name: this.config.cloudName,
       api_key: this.config.apiKey,
       api_secret: this.config.apiSecret,
       secure: true,
+      upload_timeout: 60000, // 60 seconds
     });
-    
+
     console.log('✅ CloudinaryService initialized with cloud name:', this.config.cloudName);
   }
 
@@ -84,10 +85,10 @@ export class CloudinaryService {
     const timestamp = Date.now();
     const uniqueId = uuidv4().substring(0, 8);
     const sanitizedCvName = cvName.replace(/[^a-zA-Z0-9\-_]/g, '_').substring(0, 50);
-    
+
     // Add file extension if provided
     const extension = fileExtension ? `.${fileExtension}` : '';
-    
+
     return `${this.config.cvFolder}/${candidateId}/${sanitizedCvName}_${timestamp}_${uniqueId}${extension}`;
   }
 
@@ -114,7 +115,7 @@ export class CloudinaryService {
       console.log('   Candidate ID:', candidateId);
       console.log('   CV Name:', cvName);
       console.log('   File type:', file instanceof File ? 'File' : 'Buffer');
-      
+
       if (file instanceof File) {
         console.log('   File details:');
         console.log('     - Name:', file.name);
@@ -122,7 +123,7 @@ export class CloudinaryService {
         console.log('     - MIME type:', file.type);
         console.log('     - Last modified:', new Date(file.lastModified).toISOString());
       }
-      
+
       // Extract file extension
       let fileExtension: string | undefined;
       if (file instanceof File) {
@@ -136,7 +137,7 @@ export class CloudinaryService {
           fileExtension = filenameParts.pop()?.toLowerCase();
         }
       }
-      
+
       // Generate unique public ID
       const publicId = this.generateCvPublicId(candidateId, cvName, fileExtension);
       console.log('   Generated public ID:', publicId);
@@ -144,11 +145,13 @@ export class CloudinaryService {
 
       // Determine resource type based on file extension
       const isPdf = fileExtension === 'pdf';
-      
+
       // Prepare upload options
+      // IMPORTANT: Always use 'raw' for PDFs during upload to avoid q_auto transformation errors
+      // We'll convert to image format later when generating preview URLs
       const uploadOptions = {
         public_id: publicId,
-        resource_type: isPdf ? 'image' as const : 'raw' as const, // Use 'image' for PDFs to enable preview conversion
+        resource_type: 'raw' as const, // Use 'raw' for all file types to avoid transformation errors during upload
         type: 'upload', // Use 'upload' type for direct access
         overwrite: true,
         context: {
@@ -156,59 +159,93 @@ export class CloudinaryService {
           cv_name: cvName,
           original_filename: originalFileName || 'unknown',
           upload_date: new Date().toISOString(),
+          file_type: isPdf ? 'pdf' : 'document',
         },
         tags: ['cv', `candidate_${candidateId}`],
         use_filename: false,
         unique_filename: false,
-        // Only apply format transformation for PDFs
-        ...(isPdf ? {
-          quality: 'auto',
-        } : {}),
+        timeout: 60000, // 60 second timeout
+        chunk_size: 6000000, // 6MB chunks for better reliability
+        // Note: No quality or format transformations during upload
+        // Transformations will be applied when generating preview URLs
       };
-      
 
       let uploadResult: UploadApiResponse;
 
-      if (file instanceof File) {
-        // Convert File to Buffer for upload
-        const buffer = Buffer.from(await file.arrayBuffer());
-        console.log('   Converted to buffer, size:', buffer.length, 'bytes');
-        
-        // Upload using buffer with stream
-        uploadResult = await new Promise<UploadApiResponse>((resolve, reject) => {
-          const uploadStream = cloudinary.uploader.upload_stream(
-            uploadOptions,
-            (error, result) => {
-              if (error) {
-                console.error('   Upload stream error:', error);
-                reject(error);
-              } else if (result) {
-                resolve(result);
-              } else {
-                reject(new Error('Upload failed - no result'));
-              }
+      // Helper function to upload with timeout
+      const uploadWithTimeout = (
+        buffer: Buffer,
+        timeoutMs: number = 60000
+      ): Promise<UploadApiResponse> => {
+        return new Promise<UploadApiResponse>((resolve, reject) => {
+          let isResolved = false;
+
+          // Set timeout
+          const timeoutId = setTimeout(() => {
+            if (!isResolved) {
+              isResolved = true;
+              reject(new Error(`Upload timeout after ${timeoutMs}ms`));
             }
-          );
+          }, timeoutMs);
+
+          const uploadStream = cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {
+            clearTimeout(timeoutId);
+
+            if (isResolved) return; // Already timed out
+            isResolved = true;
+
+            if (error) {
+              console.error('   Upload stream error:', error);
+              reject(error);
+            } else if (result) {
+              resolve(result);
+            } else {
+              reject(new Error('Upload failed - no result'));
+            }
+          });
+
+          // Handle stream errors
+          uploadStream.on('error', (error) => {
+            clearTimeout(timeoutId);
+            if (!isResolved) {
+              isResolved = true;
+              reject(error);
+            }
+          });
+
           uploadStream.end(buffer);
         });
-      } else {
-        // Upload using buffer directly
-        uploadResult = await new Promise<UploadApiResponse>((resolve, reject) => {
-          const uploadStream = cloudinary.uploader.upload_stream(
-            uploadOptions,
-            (error, result) => {
-              if (error) {
-                console.error('   Upload stream error:', error);
-                reject(error);
-              } else if (result) {
-                resolve(result);
-              } else {
-                reject(new Error('Upload failed - no result'));
-              }
-            }
-          );
-          uploadStream.end(file);
-        });
+      };
+
+      // Convert file to buffer
+      const buffer = file instanceof File ? Buffer.from(await file.arrayBuffer()) : file;
+
+      console.log('   Buffer ready, size:', buffer.length, 'bytes');
+
+      // Upload with retry logic
+      const maxRetries = 2;
+      let lastError: any;
+
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          console.log(`   Upload attempt ${attempt}/${maxRetries}...`);
+          uploadResult = await uploadWithTimeout(buffer, 60000); // 60 second timeout
+          console.log('   Upload successful!');
+          break; // Success, exit retry loop
+        } catch (error: any) {
+          lastError = error;
+          console.error(`   Upload attempt ${attempt} failed:`, error.message);
+
+          if (attempt < maxRetries) {
+            const delay = attempt * 1000; // Incremental delay
+            console.log(`   Retrying in ${delay}ms...`);
+            await new Promise((resolve) => setTimeout(resolve, delay));
+          }
+        }
+      }
+
+      if (!uploadResult!) {
+        throw lastError || new Error('Upload failed after all retries');
       }
 
       console.log('✅ CV uploaded successfully to Cloudinary!');
@@ -217,19 +254,19 @@ export class CloudinaryService {
       console.log('   File size:', uploadResult.bytes, 'bytes');
       console.log('   Format:', uploadResult.format);
       console.log('   Resource type:', uploadResult.resource_type);
-      
+
       // Test if file is accessible
       try {
         const exists = await this.cvExists(uploadResult.public_id);
         console.log('   File exists check:', exists);
-        
+
         // Test URL accessibility
         const urlTest = await this.testCvUrl(uploadResult.secure_url);
         console.log('   URL accessibility test:', urlTest);
       } catch (testError) {
         console.warn('   Could not verify file existence:', testError);
       }
-      
+
       return {
         success: true,
         publicId: uploadResult.public_id,
@@ -243,7 +280,7 @@ export class CloudinaryService {
     } catch (error: any) {
       console.error('❌ Error uploading CV to Cloudinary:', error);
       console.error('   Error details:', error.message || error);
-      
+
       // Check for specific Cloudinary errors
       if (error.message?.includes('Invalid cloud_name') || error.message?.includes('cloud_name')) {
         return {
@@ -251,14 +288,39 @@ export class CloudinaryService {
           error: 'Cloudinary configuration error: Invalid cloud name. Please check .env file.',
         };
       }
-      
+
       if (error.message?.includes('Invalid signature') || error.message?.includes('api_key')) {
         return {
           success: false,
-          error: 'Cloudinary authentication error: Invalid API credentials. Please check .env file.',
+          error:
+            'Cloudinary authentication error: Invalid API credentials. Please check .env file.',
         };
       }
-      
+
+      // Handle timeout errors
+      if (
+        error.message?.includes('timeout') ||
+        error.message?.includes('Timeout') ||
+        error.http_code === 499
+      ) {
+        return {
+          success: false,
+          error: 'Upload timeout. Please check your internet connection and try again.',
+        };
+      }
+
+      // Handle network errors
+      if (
+        error.code === 'ENOTFOUND' ||
+        error.code === 'ECONNREFUSED' ||
+        error.code === 'ETIMEDOUT'
+      ) {
+        return {
+          success: false,
+          error: 'Network error. Please check your internet connection and try again.',
+        };
+      }
+
       return {
         success: false,
         error: error.message || 'Failed to upload CV to Cloudinary',
@@ -271,20 +333,11 @@ export class CloudinaryService {
    */
   async deleteCv(publicId: string): Promise<boolean> {
     try {
-      // Try deleting as image first (for PDFs)
-      let result = await cloudinary.uploader.destroy(publicId, {
-        resource_type: 'image',
-      });
-      
-      if (result.result === 'ok') {
-        return true;
-      }
-      
-      // If not found as image, try as raw (for DOC/DOCX)
-      result = await cloudinary.uploader.destroy(publicId, {
+      // All CVs (PDF, DOC, DOCX) are now stored as 'raw' resource type
+      const result = await cloudinary.uploader.destroy(publicId, {
         resource_type: 'raw',
       });
-      
+
       return result.result === 'ok';
     } catch (error) {
       console.error('Error deleting CV from Cloudinary:', error);
@@ -301,38 +354,32 @@ export class CloudinaryService {
     fileName?: string
   ): Promise<string | null> {
     try {
-      // Check if this is a PDF by checking if it exists as image resource
+      // Check if this is a PDF by checking file extension or context
       const isPdf = await this.isPdfFile(publicId);
-      
+
+      // All files are stored as 'raw', but we need to convert PDFs to images for preview
       const options: any = {
-        resource_type: isPdf ? 'image' : 'raw',
+        resource_type: 'raw',
         secure: true,
         type: 'upload',
       };
 
       if (action === 'download') {
-        if (isPdf) {
-          // For PDF download, add attachment flag and keep as PDF
-          options.flags = 'attachment';
-          options.format = 'pdf';
-          if (fileName) {
-            options.flags += `:${fileName}`;
-          }
+        // For download, keep as raw file
+        if (fileName) {
+          options.flags = `attachment:${fileName}`;
         } else {
-          // For DOC/DOCX, use raw URL
-          if (fileName) {
-            options.flags = `attachment:${fileName}`;
-          }
+          options.flags = 'attachment';
         }
-      } else {
-        if (isPdf) {
-          // For PDF preview, convert to image format
-          options.format = 'jpg';
-          options.quality = 'auto';
-          options.page = 1; // Show first page for preview
-        }
-        // For DOC/DOCX preview, we can't convert to image, return raw URL
+      } else if (action === 'preview' && isPdf) {
+        // For PDF preview, we need to convert to image using special URL format
+        // Change resource_type to 'image' and add transformations
+        options.resource_type = 'image';
+        options.format = 'jpg';
+        options.quality = 'auto:good';
+        options.page = 1; // Show first page for preview
       }
+      // For DOC/DOCX preview, return raw URL (no conversion possible)
 
       // Generate URL
       console.log('🔗 Generating CV URL with options:', options);
@@ -346,16 +393,30 @@ export class CloudinaryService {
   }
 
   /**
-   * Check if file is PDF by checking if it exists as image resource
+   * Check if file is PDF by checking file extension in public_id or context
    */
   private async isPdfFile(publicId: string): Promise<boolean> {
     try {
-      await cloudinary.api.resource(publicId, {
-        resource_type: 'image',
+      // Check if public_id ends with .pdf
+      if (publicId.toLowerCase().endsWith('.pdf')) {
+        return true;
+      }
+
+      // Try to get metadata from Cloudinary
+      const metadata = await cloudinary.api.resource(publicId, {
+        resource_type: 'raw',
+        context: true,
       });
-      return true; // Found as image resource, likely PDF
+
+      // Check format or context
+      if (metadata.format === 'pdf' || metadata.context?.custom?.file_type === 'pdf') {
+        return true;
+      }
+
+      return false;
     } catch (error) {
-      return false; // Not found as image, likely DOC/DOCX
+      // If can't determine, check file extension from publicId
+      return publicId.toLowerCase().includes('.pdf');
     }
   }
 
@@ -391,12 +452,12 @@ export class CloudinaryService {
     try {
       const pageCount = await this.getPageCount(publicId);
       const urls: string[] = [];
-      
+
       for (let page = 1; page <= pageCount; page++) {
         const url = this.getPreviewUrl(publicId, page);
         urls.push(url);
       }
-      
+
       return urls;
     } catch (error) {
       console.error('Error getting all page URLs:', error);
@@ -438,22 +499,14 @@ export class CloudinaryService {
    */
   async cvExists(publicId: string): Promise<boolean> {
     try {
-      // Try as image first (for PDFs)
-      const imageResult = await cloudinary.api.resource(publicId, {
-        resource_type: 'image',
+      // All CVs are now stored as 'raw' resource type
+      const result = await cloudinary.api.resource(publicId, {
+        resource_type: 'raw',
       });
-      return !!imageResult;
+      return !!result;
     } catch (error) {
-      try {
-        // Try as raw (for DOC/DOCX)
-        const rawResult = await cloudinary.api.resource(publicId, {
-          resource_type: 'raw',
-        });
-        return !!rawResult;
-      } catch (rawError) {
-        console.error('   CV exists check error:', error);
-        return false;
-      }
+      console.error('   CV exists check error:', error);
+      return false;
     }
   }
 
@@ -468,8 +521,9 @@ export class CloudinaryService {
     context?: Record<string, string>;
   } | null> {
     try {
+      // All CVs are stored as 'raw' resource type
       const result = await cloudinary.api.resource(publicId, {
-        resource_type: 'image',
+        resource_type: 'raw',
         context: true,
       });
 
@@ -492,7 +546,7 @@ export class CloudinaryService {
   extractPublicIdFromUrl(url: string): string | null {
     try {
       console.log('🔍 Extracting public ID from URL:', url);
-      
+
       // Cloudinary URL format: https://res.cloudinary.com/{cloud_name}/{resource_type}/upload/{version}/{public_id}.{format}
       const regex = /\/v\d+\/(.+)\.\w+$/;
       const match = url.match(regex);
@@ -545,7 +599,9 @@ export class CloudinaryService {
   /**
    * Bulk delete CVs
    */
-  async bulkDeleteCvs(publicIds: string[]): Promise<{ success: boolean; deleted: string[]; failed: string[] }> {
+  async bulkDeleteCvs(
+    publicIds: string[]
+  ): Promise<{ success: boolean; deleted: string[]; failed: string[] }> {
     const deleted: string[] = [];
     const failed: string[] = [];
 
@@ -586,12 +642,12 @@ export class CloudinaryService {
       const response = await fetch(url, { method: 'HEAD' });
       return {
         accessible: response.ok,
-        status: response.status
+        status: response.status,
       };
     } catch (error: any) {
       return {
         accessible: false,
-        error: error.message || 'Failed to access URL'
+        error: error.message || 'Failed to access URL',
       };
     }
   }

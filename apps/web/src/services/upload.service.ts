@@ -27,7 +27,7 @@ export class UploadService {
   }
 
   /**
-   * Upload company logo
+   * Upload company logo to Cloudinary
    */
   static async uploadCompanyLogo(
     file: File,
@@ -50,24 +50,34 @@ export class UploadService {
         };
       }
 
-      // Generate unique filename
-      const filename = generateUniqueFilename(file.name, `company_${companyId}_logo`);
-      
-      // Ensure directory exists
-      const uploadPath = await this.ensureUploadDir("companies/logos");
-      const filePath = join(uploadPath, filename);
-      
-      // Convert File to Buffer and save
+      // Convert File to Buffer
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
-      await writeFile(filePath, buffer);
 
-      // Return public URL
-      const fileUrl = `/uploads/companies/logos/${filename}`;
-      
+      // Upload to Cloudinary
+      const cloudinaryService = CloudinaryService.getInstance();
+      const result = await cloudinaryService.uploadImage(
+        buffer,
+        'logos',
+        companyId,
+        'logo',
+        {
+          width: 300,
+          height: 300,
+          crop: 'fill'
+        }
+      );
+
+      if (!result.success || !result.secureUrl) {
+        return {
+          success: false,
+          error: result.error || 'Failed to upload to Cloudinary'
+        };
+      }
+
       return {
         success: true,
-        fileUrl
+        fileUrl: result.secureUrl
       };
     } catch (error) {
       console.error("Error uploading logo:", error);
@@ -79,7 +89,7 @@ export class UploadService {
   }
 
   /**
-   * Upload company cover image
+   * Upload company cover image to Cloudinary
    */
   static async uploadCompanyCover(
     file: File,
@@ -102,24 +112,34 @@ export class UploadService {
         };
       }
 
-      // Generate unique filename
-      const filename = generateUniqueFilename(file.name, `company_${companyId}_cover`);
-      
-      // Ensure directory exists
-      const uploadPath = await this.ensureUploadDir("companies/covers");
-      const filePath = join(uploadPath, filename);
-      
-      // Convert File to Buffer and save
+      // Convert File to Buffer
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
-      await writeFile(filePath, buffer);
 
-      // Return public URL
-      const fileUrl = `/uploads/companies/covers/${filename}`;
-      
+      // Upload to Cloudinary
+      const cloudinaryService = CloudinaryService.getInstance();
+      const result = await cloudinaryService.uploadImage(
+        buffer,
+        'covers',
+        companyId,
+        'cover',
+        {
+          width: 1200,
+          height: 400,
+          crop: 'fill'
+        }
+      );
+
+      if (!result.success || !result.secureUrl) {
+        return {
+          success: false,
+          error: result.error || 'Failed to upload to Cloudinary'
+        };
+      }
+
       return {
         success: true,
-        fileUrl
+        fileUrl: result.secureUrl
       };
     } catch (error) {
       console.error("Error uploading cover image:", error);
@@ -131,7 +151,7 @@ export class UploadService {
   }
 
   /**
-   * Upload company gallery images
+   * Upload company gallery images to Cloudinary
    */
   static async uploadCompanyGallery(
     files: File[],
@@ -148,6 +168,8 @@ export class UploadService {
       };
     }
 
+    const cloudinaryService = CloudinaryService.getInstance();
+
     for (const file of files) {
       // Validate file type
       if (!mediaConstraints.gallery.allowedTypes.includes(file.type)) {
@@ -162,20 +184,28 @@ export class UploadService {
       }
 
       try {
-        // Generate unique filename
-        const filename = generateUniqueFilename(file.name, `company_${companyId}_gallery`);
-        
-        // Ensure directory exists
-        const uploadPath = await this.ensureUploadDir("companies/gallery");
-        const filePath = join(uploadPath, filename);
-        
-        // Convert File to Buffer and save
+        // Convert File to Buffer
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
-        await writeFile(filePath, buffer);
 
-        // Add to URLs
-        urls.push(`/uploads/companies/gallery/${filename}`);
+        // Upload to Cloudinary
+        const result = await cloudinaryService.uploadImage(
+          buffer,
+          'gallery',
+          companyId,
+          'gallery',
+          {
+            width: 1200,
+            height: 800,
+            crop: 'fill'
+          }
+        );
+
+        if (result.success && result.secureUrl) {
+          urls.push(result.secureUrl);
+        } else {
+          errors.push(`${file.name}: ${result.error || 'Upload failed'}`);
+        }
       } catch (error) {
         errors.push(`${file.name}: Upload failed`);
       }
@@ -241,11 +271,24 @@ export class UploadService {
   }
 
   /**
-   * Delete file
+   * Delete file (support both local and Cloudinary URLs)
    */
   static async deleteFile(fileUrl: string): Promise<boolean> {
     try {
-      // Convert URL to file path
+      // Check if it's a Cloudinary URL
+      if (fileUrl.includes('cloudinary.com')) {
+        const cloudinaryService = CloudinaryService.getInstance();
+        const publicId = cloudinaryService.extractPublicIdFromUrl(fileUrl);
+        
+        if (publicId) {
+          return await cloudinaryService.deleteImage(publicId);
+        }
+        
+        console.warn('Could not extract public ID from Cloudinary URL:', fileUrl);
+        return false;
+      }
+      
+      // Handle local file deletion
       const relativePath = fileUrl.replace("/uploads/", "");
       const filePath = join(this.uploadDir, relativePath);
       

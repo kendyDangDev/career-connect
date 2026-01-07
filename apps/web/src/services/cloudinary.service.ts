@@ -93,6 +93,119 @@ export class CloudinaryService {
   }
 
   /**
+   * Generate a unique public ID for company images
+   */
+  private generateCompanyImagePublicId(folder: string, companyId: string, type: string): string {
+    const timestamp = Date.now();
+    const uniqueId = uuidv4().substring(0, 8);
+    return `career-connect/companies/${companyId}/${folder}/${type}_${timestamp}_${uniqueId}`;
+  }
+
+  /**
+   * Upload company image (logo, cover, gallery) to Cloudinary
+   */
+  async uploadImage(
+    file: File | Buffer,
+    folder: string,
+    companyId: string,
+    type: 'logo' | 'cover' | 'gallery',
+    options?: {
+      width?: number;
+      height?: number;
+      crop?: 'fill' | 'fit' | 'limit' | 'scale';
+    }
+  ): Promise<CloudinaryUploadResult> {
+    try {
+      console.log('📤 Starting image upload to Cloudinary...');
+      console.log('   Company ID:', companyId);
+      console.log('   Type:', type);
+      console.log('   Folder:', folder);
+
+      // Generate unique public ID
+      const publicId = this.generateCompanyImagePublicId(folder, companyId, type);
+      console.log('   Generated public ID:', publicId);
+
+      // Prepare upload options for images
+      const uploadOptions: any = {
+        public_id: publicId,
+        resource_type: 'image' as const,
+        type: 'upload',
+        overwrite: true,
+        context: {
+          company_id: companyId,
+          image_type: type,
+          upload_date: new Date().toISOString(),
+        },
+        tags: ['company', `company_${companyId}`, type],
+        use_filename: false,
+        unique_filename: false,
+        timeout: 60000,
+      };
+
+      // Add transformations if provided
+      if (options) {
+        uploadOptions.transformation = [];
+        if (options.width || options.height) {
+          uploadOptions.transformation.push({
+            width: options.width,
+            height: options.height,
+            crop: options.crop || 'fill',
+            quality: 'auto:good',
+            fetch_format: 'auto',
+          });
+        }
+      }
+
+      // Convert file to buffer
+      const buffer = file instanceof File ? Buffer.from(await file.arrayBuffer()) : file;
+      console.log('   Buffer ready, size:', buffer.length, 'bytes');
+
+      // Upload with promise wrapper
+      const uploadResult = await new Promise<UploadApiResponse>((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(uploadOptions, (error, result) => {
+          if (error) {
+            console.error('   Upload stream error:', error);
+            reject(error);
+          } else if (result) {
+            resolve(result);
+          } else {
+            reject(new Error('Upload failed - no result'));
+          }
+        });
+
+        uploadStream.on('error', (error) => {
+          reject(error);
+        });
+
+        uploadStream.end(buffer);
+      });
+
+      console.log('✅ Image uploaded successfully to Cloudinary!');
+      console.log('   Public ID:', uploadResult.public_id);
+      console.log('   Secure URL:', uploadResult.secure_url);
+      console.log('   File size:', uploadResult.bytes, 'bytes');
+
+      return {
+        success: true,
+        publicId: uploadResult.public_id,
+        url: uploadResult.url,
+        secureUrl: uploadResult.secure_url,
+        fileSize: uploadResult.bytes,
+        format: uploadResult.format,
+        resourceType: uploadResult.resource_type,
+      };
+    } catch (error: any) {
+      console.error('❌ Error uploading image to Cloudinary:', error);
+      console.error('   Error details:', error.message || error);
+
+      return {
+        success: false,
+        error: error.message || 'Failed to upload image to Cloudinary',
+      };
+    }
+  }
+
+  /**
    * Upload CV to Cloudinary
    */
   async uploadCv(
@@ -341,6 +454,22 @@ export class CloudinaryService {
       return result.result === 'ok';
     } catch (error) {
       console.error('Error deleting CV from Cloudinary:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Delete company image from Cloudinary
+   */
+  async deleteImage(publicId: string): Promise<boolean> {
+    try {
+      const result = await cloudinary.uploader.destroy(publicId, {
+        resource_type: 'image',
+      });
+
+      return result.result === 'ok';
+    } catch (error) {
+      console.error('Error deleting image from Cloudinary:', error);
       return false;
     }
   }

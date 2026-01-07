@@ -94,11 +94,11 @@ const getNavItems = (jobStats: JobStatistics | null, isLoading: boolean): NavIte
         badge: jobStats ? jobStats.expiredJobs.toString() : isLoading ? '...' : '0',
         badgeKey: 'expiredJobs',
       },
-      {
-        title: 'Thống kê',
-        href: '/admin/jobs/analytics',
-        icon: TrendingUp,
-      },
+      // {
+      //   title: 'Thống kê',
+      //   href: '/admin/jobs/analytics',
+      //   icon: TrendingUp,
+      // },
     ],
   },
   // {

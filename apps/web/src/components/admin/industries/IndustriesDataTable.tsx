@@ -76,21 +76,21 @@ export function IndustriesDataTable({ onAdd, onEdit, onDelete, onView }: Industr
 
   const columns: ColumnDef<Industry>[] = useMemo(
     () => [
-      {
-        accessorKey: 'code',
-        header: ({ column }) => {
-          return (
-            <Button
-              variant="ghost"
-              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-            >
-              Mã
-              <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-          );
-        },
-        cell: ({ row }) => <div className="font-medium">{row.getValue('code')}</div>,
-      },
+      // {
+      //   accessorKey: 'code',
+      //   header: ({ column }) => {
+      //     return (
+      //       <Button
+      //         variant="ghost"
+      //         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+      //       >
+      //         Mã
+      //         <ArrowUpDown className="ml-2 h-4 w-4" />
+      //       </Button>
+      //     );
+      //   },
+      //   cell: ({ row }) => <div className="font-medium">{row.getValue('code')}</div>,
+      // },
       {
         accessorKey: 'name',
         header: ({ column }) => {

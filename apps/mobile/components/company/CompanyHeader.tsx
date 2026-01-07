@@ -60,7 +60,9 @@ const CompanyHeader: React.FC<CompanyHeaderProps> = ({
       <View className="relative h-48">
         <Image
           source={{
-            uri: 'https://www.dochipo.com/wp-content/uploads/2022/07/LinkedIn-Banner-_-Business-10.png',
+            uri:
+              company.coverImageUrl ||
+              'https://psd.design/wp-content/uploads/2020/12/Business-modern-Facebook-cover-template.jpg',
           }}
           className="w-full h-full"
           resizeMode="cover"

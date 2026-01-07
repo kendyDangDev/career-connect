@@ -129,7 +129,7 @@ const ConversationsList: React.FC = () => {
   const renderHeader = () => (
     <View className="relative">
       <LinearGradient
-        colors={['#3b82f6', '#2563eb', '#1d4ed8']}
+        colors={['#a855f7', '#9333ea', '#7e22ce']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         className="pb-4"

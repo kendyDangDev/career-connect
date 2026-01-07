@@ -80,7 +80,7 @@ export default function IndustriesPage() {
 
   return (
     <div className="space-y-6">
-      <nav className="mb-6 flex items-center space-x-2 text-sm">
+      {/* <nav className="mb-6 flex items-center space-x-2 text-sm">
         <a
           href="/admin"
           className="text-muted-foreground hover:text-foreground flex items-center transition-colors"
@@ -90,7 +90,7 @@ export default function IndustriesPage() {
         </a>
         <ChevronRight className="text-muted-foreground h-4 w-4" />
         <span className="text-foreground">Quản lý ngành nghề</span>
-      </nav>
+      </nav> */}
       {/* Page Header */}
       {/* <div className="flex items-center justify-between">
         <div>

@@ -1,8 +1,8 @@
-import React from "react";
-import { View, Text, TouchableOpacity, Image, Linking } from "react-native";
-import { ExternalLink, MapPin, CheckCircle } from "lucide-react-native";
-import { useRouter } from "expo-router";
-import { Company } from "../types/job";
+import React from 'react';
+import { View, Text, TouchableOpacity, Image, Linking } from 'react-native';
+import { ExternalLink, MapPin, CheckCircle } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+import { Company } from '../types/job';
 
 interface CompanyInfoCardProps {
   company: Company;
@@ -14,7 +14,7 @@ const CompanyInfoCard: React.FC<CompanyInfoCardProps> = ({
   onPress,
 }) => {
   const router = useRouter();
-  
+
   // Safe check for company data
   if (!company) {
     return null;
@@ -28,11 +28,11 @@ const CompanyInfoCard: React.FC<CompanyInfoCardProps> = ({
           await Linking.openURL(company.website);
         }
       } catch (error) {
-        console.error("Error opening website:", error);
+        console.error('Error opening website:', error);
       }
     }
   };
-  
+
   const handleCompanyPress = () => {
     if (onPress) {
       onPress();
@@ -71,7 +71,7 @@ const CompanyInfoCard: React.FC<CompanyInfoCardProps> = ({
               {company.companyName || 'Unknown Company'}
             </Text>
 
-            {company.verificationStatus === "VERIFIED" && (
+            {company.verificationStatus === 'VERIFIED' && (
               <View className="flex-row items-center ml-2">
                 <CheckCircle size={16} color="#10B981" />
                 <Text className="text-green-600 text-xs font-medium ml-1">
@@ -86,7 +86,7 @@ const CompanyInfoCard: React.FC<CompanyInfoCardProps> = ({
             <View className="flex-row items-center mb-2">
               <MapPin size={14} color="#6B7280" />
               <Text className="text-gray-500 text-sm ml-1">
-                {[company.city, company.province].filter(Boolean).join(", ")}
+                {[company.city, company.province].filter(Boolean).join(', ')}
               </Text>
             </View>
           )}
@@ -108,11 +108,11 @@ const CompanyInfoCard: React.FC<CompanyInfoCardProps> = ({
       </View>
 
       {/* Verification Status Description */}
-      {company.verificationStatus === "VERIFIED" && (
+      {company.verificationStatus === 'VERIFIED' && (
         <View className="mt-4 pt-4 border-t border-gray-100">
           <Text className="text-gray-600 text-sm">
-            This company has been verified by our team. You can trust that this
-            job posting is legitimate.
+            Công ty này đã được nhóm của chúng tôi xác minh. Bạn có thể tin
+            tưởng rằng tin tuyển dụng này là hợp lệ..
           </Text>
         </View>
       )}

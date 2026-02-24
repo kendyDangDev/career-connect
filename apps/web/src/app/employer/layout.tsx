@@ -22,7 +22,7 @@ import { signOut } from 'next-auth/react';
 const navigation = [
   { name: 'Dashboard', href: '/employer/dashboard', icon: LayoutDashboard },
   { name: 'Quản lý công ty', href: '/employer/company', icon: Building2 },
-  { name: 'Quản lý công việc', href: '/employer/jobs', icon: Briefcase },
+  { name: 'Quản lý tin tuyển dụng', href: '/employer/jobs', icon: Briefcase },
   { name: 'Quản lý ứng viên', href: '/employer/applications', icon: Users },
   { name: 'Tin nhắn', href: '/employer/messages', icon: MessageSquare },
   { name: 'Báo cáo & Thống kê', href: '/employer/analytics', icon: BarChart3 },

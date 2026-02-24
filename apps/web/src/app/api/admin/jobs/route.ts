@@ -257,7 +257,7 @@ export const GET = withPermission('job.view', async (req: AuthenticatedRequest) 
       prisma.job.count({ where: statsWhere }),
       prisma.job.count({ where: { ...statsWhere, status: JobStatus.ACTIVE } }),
       prisma.job.count({ where: { ...statsWhere, status: JobStatus.PENDING } }),
-      prisma.job.count({ where: { ...statsWhere, status: JobStatus.CLOSED } }),
+      prisma.job.count({ where: { ...statsWhere, status: JobStatus.EXPIRED } }),
     ]);
 
     // Calculate pagination metadata
@@ -266,7 +266,7 @@ export const GET = withPermission('job.view', async (req: AuthenticatedRequest) 
     const hasPrevPage = params.page > 1;
 
     // Map jobs to include application count
-    const mappedJobs = jobs.map(job => ({
+    const mappedJobs = jobs.map((job) => ({
       ...job,
       applicationCount: job._count.applications,
       savedJobsCount: job._count.savedJobs,

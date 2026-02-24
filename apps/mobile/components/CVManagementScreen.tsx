@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,10 +7,10 @@ import {
   RefreshControl,
   ActivityIndicator,
   TextInput,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import {
   ArrowLeft,
   Plus,
@@ -22,20 +22,20 @@ import {
   ChevronDown,
   HardDrive,
   Eye,
-} from "lucide-react-native";
-import { useAlert } from "@/contexts/AlertContext";
-import { useAuthContext } from "@/contexts/AuthContext";
+} from 'lucide-react-native';
+import { useAlert } from '@/contexts/AlertContext';
+import { useAuthContext } from '@/contexts/AuthContext';
 import {
   CandidateCv,
   CVListResponse,
   CVQueryParams,
   formatFileSize,
   MAX_CVS_PER_CANDIDATE,
-} from "@/types/candidateCv.types";
-import CVCard from "@/components/cv/CVCard";
-import CVUploadModal from "@/components/cv/CVUploadModal";
-import CVPreviewModal from "@/components/cv/CVPreviewModal";
-import candidateCvService from "@/services/candidateCvService";
+} from '@/types/candidateCv.types';
+import CVCard from '@/components/cv/CVCard';
+import CVUploadModal from '@/components/cv/CVUploadModal';
+import CVPreviewModal from '@/components/cv/CVPreviewModal';
+import candidateCvService from '@/services/candidateCvService';
 
 const CVManagementScreen: React.FC = () => {
   const router = useRouter();
@@ -47,12 +47,12 @@ const CVManagementScreen: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [cvList, setCvList] = useState<CandidateCv[]>([]);
   const [statistics, setStatistics] = useState<
-    CVListResponse["statistics"] | null
+    CVListResponse['statistics'] | null
   >(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<CVQueryParams["sortBy"]>("uploadedAt");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<CVQueryParams['sortBy']>('uploadedAt');
   const [sortOrder, setSortOrder] =
-    useState<CVQueryParams["sortOrder"]>("desc");
+    useState<CVQueryParams['sortOrder']>('desc');
   const [showSortMenu, setShowSortMenu] = useState(false);
 
   // Modal states
@@ -82,11 +82,11 @@ const CVManagementScreen: React.FC = () => {
           setCvList(response.data.cvs);
           setStatistics(response.data.statistics);
         } else {
-          alert.error("Lỗi", response.error || "Không thể tải danh sách CV");
+          alert.error('Lỗi', response.error || 'Không thể tải danh sách CV');
         }
       } catch (error) {
-        console.error("Error loading CVs:", error);
-        alert.error("Lỗi", "Đã xảy ra lỗi khi tải danh sách CV");
+        console.error('Error loading CVs:', error);
+        alert.error('Lỗi', 'Đã xảy ra lỗi khi tải danh sách CV');
       } finally {
         setLoading(false);
         setRefreshing(false);
@@ -120,14 +120,14 @@ const CVManagementScreen: React.FC = () => {
         // For React Native (Expo Document Picker result)
         const response = await fetch(file.uri);
         const blob = await response.blob();
-        fileToUpload = new File([blob], file.name || "cv.pdf", {
-          type: file.mimeType || "application/pdf",
+        fileToUpload = new File([blob], file.name || 'cv.pdf', {
+          type: file.mimeType || 'application/pdf',
         });
       } else if (file instanceof File || file instanceof Blob) {
         // For web platform
         fileToUpload = file;
       } else {
-        throw new Error("Invalid file format");
+        throw new Error('Invalid file format');
       }
 
       // Upload with progress tracking
@@ -137,22 +137,22 @@ const CVManagementScreen: React.FC = () => {
         description,
         isPrimary || cvList.length === 0,
         user?.id, // Pass candidate ID
-        (progress) => {
+        progress => {
           console.log(`Upload progress: ${progress}%`);
         }
       );
 
       if (uploadResponse.success) {
-        alert.success("Thành công", "CV đã được tải lên thành công");
+        alert.success('Thành công', 'CV đã được tải lên thành công');
         loadCVs();
         return true;
       } else {
-        alert.error("Lỗi", uploadResponse.error || "Không thể tải lên CV");
+        alert.error('Lỗi', uploadResponse.error || 'Không thể tải lên CV');
         return false;
       }
     } catch (error) {
-      console.error("Error uploading CV:", error);
-      alert.error("Lỗi", "Đã xảy ra lỗi khi tải lên CV");
+      console.error('Error uploading CV:', error);
+      alert.error('Lỗi', 'Đã xảy ra lỗi khi tải lên CV');
       return false;
     }
   };
@@ -168,13 +168,13 @@ const CVManagementScreen: React.FC = () => {
     try {
       const success = await candidateCvService.downloadCV(cv);
       if (success) {
-        alert.success("Thành công", "CV đã được tải xuống");
+        // alert.success("Thành công", "CV đã được tải xuống");
       } else {
-        alert.error("Lỗi", "Không thể tải xuống CV");
+        alert.error('Lỗi', 'Không thể tải xuống CV');
       }
     } catch (error) {
-      console.error("Error downloading CV:", error);
-      alert.error("Lỗi", "Đã xảy ra lỗi khi tải xuống CV");
+      console.error('Error downloading CV:', error);
+      alert.error('Lỗi', 'Đã xảy ra lỗi khi tải xuống CV');
     }
   };
 
@@ -184,14 +184,14 @@ const CVManagementScreen: React.FC = () => {
     try {
       const response = await candidateCvService.deleteCV(cv.id);
       if (response.success) {
-        alert.success("Thành công", "CV đã được xóa");
+        alert.success('Thành công', 'CV đã được xóa');
         loadCVs();
       } else {
-        alert.error("Lỗi", response.error || "Không thể xóa CV");
+        alert.error('Lỗi', response.error || 'Không thể xóa CV');
       }
     } catch (error) {
-      console.error("Error deleting CV:", error);
-      alert.error("Lỗi", "Đã xảy ra lỗi khi xóa CV");
+      console.error('Error deleting CV:', error);
+      alert.error('Lỗi', 'Đã xảy ra lỗi khi xóa CV');
     } finally {
       setDeletingId(null);
     }
@@ -203,14 +203,14 @@ const CVManagementScreen: React.FC = () => {
     try {
       const response = await candidateCvService.setPrimaryCV(cv.id);
       if (response.success) {
-        alert.success("Thành công", "Đã đặt CV làm CV chính");
+        alert.success('Thành công', 'Đã đặt CV làm CV chính');
         loadCVs();
       } else {
-        alert.error("Lỗi", response.error || "Không thể đặt CV làm CV chính");
+        alert.error('Lỗi', response.error || 'Không thể đặt CV làm CV chính');
       }
     } catch (error) {
-      console.error("Error setting primary CV:", error);
-      alert.error("Lỗi", "Đã xảy ra lỗi khi đặt CV làm CV chính");
+      console.error('Error setting primary CV:', error);
+      alert.error('Lỗi', 'Đã xảy ra lỗi khi đặt CV làm CV chính');
     } finally {
       setSettingPrimaryId(null);
     }
@@ -219,15 +219,15 @@ const CVManagementScreen: React.FC = () => {
   // Handle CV edit
   const handleEditCV = async (cv: CandidateCv) => {
     // This would open an edit modal or navigate to edit screen
-    alert.info("Thông báo", "Tính năng chỉnh sửa đang được phát triển");
+    alert.info('Thông báo', 'Tính năng chỉnh sửa đang được phát triển');
   };
 
   // Sort options
   const sortOptions = [
-    { value: "uploadedAt", label: "Ngày tải lên" },
-    { value: "cvName", label: "Tên CV" },
-    { value: "fileSize", label: "Kích thước" },
-    { value: "viewCount", label: "Lượt xem" },
+    { value: 'uploadedAt', label: 'Ngày tải lên' },
+    { value: 'cvName', label: 'Tên CV' },
+    { value: 'fileSize', label: 'Kích thước' },
+    { value: 'viewCount', label: 'Lượt xem' },
   ];
 
   const canUploadMore =
@@ -238,7 +238,7 @@ const CVManagementScreen: React.FC = () => {
       {/* Header */}
       <View className="relative">
         <LinearGradient
-          colors={["#a855f7", "#9333ea", "#7e22ce"]}
+          colors={['#a855f7', '#9333ea', '#7e22ce']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           className="pb-4"
@@ -260,11 +260,11 @@ const CVManagementScreen: React.FC = () => {
                 Quản lý CV
               </Text>
               <TouchableOpacity
-                className={`p-2 rounded-full ${canUploadMore ? "bg-white/20" : "bg-white/10"}`}
+                className={`p-2 rounded-full ${canUploadMore ? 'bg-white/20' : 'bg-white/10'}`}
                 onPress={() => setShowUploadModal(true)}
                 disabled={!canUploadMore}
               >
-                <Plus size={24} color={canUploadMore ? "#FFF" : "#FFFFFF80"} />
+                <Plus size={24} color={canUploadMore ? '#FFF' : '#FFFFFF80'} />
               </TouchableOpacity>
             </View>
 
@@ -338,7 +338,7 @@ const CVManagementScreen: React.FC = () => {
             <View className="flex-row items-center bg-white/70 backdrop-blur-xs px-4 py-3 rounded-xl border border-purple-200/50 shadow-soft relative z-10">
               <Filter size={18} color="#7e22ce" />
               <Text className="text-purple-700 ml-2 text-sm font-medium">
-                {sortOptions.find((o) => o.value === sortBy)?.label}
+                {sortOptions.find(o => o.value === sortBy)?.label}
               </Text>
               <ChevronDown size={16} color="#7e22ce" className="ml-1" />
             </View>
@@ -349,17 +349,17 @@ const CVManagementScreen: React.FC = () => {
       {/* Sort Menu Dropdown */}
       {showSortMenu && (
         <View className="absolute top-36 right-4 bg-white/90 backdrop-blur-sm rounded-xl shadow-glow-purple border border-purple-200/30 min-w-[150px] z-50">
-          {sortOptions.map((option) => (
+          {sortOptions.map(option => (
             <TouchableOpacity
               key={option.value}
-              className={`px-4 py-3 ${sortBy === option.value ? "bg-purple-50" : ""}`}
+              className={`px-4 py-3 ${sortBy === option.value ? 'bg-purple-50' : ''}`}
               onPress={() => {
-                setSortBy(option.value as CVQueryParams["sortBy"]);
+                setSortBy(option.value as CVQueryParams['sortBy']);
                 setShowSortMenu(false);
               }}
             >
               <Text
-                className={`text-sm ${sortBy === option.value ? "text-purple-700 font-semibold" : "text-purple-600"}`}
+                className={`text-sm ${sortBy === option.value ? 'text-purple-700 font-semibold' : 'text-purple-600'}`}
               >
                 {option.label}
               </Text>
@@ -369,12 +369,12 @@ const CVManagementScreen: React.FC = () => {
           <TouchableOpacity
             className="px-4 py-3"
             onPress={() => {
-              setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+              setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
               setShowSortMenu(false);
             }}
           >
             <Text className="text-sm text-purple-600">
-              {sortOrder === "asc" ? "Tăng dần" : "Giảm dần"}
+              {sortOrder === 'asc' ? 'Tăng dần' : 'Giảm dần'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -424,19 +424,19 @@ const CVManagementScreen: React.FC = () => {
               <View className="bg-amber-50 border border-amber-200 rounded-xl p-4 mx-4 mb-4 flex-row items-center">
                 <AlertCircle size={20} color="#F59E0B" />
                 <Text className="text-amber-700 text-sm font-medium ml-3 flex-1">
-                  Bạn{" "}
+                  Bạn{' '}
                   {statistics.totalCvs === MAX_CVS_PER_CANDIDATE
-                    ? "đã đạt giới hạn"
-                    : `còn ${MAX_CVS_PER_CANDIDATE - statistics.totalCvs} slot`}{" "}
+                    ? 'đã đạt giới hạn'
+                    : `còn ${MAX_CVS_PER_CANDIDATE - statistics.totalCvs} slot`}{' '}
                   CV.
                   {statistics.totalCvs === MAX_CVS_PER_CANDIDATE &&
-                    " Xóa CV cũ để tải lên CV mới."}
+                    ' Xóa CV cũ để tải lên CV mới.'}
                 </Text>
               </View>
             )}
 
             {/* CV List */}
-            {cvList.map((cv) => (
+            {cvList.map(cv => (
               <CVCard
                 key={cv.id}
                 cv={cv}

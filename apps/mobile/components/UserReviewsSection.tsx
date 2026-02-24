@@ -1,6 +1,6 @@
-import React from "react";
-import { View, Text, Image, ScrollView } from "react-native";
-import { Star, Quote } from "lucide-react-native";
+import React from 'react';
+import { View, Text, Image, ScrollView } from 'react-native';
+import { Star, Quote } from 'lucide-react-native';
 
 interface Review {
   id: string;
@@ -15,37 +15,37 @@ interface Review {
 
 const mockReviews: Review[] = [
   {
-    id: "1",
-    userName: "Nguyen Van Anh",
-    userAvatar: "https://i.pravatar.cc/150?img=1",
-    userRole: "Software Developer",
-    company: "FPT Software",
+    id: '1',
+    userName: 'Nguyen Van Anh',
+    userAvatar: 'https://i.pravatar.cc/150?img=1',
+    userRole: 'Software Developer',
+    company: 'FPT Software',
     rating: 5,
     reviewText:
-      "Career Connect helped me find my dream job! The application process was smooth and I got multiple offers within weeks.",
-    date: "2 weeks ago",
+      'Career Connect đã giúp tôi tìm được công việc mơ ước! Quy trình nộp hồ sơ diễn ra suôn sẻ và tôi nhận được nhiều lời mời làm việc chỉ trong vài tuần.',
+    date: '2 weeks ago',
   },
   {
-    id: "2",
-    userName: "Tran Thi Bich",
-    userAvatar: "https://i.pravatar.cc/150?img=2",
-    userRole: "Marketing Manager",
-    company: "Shopee Vietnam",
+    id: '2',
+    userName: 'Tran Thi Bich',
+    userAvatar: 'https://i.pravatar.cc/150?img=2',
+    userRole: 'Marketing Manager',
+    company: 'Shopee Vietnam',
     rating: 5,
     reviewText:
-      "Excellent platform with genuine job listings. The job matching algorithm really works! Highly recommended.",
-    date: "1 month ago",
+      'Nền tảng tuyệt vời với các danh sách công việc chân thực. Thuật toán đối sánh công việc thực sự hiệu quả! Rất khuyến khích.',
+    date: '1 month ago',
   },
   {
-    id: "3",
-    userName: "Le Van Cuong",
-    userAvatar: "https://i.pravatar.cc/150?img=3",
-    userRole: "UI/UX Designer",
-    company: "VNG Corporation",
+    id: '3',
+    userName: 'Le Van Cuong',
+    userAvatar: 'https://i.pravatar.cc/150?img=3',
+    userRole: 'UI/UX Designer',
+    company: 'VNG Corporation',
     rating: 4,
     reviewText:
-      "Great variety of jobs and easy to use interface. Found my current position through this app.",
-    date: "1 month ago",
+      'Đa dạng về công việc và giao diện dễ sử dụng. Tôi đã tìm được vị trí hiện tại của mình thông qua ứng dụng này.',
+    date: '1 month ago',
   },
 ];
 
@@ -56,7 +56,7 @@ const UserReviewsSection: React.FC = () => {
         key={index}
         size={16}
         color="#FBBF24"
-        fill={index < rating ? "#FBBF24" : "transparent"}
+        fill={index < rating ? '#FBBF24' : 'transparent'}
       />
     ));
   };

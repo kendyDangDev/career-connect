@@ -381,7 +381,7 @@ export default function PendingJobsPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="max-w-xs">
-                        <div className="mb-1 truncate text-sm font-semibold text-gray-900">
+                        <div className="mb-1 w-60 truncate text-sm font-semibold text-gray-900">
                           {job.title || (
                             <span className="text-red-500 italic">Chưa có tiêu đề</span>
                           )}

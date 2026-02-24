@@ -98,6 +98,7 @@ export default function JobsPage() {
       setError('Không thể tải danh sách công việc. Vui lòng thử lại sau.');
     } finally {
       setLoading(false);
+      console.log('stats: ...', stats);
     }
   };
 

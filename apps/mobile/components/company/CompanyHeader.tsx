@@ -112,11 +112,11 @@ const CompanyHeader: React.FC<CompanyHeaderProps> = ({
 
           <View className="flex-1 ml-4 mb-2">
             <View className="flex-row items-center">
-              <Text className="text-xl font-bold text-gray-900 flex-1">
+              <Text className="text-xl font-bold text-gray-900">
                 {company.companyName}
               </Text>
               {company.verificationStatus === 'VERIFIED' && (
-                <CheckCircle size={20} color="#10B981" />
+                <CheckCircle size={22} color="#10B981" />
               )}
             </View>
             <Text className="text-sm text-gray-600 mt-1">

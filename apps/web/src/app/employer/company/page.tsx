@@ -26,7 +26,7 @@ import {
 import { UpdateCompanyData, CompanyProfile } from '@/types/company.types';
 import { CompanySize } from '@/generated/prisma';
 import { getCompanySizeOptions } from '@/lib/utils/company-size';
-import { useIndustries } from '@/hooks/use-industries';
+import { useIndustries } from '@/hooks/useIndustries';
 
 export default function CompanyPage() {
   // Fetch company profile

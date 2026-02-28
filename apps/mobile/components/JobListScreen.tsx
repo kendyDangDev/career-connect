@@ -698,9 +698,9 @@ const JobListScreen: React.FC = () => {
         data={data?.jobs || []}
         renderItem={renderJob}
         keyExtractor={item => item.id}
-        ListHeaderComponent={renderHeader}
-        ListEmptyComponent={renderEmpty}
-        ListFooterComponent={renderFooter}
+        ListHeaderComponent={renderHeader()}
+        ListEmptyComponent={renderEmpty()}
+        ListFooterComponent={renderFooter()}
         refreshControl={
           <RefreshControl
             refreshing={isLoading && !isFetchingNextPage}

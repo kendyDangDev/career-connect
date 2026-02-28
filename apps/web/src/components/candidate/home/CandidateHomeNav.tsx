@@ -1,0 +1,254 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
+import {
+  Briefcase,
+  ChevronDown,
+  LogOut,
+  User,
+  FileText,
+  Bell,
+  MessageCircle,
+  Menu,
+  X,
+  Zap,
+} from 'lucide-react';
+
+const navLinks = [
+  { label: 'Tìm việc làm', href: '/jobs' },
+  { label: 'Công ty', href: '/companies' },
+  { label: 'Hồ sơ CV', href: '/candidate/cv-management' },
+];
+
+export default function CandidateHomeNav() {
+  const { data: session } = useSession();
+  const pathname = usePathname();
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 60);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!dropdownOpen) return;
+    const close = () => setDropdownOpen(false);
+    document.addEventListener('click', close);
+    return () => document.removeEventListener('click', close);
+  }, [dropdownOpen]);
+
+  return (
+    <header
+      className={`fixed top-0 z-50 w-full transition-all duration-500 ${
+        scrolled
+          ? 'bg-white/80 backdrop-blur-xl shadow-sm shadow-purple-100/30 border-b border-purple-50/60'
+          : 'backdrop-blur-md bg-white/5 border-b border-white/10'
+      }`}
+    >
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="flex shrink-0 items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 shadow">
+              <Briefcase className="h-4 w-4 text-white" />
+            </div>
+            <span
+              className={`text-lg font-extrabold tracking-tight transition ${
+                scrolled ? 'text-gray-900' : 'text-white'
+              }`}
+            >
+              Career<span className="text-purple-400">Connect</span>
+            </span>
+          </Link>
+
+          {/* Desktop nav links */}
+          <nav className="hidden items-center gap-1 md:flex">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                  pathname === link.href
+                    ? scrolled
+                      ? 'bg-purple-50 text-purple-700'
+                      : 'bg-white/20 text-white'
+                    : scrolled
+                      ? 'text-gray-700 hover:bg-gray-100'
+                      : 'text-purple-100 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Desktop auth */}
+          <div className="hidden items-center gap-3 md:flex">
+            {session ? (
+              <>
+                <Link
+                  href="/chat"
+                  className={`relative rounded-full p-2 transition ${
+                    scrolled ? 'hover:bg-gray-100' : 'hover:bg-white/10'
+                  }`}
+                >
+                  <MessageCircle
+                    className={`h-5 w-5 ${scrolled ? 'text-gray-600' : 'text-white'}`}
+                  />
+                </Link>
+
+                <Link
+                  href="/notifications"
+                  className={`relative rounded-full p-2 transition ${
+                    scrolled ? 'hover:bg-gray-100' : 'hover:bg-white/10'
+                  }`}
+                >
+                  <Bell className={`h-5 w-5 ${scrolled ? 'text-gray-600' : 'text-white'}`} />
+                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
+                </Link>
+
+                <div className="relative" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                    className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+                      scrolled
+                        ? 'border-gray-200 text-gray-700 hover:bg-gray-50'
+                        : 'border-white/30 text-white hover:bg-white/10'
+                    }`}
+                  >
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-600 text-xs font-bold text-white">
+                      {(session.user?.name ?? session.user?.email ?? 'U')[0].toUpperCase()}
+                    </div>
+                    <span className="max-w-[6rem] truncate">
+                      {session.user?.name ?? session.user?.email}
+                    </span>
+                    <ChevronDown className="h-3.5 w-3.5" />
+                  </button>
+
+                  {dropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-52 overflow-hidden rounded-xl border border-white/40 bg-white/80 shadow-xl shadow-purple-200/30 backdrop-blur-xl">
+                      <div className="border-b border-gray-50 px-4 py-3">
+                        <p className="truncate text-sm font-semibold text-gray-900">
+                          {session.user?.name ?? session.user?.email}
+                        </p>
+                        <p className="truncate text-xs text-gray-500">{session.user?.email}</p>
+                      </div>
+                      {[
+                        { label: 'Hồ sơ cá nhân', href: '/candidate/profile', icon: User },
+                        { label: 'Quản lý CV', href: '/candidate/cv-management', icon: FileText },
+                        { label: 'Việc làm phù hợp', href: '/candidate/matches', icon: Zap },
+                      ].map((item) => {
+                        const Icon = item.icon;
+                        return (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => setDropdownOpen(false)}
+                            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 transition hover:bg-purple-50 hover:text-purple-700"
+                          >
+                            <Icon className="h-4 w-4 text-purple-400" />
+                            {item.label}
+                          </Link>
+                        );
+                      })}
+                      <div className="border-t border-gray-50">
+                        <button
+                          onClick={() => signOut()}
+                          className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 transition hover:bg-red-50"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Đăng xuất
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/auth/signin"
+                  className={`rounded-full px-5 py-2 text-sm font-semibold transition ${
+                    scrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-white/10'
+                  }`}
+                >
+                  Đăng nhập
+                </Link>
+                <Link
+                  href="/auth/signup"
+                  className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-purple-700 shadow transition hover:bg-purple-50 hover:shadow-purple-200/60"
+                >
+                  Đăng ký
+                </Link>
+              </>
+            )}
+          </div>
+
+          {/* Mobile menu toggle */}
+          <button
+            className={`rounded-lg p-2 md:hidden ${scrolled ? 'text-gray-700' : 'text-white'}`}
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile menu */}
+      {menuOpen && (
+        <div className="border-t border-white/20 bg-white/80 px-4 pb-4 shadow-lg backdrop-blur-xl md:hidden">
+          <nav className="flex flex-col gap-1 pt-3">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                className={`rounded-xl px-4 py-2.5 text-sm font-medium transition ${
+                  pathname === link.href
+                    ? 'bg-purple-50 text-purple-700'
+                    : 'text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+          <div className="mt-4 flex flex-col gap-2">
+            {session ? (
+              <button
+                onClick={() => signOut()}
+                className="rounded-xl border border-red-100 py-2.5 text-sm font-semibold text-red-600"
+              >
+                Đăng xuất
+              </button>
+            ) : (
+              <>
+                <Link
+                  href="/auth/signin"
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-xl border border-gray-200 py-2.5 text-center text-sm font-semibold text-gray-700"
+                >
+                  Đăng nhập
+                </Link>
+                <Link
+                  href="/auth/signup"
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 py-2.5 text-center text-sm font-semibold text-white"
+                >
+                  Đăng ký
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </header>
+  );
+}

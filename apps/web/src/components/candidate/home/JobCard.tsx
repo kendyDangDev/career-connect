@@ -21,6 +21,7 @@ export interface JobCardData {
     verificationStatus?: string;
     companySlug?: string;
   } | null;
+  address: string | null;
   locationCity?: string | null;
   locationProvince?: string | null;
   jobType?: string | null;
@@ -30,6 +31,9 @@ export interface JobCardData {
   salaryCurrency?: string | null;
   createdAt?: string | Date | null;
   expiresAt?: string | Date | null;
+  applicationDeadline?: string | Date | null;
+  viewCount?: number | null;
+  applicationCount?: number | null;
   isFeatured?: boolean;
   isUrgent?: boolean;
 }
@@ -59,7 +63,7 @@ const jobTypeColor: Record<string, string> = {
 };
 
 function formatSalary(min?: number | null, max?: number | null, currency?: string | null) {
-  if (!min && !max) return null;
+  if (!min && !max) return 'Thỏa thuận';
   const curr = currency ?? 'VND';
   const fmt = (n: number) =>
     curr === 'VND' ? `${(n / 1_000_000).toFixed(0)}M` : `$${(n / 1000).toFixed(0)}k`;
@@ -103,7 +107,7 @@ export default function JobCard({ job, saved, onSave }: JobCardProps) {
   const typeColor = job.jobType
     ? (jobTypeColor[job.jobType] ?? 'bg-gray-50 text-gray-600 border-gray-100')
     : '';
-  const location = [job.locationCity, job.locationProvince].filter(Boolean).join(', ');
+  const location = job.locationProvince;
 
   return (
     <div className="group backdrop-bltop-0 ur-smition-all relative flex flex-col gap-4 rounded-2xl border border-gray-100/80 bg-white/95 p-5 shadow-sm duration-300 hover:-translate-y-1 hover:border-purple-200/70 hover:bg-white hover:shadow-lg hover:ring-1 hover:shadow-purple-200/40 hover:ring-purple-100/50">

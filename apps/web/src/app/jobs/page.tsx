@@ -1,5 +1,4 @@
 import JobListPage from '@/components/candidate/jobs/JobListPage';
-import CandidateHomeNav from '@/components/candidate/home/CandidateHomeNav';
 import CandidateHomeFooter from '@/components/candidate/home/CandidateHomeFooter';
 import ScrollToTop from '@/components/candidate/home/ScrollToTop';
 import type { Metadata } from 'next';
@@ -13,11 +12,12 @@ export const metadata: Metadata = {
 
 export default function JobsPage() {
   return (
-    <div className="min-h-screen bg-white antialiased">
-      <CandidateHomeNav />
+    <div className="min-h-screen bg-white pt-16 antialiased">
+      {/* <div className="pt-16"> */}
       <JobListPage />
       <CandidateHomeFooter />
       <ScrollToTop />
+      {/* </div> */}
     </div>
   );
 }

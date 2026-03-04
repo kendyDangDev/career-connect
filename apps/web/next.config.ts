@@ -4,6 +4,7 @@ import path from 'path';
 const nextConfig: NextConfig = {
   /* config options here */
   outputFileTracingRoot: path.join(__dirname, '../../'),
+  transpilePackages: ['mapbox-gl'],
   images: {
     remotePatterns: [
       {
@@ -32,6 +33,11 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'avatars.githubusercontent.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cloztalk.com',
         pathname: '/**',
       },
       {

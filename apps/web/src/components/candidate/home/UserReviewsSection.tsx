@@ -70,7 +70,7 @@ function StarRating({ count }: { count: number }) {
 
 export default function UserReviewsSection() {
   return (
-    <section className="bg-gradient-to-b from-gray-50/50 via-white to-white py-16">
+    <section className="bg-gradient-to-b from-gray-50/50 via-white to-white py-10">
       {/* Header */}
       <div className="mb-12 text-center">
         <span className="mb-2 inline-block text-sm font-semibold tracking-widest text-purple-500 uppercase">
@@ -88,7 +88,7 @@ export default function UserReviewsSection() {
       </div>
 
       {/* Reviews Grid */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {reviews.map((review) => (
           <div
             key={review.id}

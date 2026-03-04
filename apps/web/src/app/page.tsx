@@ -4,7 +4,6 @@ import TopCompaniesSection from '@/components/candidate/home/TopCompaniesSection
 import JobMatchBanner from '@/components/candidate/home/JobMatchBanner';
 import JobsGrid from '@/components/candidate/home/JobsGrid';
 import UserReviewsSection from '@/components/candidate/home/UserReviewsSection';
-import CandidateHomeNav from '@/components/candidate/home/CandidateHomeNav';
 import CandidateHomeFooter from '@/components/candidate/home/CandidateHomeFooter';
 import ScrollToTop from '@/components/candidate/home/ScrollToTop';
 import Container from '@/components/ui/container';
@@ -12,9 +11,6 @@ import Container from '@/components/ui/container';
 export default function Home() {
   return (
     <div className="min-h-screen bg-white antialiased">
-      {/* Fixed navigation with transparent→solid scroll effect */}
-      <CandidateHomeNav />
-
       {/* 1. Hero — search + headline (Full-width background) */}
       <HeroSection />
 
@@ -31,13 +27,13 @@ export default function Home() {
       <JobMatchBanner />
 
       {/* Constrained content sections - 1200px max width */}
-      <Container>
-        {/* 5. Jobs Grid — category filter + job cards */}
-        <JobsGrid />
+      {/* <Container> */}
+      {/* 5. Jobs Grid — category filter + job cards */}
+      <JobsGrid />
 
-        {/* 6. User Reviews — social proof */}
-        <UserReviewsSection />
-      </Container>
+      {/* 6. User Reviews — social proof */}
+      <UserReviewsSection />
+      {/* </Container> */}
 
       {/* Footer */}
       <CandidateHomeFooter />

@@ -74,9 +74,9 @@ export default function CategoryFilter({ selected, onSelect }: CategoryFilterPro
   const items = [allItem, ...categories];
 
   return (
-    <section className="sticky top-0 z-20 border-b border-gray-100 bg-white py-6 shadow-sm">
+    <section className="sticky top-0 z-20 border-b border-gray-100 bg-white p-6 shadow-sm">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="scrollbar-thin scrollbar-thumb-purple-200 scrollbar-track-transparent flex items-center gap-3 overflow-x-auto pb-1">
+        <div className="scrollbar-thin scrollbar-thumb-purple-200 scrollbar-track-transparent flex items-center justify-center gap-3 overflow-x-auto pb-1">
           {loading
             ? Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="h-9 w-28 shrink-0 animate-pulse rounded-full bg-gray-100" />

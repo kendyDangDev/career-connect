@@ -26,9 +26,13 @@ const navLinks = [
 export default function CandidateHomeNav() {
   const { data: session } = useSession();
   const pathname = usePathname();
+  const isHome = pathname === '/';
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  // Only use transparent/scroll effect on home page
+  const solid = !isHome || scrolled;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -47,9 +51,9 @@ export default function CandidateHomeNav() {
   return (
     <header
       className={`fixed top-0 z-50 w-full transition-all duration-500 ${
-        scrolled
-          ? 'bg-white/80 backdrop-blur-xl shadow-sm shadow-purple-100/30 border-b border-purple-50/60'
-          : 'backdrop-blur-md bg-white/5 border-b border-white/10'
+        solid
+          ? 'border-b border-purple-50/60 bg-white/90 shadow-sm shadow-purple-100/30 backdrop-blur-xl'
+          : 'border-b border-white/10 bg-white/5 backdrop-blur-md'
       }`}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -61,7 +65,7 @@ export default function CandidateHomeNav() {
             </div>
             <span
               className={`text-lg font-extrabold tracking-tight transition ${
-                scrolled ? 'text-gray-900' : 'text-white'
+                solid ? 'text-gray-900' : 'text-white'
               }`}
             >
               Career<span className="text-purple-400">Connect</span>
@@ -76,10 +80,10 @@ export default function CandidateHomeNav() {
                 href={link.href}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                   pathname === link.href
-                    ? scrolled
+                    ? solid
                       ? 'bg-purple-50 text-purple-700'
                       : 'bg-white/20 text-white'
-                    : scrolled
+                    : solid
                       ? 'text-gray-700 hover:bg-gray-100'
                       : 'text-purple-100 hover:bg-white/10 hover:text-white'
                 }`}
@@ -96,21 +100,19 @@ export default function CandidateHomeNav() {
                 <Link
                   href="/chat"
                   className={`relative rounded-full p-2 transition ${
-                    scrolled ? 'hover:bg-gray-100' : 'hover:bg-white/10'
+                    solid ? 'hover:bg-gray-100' : 'hover:bg-white/10'
                   }`}
                 >
-                  <MessageCircle
-                    className={`h-5 w-5 ${scrolled ? 'text-gray-600' : 'text-white'}`}
-                  />
+                  <MessageCircle className={`h-5 w-5 ${solid ? 'text-gray-600' : 'text-white'}`} />
                 </Link>
 
                 <Link
                   href="/notifications"
                   className={`relative rounded-full p-2 transition ${
-                    scrolled ? 'hover:bg-gray-100' : 'hover:bg-white/10'
+                    solid ? 'hover:bg-gray-100' : 'hover:bg-white/10'
                   }`}
                 >
-                  <Bell className={`h-5 w-5 ${scrolled ? 'text-gray-600' : 'text-white'}`} />
+                  <Bell className={`h-5 w-5 ${solid ? 'text-gray-600' : 'text-white'}`} />
                   <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
                 </Link>
 
@@ -118,7 +120,7 @@ export default function CandidateHomeNav() {
                   <button
                     onClick={() => setDropdownOpen(!dropdownOpen)}
                     className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium transition ${
-                      scrolled
+                      solid
                         ? 'border-gray-200 text-gray-700 hover:bg-gray-50'
                         : 'border-white/30 text-white hover:bg-white/10'
                     }`}
@@ -176,7 +178,7 @@ export default function CandidateHomeNav() {
                 <Link
                   href="/auth/signin"
                   className={`rounded-full px-5 py-2 text-sm font-semibold transition ${
-                    scrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-white/10'
+                    solid ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-white/10'
                   }`}
                 >
                   Đăng nhập
@@ -193,7 +195,7 @@ export default function CandidateHomeNav() {
 
           {/* Mobile menu toggle */}
           <button
-            className={`rounded-lg p-2 md:hidden ${scrolled ? 'text-gray-700' : 'text-white'}`}
+            className={`rounded-lg p-2 md:hidden ${solid ? 'text-gray-700' : 'text-white'}`}
             onClick={() => setMenuOpen(!menuOpen)}
           >
             {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}

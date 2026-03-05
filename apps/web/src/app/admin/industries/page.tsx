@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
+import { AdminPageHeader } from '@/components/layout/AdminLayout/AdminPageHeader';
 
 export default function IndustriesPage() {
   const [activeTab, setActiveTab] = useState('list');

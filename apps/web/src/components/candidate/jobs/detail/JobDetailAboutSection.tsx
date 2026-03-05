@@ -35,21 +35,6 @@ function sanitize(html: string) {
     .replace(/javascript:/gi, '');
 }
 
-function parseResponsibilities(text: string): string[] {
-  const lines = text
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean);
-  const responsibilities = lines.filter((line) => /^[-•*\d+.)]/.test(line));
-
-  if (responsibilities.length > 0) {
-    return responsibilities.slice(0, 4).map((item) => item.replace(/^[-•*\d+.)]\s*/, '').trim());
-  }
-
-  const sentences = text.match(/[^.!?]+[.!?]+/g) || [];
-  return sentences.slice(0, 4).map((s) => s.trim());
-}
-
 const categoryColors = [
   {
     bg: 'bg-primary-light dark:bg-primary/10',
@@ -69,11 +54,43 @@ const categoryColors = [
 ];
 
 const categoryIcons: Record<string, string> = {
+  // English
   'Software Development': 'code',
   'SaaS Products': 'layers',
   'Cloud Computing': 'cloud',
+  Design: 'palette',
+  'Project Management': 'task_alt',
+  Business: 'trending_up',
+  'Human Resources': 'people',
+  Accounting: 'account_balance',
+  Marketing: 'campaign',
+  Operations: 'settings',
+  // Vietnamese
+  'Lập trình': 'code',
+  'Thiết kế': 'palette',
+  'Quản lý dự án': 'task_alt',
+  'Kinh doanh': 'trending_up',
+  'Nhân sự': 'people',
+  'Kế toán': 'account_balance',
+  'Vận hành': 'settings',
   default: 'work',
 };
+
+function parseRequirements(text: string): string[] {
+  return text
+    .replace(/\\n/g, '\n')
+    .split(/(?<=[.!?])\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function parseBenefits(text: string): string[] {
+  return text
+    .replace(/\\n/g, '\n')
+    .split(/(?<=[.!?])\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
 
 export default function JobDetailAboutSection({
   description,
@@ -82,33 +99,50 @@ export default function JobDetailAboutSection({
   categories,
   skills,
 }: JobDetailAboutSectionProps) {
-  const responsibilities = description ? parseResponsibilities(description) : [];
   const html = description && isHtml(description);
+  const requirementItems = requirements ? parseRequirements(requirements) : [];
+  const benefitItems = benefits ? parseBenefits(benefits) : [];
 
   return (
     <div className="shadow-sophisticated overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
       <div className="px-8 pt-8">
-        <h3 className="mb-6 text-2xl font-bold">About the Role</h3>
+        <h3 className="mb-3 text-2xl font-bold">Job Description</h3>
 
         {/* Main Description */}
-        <div className="prose dark:prose-invert max-w-none space-y-6 leading-relaxed text-slate-600 dark:text-slate-300">
+        <div className="prose dark:prose-invert max-w-none space-y-5 leading-relaxed text-slate-600 dark:text-slate-300">
           {html ? (
             <div dangerouslySetInnerHTML={{ __html: sanitize(description!) }} />
           ) : (
-            <p>{description}</p>
+            <p className="whitespace-pre-wrap">{description?.replace(/\\n /g, '\n')}</p>
           )}
 
-          {/* Core Responsibilities */}
-          {responsibilities.length > 0 && (
+          {/* Candidate requirement */}
+          {requirementItems.length > 0 && (
             <div>
-              <h4 className="mb-4 text-lg font-bold text-slate-900 dark:text-white">
-                Core Responsibilities
+              <h4 className="mb-3 text-lg font-bold text-slate-900 dark:text-white">
+                Candidate Requirements
               </h4>
               <ul className="grid list-none grid-cols-1 gap-3 p-0 md:grid-cols-2">
-                {responsibilities.map((item, index) => (
+                {requirementItems.map((item, index) => (
                   <li key={index} className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-primary text-xl">
+                    <span className="material-symbols-outlined text-primary mt-0.5 text-xl">
                       check_circle
+                    </span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {benefitItems.length > 0 && (
+            <div>
+              <h4 className="mb-3 text-lg font-bold text-slate-900 dark:text-white">Benefits</h4>
+              <ul className="grid list-none grid-cols-1 gap-3 p-0 md:grid-cols-2">
+                {benefitItems.map((item, index) => (
+                  <li key={index} className="flex items-start gap-3">
+                    <span className="material-symbols-outlined fill-1 mt-0.5 text-xl text-amber-500">
+                      star_shine
                     </span>
                     <span>{item}</span>
                   </li>
@@ -121,7 +155,7 @@ export default function JobDetailAboutSection({
         {/* Categories */}
         {categories.length > 0 && (
           <div className="mt-10">
-            <h4 className="mb-4 text-sm font-bold tracking-widest text-slate-400 uppercase">
+            <h4 className="mb-3 text-sm font-bold tracking-widest text-slate-400 uppercase">
               Categories
             </h4>
             <div className="flex flex-wrap gap-2">

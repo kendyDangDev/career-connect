@@ -10,7 +10,7 @@ import { DeleteConfirmDialog } from './components/DeleteConfirmDialog';
 import { useCompaniesData } from '@/hooks/useCompaniesData';
 import { Company, CompanyFormData } from './types';
 import { Loader2, Building2 } from 'lucide-react';
-import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
+import { AdminPageHeader } from '@/components/layout/AdminLayout/AdminPageHeader';
 
 function CompaniesPageContent() {
   const router = useRouter();
@@ -173,51 +173,51 @@ function CompaniesPageContent() {
           gradient="from-purple-600 via-blue-600 to-cyan-600"
         />
 
-      <CompaniesTable
-        companies={companies}
-        loading={loading}
-        pagination={pagination}
-        filters={{
-          search,
-          status,
-          companySize,
-          industryId,
-          sortBy,
-          sortOrder,
-        }}
-        onSearch={handleSearch}
-        onFilter={handleFilter}
-        onSort={handleSort}
-        onPageChange={handlePageChange}
-        onPageSizeChange={handlePageSizeChange}
-        onAddNew={handleAddNew}
-        onEdit={handleEdit}
-        onView={handleView}
-        onDelete={handleDelete}
-      />
+        <CompaniesTable
+          companies={companies}
+          loading={loading}
+          pagination={pagination}
+          filters={{
+            search,
+            status,
+            companySize,
+            industryId,
+            sortBy,
+            sortOrder,
+          }}
+          onSearch={handleSearch}
+          onFilter={handleFilter}
+          onSort={handleSort}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          onAddNew={handleAddNew}
+          onEdit={handleEdit}
+          onView={handleView}
+          onDelete={handleDelete}
+        />
 
-      <CompanyFormDialog
-        open={isFormDialogOpen}
-        onOpenChange={setIsFormDialogOpen}
-        mode={formMode}
-        company={selectedCompany}
-        onSubmit={handleFormSubmit}
-        loading={formLoading}
-      />
+        <CompanyFormDialog
+          open={isFormDialogOpen}
+          onOpenChange={setIsFormDialogOpen}
+          mode={formMode}
+          company={selectedCompany}
+          onSubmit={handleFormSubmit}
+          loading={formLoading}
+        />
 
-      <CompanyDetailDialog
-        open={isDetailDialogOpen}
-        onOpenChange={setIsDetailDialogOpen}
-        company={selectedCompany}
-      />
+        <CompanyDetailDialog
+          open={isDetailDialogOpen}
+          onOpenChange={setIsDetailDialogOpen}
+          company={selectedCompany}
+        />
 
-      <DeleteConfirmDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-        onConfirm={handleDeleteConfirm}
-        companyName={selectedCompany ? selectedCompany.companyName : ''}
-        loading={deleteLoading}
-      />
+        <DeleteConfirmDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+          onConfirm={handleDeleteConfirm}
+          companyName={selectedCompany ? selectedCompany.companyName : ''}
+          loading={deleteLoading}
+        />
       </div>
     </div>
   );

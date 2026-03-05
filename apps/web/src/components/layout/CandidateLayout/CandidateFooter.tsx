@@ -29,7 +29,7 @@ const socials = [
   { icon: Youtube, href: '#', label: 'YouTube' },
 ];
 
-export default function CandidateHomeFooter() {
+export default function CandidateFooter() {
   return (
     <footer className="bg-gray-950 text-gray-400">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">

@@ -69,7 +69,7 @@ export default function LoginForm() {
               ? '/employer/dashboard'
               : session.user.userType === 'ADMIN'
                 ? '/admin'
-                : '/candidate/dashboard';
+                : '/candidate';
           router.push(redirectUrl);
           router.refresh();
         } else {
@@ -90,7 +90,7 @@ export default function LoginForm() {
       setError('');
 
       await signIn('google', {
-        callbackUrl: '/candidate/dashboard',
+        callbackUrl: '/candidate',
       });
     } catch (error) {
       console.error('Google login error:', error);

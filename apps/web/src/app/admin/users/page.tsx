@@ -10,7 +10,7 @@ import { DeleteConfirmDialog } from './components/DeleteConfirmDialog';
 import { useUsersData } from '@/hooks/useUsersData';
 import { User, UserFormData } from './types';
 import { Loader2, UserCog } from 'lucide-react';
-import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
+import { AdminPageHeader } from '@/components/layout/AdminLayout/AdminPageHeader';
 
 function UsersPageContent() {
   const router = useRouter();
@@ -152,48 +152,48 @@ function UsersPageContent() {
           gradient="from-indigo-600 via-purple-600 to-pink-600"
         />
 
-      <UsersTable
-        users={users}
-        loading={loading}
-        pagination={pagination}
-        filters={{
-          search,
-          userType,
-          status,
-          sortBy,
-          sortOrder,
-        }}
-        onSearch={handleSearch}
-        onFilter={handleFilter}
-        onSort={handleSort}
-        onPageChange={handlePageChange}
-        onPageSizeChange={handlePageSizeChange}
-        onAddNew={handleAddNew}
-        onEdit={handleEdit}
-        onView={handleView}
-        onDelete={handleDelete}
-      />
+        <UsersTable
+          users={users}
+          loading={loading}
+          pagination={pagination}
+          filters={{
+            search,
+            userType,
+            status,
+            sortBy,
+            sortOrder,
+          }}
+          onSearch={handleSearch}
+          onFilter={handleFilter}
+          onSort={handleSort}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          onAddNew={handleAddNew}
+          onEdit={handleEdit}
+          onView={handleView}
+          onDelete={handleDelete}
+        />
 
-      <UserFormDialog
-        open={isFormDialogOpen}
-        onOpenChange={setIsFormDialogOpen}
-        mode={formMode}
-        user={selectedUser}
-        onSubmit={handleFormSubmit}
-      />
+        <UserFormDialog
+          open={isFormDialogOpen}
+          onOpenChange={setIsFormDialogOpen}
+          mode={formMode}
+          user={selectedUser}
+          onSubmit={handleFormSubmit}
+        />
 
-      <UserDetailDialog
-        open={isDetailDialogOpen}
-        onOpenChange={setIsDetailDialogOpen}
-        user={selectedUser}
-      />
+        <UserDetailDialog
+          open={isDetailDialogOpen}
+          onOpenChange={setIsDetailDialogOpen}
+          user={selectedUser}
+        />
 
-      <DeleteConfirmDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-        onConfirm={handleDeleteConfirm}
-        userName={selectedUser ? `${selectedUser.firstName} ${selectedUser.lastName}` : ''}
-      />
+        <DeleteConfirmDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+          onConfirm={handleDeleteConfirm}
+          userName={selectedUser ? `${selectedUser.firstName} ${selectedUser.lastName}` : ''}
+        />
       </div>
     </div>
   );

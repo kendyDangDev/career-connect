@@ -18,15 +18,15 @@ import {
 } from 'lucide-react';
 
 const navLinks = [
-  { label: 'Tìm việc làm', href: '/jobs' },
-  { label: 'Công ty', href: '/companies' },
+  { label: 'Tìm việc làm', href: '/candidate/jobs' },
+  { label: 'Công ty', href: '/candidate/companies' },
   { label: 'Hồ sơ CV', href: '/candidate/cv-management' },
 ];
 
-export default function CandidateHomeNav() {
+export default function CandidateHeader() {
   const { data: session } = useSession();
   const pathname = usePathname();
-  const isHome = pathname === '/';
+  const isHome = pathname === '/candidate';
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -59,7 +59,7 @@ export default function CandidateHomeNav() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex shrink-0 items-center gap-2">
+          <Link href="/candidate" className="flex shrink-0 items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 shadow">
               <Briefcase className="h-4 w-4 text-white" />
             </div>

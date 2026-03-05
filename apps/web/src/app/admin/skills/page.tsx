@@ -41,7 +41,7 @@ import {
   FileText,
   Zap,
 } from 'lucide-react';
-import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
+import { AdminPageHeader } from '@/components/layout/AdminLayout/AdminPageHeader';
 
 function SkillsManagementPageContent() {
   const router = useRouter();
@@ -228,100 +228,100 @@ function SkillsManagementPageContent() {
           gradient="from-yellow-600 via-orange-600 to-red-600"
         />
 
-      {/* Error Alert */}
-      {error && (
-        <div className="bg-destructive/15 text-destructive border-destructive/20 mb-6 rounded-lg border px-4 py-3">
-          {error}
-        </div>
-      )}
+        {/* Error Alert */}
+        {error && (
+          <div className="bg-destructive/15 text-destructive border-destructive/20 mb-6 rounded-lg border px-4 py-3">
+            {error}
+          </div>
+        )}
 
-      {/* Tabs */}
-      <Tabs defaultValue="list" className="mb-6 space-y-2">
-        <TabsList className="grid w-full max-w-[400px] grid-cols-2">
-          <TabsTrigger value="list" className="flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            Danh sách
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            Thống kê
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="list" className="m-0 pb-6">
-          <Card>
-            <CardContent className="p-0">
-              <SkillsTable
-                skills={skills}
-                loading={loading}
-                totalItems={totalItems}
-                currentPage={currentPage}
-                pageSize={pageSize}
-                filters={filters}
-                onPageChange={handlePageChange}
-                onPageSizeChange={handlePageSizeChange}
-                onSort={handleSort}
-                onSearch={handleSearch}
-                onFilterChange={handleFilterChange}
-                onEdit={handleEdit}
-                onDelete={handleDeleteClick}
-                onView={handleView}
-                onAddNew={handleAddNew}
-                onExport={handleExport}
-                onImport={() => setImportDialogOpen(true)}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
+        {/* Tabs */}
+        <Tabs defaultValue="list" className="mb-6 space-y-2">
+          <TabsList className="grid w-full max-w-[400px] grid-cols-2">
+            <TabsTrigger value="list" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Danh sách
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Thống kê
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="list" className="m-0 pb-6">
+            <Card>
+              <CardContent className="p-0">
+                <SkillsTable
+                  skills={skills}
+                  loading={loading}
+                  totalItems={totalItems}
+                  currentPage={currentPage}
+                  pageSize={pageSize}
+                  filters={filters}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
+                  onSort={handleSort}
+                  onSearch={handleSearch}
+                  onFilterChange={handleFilterChange}
+                  onEdit={handleEdit}
+                  onDelete={handleDeleteClick}
+                  onView={handleView}
+                  onAddNew={handleAddNew}
+                  onExport={handleExport}
+                  onImport={() => setImportDialogOpen(true)}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="analytics" className="m-0 border-t py-6">
-          <SkillsAnalytics skills={skills} categoryStats={categoryStats} />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="analytics" className="m-0 border-t py-6">
+            <SkillsAnalytics skills={skills} categoryStats={categoryStats} />
+          </TabsContent>
+        </Tabs>
 
-      {/* Form Dialog */}
-      <SkillForm
-        open={formOpen}
-        onClose={() => setFormOpen(false)}
-        onSubmit={handleFormSubmit}
-        skill={selectedSkill}
-        mode={formMode}
-      />
+        {/* Form Dialog */}
+        <SkillForm
+          open={formOpen}
+          onClose={() => setFormOpen(false)}
+          onSubmit={handleFormSubmit}
+          skill={selectedSkill}
+          mode={formMode}
+        />
 
-      {/* Detail Dialog */}
-      <SkillDetail
-        open={detailOpen}
-        onClose={() => setDetailOpen(false)}
-        skill={selectedSkill}
-        onEdit={handleEdit}
-        onDelete={handleDeleteClick}
-        onStatusChange={handleStatusChange}
-      />
+        {/* Detail Dialog */}
+        <SkillDetail
+          open={detailOpen}
+          onClose={() => setDetailOpen(false)}
+          skill={selectedSkill}
+          onEdit={handleEdit}
+          onDelete={handleDeleteClick}
+          onStatusChange={handleStatusChange}
+        />
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
-            <AlertDialogDescription>
-              Bạn có chắc chắn muốn xóa kỹ năng <strong>{skillToDelete?.name}</strong>? Hành động
-              này không thể hoàn tác.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeleteConfirmOpen(false)}>Hủy</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Xóa
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
+              <AlertDialogDescription>
+                Bạn có chắc chắn muốn xóa kỹ năng <strong>{skillToDelete?.name}</strong>? Hành động
+                này không thể hoàn tác.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setDeleteConfirmOpen(false)}>Hủy</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteConfirm}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Xóa
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
-      {/* Import Dialog */}
-      {/* <Dialog open={importDialogOpen} onOpenChange={() => !importing && setImportDialogOpen(false)}>
+        {/* Import Dialog */}
+        {/* <Dialog open={importDialogOpen} onOpenChange={() => !importing && setImportDialogOpen(false)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Import kỹ năng</DialogTitle>
@@ -339,7 +339,7 @@ function SkillsManagementPageContent() {
               </p>
             </div> */}
 
-      {/* <Button
+        {/* <Button
               className="w-full"
               disabled={importing}
               onClick={() => document.getElementById('file-upload')?.click()}
@@ -347,7 +347,7 @@ function SkillsManagementPageContent() {
               <Upload className="mr-2 h-4 w-4" />
               {importing ? 'Đang import...' : 'Chọn file'}
             </Button> */}
-      {/*
+        {/*
             <input
               id="file-upload"
               type="file"
@@ -360,14 +360,14 @@ function SkillsManagementPageContent() {
                 }
               }}
             /> */}
-      {/*
+        {/*
             {importing && (
               <div className="space-y-2">
                 <Progress value={undefined} className="w-full" />
                 <p className="text-muted-foreground text-center text-sm">Đang xử lý file...</p>
               </div>
             )} */}
-      {/* </div>
+        {/* </div>
         </DialogContent>
       </Dialog> */}
       </div>

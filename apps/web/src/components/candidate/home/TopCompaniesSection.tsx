@@ -75,7 +75,7 @@ export default function TopCompaniesSection() {
           <p className="mt-1 text-gray-500">Đối tác tuyển dụng được xác thực trên CareerConnect</p>
         </div>
         <Link
-          href="/companies"
+          href="/candidate/companies"
           className="hidden items-center gap-1 text-sm font-semibold text-purple-600 transition hover:text-purple-800 md:flex"
         >
           Xem tất cả <ChevronRight className="h-4 w-4" />
@@ -115,7 +115,7 @@ export default function TopCompaniesSection() {
           : (filtered.length > 0 ? filtered : companies).map((company) => (
               <Link
                 key={company.id}
-                href={`/companies/${company.companySlug}`}
+                href={`/candidate/companies/${company.companySlug}`}
                 className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-purple-300 hover:shadow-lg hover:shadow-purple-100/50"
               >
                 {/* Verified badge */}
@@ -168,7 +168,7 @@ export default function TopCompaniesSection() {
       {/* Mobile see all */}
       <div className="mt-6 flex justify-center md:hidden">
         <Link
-          href="/companies"
+          href="/candidate/companies"
           className="flex items-center gap-1 text-sm font-semibold text-purple-600 hover:text-purple-800"
         >
           Xem tất cả công ty <ChevronRight className="h-4 w-4" />

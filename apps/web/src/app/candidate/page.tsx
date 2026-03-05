@@ -4,7 +4,6 @@ import TopCompaniesSection from '@/components/candidate/home/TopCompaniesSection
 import JobMatchBanner from '@/components/candidate/home/JobMatchBanner';
 import JobsGrid from '@/components/candidate/home/JobsGrid';
 import UserReviewsSection from '@/components/candidate/home/UserReviewsSection';
-import CandidateHomeFooter from '@/components/candidate/home/CandidateHomeFooter';
 import ScrollToTop from '@/components/candidate/home/ScrollToTop';
 import Container from '@/components/ui/container';
 
@@ -34,9 +33,6 @@ export default function Home() {
       {/* 6. User Reviews — social proof */}
       <UserReviewsSection />
       {/* </Container> */}
-
-      {/* Footer */}
-      <CandidateHomeFooter />
 
       {/* Scroll to top */}
       <ScrollToTop />

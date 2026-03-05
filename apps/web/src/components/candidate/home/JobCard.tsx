@@ -156,7 +156,7 @@ export default function JobCard({ job, saved, onSave }: JobCardProps) {
           )}
           {/* Job Title */}
           <Link
-            href={`/jobs/${job.id}`}
+            href={`/candidate/jobs/${job.id}`}
             className="line-clamp-2 leading-snug font-semibold text-gray-900 transition group-hover:text-purple-700"
           >
             {job.title}
@@ -219,7 +219,7 @@ export default function JobCard({ job, saved, onSave }: JobCardProps) {
           )}
         </div>
         <Link
-          href={`/jobs/${job.id}`}
+          href={`/candidate/jobs/${job.id}`}
           className="ml-auto rounded-full bg-purple-50 px-4 py-1.5 text-xs font-semibold text-purple-700 transition group-hover:bg-purple-600 group-hover:text-white"
         >
           Xem chi tiết

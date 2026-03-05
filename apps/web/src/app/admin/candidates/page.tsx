@@ -8,7 +8,7 @@ import { CandidateDetailDialog } from './components/CandidateDetailDialog';
 import { useCandidatesData } from '@/hooks/useCandidatesData';
 import { CandidateListItem } from './types';
 import { Loader2, Users } from 'lucide-react';
-import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
+import { AdminPageHeader } from '@/components/layout/AdminLayout/AdminPageHeader';
 
 function CandidatesPageContent() {
   const router = useRouter();
@@ -27,23 +27,17 @@ function CandidatesPageContent() {
   const sortBy = searchParams?.get('sortBy') || 'createdAt';
   const sortOrder = (searchParams?.get('sortOrder') || 'desc') as 'asc' | 'desc';
 
-  const { 
-    candidates, 
-    loading, 
-    error,
-    pagination, 
-    fetchCandidateDetails, 
-    refresh 
-  } = useCandidatesData({
-    page,
-    limit,
-    search,
-    status,
-    availabilityStatus,
-    preferredWorkType,
-    sortBy,
-    sortOrder,
-  });
+  const { candidates, loading, error, pagination, fetchCandidateDetails, refresh } =
+    useCandidatesData({
+      page,
+      limit,
+      search,
+      status,
+      availabilityStatus,
+      preferredWorkType,
+      sortBy,
+      sortOrder,
+    });
 
   // Update URL params
   const updateURLParams = useCallback(
@@ -98,7 +92,7 @@ function CandidatesPageContent() {
   if (loading && candidates.length === 0) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -113,32 +107,32 @@ function CandidatesPageContent() {
           gradient="from-blue-600 via-cyan-600 to-teal-600"
         />
 
-      <CandidatesTable
-        candidates={candidates}
-        loading={loading}
-        pagination={pagination}
-        filters={{
-          search,
-          status,
-          availabilityStatus,
-          preferredWorkType,
-          sortBy,
-          sortOrder,
-        }}
-        onSearch={handleSearch}
-        onFilter={handleFilter}
-        onSort={handleSort}
-        onPageChange={handlePageChange}
-        onPageSizeChange={handlePageSizeChange}
-        onView={handleView}
-      />
+        <CandidatesTable
+          candidates={candidates}
+          loading={loading}
+          pagination={pagination}
+          filters={{
+            search,
+            status,
+            availabilityStatus,
+            preferredWorkType,
+            sortBy,
+            sortOrder,
+          }}
+          onSearch={handleSearch}
+          onFilter={handleFilter}
+          onSort={handleSort}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          onView={handleView}
+        />
 
-      <CandidateDetailDialog
-        open={isDetailDialogOpen}
-        onOpenChange={setIsDetailDialogOpen}
-        candidateId={selectedCandidate?.id}
-        fetchCandidateDetails={fetchCandidateDetails}
-      />
+        <CandidateDetailDialog
+          open={isDetailDialogOpen}
+          onOpenChange={setIsDetailDialogOpen}
+          candidateId={selectedCandidate?.id}
+          fetchCandidateDetails={fetchCandidateDetails}
+        />
       </div>
     </div>
   );
@@ -146,11 +140,13 @@ function CandidatesPageContent() {
 
 export default function CandidatesPage() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-[400px] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-[400px] items-center justify-center">
+          <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
+        </div>
+      }
+    >
       <CandidatesPageContent />
     </Suspense>
   );

@@ -9,30 +9,26 @@ export default async function SignInPage() {
 
   // Redirect if user is already logged in
   if (session) {
-    const redirectUrl = session.user.userType === 'EMPLOYER' 
-      ? '/employer/dashboard' 
-      : '/candidate/dashboard';
+    const redirectUrl = session.user.userType === 'EMPLOYER' ? '/employer/dashboard' : '/candidate';
     redirect(redirectUrl);
   }
 
   return (
     <div className="space-y-6">
-      <div className="text-center space-y-2 lg:hidden">
-        <div className="flex items-center justify-center space-x-2 mb-4">
-          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
-            <span className="text-white font-bold">CC</span>
+      <div className="space-y-2 text-center lg:hidden">
+        <div className="mb-4 flex items-center justify-center space-x-2">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600">
+            <span className="font-bold text-white">CC</span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Career Connect</h1>
         </div>
-        <p className="text-gray-600">
-          Chào mừng trở lại! Hãy đăng nhập để tiếp tục.
-        </p>
+        <p className="text-gray-600">Chào mừng trở lại! Hãy đăng nhập để tiếp tục.</p>
       </div>
 
-      <Suspense 
+      <Suspense
         fallback={
           <div className="flex items-center justify-center p-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
           </div>
         }
       >

@@ -72,11 +72,11 @@ export default function SimilarJobs({
   if (!jobs.length) return null;
 
   return (
-    <div className="mt-12">
+    <div className="mt-6">
       <div className="mb-6 flex items-center justify-between">
         <h2 className="text-lg font-bold text-gray-900">Việc làm tương tự</h2>
         <Link
-          href="/jobs"
+          href="/candidate/jobs"
           className="flex items-center gap-1 text-sm font-medium text-purple-600 transition hover:text-purple-700"
         >
           Xem thêm <ArrowRight className="h-4 w-4" />
@@ -96,7 +96,7 @@ export default function SimilarJobs({
           return (
             <Link
               key={job.id}
-              href={`/jobs/${job.id}`}
+              href={`/candidate/jobs/${job.id}`}
               className="group flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-purple-200 hover:shadow-md"
             >
               <div className="flex items-start gap-3">

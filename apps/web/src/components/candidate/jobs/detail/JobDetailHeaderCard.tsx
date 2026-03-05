@@ -55,8 +55,8 @@ export default function JobDetailHeaderCard({
 }: JobDetailHeaderCardProps) {
   const [saved, setSaved] = useState(false);
 
-  const location = job.locationCity
-    ? `${job.locationCity}${job.locationProvince ? `, ${job.locationProvince}` : ''}`
+  const location = job.address
+    ? `${job.address}${job.locationProvince ? `, ${job.locationProvince}` : ''}`
     : 'Remote';
 
   const salary = formatSalary(job.salaryMin, job.salaryMax, job.currency, job.salaryNegotiable);
@@ -121,13 +121,13 @@ export default function JobDetailHeaderCard({
               <span className="h-1 w-1 rounded-full bg-slate-300" />
 
               <span className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-lg">location_on</span>
+                <span className="material-symbols-outlined text-lg">Distance</span>
                 {location}
               </span>
 
               <span className="h-1 w-1 rounded-full bg-slate-300" />
 
-              <span className="flex items-center gap-1.5 font-bold text-emerald-600 dark:text-emerald-400">
+              <span className="flex items-center gap-1.5 rounded-full font-bold text-emerald-600 dark:text-emerald-400">
                 {salary}
               </span>
             </div>

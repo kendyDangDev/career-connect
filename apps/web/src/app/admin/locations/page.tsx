@@ -7,7 +7,12 @@ import { LocationsTable } from './components/LocationsTable';
 import { LocationForm } from './components/LocationForm';
 import { LocationDetail } from './components/LocationDetail';
 import { LocationsAnalytics } from './components/LocationsAnalytics';
-import { Location, CreateLocationDto, UpdateLocationDto, LocationQuery } from '@/types/system-categories';
+import {
+  Location,
+  CreateLocationDto,
+  UpdateLocationDto,
+  LocationQuery,
+} from '@/types/system-categories';
 import { toast } from 'react-hot-toast';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -42,7 +47,7 @@ import {
   MapPin,
   Map,
 } from 'lucide-react';
-import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
+import { AdminPageHeader } from '@/components/layout/AdminLayout/AdminPageHeader';
 
 function LocationsManagementPageContent() {
   const router = useRouter();
@@ -115,7 +120,9 @@ function LocationsManagementPageContent() {
   };
 
   // Xử lý submit form
-  const handleFormSubmit = async (data: CreateLocationDto | UpdateLocationDto): Promise<boolean> => {
+  const handleFormSubmit = async (
+    data: CreateLocationDto | UpdateLocationDto
+  ): Promise<boolean> => {
     if (formMode === 'create') {
       return await createLocation(data as CreateLocationDto);
     } else if (selectedLocation) {
@@ -231,165 +238,168 @@ function LocationsManagementPageContent() {
           gradient="from-red-600 via-rose-600 to-pink-600"
         />
 
-      {/* Error Alert */}
-      {error && (
-        <div className="bg-destructive/15 text-destructive border-destructive/20 mb-6 rounded-lg border px-4 py-3">
-          {error}
-        </div>
-      )}
-
-      {/* Tabs */}
-      <Tabs defaultValue="list" className="mb-6 space-y-2">
-        <TabsList className="grid w-full max-w-[400px] grid-cols-2">
-          <TabsTrigger value="list" className="flex items-center gap-2">
-            <Map className="h-4 w-4" />
-            Danh sách
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            Thống kê
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="list" className="m-0 pb-6">
-          <Card>
-            <CardContent className="p-0">
-              <LocationsTable
-                locations={locations}
-                loading={loading}
-                totalItems={totalItems}
-                currentPage={currentPage}
-                pageSize={pageSize}
-                filters={filters}
-                typeStats={typeStats}
-                onPageChange={handlePageChange}
-                onPageSizeChange={handlePageSizeChange}
-                onSort={handleSort}
-                onSearch={handleSearch}
-                onFilterChange={handleFilterChange}
-                onEdit={handleEdit}
-                onDelete={handleDeleteClick}
-                onView={handleView}
-                onAddNew={handleAddNew}
-                onExport={handleExport}
-                onImport={() => setImportDialogOpen(true)}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="analytics" className="m-0 border-t py-6">
-          <LocationsAnalytics 
-            locations={locations} 
-            locationTree={locationTree}
-            typeStats={typeStats}
-          />
-        </TabsContent>
-      </Tabs>
-
-      {/* Form Dialog */}
-      <LocationForm
-        open={formOpen}
-        onClose={() => setFormOpen(false)}
-        onSubmit={handleFormSubmit}
-        location={selectedLocation}
-        parentLocations={parentLocations}
-        mode={formMode}
-      />
-
-      {/* Detail Dialog */}
-      <LocationDetail
-        open={detailOpen}
-        onClose={() => setDetailOpen(false)}
-        location={selectedLocation}
-        onEdit={handleEdit}
-        onDelete={handleDeleteClick}
-        onStatusChange={handleStatusChange}
-      />
-
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
-            <AlertDialogDescription>
-              Bạn có chắc chắn muốn xóa địa điểm <strong>{locationToDelete?.name}</strong>? 
-              {locationToDelete?._count?.children && locationToDelete._count.children > 0 && (
-                <span className="block mt-2 text-red-600">
-                  Cảnh báo: Địa điểm này có {locationToDelete._count.children} địa điểm con!
-                </span>
-              )}
-              Hành động này không thể hoàn tác.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeleteConfirmOpen(false)}>Hủy</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Xóa
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Import Dialog */}
-      <Dialog open={importDialogOpen} onOpenChange={() => !importing && setImportDialogOpen(false)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Import địa điểm</DialogTitle>
-            <DialogDescription>
-              Chọn file CSV hoặc JSON để import danh sách địa điểm. File phải có các cột: name,
-              type, parentId (tùy chọn), latitude (tùy chọn), longitude (tùy chọn)
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-              <p className="text-sm text-blue-800">
-                File CSV/JSON cần có cấu trúc:
-              </p>
-              <ul className="mt-2 text-sm text-blue-700 list-disc list-inside">
-                <li>name: Tên địa điểm (bắt buộc)</li>
-                <li>type: Loại địa điểm - COUNTRY, PROVINCE, CITY, DISTRICT (bắt buộc)</li>
-                <li>parentId: ID địa điểm cha (tùy chọn, bắt buộc với PROVINCE, CITY, DISTRICT)</li>
-                <li>latitude: Vĩ độ (tùy chọn)</li>
-                <li>longitude: Kinh độ (tùy chọn)</li>
-              </ul>
-            </div>
-
-            <Button
-              className="w-full"
-              disabled={importing}
-              onClick={() => document.getElementById('file-upload')?.click()}
-            >
-              <Upload className="mr-2 h-4 w-4" />
-              {importing ? 'Đang import...' : 'Chọn file'}
-            </Button>
-
-            <input
-              id="file-upload"
-              type="file"
-              className="hidden"
-              accept=".csv,.json"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  handleImport(file);
-                }
-              }}
-            />
-
-            {importing && (
-              <div className="space-y-2">
-                <Progress value={undefined} className="w-full" />
-                <p className="text-muted-foreground text-center text-sm">Đang xử lý file...</p>
-              </div>
-            )}
+        {/* Error Alert */}
+        {error && (
+          <div className="bg-destructive/15 text-destructive border-destructive/20 mb-6 rounded-lg border px-4 py-3">
+            {error}
           </div>
-        </DialogContent>
-      </Dialog>
+        )}
+
+        {/* Tabs */}
+        <Tabs defaultValue="list" className="mb-6 space-y-2">
+          <TabsList className="grid w-full max-w-[400px] grid-cols-2">
+            <TabsTrigger value="list" className="flex items-center gap-2">
+              <Map className="h-4 w-4" />
+              Danh sách
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Thống kê
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="list" className="m-0 pb-6">
+            <Card>
+              <CardContent className="p-0">
+                <LocationsTable
+                  locations={locations}
+                  loading={loading}
+                  totalItems={totalItems}
+                  currentPage={currentPage}
+                  pageSize={pageSize}
+                  filters={filters}
+                  typeStats={typeStats}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
+                  onSort={handleSort}
+                  onSearch={handleSearch}
+                  onFilterChange={handleFilterChange}
+                  onEdit={handleEdit}
+                  onDelete={handleDeleteClick}
+                  onView={handleView}
+                  onAddNew={handleAddNew}
+                  onExport={handleExport}
+                  onImport={() => setImportDialogOpen(true)}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="analytics" className="m-0 border-t py-6">
+            <LocationsAnalytics
+              locations={locations}
+              locationTree={locationTree}
+              typeStats={typeStats}
+            />
+          </TabsContent>
+        </Tabs>
+
+        {/* Form Dialog */}
+        <LocationForm
+          open={formOpen}
+          onClose={() => setFormOpen(false)}
+          onSubmit={handleFormSubmit}
+          location={selectedLocation}
+          parentLocations={parentLocations}
+          mode={formMode}
+        />
+
+        {/* Detail Dialog */}
+        <LocationDetail
+          open={detailOpen}
+          onClose={() => setDetailOpen(false)}
+          location={selectedLocation}
+          onEdit={handleEdit}
+          onDelete={handleDeleteClick}
+          onStatusChange={handleStatusChange}
+        />
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
+              <AlertDialogDescription>
+                Bạn có chắc chắn muốn xóa địa điểm <strong>{locationToDelete?.name}</strong>?
+                {locationToDelete?._count?.children && locationToDelete._count.children > 0 && (
+                  <span className="mt-2 block text-red-600">
+                    Cảnh báo: Địa điểm này có {locationToDelete._count.children} địa điểm con!
+                  </span>
+                )}
+                Hành động này không thể hoàn tác.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setDeleteConfirmOpen(false)}>Hủy</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteConfirm}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Xóa
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Import Dialog */}
+        <Dialog
+          open={importDialogOpen}
+          onOpenChange={() => !importing && setImportDialogOpen(false)}
+        >
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Import địa điểm</DialogTitle>
+              <DialogDescription>
+                Chọn file CSV hoặc JSON để import danh sách địa điểm. File phải có các cột: name,
+                type, parentId (tùy chọn), latitude (tùy chọn), longitude (tùy chọn)
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                <p className="text-sm text-blue-800">File CSV/JSON cần có cấu trúc:</p>
+                <ul className="mt-2 list-inside list-disc text-sm text-blue-700">
+                  <li>name: Tên địa điểm (bắt buộc)</li>
+                  <li>type: Loại địa điểm - COUNTRY, PROVINCE, CITY, DISTRICT (bắt buộc)</li>
+                  <li>
+                    parentId: ID địa điểm cha (tùy chọn, bắt buộc với PROVINCE, CITY, DISTRICT)
+                  </li>
+                  <li>latitude: Vĩ độ (tùy chọn)</li>
+                  <li>longitude: Kinh độ (tùy chọn)</li>
+                </ul>
+              </div>
+
+              <Button
+                className="w-full"
+                disabled={importing}
+                onClick={() => document.getElementById('file-upload')?.click()}
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                {importing ? 'Đang import...' : 'Chọn file'}
+              </Button>
+
+              <input
+                id="file-upload"
+                type="file"
+                className="hidden"
+                accept=".csv,.json"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleImport(file);
+                  }
+                }}
+              />
+
+              {importing && (
+                <div className="space-y-2">
+                  <Progress value={undefined} className="w-full" />
+                  <p className="text-muted-foreground text-center text-sm">Đang xử lý file...</p>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
@@ -397,11 +407,13 @@ function LocationsManagementPageContent() {
 
 export default function LocationsManagementPage() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-[400px] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-[400px] items-center justify-center">
+          <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
+        </div>
+      }
+    >
       <LocationsManagementPageContent />
     </Suspense>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface Company {
   id: string;
@@ -106,9 +107,12 @@ export default function CompanyProfileCard({ company }: CompanyProfileCardProps)
       )}
 
       {/* View Profile Button */}
-      <button className="hover:bg-primary-light hover:text-primary w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-bold text-slate-900 transition-colors dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700">
+      <Link
+        href={`/candidate/companies/${company.companySlug}`}
+        className="hover:bg-primary-light hover:text-primary block w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-center text-sm font-bold text-slate-900 transition-colors dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+      >
         View Full Profile
-      </button>
+      </Link>
     </div>
   );
 }

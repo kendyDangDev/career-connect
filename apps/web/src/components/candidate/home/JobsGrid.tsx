@@ -133,7 +133,7 @@ export default function JobsGrid() {
               )}
             </div>
             <Link
-              href="/jobs"
+              href="/candidate/jobs"
               className="group hidden items-center gap-1.5 rounded-full border-2 border-purple-200 bg-white px-5 py-2.5 text-sm font-semibold text-purple-600 shadow-sm transition-all hover:border-purple-300 hover:bg-purple-50 hover:shadow-md md:flex"
             >
               Xem tất cả
@@ -242,7 +242,7 @@ export default function JobsGrid() {
                   </button>
                 )}
                 <Link
-                  href="/jobs"
+                  href="/candidate/jobs"
                   className="group flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-600 via-purple-600 to-indigo-600 px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-purple-300 transition-all hover:from-purple-700 hover:via-purple-700 hover:to-indigo-700 hover:shadow-xl hover:shadow-purple-400"
                 >
                   Xem tất cả

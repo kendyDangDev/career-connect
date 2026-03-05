@@ -46,7 +46,7 @@ import {
   FileText,
   FolderTree,
 } from 'lucide-react';
-import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
+import { AdminPageHeader } from '@/components/layout/AdminLayout/AdminPageHeader';
 
 function CategoriesManagementPageContent() {
   const router = useRouter();
@@ -236,164 +236,168 @@ function CategoriesManagementPageContent() {
           gradient="from-green-600 via-emerald-600 to-teal-600"
         />
 
-      {/* Error Alert */}
-      {error && (
-        <div className="bg-destructive/15 text-destructive border-destructive/20 mb-6 rounded-lg border px-4 py-3">
-          {error}
-        </div>
-      )}
+        {/* Error Alert */}
+        {error && (
+          <div className="bg-destructive/15 text-destructive border-destructive/20 mb-6 rounded-lg border px-4 py-3">
+            {error}
+          </div>
+        )}
 
-      {/* Tabs */}
-      <Tabs defaultValue="list" className="mb-6 space-y-2">
-        <TabsList className="grid w-full max-w-[400px] grid-cols-2">
-          <TabsTrigger value="list" className="flex items-center gap-2">
-            <FolderTree className="h-4 w-4" />
-            Danh sách
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            Thống kê
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="list" className="m-0 pb-6">
-          <Card>
-            <CardContent className="p-0">
-              <CategoriesTable
-                categories={categories}
-                loading={loading}
-                totalItems={totalItems}
-                currentPage={currentPage}
-                pageSize={pageSize}
-                filters={filters}
-                onPageChange={handlePageChange}
-                onPageSizeChange={handlePageSizeChange}
-                onSort={handleSort}
-                onSearch={handleSearch}
-                onFilterChange={handleFilterChange}
-                onEdit={handleEdit}
-                onDelete={handleDeleteClick}
-                onView={handleView}
-                onAddNew={handleAddNew}
-                onExport={handleExport}
-                onImport={() => setImportDialogOpen(true)}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
+        {/* Tabs */}
+        <Tabs defaultValue="list" className="mb-6 space-y-2">
+          <TabsList className="grid w-full max-w-[400px] grid-cols-2">
+            <TabsTrigger value="list" className="flex items-center gap-2">
+              <FolderTree className="h-4 w-4" />
+              Danh sách
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Thống kê
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="list" className="m-0 pb-6">
+            <Card>
+              <CardContent className="p-0">
+                <CategoriesTable
+                  categories={categories}
+                  loading={loading}
+                  totalItems={totalItems}
+                  currentPage={currentPage}
+                  pageSize={pageSize}
+                  filters={filters}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
+                  onSort={handleSort}
+                  onSearch={handleSearch}
+                  onFilterChange={handleFilterChange}
+                  onEdit={handleEdit}
+                  onDelete={handleDeleteClick}
+                  onView={handleView}
+                  onAddNew={handleAddNew}
+                  onExport={handleExport}
+                  onImport={() => setImportDialogOpen(true)}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="analytics" className="m-0 border-t py-6">
-          <CategoriesAnalytics categories={categories} categoryTree={categoryTree} />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="analytics" className="m-0 border-t py-6">
+            <CategoriesAnalytics categories={categories} categoryTree={categoryTree} />
+          </TabsContent>
+        </Tabs>
 
-      {/* Form Dialog */}
-      <CategoryForm
-        open={formOpen}
-        onClose={() => setFormOpen(false)}
-        onSubmit={handleFormSubmit}
-        category={selectedCategory}
-        parentCategories={parentCategories}
-        mode={formMode}
-      />
+        {/* Form Dialog */}
+        <CategoryForm
+          open={formOpen}
+          onClose={() => setFormOpen(false)}
+          onSubmit={handleFormSubmit}
+          category={selectedCategory}
+          parentCategories={parentCategories}
+          mode={formMode}
+        />
 
-      {/* Detail Dialog */}
-      <CategoryDetail
-        open={detailOpen}
-        onClose={() => setDetailOpen(false)}
-        category={selectedCategory}
-        onEdit={handleEdit}
-        onDelete={handleDeleteClick}
-        onStatusChange={handleStatusChange}
-      />
+        {/* Detail Dialog */}
+        <CategoryDetail
+          open={detailOpen}
+          onClose={() => setDetailOpen(false)}
+          category={selectedCategory}
+          onEdit={handleEdit}
+          onDelete={handleDeleteClick}
+          onStatusChange={handleStatusChange}
+        />
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
-            <AlertDialogDescription>
-              Bạn có chắc chắn muốn xóa danh mục <strong>{categoryToDelete?.name}</strong>?
-              {categoryToDelete?._count?.children && categoryToDelete._count.children > 0 && (
-                <span className="mt-2 block text-red-600">
-                  Cảnh báo: Danh mục này có {categoryToDelete._count.children} danh mục con!
-                </span>
-              )}
-              {categoryToDelete?._count?.jobCategories &&
-                categoryToDelete._count.jobCategories > 0 && (
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
+              <AlertDialogDescription>
+                Bạn có chắc chắn muốn xóa danh mục <strong>{categoryToDelete?.name}</strong>?
+                {categoryToDelete?._count?.children && categoryToDelete._count.children > 0 && (
                   <span className="mt-2 block text-red-600">
-                    Cảnh báo: Danh mục này có {categoryToDelete._count.jobCategories} việc làm!
+                    Cảnh báo: Danh mục này có {categoryToDelete._count.children} danh mục con!
                   </span>
                 )}
-              Hành động này không thể hoàn tác.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeleteConfirmOpen(false)}>Hủy</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Xóa
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+                {categoryToDelete?._count?.jobCategories &&
+                  categoryToDelete._count.jobCategories > 0 && (
+                    <span className="mt-2 block text-red-600">
+                      Cảnh báo: Danh mục này có {categoryToDelete._count.jobCategories} việc làm!
+                    </span>
+                  )}
+                Hành động này không thể hoàn tác.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setDeleteConfirmOpen(false)}>Hủy</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteConfirm}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Xóa
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
-      {/* Import Dialog */}
-      <Dialog open={importDialogOpen} onOpenChange={() => !importing && setImportDialogOpen(false)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Import danh mục</DialogTitle>
-            <DialogDescription>
-              Chọn file CSV hoặc JSON để import danh sách danh mục. File phải có các cột: name,
-              parentId (tùy chọn), description (tùy chọn), iconUrl (tùy chọn), sortOrder (tùy chọn)
-            </DialogDescription>
-          </DialogHeader>
+        {/* Import Dialog */}
+        <Dialog
+          open={importDialogOpen}
+          onOpenChange={() => !importing && setImportDialogOpen(false)}
+        >
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Import danh mục</DialogTitle>
+              <DialogDescription>
+                Chọn file CSV hoặc JSON để import danh sách danh mục. File phải có các cột: name,
+                parentId (tùy chọn), description (tùy chọn), iconUrl (tùy chọn), sortOrder (tùy
+                chọn)
+              </DialogDescription>
+            </DialogHeader>
 
-          <div className="space-y-4">
-            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-              <p className="text-sm text-blue-800">File CSV/JSON cần có cấu trúc:</p>
-              <ul className="mt-2 list-inside list-disc text-sm text-blue-700">
-                <li>name: Tên danh mục (bắt buộc)</li>
-                <li>parentId: ID danh mục cha (tùy chọn)</li>
-                <li>description: Mô tả (tùy chọn)</li>
-                <li>iconUrl: URL icon (tùy chọn)</li>
-                <li>sortOrder: Thứ tự sắp xếp (tùy chọn)</li>
-              </ul>
-            </div>
-
-            <Button
-              className="w-full"
-              disabled={importing}
-              onClick={() => document.getElementById('file-upload')?.click()}
-            >
-              <Upload className="mr-2 h-4 w-4" />
-              {importing ? 'Đang import...' : 'Chọn file'}
-            </Button>
-
-            <input
-              id="file-upload"
-              type="file"
-              className="hidden"
-              accept=".csv,.json"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  handleImport(file);
-                }
-              }}
-            />
-
-            {importing && (
-              <div className="space-y-2">
-                <Progress value={undefined} className="w-full" />
-                <p className="text-muted-foreground text-center text-sm">Đang xử lý file...</p>
+            <div className="space-y-4">
+              <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                <p className="text-sm text-blue-800">File CSV/JSON cần có cấu trúc:</p>
+                <ul className="mt-2 list-inside list-disc text-sm text-blue-700">
+                  <li>name: Tên danh mục (bắt buộc)</li>
+                  <li>parentId: ID danh mục cha (tùy chọn)</li>
+                  <li>description: Mô tả (tùy chọn)</li>
+                  <li>iconUrl: URL icon (tùy chọn)</li>
+                  <li>sortOrder: Thứ tự sắp xếp (tùy chọn)</li>
+                </ul>
               </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+
+              <Button
+                className="w-full"
+                disabled={importing}
+                onClick={() => document.getElementById('file-upload')?.click()}
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                {importing ? 'Đang import...' : 'Chọn file'}
+              </Button>
+
+              <input
+                id="file-upload"
+                type="file"
+                className="hidden"
+                accept=".csv,.json"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleImport(file);
+                  }
+                }}
+              />
+
+              {importing && (
+                <div className="space-y-2">
+                  <Progress value={undefined} className="w-full" />
+                  <p className="text-muted-foreground text-center text-sm">Đang xử lý file...</p>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

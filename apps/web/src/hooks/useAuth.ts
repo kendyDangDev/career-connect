@@ -3,27 +3,28 @@ import { UserType } from '@/generated/prisma';
 import { Permission, hasPermission, hasAnyPermission, hasAllPermissions } from '@/types/auth';
 
 export function useAuth() {
-  const { data: session, status } = useSession();
-  
+  const sessionData = useSession();
+  const { data: session, status } = sessionData ?? { data: null, status: 'loading' as const };
+
   const isAuthenticated = status === 'authenticated' && !!session?.user;
   const isLoading = status === 'loading';
   const user = session?.user;
-  
+
   const checkPermission = (permission: Permission): boolean => {
     if (!user?.userType) return false;
     return hasPermission(user.userType, permission);
   };
-  
+
   const checkAnyPermission = (permissions: Permission[]): boolean => {
     if (!user?.userType) return false;
     return hasAnyPermission(user.userType, permissions);
   };
-  
+
   const checkAllPermissions = (permissions: Permission[]): boolean => {
     if (!user?.userType) return false;
     return hasAllPermissions(user.userType, permissions);
   };
-  
+
   const hasRole = (role: UserType | UserType[]): boolean => {
     if (!user?.userType) return false;
     if (Array.isArray(role)) {
@@ -31,11 +32,11 @@ export function useAuth() {
     }
     return user.userType === role;
   };
-  
+
   const isCandidate = user?.userType === 'CANDIDATE';
   const isEmployer = user?.userType === 'EMPLOYER';
   const isAdmin = user?.userType === 'ADMIN';
-  
+
   return {
     user,
     isAuthenticated,

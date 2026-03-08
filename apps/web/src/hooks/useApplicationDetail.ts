@@ -1,23 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
+import { getApplicationDetail, adminApplicationKeys } from '@/api/admin/adminApplication.api';
 
 export const useApplicationDetail = (applicationId: string) => {
   return useQuery({
-    queryKey: ['application-detail', applicationId],
-    queryFn: async () => {
-      const response = await fetch(`/api/admin/applications/${applicationId}`);
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch application detail: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to fetch application detail');
-      }
-
-      return result.data;
-    },
+    queryKey: adminApplicationKeys.detail(applicationId),
+    queryFn: () => getApplicationDetail(applicationId),
     enabled: !!applicationId,
   });
 };

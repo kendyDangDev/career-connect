@@ -18,7 +18,7 @@ import {
   ArrowLeft,
   Loader2,
 } from 'lucide-react';
-import { AdminJobService } from '@/services/admin/job.service';
+import { adminJobApi } from '@/api/job.api';
 import type { CreateJobDTO } from '@/types/employer/job';
 import Link from 'next/link';
 
@@ -115,7 +115,7 @@ export default function CreateJobPage() {
           : undefined,
       };
 
-      const result = await AdminJobService.createJob(jobData);
+      const result = await adminJobApi.createJob(jobData);
 
       setSuccess(true);
 

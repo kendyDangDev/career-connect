@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { ApplicationDetail } from '@/types/employer/job';
+import { jobApplicationsApi, jobApplicationsKeys } from '@/api/job-applications.api';
 
 interface ApplicationsParams {
   jobId: string;
@@ -29,48 +30,9 @@ interface ApplicationsResponse {
 }
 
 export const useJobApplications = (params: ApplicationsParams) => {
-  const {
-    jobId,
-    page = 1,
-    limit = 10,
-    search = '',
-    status = 'all',
-    sortBy = 'appliedAt',
-    sortOrder = 'desc',
-  } = params;
-
   return useQuery({
-    queryKey: ['job-applications', jobId, page, limit, search, status, sortBy, sortOrder],
-    queryFn: async (): Promise<ApplicationsResponse> => {
-      const searchParams = new URLSearchParams({
-        page: page.toString(),
-        limit: limit.toString(),
-        sortBy,
-        sortOrder,
-      });
-
-      if (search) {
-        searchParams.append('search', search);
-      }
-
-      if (status && status !== 'all') {
-        searchParams.append('status', status);
-      }
-
-      const response = await fetch(`/api/admin/jobs/${jobId}/applications?${searchParams}`);
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch applications: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to fetch applications');
-      }
-
-      return result.data;
-    },
-    enabled: !!jobId,
+    queryKey: jobApplicationsKeys.list(params),
+    queryFn: () => jobApplicationsApi.getJobApplications(params),
+    enabled: !!params.jobId,
   });
 };

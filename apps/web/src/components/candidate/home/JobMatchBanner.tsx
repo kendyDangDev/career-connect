@@ -64,7 +64,7 @@ export default function JobMatchBanner() {
               Tìm việc phù hợp ngay
             </Link>
             <Link
-              href="/jobs"
+              href="candidate/jobs"
               className="flex items-center gap-2 rounded-full border border-white/30 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
             >
               Xem tất cả việc làm <ArrowRight className="h-4 w-4" />

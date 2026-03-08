@@ -34,7 +34,9 @@ export default function JobSkillsSection({ skills }: { skills: JobSkill[] }) {
             <div>
               <p className="text-sm font-medium text-gray-900">{js.skill.name}</p>
               <p className="mt-0.5 text-xs text-gray-500">
-                {js.minYearsExperience > 0 ? `${js.minYearsExperience}+ năm kinh nghiệm` : ''}
+                {js.minYearsExperience != null && js.minYearsExperience > 0
+                  ? `${js.minYearsExperience}+ năm kinh nghiệm`
+                  : ''}
               </p>
             </div>
             <span

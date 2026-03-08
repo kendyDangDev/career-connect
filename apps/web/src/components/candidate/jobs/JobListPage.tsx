@@ -119,7 +119,7 @@ export default function JobListPage() {
     params.delete('page');
     params.delete('limit');
     const qs = params.toString();
-    router.replace(`/jobs${qs ? `?${qs}` : ''}`, { scroll: false });
+    router.replace(`/candidate/jobs${qs ? `?${qs}` : ''}`, { scroll: false });
   }, [filters, fetchJobs, buildParams, router]);
 
   // Load more

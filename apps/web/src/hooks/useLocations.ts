@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import {
   Location,
@@ -10,6 +11,7 @@ import {
   UpdateLocationDto,
   LocationType,
 } from '@/types/system-categories';
+import { locationsApi, locationsKeys } from '@/api/locations.api';
 
 interface LocationsResponse {
   success: boolean;
@@ -62,20 +64,7 @@ export function useLocations(): UseLocationsReturn {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
-  const [locations, setLocations] = useState<Location[]>([]);
-  const [locationTree, setLocationTree] = useState<Location[]>([]);
-  const [parentLocations, setParentLocations] = useState<Record<LocationType, Location[]>>({
-    [LocationType.COUNTRY]: [],
-    [LocationType.PROVINCE]: [],
-    [LocationType.CITY]: [],
-    [LocationType.DISTRICT]: [],
-  });
-  const [typeStats, setTypeStats] = useState<Record<string, number>>({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalItems, setTotalItems] = useState(0);
+  const queryClient = useQueryClient();
 
   // Parse filters from URL
   const filters = useMemo<LocationQuery>(() => {
@@ -110,6 +99,43 @@ export function useLocations(): UseLocationsReturn {
   const currentPage = filters.page || 1;
   const pageSize = filters.limit || 10;
 
+  // Query for locations list
+  const locationsQuery = useQuery({
+    queryKey: locationsKeys.list(filters),
+    queryFn: () => locationsApi.getList(filters),
+    placeholderData: (previousData) => previousData,
+  });
+
+  // Query for location tree
+  const locationTreeQuery = useQuery({
+    queryKey: locationsKeys.tree(),
+    queryFn: () => locationsApi.getTree(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  // Organize locations by type for parent selection
+  const parentLocations = useMemo(() => {
+    const organized: Record<LocationType, Location[]> = {
+      [LocationType.COUNTRY]: [],
+      [LocationType.PROVINCE]: [],
+      [LocationType.CITY]: [],
+      [LocationType.DISTRICT]: [],
+    };
+
+    if (locationTreeQuery.data?.data) {
+      const processLocation = (loc: Location) => {
+        organized[loc.type].push(loc);
+        if (loc.children) {
+          loc.children.forEach(processLocation);
+        }
+      };
+
+      locationTreeQuery.data.data.forEach(processLocation);
+    }
+
+    return organized;
+  }, [locationTreeQuery.data]);
+
   // Update URL with new filters
   const updateFilters = useCallback(
     (newFilters: Partial<LocationQuery>) => {
@@ -133,104 +159,24 @@ export function useLocations(): UseLocationsReturn {
     router.push(pathname || '');
   }, [pathname, router]);
 
-  // Fetch locations
+  // Fetch locations (legacy compatibility - now just refetches query)
   const fetchLocations = useCallback(
     async (query?: LocationQuery) => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const queryParams = new URLSearchParams();
-        const finalQuery = query || filters;
-
-        Object.entries(finalQuery).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== '') {
-            queryParams.append(key, value.toString());
-          }
-        });
-
-        const response = await fetch(`/api/admin/system-categories/locations?${queryParams}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to fetch locations');
-        }
-
-        const result: LocationsResponse = await response.json();
-
-        setLocations(result.data);
-        setTotalPages(result.meta.totalPages);
-        setTotalItems(result.meta.total);
-        setTypeStats(result.meta.typeStats || {});
-
-        // Fetch location tree for parent selection
-        if (!query || query.parentId !== 'null') {
-          const treeResponse = await fetch(
-            '/api/admin/system-categories/locations?parentId=null&includeChildren=true&limit=100',
-            {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            }
-          );
-
-          if (treeResponse.ok) {
-            const treeResult: LocationsResponse = await treeResponse.json();
-            setLocationTree(treeResult.data);
-
-            // Organize locations by type for parent selection
-            const organized: Record<LocationType, Location[]> = {
-              [LocationType.COUNTRY]: [],
-              [LocationType.PROVINCE]: [],
-              [LocationType.CITY]: [],
-              [LocationType.DISTRICT]: [],
-            };
-
-            const processLocation = (loc: Location) => {
-              organized[loc.type].push(loc);
-              if (loc.children) {
-                loc.children.forEach(processLocation);
-              }
-            };
-
-            treeResult.data.forEach(processLocation);
-            setParentLocations(organized);
-          }
-        }
-      } catch (err) {
-        console.error('Error fetching locations:', err);
-        setError(err instanceof Error ? err.message : 'An error occurred');
-        toast.error(err instanceof Error ? err.message : 'Failed to fetch locations');
-      } finally {
-        setLoading(false);
+      if (query) {
+        // If custom query provided, update filters
+        updateFilters(query);
+      } else {
+        // Otherwise refetch current query
+        await queryClient.invalidateQueries({ queryKey: locationsKeys.lists() });
       }
     },
-    [filters]
+    [queryClient, updateFilters]
   );
 
   // Get single location
   const getLocation = useCallback(async (id: string): Promise<Location | null> => {
     try {
-      const response = await fetch(`/api/admin/system-categories/locations/${id}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch location');
-      }
-
-      const result = await response.json();
-      return result.data;
+      return await locationsApi.getById(id);
     } catch (err) {
       console.error('Error fetching location:', err);
       toast.error(err instanceof Error ? err.message : 'Failed to fetch location');
@@ -238,111 +184,90 @@ export function useLocations(): UseLocationsReturn {
     }
   }, []);
 
-  // Create location
+  // Create location mutation
+  const createMutation = useMutation({
+    mutationFn: locationsApi.create,
+    onSuccess: (result) => {
+      toast.success(result.message || 'Location created successfully');
+      queryClient.invalidateQueries({ queryKey: locationsKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: locationsKeys.tree() });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to create location');
+    },
+  });
+
+  // Update location mutation
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateLocationDto }) =>
+      locationsApi.update(id, data),
+    onSuccess: (result) => {
+      toast.success(result.message || 'Location updated successfully');
+      queryClient.invalidateQueries({ queryKey: locationsKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: locationsKeys.detail(result.data.id) });
+      queryClient.invalidateQueries({ queryKey: locationsKeys.tree() });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to update location');
+    },
+  });
+
+  // Delete location mutation
+  const deleteMutation = useMutation({
+    mutationFn: locationsApi.delete,
+    onSuccess: (result) => {
+      toast.success(result.message || 'Location deleted successfully');
+      queryClient.invalidateQueries({ queryKey: locationsKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: locationsKeys.tree() });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to delete location');
+    },
+  });
+
+  // Create location wrapper
   const createLocation = useCallback(
     async (data: CreateLocationDto): Promise<boolean> => {
       try {
-        const response = await fetch('/api/admin/system-categories/locations', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-          throw new Error(result.error || 'Failed to create location');
-        }
-
-        toast.success(result.message || 'Location created successfully');
-        await fetchLocations();
+        await createMutation.mutateAsync(data);
         return true;
-      } catch (err) {
-        console.error('Error creating location:', err);
-        toast.error(err instanceof Error ? err.message : 'Failed to create location');
+      } catch {
         return false;
       }
     },
-    [fetchLocations]
+    [createMutation]
   );
 
-  // Update location
+  // Update location wrapper
   const updateLocation = useCallback(
     async (id: string, data: UpdateLocationDto): Promise<boolean> => {
       try {
-        const response = await fetch(`/api/admin/system-categories/locations/${id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-          throw new Error(result.error || 'Failed to update location');
-        }
-
-        toast.success(result.message || 'Location updated successfully');
-        await fetchLocations();
+        await updateMutation.mutateAsync({ id, data });
         return true;
-      } catch (err) {
-        console.error('Error updating location:', err);
-        toast.error(err instanceof Error ? err.message : 'Failed to update location');
+      } catch {
         return false;
       }
     },
-    [fetchLocations]
+    [updateMutation]
   );
 
-  // Delete location
+  // Delete location wrapper
   const deleteLocation = useCallback(
     async (id: string): Promise<boolean> => {
       try {
-        const response = await fetch(`/api/admin/system-categories/locations/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-          throw new Error(result.error || 'Failed to delete location');
-        }
-
-        toast.success(result.message || 'Location deleted successfully');
-        await fetchLocations();
+        await deleteMutation.mutateAsync(id);
         return true;
-      } catch (err) {
-        console.error('Error deleting location:', err);
-        toast.error(err instanceof Error ? err.message : 'Failed to delete location');
+      } catch {
         return false;
       }
     },
-    [fetchLocations]
+    [deleteMutation]
   );
 
   // Get popular cities
   const getPopularCities = useCallback(async (): Promise<Location[]> => {
     try {
-      const response = await fetch('/api/admin/system-categories/locations/popular', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch popular cities');
-      }
-
-      const result = await response.json();
-      return result.data || [];
+      return await locationsApi.getPopularCities();
     } catch (err) {
       console.error('Error fetching popular cities:', err);
       return [];
@@ -351,26 +276,22 @@ export function useLocations(): UseLocationsReturn {
 
   // Refresh data
   const refreshData = useCallback(async () => {
-    await fetchLocations();
-  }, [fetchLocations]);
-
-  // Initial fetch
-  useEffect(() => {
-    fetchLocations();
-  }, [fetchLocations]);
+    await queryClient.invalidateQueries({ queryKey: locationsKeys.lists() });
+    await queryClient.invalidateQueries({ queryKey: locationsKeys.tree() });
+  }, [queryClient]);
 
   return {
-    locations,
-    loading,
-    error,
-    totalPages,
-    totalItems,
+    locations: locationsQuery.data?.data || [],
+    loading: locationsQuery.isLoading,
+    error: locationsQuery.error?.message || null,
+    totalPages: locationsQuery.data?.meta.totalPages || 0,
+    totalItems: locationsQuery.data?.meta.total || 0,
     currentPage,
     pageSize,
     filters,
-    locationTree,
+    locationTree: locationTreeQuery.data?.data || [],
     parentLocations,
-    typeStats,
+    typeStats: locationsQuery.data?.meta.typeStats || {},
     fetchLocations,
     getLocation,
     createLocation,

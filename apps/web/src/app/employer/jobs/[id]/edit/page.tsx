@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import {
   Briefcase,
   Save,
@@ -10,26 +9,47 @@ import {
   DollarSign,
   Calendar,
   FileText,
-  CheckCircle2,
   AlertCircle,
   ArrowLeft,
   Loader2,
 } from 'lucide-react';
-import { AdminJobService } from '@/services/admin/job.service';
-import type { UpdateJobDTO, JobDetail } from '@/types/employer/job';
+import type { UpdateJobDTO } from '@/types/employer/job';
+import { toast } from 'sonner';
 import Link from 'next/link';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { adminJobApi } from '@/api/job.api';
+import { handleApiError } from '@/lib/axios';
 
 export default function EditJobPage() {
   const router = useRouter();
   const params = useParams();
   const jobId = params?.id as string;
-  const { data: session } = useSession();
+  const queryClient = useQueryClient();
 
-  const [loading, setLoading] = useState(false);
-  const [fetching, setFetching] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-  const [jobData, setJobData] = useState<JobDetail | null>(null);
+  const {
+    data: jobData,
+    isLoading: fetching,
+    error: fetchError,
+  } = useQuery({
+    queryKey: ['employer', 'jobs', jobId],
+    queryFn: () => adminJobApi.getJobDetail(jobId),
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+    enabled: !!jobId,
+  });
+
+  const updateJobMutation = useMutation({
+    mutationFn: (data: UpdateJobDTO) => adminJobApi.updateJob(jobId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['employer', 'jobs', jobId] });
+      toast.success('Cập nhật công việc thành công!');
+      setTimeout(() => router.push('/employer/jobs'), 1500);
+    },
+    onError: (error) => {
+      const msg = handleApiError(error);
+      toast.error(msg || 'Cập nhật thất bại. Vui lòng thử lại!');
+    },
+  });
 
   // Form state
   const [formData, setFormData] = useState<UpdateJobDTO>({
@@ -54,58 +74,40 @@ export default function EditJobPage() {
     urgent: false,
   });
 
-  // Fetch job data
+  // Populate form with existing data when jobData is loaded
   useEffect(() => {
-    const fetchJobData = async () => {
-      if (!jobId) return;
-
-      setFetching(true);
-      setError(null);
-
-      try {
-        const data = await AdminJobService.getJobDetail(jobId);
-        setJobData(data);
-
-        // Populate form with existing data
-        setFormData({
-          title: data.title,
-          description: data.description,
-          requirements: data.requirements,
-          benefits: data.benefits || '',
-          jobType: data.jobType,
-          workLocationType: data.workLocationType,
-          experienceLevel: data.experienceLevel,
-          salaryMin: data.salaryMin ? Number(data.salaryMin) : undefined,
-          salaryMax: data.salaryMax ? Number(data.salaryMax) : undefined,
-          currency: data.currency || 'VND',
-          salaryNegotiable: data.salaryNegotiable,
-          address: data.address || '',
-          locationProvince: data.locationProvince || '',
-          locationCountry: data.locationCountry || 'Việt Nam',
-          applicationDeadline: data.applicationDeadline
-            ? new Date(data.applicationDeadline).toISOString().split('T')[0]
-            : '',
-          skills:
-            data.jobSkills?.map((js) => ({
-              skillId: js.skill.id,
-              requiredLevel: js.requiredLevel,
-              minYearsExperience: js.minYearsExperience || undefined,
-            })) || [],
-          categories: data.jobCategories?.map((jc) => jc.category.id) || [],
-          featured: data.featured,
-          urgent: data.urgent,
-          status: data.status,
-        });
-      } catch (err: any) {
-        console.error('Failed to fetch job:', err);
-        setError('Không thể tải thông tin công việc. Vui lòng thử lại sau.');
-      } finally {
-        setFetching(false);
-      }
-    };
-
-    fetchJobData();
-  }, [jobId]);
+    if (jobData) {
+      setFormData({
+        title: jobData.title,
+        description: jobData.description,
+        requirements: jobData.requirements,
+        benefits: jobData.benefits || '',
+        jobType: jobData.jobType,
+        workLocationType: jobData.workLocationType,
+        experienceLevel: jobData.experienceLevel,
+        salaryMin: jobData.salaryMin ? Number(jobData.salaryMin) : undefined,
+        salaryMax: jobData.salaryMax ? Number(jobData.salaryMax) : undefined,
+        currency: jobData.currency || 'VND',
+        salaryNegotiable: jobData.salaryNegotiable,
+        address: jobData.address || '',
+        locationProvince: jobData.locationProvince || '',
+        locationCountry: jobData.locationCountry || 'Việt Nam',
+        applicationDeadline: jobData.applicationDeadline
+          ? new Date(jobData.applicationDeadline).toISOString().split('T')[0]
+          : '',
+        skills:
+          jobData.jobSkills?.map((js) => ({
+            skillId: js.skill.id,
+            requiredLevel: js.requiredLevel,
+            minYearsExperience: js.minYearsExperience || undefined,
+          })) || [],
+        categories: jobData.jobCategories?.map((jc) => jc.category.id) || [],
+        featured: jobData.featured,
+        urgent: jobData.urgent,
+        status: jobData.status,
+      });
+    }
+  }, [jobData]);
 
   // Handle input change
   const handleChange = (
@@ -126,52 +128,32 @@ export default function EditJobPage() {
   // Handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
 
     // Validation
     if (!formData.title || formData.title.length < 10) {
-      setError('Tiêu đề công việc phải có ít nhất 10 ký tự');
-      setLoading(false);
+      toast.error('Tiêu đề công việc phải có ít nhất 10 ký tự');
       return;
     }
 
     if (!formData.description || formData.description.length < 50) {
-      setError('Mô tả công việc phải có ít nhất 50 ký tự');
-      setLoading(false);
+      toast.error('Mô tả công việc phải có ít nhất 50 ký tự');
       return;
     }
 
     if (!formData.requirements || formData.requirements.length < 50) {
-      setError('Yêu cầu công việc phải có ít nhất 50 ký tự');
-      setLoading(false);
+      toast.error('Yêu cầu công việc phải có ít nhất 50 ký tự');
       return;
     }
 
-    try {
-      // Prepare data for API
-      const updateData: UpdateJobDTO = {
-        ...formData,
-        salaryMin: formData.salaryNegotiable ? undefined : formData.salaryMin,
-        salaryMax: formData.salaryNegotiable ? undefined : formData.salaryMax,
-        applicationDeadline: formData.applicationDeadline || undefined,
-      };
+    // Prepare data for API
+    const updateData: UpdateJobDTO = {
+      ...formData,
+      salaryMin: formData.salaryNegotiable ? undefined : formData.salaryMin,
+      salaryMax: formData.salaryNegotiable ? undefined : formData.salaryMax,
+      applicationDeadline: formData.applicationDeadline || undefined,
+    };
 
-      await AdminJobService.updateJob(jobId, updateData);
-
-      setSuccess(true);
-
-      // Show success message and redirect after 2 seconds
-      setTimeout(() => {
-        router.push(`/employer/jobs`);
-      }, 2000);
-    } catch (err: any) {
-      console.error('Failed to update job:', err);
-      setError(err.message || 'Không thể cập nhật công việc. Vui lòng thử lại.');
-    } finally {
-      setLoading(false);
-    }
+    updateJobMutation.mutate(updateData);
   };
 
   // Handle cancel
@@ -204,7 +186,7 @@ export default function EditJobPage() {
   }
 
   // Error state
-  if (error && !jobData) {
+  if (fetchError) {
     return (
       <div className="space-y-6">
         <div className="rounded-xl bg-gradient-to-r from-purple-600 via-purple-500 to-pink-500 p-6 shadow-lg">
@@ -219,7 +201,9 @@ export default function EditJobPage() {
 
         <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
           <AlertCircle className="mx-auto h-12 w-12 text-red-600" />
-          <p className="mt-4 text-red-700">{error}</p>
+          <p className="mt-4 text-red-700">
+            Không thể tải thông tin công việc. Vui lòng thử lại sau.
+          </p>
           <div className="mt-4 flex justify-center gap-3">
             <button
               onClick={() => router.push('/employer/jobs')}
@@ -261,33 +245,6 @@ export default function EditJobPage() {
           </div>
         </div>
       </div>
-
-      {/* Success Message */}
-      {success && (
-        <div className="flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 p-4">
-          <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
-          <div>
-            <h3 className="font-semibold text-green-900">Cập nhật công việc thành công!</h3>
-            <p className="mt-1 text-sm text-green-700">
-              Đang chuyển hướng về danh sách công việc...
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Error Message */}
-      {error && jobData && (
-        <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
-          <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />
-          <div className="flex-1">
-            <h3 className="font-semibold text-red-900">Có lỗi xảy ra</h3>
-            <p className="mt-1 text-sm text-red-700">{error}</p>
-          </div>
-          <button onClick={() => setError(null)} className="text-red-600 hover:text-red-700">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
 
       {/* Job Info Card */}
       {jobData && (
@@ -709,7 +666,7 @@ export default function EditJobPage() {
           <button
             type="button"
             onClick={handleCancel}
-            disabled={loading}
+            disabled={updateJobMutation.isPending}
             className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <X className="h-4 w-4" />
@@ -718,10 +675,10 @@ export default function EditJobPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={updateJobMutation.isPending}
             className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-purple-500 px-6 py-2.5 text-sm font-medium text-white shadow-md transition-all hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {loading ? (
+            {updateJobMutation.isPending ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Đang cập nhật...

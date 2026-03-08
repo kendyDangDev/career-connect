@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { jobsApi } from '@/api/jobs.api';
 
 export interface UpdateJobData {
   title?: string;
@@ -22,53 +23,25 @@ export interface UpdateJobData {
 }
 
 export const useUpdateJob = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const mutation = useMutation({
+    mutationFn: ({ jobId, data }: { jobId: string; data: UpdateJobData }) =>
+      jobsApi.updateJob(jobId, data),
+  });
 
   const updateJob = async (jobId: string, data: UpdateJobData) => {
-    setLoading(true);
-    setError(null);
-
     try {
-      const response = await fetch(`/api/admin/jobs/${jobId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        if (result.details && result.details.fieldErrors) {
-          const fieldErrors = Object.entries(result.details.fieldErrors)
-            .map(([field, errors]) => `${field}: ${(errors as string[]).join(', ')}`)
-            .join('; ');
-          throw new Error(`Lỗi validation: ${fieldErrors}`);
-        }
-        throw new Error(result.error || 'Cập nhật việc làm thất bại');
-      }
-
-      if (!result.success) {
-        throw new Error(result.error || 'Cập nhật việc làm thất bại');
-      }
-
-      return result.data;
+      const result = await mutation.mutateAsync({ jobId, data });
+      return result;
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Có lỗi xảy ra khi cập nhật việc làm';
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
+      throw new Error(errorMessage);
     }
   };
 
   return {
     updateJob,
-    loading,
-    error,
+    loading: mutation.isPending,
+    error: mutation.error?.message || null,
   };
 };

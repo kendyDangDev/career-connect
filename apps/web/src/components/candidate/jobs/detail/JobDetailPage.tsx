@@ -140,7 +140,7 @@ export default function JobDetailPage({ jobId }: JobDetailPageProps) {
           </h2>
           <p className="mb-4 text-slate-600 dark:text-slate-400">{error || 'Job not found'}</p>
           <Link
-            href="/jobs"
+            href="/candidate/jobs"
             className="bg-primary hover:bg-primary-dark inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition"
           >
             Quay lại danh sách việc làm

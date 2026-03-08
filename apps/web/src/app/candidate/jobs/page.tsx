@@ -1,6 +1,7 @@
 import JobListPage from '@/components/candidate/jobs/JobListPage';
 import ScrollToTop from '@/components/candidate/home/ScrollToTop';
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: 'Tìm kiếm việc làm | CareerConnect',
@@ -12,10 +13,10 @@ export const metadata: Metadata = {
 export default function JobsPage() {
   return (
     <div className="min-h-screen bg-white pt-16 antialiased">
-      {/* <div className="pt-16"> */}
-      <JobListPage />
+      <Suspense>
+        <JobListPage />
+      </Suspense>
       <ScrollToTop />
-      {/* </div> */}
     </div>
   );
 }

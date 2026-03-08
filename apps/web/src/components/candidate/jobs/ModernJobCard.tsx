@@ -106,7 +106,7 @@ export default function ModernJobCard({ job, isUrgent = false }: ModernJobCardPr
         {/* Job Details */}
         <div className="flex-1 text-center md:text-left">
           <div className="mb-1 flex flex-col gap-1 md:flex-row md:items-center md:gap-3">
-            <Link href={`/jobs/${job.id}`}>
+            <Link href={`/candidate/jobs/${job.id}`}>
               <h3 className="cursor-pointer text-xl font-extrabold tracking-tight text-slate-900 transition-colors group-hover:text-purple-600 dark:text-white">
                 {job.title}
               </h3>

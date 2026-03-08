@@ -1,49 +1,29 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
+import { chatApi } from '@/api/chat.api';
+
+export const chatTokenKeys = {
+  all: ['chatToken'] as const,
+  token: () => [...chatTokenKeys.all, 'token'] as const,
+};
 
 export const useChatToken = () => {
   const { data: session } = useSession();
-  const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const getChatToken = async () => {
-      if (!session?.user) {
-        setToken(null);
-        setIsLoading(false);
-        return;
-      }
+  const { data, isLoading, error } = useQuery({
+    queryKey: chatTokenKeys.token(),
+    queryFn: () => chatApi.getChatToken(),
+    enabled: !!session?.user,
+    staleTime: 1000 * 60 * 60 * 23, // 23h — refresh before 24h token expiry
+    retry: 1,
+    select: (res) => res.token,
+  });
 
-      try {
-        setIsLoading(true);
-        const response = await fetch('/api/chat/token', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to get chat token');
-        }
-
-        const data = await response.json();
-        setToken(data.token);
-        setError(null);
-      } catch (err) {
-        console.error('Error getting chat token:', err);
-        setError(err instanceof Error ? err.message : 'Failed to get chat token');
-        setToken(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    getChatToken();
-  }, [session?.user]);
-
-  return { token, isLoading, error };
+  return {
+    token: data ?? null,
+    isLoading,
+    error: error ? (error instanceof Error ? error.message : 'Failed to get chat token') : null,
+  };
 };

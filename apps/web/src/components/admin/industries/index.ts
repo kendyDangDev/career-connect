@@ -1,4 +1,5 @@
-export { default as IndustriesTable } from './industries-table';
-export { default as IndustryFormModal } from './industry-form-modal';
-export { default as IndustryDetailsModal } from './industry-details-modal';
-export { default as IndustriesAnalytics } from './industries-analytics';
+export { IndustriesDataTable } from './IndustriesDataTable';
+export { IndustryForm } from './IndustryForm';
+export { IndustryDetailView } from './IndustryDetailView';
+export { IndustriesAnalytics } from './IndustriesAnalytics';
+export { IndustryDeleteDialog } from './IndustryDeleteDialog';

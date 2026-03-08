@@ -1,5 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import {
   Skill,
@@ -7,8 +8,15 @@ import {
   CreateSkillDto,
   UpdateSkillDto,
   PaginatedResponse,
-  ApiResponse
+  ApiResponse,
 } from '@/types/system-categories';
+import { skillsApi, skillsKeys } from '@/api/skills.api';
+
+interface SkillsResponse extends PaginatedResponse<Skill> {
+  meta: PaginatedResponse<Skill>['meta'] & {
+    categoryStats?: Record<string, number>;
+  };
+}
 
 interface UseSkillsReturn {
   skills: Skill[];
@@ -20,7 +28,7 @@ interface UseSkillsReturn {
   pageSize: number;
   filters: SkillQuery;
   categoryStats: Record<string, number>;
-  
+
   // Actions
   fetchSkills: (params?: SkillQuery) => Promise<void>;
   getSkill: (id: string) => Promise<Skill | null>;
@@ -36,22 +44,17 @@ const defaultFilters: SkillQuery = {
   page: 1,
   limit: 10,
   sortBy: 'name',
-  sortOrder: 'asc'
+  sortOrder: 'asc',
 };
 
 export const useSkills = (): UseSkillsReturn => {
   const searchParams = useSearchParams();
-  const [skills, setSkills] = useState<Skill[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalItems, setTotalItems] = useState(0);
-  const [categoryStats, setCategoryStats] = useState<Record<string, number>>({});
-  
+  const queryClient = useQueryClient();
+
   // Parse filters from URL search params
   const [filters, setFilters] = useState<SkillQuery>(() => {
     const params: SkillQuery = { ...defaultFilters };
-    
+
     searchParams?.forEach((value, key) => {
       if (key === 'page') params.page = parseInt(value);
       else if (key === 'limit') params.limit = parseInt(value);
@@ -61,58 +64,72 @@ export const useSkills = (): UseSkillsReturn => {
       else if (key === 'search') params.search = value;
       else if (key === 'category') params.category = value as any;
     });
-    
+
     return params;
   });
 
-  // Fetch skills
-  const fetchSkills = useCallback(async (params?: SkillQuery) => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const queryParams = new URLSearchParams();
-      const finalParams = { ...filters, ...params };
-      
-      Object.entries(finalParams).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
-          queryParams.append(key, value.toString());
-        }
-      });
+  // Query for skills list
+  const skillsQuery = useQuery({
+    queryKey: skillsKeys.list(filters),
+    queryFn: () => skillsApi.getList(filters),
+    placeholderData: (previousData) => previousData,
+  });
 
-      const response = await fetch(`/api/admin/system-categories/skills?${queryParams}`);
-      const data = await response.json();
+  // Create skill mutation
+  const createMutation = useMutation({
+    mutationFn: skillsApi.create,
+    onSuccess: (result) => {
+      toast.success(result.message || 'Tạo kỹ năng thành công');
+      queryClient.invalidateQueries({ queryKey: skillsKeys.lists() });
+    },
+    onError: (error: Error) => {
+      toast.error(`Lỗi khi tạo kỹ năng: ${error.message}`);
+    },
+  });
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch skills');
+  // Update skill mutation
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateSkillDto }) => skillsApi.update(id, data),
+    onSuccess: (result) => {
+      toast.success(result.message || 'Cập nhật kỹ năng thành công');
+      queryClient.invalidateQueries({ queryKey: skillsKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: skillsKeys.detail(result.data.id) });
+    },
+    onError: (error: Error) => {
+      toast.error(`Lỗi khi cập nhật kỹ năng: ${error.message}`);
+    },
+  });
+
+  // Delete skill mutation
+  const deleteMutation = useMutation({
+    mutationFn: skillsApi.delete,
+    onSuccess: (result) => {
+      toast.success(result.message || 'Xóa kỹ năng thành công');
+      queryClient.invalidateQueries({ queryKey: skillsKeys.lists() });
+    },
+    onError: (error: Error) => {
+      toast.error(`Lỗi khi xóa kỹ năng: ${error.message}`);
+    },
+  });
+
+  // Fetch skills (legacy compatibility - now just refetches query)
+  const fetchSkills = useCallback(
+    async (params?: SkillQuery) => {
+      if (params) {
+        // If custom params provided, update filters
+        setFilters((prev) => ({ ...prev, ...params }));
+      } else {
+        // Otherwise refetch current query
+        await queryClient.invalidateQueries({ queryKey: skillsKeys.lists() });
       }
-
-      setSkills(data.data || []);
-      if (data.meta) {
-        setTotalPages(data.meta.totalPages);
-        setTotalItems(data.meta.total);
-        setCategoryStats(data.meta.categoryStats || {});
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'An error occurred';
-      setError(message);
-      toast.error(`Lỗi khi tải danh sách kỹ năng: ${message}`);
-    } finally {
-      setLoading(false);
-    }
-  }, [filters]);
+    },
+    [queryClient]
+  );
 
   // Get single skill
   const getSkill = useCallback(async (id: string): Promise<Skill | null> => {
     try {
-      const response = await fetch(`/api/admin/system-categories/skills/${id}`);
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch skill');
-      }
-
-      return data.data;
+      return await skillsApi.getById(id);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'An error occurred';
       toast.error(`Lỗi khi tải thông tin kỹ năng: ${message}`);
@@ -120,86 +137,48 @@ export const useSkills = (): UseSkillsReturn => {
     }
   }, []);
 
-  // Create skill
-  const createSkill = useCallback(async (data: CreateSkillDto): Promise<boolean> => {
-    try {
-      const response = await fetch('/api/admin/system-categories/skills', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to create skill');
+  // Create skill wrapper
+  const createSkill = useCallback(
+    async (data: CreateSkillDto): Promise<boolean> => {
+      try {
+        await createMutation.mutateAsync(data);
+        return true;
+      } catch {
+        return false;
       }
+    },
+    [createMutation]
+  );
 
-      toast.success(result.message || 'Tạo kỹ năng thành công');
-      await fetchSkills();
-      return true;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'An error occurred';
-      toast.error(`Lỗi khi tạo kỹ năng: ${message}`);
-      return false;
-    }
-  }, [fetchSkills]);
-
-  // Update skill
-  const updateSkill = useCallback(async (id: string, data: UpdateSkillDto): Promise<boolean> => {
-    try {
-      const response = await fetch(`/api/admin/system-categories/skills/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to update skill');
+  // Update skill wrapper
+  const updateSkill = useCallback(
+    async (id: string, data: UpdateSkillDto): Promise<boolean> => {
+      try {
+        await updateMutation.mutateAsync({ id, data });
+        return true;
+      } catch {
+        return false;
       }
+    },
+    [updateMutation]
+  );
 
-      toast.success(result.message || 'Cập nhật kỹ năng thành công');
-      await fetchSkills();
-      return true;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'An error occurred';
-      toast.error(`Lỗi khi cập nhật kỹ năng: ${message}`);
-      return false;
-    }
-  }, [fetchSkills]);
-
-  // Delete skill
-  const deleteSkill = useCallback(async (id: string): Promise<boolean> => {
-    try {
-      const response = await fetch(`/api/admin/system-categories/skills/${id}`, {
-        method: 'DELETE',
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to delete skill');
+  // Delete skill wrapper
+  const deleteSkill = useCallback(
+    async (id: string): Promise<boolean> => {
+      try {
+        await deleteMutation.mutateAsync(id);
+        return true;
+      } catch {
+        return false;
       }
-
-      toast.success(result.message || 'Xóa kỹ năng thành công');
-      await fetchSkills();
-      return true;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'An error occurred';
-      toast.error(`Lỗi khi xóa kỹ năng: ${message}`);
-      return false;
-    }
-  }, [fetchSkills]);
+    },
+    [deleteMutation]
+  );
 
   // Update filters
   const updateFilters = useCallback((newFilters: Partial<SkillQuery>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
+    setFilters((prev) => ({ ...prev, ...newFilters }));
   }, []);
 
   // Reset filters
@@ -209,24 +188,19 @@ export const useSkills = (): UseSkillsReturn => {
 
   // Refresh data
   const refreshData = useCallback(async () => {
-    await fetchSkills();
-  }, [fetchSkills]);
-
-  // Fetch skills on mount and when filters change
-  useEffect(() => {
-    fetchSkills();
-  }, [fetchSkills]);
+    await queryClient.invalidateQueries({ queryKey: skillsKeys.lists() });
+  }, [queryClient]);
 
   return {
-    skills,
-    loading,
-    error,
-    totalPages,
-    totalItems,
+    skills: skillsQuery.data?.data || [],
+    loading: skillsQuery.isLoading,
+    error: skillsQuery.error?.message || null,
+    totalPages: skillsQuery.data?.meta.totalPages || 0,
+    totalItems: skillsQuery.data?.meta.total || 0,
     currentPage: filters.page || 1,
     pageSize: filters.limit || 10,
     filters,
-    categoryStats,
+    categoryStats: skillsQuery.data?.meta.categoryStats || {},
     fetchSkills,
     getSkill,
     createSkill,

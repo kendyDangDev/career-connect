@@ -29,7 +29,7 @@ function useTypewriter(words: string[], typingSpeed = 80, deletingSpeed = 40, pa
 
   useEffect(() => {
     const current = words[wordIdx];
-    let timeout: NodeJS.Timeout;
+    let timeout: ReturnType<typeof setTimeout>;
 
     if (!isDeleting && display.length < current.length) {
       timeout = setTimeout(() => setDisplay(current.slice(0, display.length + 1)), typingSpeed);
@@ -176,7 +176,7 @@ export default function HeroSection() {
         {/* CTA row */}
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
           <a
-            href="/jobs"
+            href="/candidate/jobs"
             className="flex items-center gap-2 rounded-full bg-white px-6 py-2.5 text-sm font-semibold text-purple-700 shadow-lg transition hover:shadow-purple-300/40"
           >
             Khám phá tất cả <ArrowRight className="h-4 w-4" />

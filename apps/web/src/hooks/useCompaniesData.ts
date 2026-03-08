@@ -1,12 +1,17 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useCallback } from 'react';
+import { toast } from 'sonner';
+import { companyAdminApi } from '@/api/company-admin.api';
 import type {
   Company,
   CompanyFormData,
-  CompaniesResponse as ApiCompaniesResponse,
-} from '@/app/admin/companies/types';
+  CompaniesResponse,
+  CompaniesQuery,
+} from '@/types/company-admin.types';
+import { handleApiError } from '@/lib/axios';
 
 export interface CompaniesData {
   companies: Company[];
@@ -27,12 +32,21 @@ interface UseCompaniesDataOptions {
   sortOrder?: string;
 }
 
+/**
+ * Query keys for company admin-related queries
+ */
+export const companyAdminKeys = {
+  all: ['companyAdmin'] as const,
+  lists: () => [...companyAdminKeys.all, 'list'] as const,
+  list: (params: Record<string, any>) => [...companyAdminKeys.lists(), params] as const,
+  details: () => [...companyAdminKeys.all, 'detail'] as const,
+  detail: (id: string) => [...companyAdminKeys.details(), id] as const,
+};
+
 export function useCompaniesData(options?: UseCompaniesDataOptions) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [data, setData] = useState<CompaniesData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   // Use options if provided, otherwise get from URL
   const currentPage = options?.page || parseInt(searchParams?.get('page') || '1', 10);
@@ -44,59 +58,41 @@ export function useCompaniesData(options?: UseCompaniesDataOptions) {
   const currentSortBy = options?.sortBy || searchParams?.get('sortBy') || 'createdAt';
   const currentSortOrder = options?.sortOrder || searchParams?.get('sortOrder') || 'desc';
 
-  // Fetch companies data
-  const fetchCompanies = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  // Build query params object
+  const queryParams: CompaniesQuery = {
+    page: currentPage,
+    limit: pageSize,
+    ...(currentSearch && { search: currentSearch }),
+    ...(currentStatus && { status: currentStatus }),
+    ...(currentCompanySize && { companySize: currentCompanySize }),
+    ...(currentIndustryId && { industryId: currentIndustryId }),
+    sortBy: currentSortBy,
+    sortOrder: currentSortOrder as 'asc' | 'desc',
+  };
 
-      const queryParams = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: pageSize.toString(),
-        ...(currentSearch && { search: currentSearch }),
-        ...(currentStatus && { status: currentStatus }),
-        ...(currentCompanySize && { companySize: currentCompanySize }),
-        ...(currentIndustryId && { industryId: currentIndustryId }),
-        sortBy: currentSortBy,
-        sortOrder: currentSortOrder,
-      });
+  // Fetch companies data with React Query
+  const {
+    data: apiResponse,
+    isLoading: loading,
+    error,
+  } = useQuery({
+    queryKey: companyAdminKeys.list(queryParams),
+    queryFn: () => companyAdminApi.getCompanies(queryParams),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: 1,
+  });
 
-      const response = await fetch(`/api/admin/companies?${queryParams}`);
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch companies');
-      }
-
-      const apiResponse: ApiCompaniesResponse = await response.json();
-
-      if (apiResponse.success && apiResponse.data) {
-        setData({
+  // Transform API response to hook data format
+  const data: CompaniesData | null =
+    apiResponse?.success && apiResponse.data
+      ? {
           companies: apiResponse.data.companies,
           total: apiResponse.data.pagination.total,
           page: apiResponse.data.pagination.page,
           limit: apiResponse.data.pagination.limit,
           totalPages: apiResponse.data.pagination.totalPages,
-        });
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    currentPage,
-    currentSearch,
-    currentStatus,
-    currentCompanySize,
-    currentIndustryId,
-    currentSortBy,
-    currentSortOrder,
-    pageSize,
-  ]);
-
-  useEffect(() => {
-    fetchCompanies();
-  }, [fetchCompanies]);
+        }
+      : null;
 
   // Update URL params
   const updateParams = useCallback(
@@ -174,89 +170,94 @@ export function useCompaniesData(options?: UseCompaniesDataOptions) {
     [currentSortBy, currentSortOrder, updateParams]
   );
 
+  // Create company mutation
+  const createCompanyMutation = useMutation({
+    mutationFn: (companyData: CompanyFormData) => companyAdminApi.createCompany(companyData),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: companyAdminKeys.lists() });
+      toast.success(response.data ? 'Tạo công ty thành công!' : 'Tạo công ty thành công!');
+    },
+    onError: (error) => {
+      const errorMessage = handleApiError(error);
+      toast.error(errorMessage || 'Tạo công ty thất bại!');
+    },
+  });
+
+  // Update company mutation
+  const updateCompanyMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: CompanyFormData }) =>
+      companyAdminApi.updateCompany(id, data),
+    onSuccess: (response, { id }) => {
+      queryClient.invalidateQueries({ queryKey: companyAdminKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: companyAdminKeys.detail(id) });
+      toast.success(
+        response.data ? 'Cập nhật công ty thành công!' : 'Cập nhật công ty thành công!'
+      );
+    },
+    onError: (error) => {
+      const errorMessage = handleApiError(error);
+      toast.error(errorMessage || 'Cập nhật công ty thất bại!');
+    },
+  });
+
+  // Delete company mutation
+  const deleteCompanyMutation = useMutation({
+    mutationFn: (id: string) => companyAdminApi.deleteCompany(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: companyAdminKeys.lists() });
+      toast.success('Xóa công ty thành công!');
+    },
+    onError: (error) => {
+      const errorMessage = handleApiError(error);
+      toast.error(errorMessage || 'Xóa công ty thất bại!');
+    },
+  });
+
+  // Get single company query (for detail view)
+  const getCompanyQuery = useMutation({
+    mutationFn: (id: string) => companyAdminApi.getCompany(id),
+    onError: (error) => {
+      const errorMessage = handleApiError(error);
+      toast.error(errorMessage || 'Lấy thông tin công ty thất bại!');
+    },
+  });
+
   // CRUD operations
   const createCompany = useCallback(
     async (companyData: CompanyFormData) => {
-      try {
-        const response = await fetch('/api/admin/companies', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(companyData),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to create company');
-        }
-
-        const newCompany = await response.json();
-        await fetchCompanies();
-        return newCompany;
-      } catch (err) {
-        throw err;
-      }
+      const result = await createCompanyMutation.mutateAsync(companyData);
+      return result.data;
     },
-    [fetchCompanies]
+    [createCompanyMutation]
   );
 
   const updateCompany = useCallback(
     async (id: string, companyData: CompanyFormData) => {
-      try {
-        const response = await fetch(`/api/admin/companies/${id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(companyData),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to update company');
-        }
-
-        const updatedCompany = await response.json();
-        await fetchCompanies();
-        return updatedCompany;
-      } catch (err) {
-        throw err;
-      }
+      const result = await updateCompanyMutation.mutateAsync({ id, data: companyData });
+      return result.data;
     },
-    [fetchCompanies]
+    [updateCompanyMutation]
   );
 
   const deleteCompany = useCallback(
     async (id: string) => {
-      try {
-        const response = await fetch(`/api/admin/companies/${id}`, {
-          method: 'DELETE',
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to delete company');
-        }
-
-        await fetchCompanies();
-      } catch (err) {
-        throw err;
-      }
+      await deleteCompanyMutation.mutateAsync(id);
     },
-    [fetchCompanies]
+    [deleteCompanyMutation]
   );
 
-  const getCompany = useCallback(async (id: string) => {
-    try {
-      const response = await fetch(`/api/admin/companies/${id}`);
+  const getCompany = useCallback(
+    async (id: string) => {
+      const result = await getCompanyQuery.mutateAsync(id);
+      return result.data;
+    },
+    [getCompanyQuery]
+  );
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch company');
-      }
-
-      return await response.json();
-    } catch (err) {
-      throw err;
-    }
-  }, []);
+  // Refresh data
+  const refresh = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: companyAdminKeys.lists() });
+  }, [queryClient]);
 
   const pagination = data
     ? {
@@ -273,7 +274,7 @@ export function useCompaniesData(options?: UseCompaniesDataOptions) {
     total: data?.total || 0,
     totalPages: data?.totalPages || 0,
     loading,
-    error,
+    error: error ? (error instanceof Error ? error.message : 'An error occurred') : null,
     pagination,
 
     // Handlers
@@ -291,6 +292,6 @@ export function useCompaniesData(options?: UseCompaniesDataOptions) {
     getCompany,
 
     // Refresh data
-    refresh: fetchCompanies,
+    refresh,
   };
 }

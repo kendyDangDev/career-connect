@@ -1,43 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ApplicationStatus } from '@/generated/prisma';
 import { useNotifications } from '@/contexts/NotificationContext';
-
-interface UpdateApplicationStatusParams {
-  applicationId: string;
-  status: ApplicationStatus;
-  reason?: string;
-  notes?: string;
-}
+import {
+  getApplicationDetail,
+  updateApplicationStatus as updateApplicationStatusApi,
+  adminApplicationKeys,
+} from '@/api/admin/adminApplication.api';
+import type { UpdateApplicationStatusParams } from '@/types/admin/application.types';
 
 export const useApplicationMutations = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const { showNotification } = useNotifications();
+  const queryClient = useQueryClient();
+
+  // Mutation for updating application status
+  const updateApplicationStatusMutation = useMutation({
+    mutationFn: (params: UpdateApplicationStatusParams) => updateApplicationStatusApi(params),
+    onSuccess: () => {
+      // Invalidate related queries if needed
+      queryClient.invalidateQueries({ queryKey: adminApplicationKeys.all });
+    },
+  });
 
   const updateApplicationStatus = async (params: UpdateApplicationStatusParams) => {
     try {
-      setLoading(true);
-      setError(null);
-
-      const response = await fetch(`/api/admin/applications/${params.applicationId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          status: params.status,
-          reason: params.reason,
-          notes: params.notes,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Failed to update application status');
-      }
+      const result = await updateApplicationStatusMutation.mutateAsync(params);
 
       showNotification({
         type: 'success',
@@ -45,10 +33,9 @@ export const useApplicationMutations = () => {
         message: 'Cập nhật trạng thái ứng tuyển thành công',
       });
 
-      return data.data;
+      return result;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-      setError(errorMessage);
 
       showNotification({
         type: 'error',
@@ -57,37 +44,25 @@ export const useApplicationMutations = () => {
       });
 
       throw err;
-    } finally {
-      setLoading(false);
     }
   };
 
-  const getApplicationDetail = async (applicationId: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await fetch(`/api/admin/applications/${applicationId}`);
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Failed to fetch application details');
-      }
-
-      return data.data;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
+  // Query for application detail (if needed, but since it's a hook for mutations, this might be optional)
+  // For now, keeping it as a function that can be called manually
+  const getApplicationDetailQuery = (applicationId: string) => {
+    return useQuery({
+      queryKey: adminApplicationKeys.detail(applicationId),
+      queryFn: () => getApplicationDetail(applicationId),
+      enabled: !!applicationId,
+    });
   };
 
   return {
     updateApplicationStatus,
-    getApplicationDetail,
-    loading,
-    error,
+    getApplicationDetail: getApplicationDetail, // Keep as direct function for backward compatibility
+    loading: updateApplicationStatusMutation.isPending,
+    error: updateApplicationStatusMutation.error?.message || null,
+    // If you want to expose the query hook
+    useApplicationDetail: getApplicationDetailQuery,
   };
 };

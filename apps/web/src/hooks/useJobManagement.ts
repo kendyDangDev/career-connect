@@ -1,6 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
-import { AdminJobService, AdminJobListParams } from '@/services/admin/job.service';
-import { JobListResponse, JobDetail, CreateJobDTO, UpdateJobDTO, UpdateJobStatusDTO } from '@/types/employer/job';
+import { adminJobApi, type AdminJobListParams } from '@/api/job.api';
+import {
+  JobListResponse,
+  JobDetail,
+  CreateJobDTO,
+  UpdateJobDTO,
+  UpdateJobStatusDTO,
+} from '@/types/employer/job';
 
 export interface UseJobsListState {
   jobs: JobListResponse | null;
@@ -46,17 +52,17 @@ export const useJobsList = (initialFilters: AdminJobListParams = {}) => {
   const [filters, setFilters] = useState<AdminJobListParams>(initialFilters);
 
   const fetchJobs = useCallback(async () => {
-    setState(prev => ({ ...prev, loading: true, error: null }));
+    setState((prev) => ({ ...prev, loading: true, error: null }));
 
     try {
-      const jobs = await AdminJobService.getJobsList(filters);
-      setState(prev => ({
+      const jobs = await adminJobApi.getJobsList(filters);
+      setState((prev) => ({
         ...prev,
         jobs,
         loading: false,
       }));
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         error: error instanceof Error ? error.message : 'Failed to fetch jobs',
         loading: false,
@@ -65,7 +71,7 @@ export const useJobsList = (initialFilters: AdminJobListParams = {}) => {
   }, [filters]);
 
   const updateFilters = useCallback((newFilters: AdminJobListParams) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
+    setFilters((prev) => ({ ...prev, ...newFilters }));
   }, []);
 
   useEffect(() => {
@@ -94,17 +100,17 @@ export const useJobDetail = (jobId: string | null) => {
   const fetchJobDetail = useCallback(async () => {
     if (!jobId) return;
 
-    setState(prev => ({ ...prev, loading: true, error: null }));
+    setState((prev) => ({ ...prev, loading: true, error: null }));
 
     try {
-      const job = await AdminJobService.getJobDetail(jobId);
-      setState(prev => ({
+      const job = await adminJobApi.getJobDetail(jobId);
+      setState((prev) => ({
         ...prev,
         job,
         loading: false,
       }));
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         error: error instanceof Error ? error.message : 'Failed to fetch job details',
         loading: false,
@@ -141,7 +147,7 @@ export const useJobMutations = (onSuccess?: (operation: string, data?: any) => v
   });
 
   const reset = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       loading: false,
       error: null,
@@ -149,117 +155,138 @@ export const useJobMutations = (onSuccess?: (operation: string, data?: any) => v
     }));
   }, []);
 
-  const createJob = useCallback(async (data: CreateJobDTO) => {
-    setState(prev => ({ ...prev, loading: true, error: null, success: false }));
+  const createJob = useCallback(
+    async (data: CreateJobDTO) => {
+      setState((prev) => ({ ...prev, loading: true, error: null, success: false }));
 
-    try {
-      const result = await AdminJobService.createJob(data);
-      setState(prev => ({ ...prev, loading: false, success: true }));
-      onSuccess?.('create', result);
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: error instanceof Error ? error.message : 'Failed to create job',
-      }));
-    }
-  }, [onSuccess]);
+      try {
+        const result = await adminJobApi.createJob(data);
+        setState((prev) => ({ ...prev, loading: false, success: true }));
+        onSuccess?.('create', result);
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+          error: error instanceof Error ? error.message : 'Failed to create job',
+        }));
+      }
+    },
+    [onSuccess]
+  );
 
-  const updateJob = useCallback(async (jobId: string, data: UpdateJobDTO) => {
-    setState(prev => ({ ...prev, loading: true, error: null, success: false }));
+  const updateJob = useCallback(
+    async (jobId: string, data: UpdateJobDTO) => {
+      setState((prev) => ({ ...prev, loading: true, error: null, success: false }));
 
-    try {
-      const result = await AdminJobService.updateJob(jobId, data);
-      setState(prev => ({ ...prev, loading: false, success: true }));
-      onSuccess?.('update', result);
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: error instanceof Error ? error.message : 'Failed to update job',
-      }));
-    }
-  }, [onSuccess]);
+      try {
+        const result = await adminJobApi.updateJob(jobId, data);
+        setState((prev) => ({ ...prev, loading: false, success: true }));
+        onSuccess?.('update', result);
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+          error: error instanceof Error ? error.message : 'Failed to update job',
+        }));
+      }
+    },
+    [onSuccess]
+  );
 
-  const updateJobStatus = useCallback(async (jobId: string, data: UpdateJobStatusDTO) => {
-    setState(prev => ({ ...prev, loading: true, error: null, success: false }));
+  const updateJobStatus = useCallback(
+    async (jobId: string, data: UpdateJobStatusDTO) => {
+      setState((prev) => ({ ...prev, loading: true, error: null, success: false }));
 
-    try {
-      const result = await AdminJobService.updateJobStatus(jobId, data);
-      setState(prev => ({ ...prev, loading: false, success: true }));
-      onSuccess?.('updateStatus', result);
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: error instanceof Error ? error.message : 'Failed to update job status',
-      }));
-    }
-  }, [onSuccess]);
+      try {
+        const result = await adminJobApi.updateJobStatus(jobId, data);
+        setState((prev) => ({ ...prev, loading: false, success: true }));
+        onSuccess?.('updateStatus', result);
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+          error: error instanceof Error ? error.message : 'Failed to update job status',
+        }));
+      }
+    },
+    [onSuccess]
+  );
 
-  const duplicateJob = useCallback(async (jobId: string, title?: string) => {
-    setState(prev => ({ ...prev, loading: true, error: null, success: false }));
+  const duplicateJob = useCallback(
+    async (jobId: string, title?: string) => {
+      setState((prev) => ({ ...prev, loading: true, error: null, success: false }));
 
-    try {
-      const result = await AdminJobService.duplicateJob(jobId, title ? { title } : undefined);
-      setState(prev => ({ ...prev, loading: false, success: true }));
-      onSuccess?.('duplicate', result);
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: error instanceof Error ? error.message : 'Failed to duplicate job',
-      }));
-    }
-  }, [onSuccess]);
+      try {
+        const result = await adminJobApi.duplicateJob(jobId, title ? { title } : undefined);
+        setState((prev) => ({ ...prev, loading: false, success: true }));
+        onSuccess?.('duplicate', result);
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+          error: error instanceof Error ? error.message : 'Failed to duplicate job',
+        }));
+      }
+    },
+    [onSuccess]
+  );
 
-  const deleteJob = useCallback(async (jobId: string) => {
-    setState(prev => ({ ...prev, loading: true, error: null, success: false }));
+  const deleteJob = useCallback(
+    async (jobId: string) => {
+      setState((prev) => ({ ...prev, loading: true, error: null, success: false }));
 
-    try {
-      const result = await AdminJobService.deleteJob(jobId);
-      setState(prev => ({ ...prev, loading: false, success: true }));
-      onSuccess?.('delete', result);
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: error instanceof Error ? error.message : 'Failed to delete job',
-      }));
-    }
-  }, [onSuccess]);
+      try {
+        const result = await adminJobApi.deleteJob(jobId);
+        setState((prev) => ({ ...prev, loading: false, success: true }));
+        onSuccess?.('delete', result);
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+          error: error instanceof Error ? error.message : 'Failed to delete job',
+        }));
+      }
+    },
+    [onSuccess]
+  );
 
-  const bulkUpdateStatus = useCallback(async (jobIds: string[], status: string, reason?: string) => {
-    setState(prev => ({ ...prev, loading: true, error: null, success: false }));
+  const bulkUpdateStatus = useCallback(
+    async (jobIds: string[], status: string, reason?: string) => {
+      setState((prev) => ({ ...prev, loading: true, error: null, success: false }));
 
-    try {
-      const result = await AdminJobService.bulkUpdateJobStatus(jobIds, status, reason);
-      setState(prev => ({ ...prev, loading: false, success: true }));
-      onSuccess?.('bulkUpdateStatus', result);
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: error instanceof Error ? error.message : 'Failed to update job statuses',
-      }));
-    }
-  }, [onSuccess]);
+      try {
+        const result = await adminJobApi.bulkUpdateJobStatus(jobIds, status, reason);
+        setState((prev) => ({ ...prev, loading: false, success: true }));
+        onSuccess?.('bulkUpdateStatus', result);
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+          error: error instanceof Error ? error.message : 'Failed to update job statuses',
+        }));
+      }
+    },
+    [onSuccess]
+  );
 
-  const bulkDelete = useCallback(async (jobIds: string[]) => {
-    setState(prev => ({ ...prev, loading: true, error: null, success: false }));
+  const bulkDelete = useCallback(
+    async (jobIds: string[]) => {
+      setState((prev) => ({ ...prev, loading: true, error: null, success: false }));
 
-    try {
-      const result = await AdminJobService.bulkDeleteJobs(jobIds);
-      setState(prev => ({ ...prev, loading: false, success: true }));
-      onSuccess?.('bulkDelete', result);
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: error instanceof Error ? error.message : 'Failed to delete jobs',
-      }));
-    }
-  }, [onSuccess]);
+      try {
+        const result = await adminJobApi.bulkDeleteJobs(jobIds);
+        setState((prev) => ({ ...prev, loading: false, success: true }));
+        onSuccess?.('bulkDelete', result);
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+          error: error instanceof Error ? error.message : 'Failed to delete jobs',
+        }));
+      }
+    },
+    [onSuccess]
+  );
 
   return {
     ...state,
@@ -289,7 +316,7 @@ export const useJobAnalytics = (jobId?: string) => {
     setError(null);
 
     try {
-      const stats = await AdminJobService.getJobStatistics(jobId);
+      const stats = await adminJobApi.getJobStatistics(jobId);
       setStatistics(stats);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to fetch statistics');
@@ -323,7 +350,7 @@ export const useAdminDashboard = () => {
     setError(null);
 
     try {
-      const data = await AdminJobService.getAdminStatsSummary();
+      const data = await adminJobApi.getAdminStatsSummary();
       setSummary(data);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to fetch dashboard data');

@@ -30,7 +30,8 @@ import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { MultiSelect } from '@/components/ui/MultiSelect';
-import { useSkills, useCategories } from '@/hooks/useSystemCategories';
+import { useSkills } from '@/hooks/useSkills';
+import { useCategories } from '@/hooks/useCategories';
 
 const jobSchema = z.object({
   title: z
@@ -79,8 +80,23 @@ const EditJobPage: React.FC = () => {
 
   const { job, loading, error } = useJobDetail(jobId);
   const jobMutations = useJobMutations();
-  const { skills, loading: skillsLoading, error: skillsError } = useSkills();
-  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
+  const {
+    skills,
+    loading: skillsLoading,
+    error: skillsError,
+    updateFilters: setSkillsFilters,
+  } = useSkills();
+  const {
+    // parentCategories is the full flattened category tree (unlimited fetch via getCategoryTree)
+    parentCategories: categories,
+    loading: categoriesLoading,
+    error: categoriesError,
+  } = useCategories();
+
+  // Override default limit (10) so all skills are available in the dropdown
+  useEffect(() => {
+    setSkillsFilters({ limit: 100 });
+  }, [setSkillsFilters]);
 
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [formKey, setFormKey] = useState(0); // Add key to force re-render

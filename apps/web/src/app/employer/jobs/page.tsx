@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { JobCard } from '@/components/employer/jobs/JobCard';
 import { JobStatus } from '@/components/employer/jobs/JobStatusBadge';
-import { AdminJobService } from '@/services/admin/job.service';
+import { adminJobApi } from '@/api/job.api';
 import type { JobListItem } from '@/types/employer/job';
 
 export default function JobsPage() {
@@ -75,7 +75,7 @@ export default function JobsPage() {
         sortOrder: 'desc' as const,
       };
 
-      const response = await AdminJobService.getJobsList(params);
+      const response = await adminJobApi.getJobsList(params);
 
       setJobs(response.jobs);
       setPagination({
@@ -128,7 +128,7 @@ export default function JobsPage() {
   // Handle status change
   const handleStatusChange = async (jobId: string, status: JobStatus) => {
     try {
-      await AdminJobService.updateJobStatus(jobId, { status });
+      await adminJobApi.updateJobStatus(jobId, { status });
       // Refresh jobs list
       fetchJobs();
     } catch (err) {
@@ -140,7 +140,7 @@ export default function JobsPage() {
   // Handle duplicate job
   const handleDuplicate = async (jobId: string) => {
     try {
-      await AdminJobService.duplicateJob(jobId);
+      await adminJobApi.duplicateJob(jobId);
       // Refresh jobs list
       fetchJobs();
       alert('Đã sao chép công việc thành công!');
@@ -157,7 +157,7 @@ export default function JobsPage() {
     }
 
     try {
-      await AdminJobService.deleteJob(jobId);
+      await adminJobApi.deleteJob(jobId);
       // Refresh jobs list
       fetchJobs();
       alert('Đã xóa công việc thành công!');

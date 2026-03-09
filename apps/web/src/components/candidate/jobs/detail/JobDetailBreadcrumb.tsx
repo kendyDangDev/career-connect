@@ -21,7 +21,7 @@ export default function JobDetailBreadcrumb({ category, jobTitle }: JobDetailBre
       {category && (
         <>
           <Link
-            href={`/jobs?category=${category}`}
+            href={`/candidate/jobs?category=${category}`}
             className="hover:text-primary transition-colors"
           >
             {category}

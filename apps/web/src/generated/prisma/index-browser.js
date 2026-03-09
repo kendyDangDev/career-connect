@@ -603,6 +603,55 @@ exports.Prisma.PasswordResetTokenScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.InterviewQuestionSetScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  title: 'title',
+  cvText: 'cvText',
+  jdText: 'jdText',
+  difficulty: 'difficulty',
+  totalQuestions: 'totalQuestions',
+  estimatedDuration: 'estimatedDuration',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.InterviewQuestionScalarFieldEnum = {
+  id: 'id',
+  questionSetId: 'questionSetId',
+  orderIndex: 'orderIndex',
+  question: 'question',
+  category: 'category',
+  difficulty: 'difficulty',
+  sampleAnswer: 'sampleAnswer',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.PracticeSessionScalarFieldEnum = {
+  id: 'id',
+  questionSetId: 'questionSetId',
+  userId: 'userId',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  overallScore: 'overallScore',
+  overallFeedback: 'overallFeedback',
+  status: 'status',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.PracticeAnswerScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  questionId: 'questionId',
+  answer: 'answer',
+  score: 'score',
+  feedback: 'feedback',
+  strengths: 'strengths',
+  weaknesses: 'weaknesses',
+  answeredAt: 'answeredAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -820,6 +869,24 @@ exports.DataType = exports.$Enums.DataType = {
   JSON: 'JSON'
 };
 
+exports.QuestionDifficulty = exports.$Enums.QuestionDifficulty = {
+  EASY: 'EASY',
+  MEDIUM: 'MEDIUM',
+  HARD: 'HARD'
+};
+
+exports.QuestionSetStatus = exports.$Enums.QuestionSetStatus = {
+  GENERATING: 'GENERATING',
+  READY: 'READY',
+  FAILED: 'FAILED'
+};
+
+exports.PracticeSessionStatus = exports.$Enums.PracticeSessionStatus = {
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  ABANDONED: 'ABANDONED'
+};
+
 exports.Prisma.ModelName = {
   Account: 'Account',
   Session: 'Session',
@@ -859,7 +926,11 @@ exports.Prisma.ModelName = {
   AuditLog: 'AuditLog',
   EmailVerificationToken: 'EmailVerificationToken',
   PhoneVerificationToken: 'PhoneVerificationToken',
-  PasswordResetToken: 'PasswordResetToken'
+  PasswordResetToken: 'PasswordResetToken',
+  InterviewQuestionSet: 'InterviewQuestionSet',
+  InterviewQuestion: 'InterviewQuestion',
+  PracticeSession: 'PracticeSession',
+  PracticeAnswer: 'PracticeAnswer'
 };
 
 /**

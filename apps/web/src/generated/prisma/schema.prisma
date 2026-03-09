@@ -80,6 +80,8 @@ model User {
   sessions                   Session[]
   systemSettingsUpdates      SystemSetting[]           @relation("SystemSettingUpdater")
   profile                    UserProfile?
+  interviewQuestionSets      InterviewQuestionSet[]
+  practiceSessions           PracticeSession[]
 
   @@map("users")
 }
@@ -895,4 +897,95 @@ enum DataType {
   NUMBER
   BOOLEAN
   JSON
+}
+
+// ─── Interview Question Set Generation ───────────────────────────────────────
+
+enum QuestionSetStatus {
+  GENERATING
+  READY
+  FAILED
+}
+
+enum PracticeSessionStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+enum QuestionDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model InterviewQuestionSet {
+  id                String             @id @default(cuid())
+  userId            String             @map("user_id")
+  title             String
+  cvText            String             @map("cv_text")
+  jdText            String             @map("jd_text")
+  difficulty        QuestionDifficulty @default(MEDIUM)
+  totalQuestions    Int                @map("total_questions")
+  estimatedDuration Int                @map("estimated_duration")
+  status            QuestionSetStatus  @default(GENERATING)
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+
+  user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questions        InterviewQuestion[]
+  practiceSessions PracticeSession[]
+
+  @@map("interview_question_sets")
+}
+
+model InterviewQuestion {
+  id            String             @id @default(cuid())
+  questionSetId String             @map("question_set_id")
+  orderIndex    Int                @map("order_index")
+  question      String
+  category      String
+  difficulty    QuestionDifficulty @default(MEDIUM)
+  sampleAnswer  String?            @map("sample_answer")
+  createdAt     DateTime           @default(now()) @map("created_at")
+
+  questionSet     InterviewQuestionSet @relation(fields: [questionSetId], references: [id], onDelete: Cascade)
+  practiceAnswers PracticeAnswer[]
+
+  @@map("interview_questions")
+}
+
+model PracticeSession {
+  id              String                @id @default(cuid())
+  questionSetId   String                @map("question_set_id")
+  userId          String                @map("user_id")
+  startedAt       DateTime              @default(now()) @map("started_at")
+  completedAt     DateTime?             @map("completed_at")
+  overallScore    Float?                @map("overall_score")
+  overallFeedback String?               @map("overall_feedback")
+  status          PracticeSessionStatus @default(IN_PROGRESS)
+  createdAt       DateTime              @default(now()) @map("created_at")
+
+  questionSet InterviewQuestionSet @relation(fields: [questionSetId], references: [id], onDelete: Cascade)
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers     PracticeAnswer[]
+
+  @@map("practice_sessions")
+}
+
+model PracticeAnswer {
+  id         String   @id @default(cuid())
+  sessionId  String   @map("session_id")
+  questionId String   @map("question_id")
+  answer     String
+  score      Float?
+  feedback   String?
+  strengths  Json?
+  weaknesses Json?
+  answeredAt DateTime @default(now()) @map("answered_at")
+
+  session  PracticeSession   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  question InterviewQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("practice_answers")
 }

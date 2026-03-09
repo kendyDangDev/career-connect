@@ -17,11 +17,7 @@ interface CompanyActiveOpeningsProps {
   totalCount?: number;
 }
 
-export function CompanyActiveOpenings({
-  jobs,
-  companyId,
-  totalCount,
-}: CompanyActiveOpeningsProps) {
+export function CompanyActiveOpenings({ jobs, companyId, totalCount }: CompanyActiveOpeningsProps) {
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
       <div className="mb-5 flex items-center justify-between">
@@ -45,7 +41,7 @@ export function CompanyActiveOpenings({
           {jobs.map((job) => (
             <Link
               key={job.id}
-              href={`/jobs/${job.id}`}
+              href={`/candidate/jobs/${job.id}`}
               className="group flex items-start justify-between gap-4 py-4 transition-colors first:pt-0 last:pb-0 hover:text-indigo-700"
             >
               <div className="min-w-0 flex-1">

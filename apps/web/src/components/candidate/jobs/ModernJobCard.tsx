@@ -118,7 +118,7 @@ export default function ModernJobCard({ job, isUrgent = false }: ModernJobCardPr
               </div>
             )}
           </div>
-          <Link href={`/company/${companySlug || job.id}`}>
+          <Link href={`candidate/company/${companySlug || job.id}`}>
             <p className="mb-3 cursor-pointer font-bold text-slate-600 transition-colors hover:text-purple-600 dark:text-slate-300">
               {companyName}
             </p>

@@ -117,7 +117,7 @@ export default function TrendingJobs() {
         {jobs.map((job) => (
           <Link
             key={job.id}
-            href={`/jobs/${job.id}`}
+            href={`/candidate/jobs/${job.id}`}
             className="group w-56 shrink-0 rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-purple-200 hover:shadow-md"
           >
             <div className="mb-1.5 flex items-center gap-1">

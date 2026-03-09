@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { MapPin, Globe, Briefcase, Heart, Bell } from 'lucide-react';
+import { MapPin, Globe, Briefcase, Heart, Bell, Loader2 } from 'lucide-react';
 
 export interface CompanyHeroProps {
   name: string;
@@ -13,6 +13,7 @@ export interface CompanyHeroProps {
   employeesCount: string;
   followersCount: string;
   isFollowing?: boolean;
+  followLoading?: boolean;
   onFollow?: () => void;
   onAlert?: () => void;
 }
@@ -29,6 +30,7 @@ export function CompanyHero({
   employeesCount,
   followersCount,
   isFollowing = false,
+  followLoading = false,
   onFollow,
   onAlert,
 }: CompanyHeroProps) {
@@ -37,13 +39,7 @@ export function CompanyHero({
       {/* Cover Banner */}
       <div className="relative h-52 w-full bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-700">
         {coverImageUrl && (
-          <Image
-            src={coverImageUrl}
-            alt={`${name} cover`}
-            fill
-            className="object-cover"
-            priority
-          />
+          <Image src={coverImageUrl} alt={`${name} cover`} fill className="object-cover" priority />
         )}
         {/* Overlay gradient for readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
@@ -57,7 +53,13 @@ export function CompanyHero({
             {/* Logo */}
             <div className="-mt-10 flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-4 border-white bg-white shadow-lg">
               {logoUrl ? (
-                <Image src={logoUrl} alt={`${name} logo`} width={80} height={80} className="object-contain" />
+                <Image
+                  src={logoUrl}
+                  alt={`${name} logo`}
+                  width={80}
+                  height={80}
+                  className="object-contain"
+                />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600">
                   <span className="text-2xl font-bold text-white">{name.charAt(0)}</span>
@@ -108,13 +110,18 @@ export function CompanyHero({
             </button>
             <button
               onClick={onFollow}
-              className={`flex items-center gap-2 rounded-xl px-5 py-2 text-sm font-semibold transition-all ${
+              disabled={followLoading}
+              className={`flex items-center gap-2 rounded-xl px-5 py-2 text-sm font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-70 ${
                 isFollowing
                   ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   : 'bg-indigo-600 text-white shadow-md shadow-indigo-200 hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-300'
               }`}
             >
-              <Heart className={`h-4 w-4 ${isFollowing ? 'fill-current' : ''}`} />
+              {followLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Heart className={`h-4 w-4 ${isFollowing ? 'fill-current' : ''}`} />
+              )}
               {isFollowing ? 'Following' : 'Follow'}
             </button>
           </div>

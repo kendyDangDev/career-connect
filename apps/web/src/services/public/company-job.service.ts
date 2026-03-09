@@ -99,10 +99,9 @@ export class CompanyJobService {
       where.workLocationType = workLocationType as WorkLocationType;
     }
 
-    // If not including expired, filter out jobs past deadline
-    if (!includeExpired) {
-      where.OR = [{ applicationDeadline: null }, { applicationDeadline: { gte: new Date() } }];
-    }
+    // Status field is the authoritative source of truth for job availability.
+    // applicationDeadline is informational only — expired jobs should be
+    // updated to status=EXPIRED by a background job, not filtered here.
 
     // Build orderBy
     const orderBy: Prisma.JobOrderByWithRelationInput = {};

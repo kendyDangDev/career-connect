@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   /* config options here */
   outputFileTracingRoot: path.join(__dirname, '../../'),
   transpilePackages: ['mapbox-gl'],
+  serverExternalPackages: [],
   images: {
     remotePatterns: [
       {

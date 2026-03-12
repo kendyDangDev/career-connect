@@ -121,7 +121,7 @@ function formatSalary(
   if (negotiable) return 'Thỏa thuận';
   if (!min && !max) return null;
   const fmt = (n: number) =>
-    currency === 'VND' ? `${(n / 1_000_000).toFixed(0)}M` : `$${(n / 1_000).toFixed(0)}k`;
+    currency === 'VND' ? `${(n / 1_000_000).toFixed(0)}` : `${(n / 1_000).toFixed(0)}`;
   if (min && max) return `${fmt(min)} – ${fmt(max)}`;
   if (min) return `Từ ${fmt(min)}`;
   return `Đến ${fmt(max!)}`;
@@ -279,8 +279,7 @@ export default function RightSidebar() {
                   <div className="flex flex-wrap items-center gap-2">
                     {salary && (
                       <span className="flex items-center gap-0.5 text-[10px] font-bold text-purple-600">
-                        <DollarSign className="h-3 w-3" />
-                        {salary}
+                        {salary} Triệu
                       </span>
                     )}
                     {job.locationCity && (

@@ -115,7 +115,7 @@
   }
 
   h4 {
-    @apply text-xl lg:text-2xl;
+    @apply text-lg lg:text-xl;
   }
 
   h5 {

@@ -29,7 +29,7 @@ interface Pagination {
   total: number;
 }
 
-export default function JobListPage() {
+export default function JobListPage({ rightSidebar }: { rightSidebar?: React.ReactNode }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -176,6 +176,8 @@ export default function JobListPage() {
       {/* Job Results */}
       <main className="flex-1 px-6 pb-20 lg:px-20">
         <div className="mx-auto max-w-7xl">
+          <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-3">
+            <div className="lg:col-span-2">
           {loading ? (
             <div className="space-y-4">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -276,6 +278,17 @@ export default function JobListPage() {
               )}
             </>
           )}
+            </div>
+            
+            {/* Sidebar */}
+            {rightSidebar && (
+              <div className="lg:col-span-1 flex flex-col gap-6">
+                <div className="sticky top-24">
+                  {rightSidebar}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </main>
     </div>

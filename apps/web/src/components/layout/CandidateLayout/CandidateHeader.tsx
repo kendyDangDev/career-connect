@@ -20,7 +20,8 @@ import {
 const navLinks = [
   { label: 'Tìm việc làm', href: '/candidate/jobs' },
   { label: 'Công ty', href: '/candidate/companies' },
-  { label: 'Hồ sơ CV', href: '/candidate/cv-management' },
+  { label: 'Hồ sơ CV', href: '/candidate/my-cvs' },
+  { label: 'AI Interview', href: '/candidate/interview-sets' },
 ];
 
 export default function CandidateHeader() {

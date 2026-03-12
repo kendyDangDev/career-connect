@@ -11,11 +11,11 @@ interface ModernJobCardProps {
 
 export default function ModernJobCard({ job, isUrgent = false }: ModernJobCardProps) {
   const formatSalary = (min?: number | null, max?: number | null) => {
-    if (!min && !max) return 'Negotiable';
-    if (min && max) return `$${(min / 1000).toFixed(0)}k - $${(max / 1000).toFixed(0)}k`;
-    if (min) return `From $${(min / 1000).toFixed(0)}k`;
-    if (max) return `Up to $${(max / 1000).toFixed(0)}k`;
-    return 'Negotiable';
+    if (!min && !max) return 'Thỏa thuận';
+    if (min && max) return `${(min / 1000000).toFixed(0)} - ${(max / 1000000).toFixed(0)} Triệu`;
+    if (min) return `${(min / 1000000).toFixed(0)} Triệu`;
+    if (max) return `${(max / 1000000).toFixed(0)} Triệu`;
+    return 'Thỏa thuận';
   };
 
   const getExperienceLabel = (level?: string | null) => {
@@ -118,7 +118,7 @@ export default function ModernJobCard({ job, isUrgent = false }: ModernJobCardPr
               </div>
             )}
           </div>
-          <Link href={`candidate/company/${companySlug || job.id}`}>
+          <Link href={`/candidate/companies/${companySlug}`}>
             <p className="mb-3 cursor-pointer font-bold text-slate-600 transition-colors hover:text-purple-600 dark:text-slate-300">
               {companyName}
             </p>
@@ -145,9 +145,13 @@ export default function ModernJobCard({ job, isUrgent = false }: ModernJobCardPr
             <span className="block text-2xl font-black tracking-tight text-slate-900 dark:text-white">
               {formatSalary(job.salaryMin, job.salaryMax)}
             </span>
-            <span className="text-xs font-bold tracking-widest text-slate-400 uppercase">
-              USD / Per Year
-            </span>
+            {
+              job.salaryMin && job.salaryMax && (
+                <span className="text-xs font-bold tracking-widest text-slate-400 uppercase">
+                  {`${Math.round(job.salaryMin / 2600000)*100} - ${Math.round(job.salaryMax / 2600000)*100} USD / Month`}
+                </span> 
+              )
+            }
           </div>
           <Link href={`/job/${job.id}`}>
             <button className="flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 px-8 py-3 font-bold text-white shadow-lg shadow-purple-600/20 transition-all hover:bg-purple-700 md:w-auto">

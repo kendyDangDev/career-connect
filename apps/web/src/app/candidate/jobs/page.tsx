@@ -1,5 +1,7 @@
 import JobListPage from '@/components/candidate/jobs/JobListPage';
 import ScrollToTop from '@/components/candidate/home/ScrollToTop';
+import RecommendedJobs from '@/components/candidate/jobs/RecommendedJobs';
+import RecommendedCompanies from '@/components/candidate/jobs/RecommendedCompanies';
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
@@ -14,7 +16,18 @@ export default function JobsPage() {
   return (
     <div className="min-h-screen bg-white pt-16 antialiased">
       <Suspense>
-        <JobListPage />
+        <JobListPage
+          rightSidebar={
+            <>
+              <Suspense fallback={<div className="h-64 rounded-2xl bg-slate-100 animate-pulse" />}>
+                <RecommendedJobs />
+              </Suspense>
+              <Suspense fallback={<div className="h-64 rounded-2xl bg-slate-100 animate-pulse mt-6" />}>
+                <RecommendedCompanies />
+              </Suspense>
+            </>
+          }
+        />
       </Suspense>
       <ScrollToTop />
     </div>

@@ -59,7 +59,7 @@ export default function HeroSection() {
     const params = new URLSearchParams();
     if (searchQuery) params.set('search', searchQuery);
     if (location) params.set('location', location);
-    router.push(`/jobs?${params.toString()}`);
+    router.push(`/candidate/jobs?${params.toString()}`);
   };
 
   return (
@@ -164,7 +164,7 @@ export default function HeroSection() {
               key={term}
               onClick={() => {
                 setSearchQuery(term);
-                router.push(`/jobs?search=${encodeURIComponent(term)}`);
+                router.push(`/candidate/jobs?search=${encodeURIComponent(term)}`);
               }}
               className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs text-purple-100 shadow-inner shadow-white/5 backdrop-blur-md transition-all duration-200 hover:border-white/40 hover:bg-white/25 hover:text-white hover:shadow-white/10"
             >

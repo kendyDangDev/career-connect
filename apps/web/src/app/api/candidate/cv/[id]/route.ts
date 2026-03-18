@@ -20,6 +20,26 @@ interface RouteParams {
   };
 }
 
+const MIME_EXTENSION_MAP: Record<string, string> = {
+  'application/pdf': 'pdf',
+  'application/msword': 'doc',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+};
+
+function resolveCvExtension(fileUrl: string, mimeType: string): string {
+  try {
+    const pathname = new URL(fileUrl).pathname;
+    const extensionMatch = pathname.match(/\.([a-zA-Z0-9]+)$/);
+    if (extensionMatch?.[1]) {
+      return extensionMatch[1].toLowerCase();
+    }
+  } catch {
+    // fall through to mime lookup
+  }
+
+  return MIME_EXTENSION_MAP[mimeType] || 'pdf';
+}
+
 /**
  * GET /api/candidate/cv/[id]
  * Get a specific CV for preview/download
@@ -56,11 +76,45 @@ export const GET = withRole([UserType.CANDIDATE], async (
       return successResponse({ cv }, 'CV retrieved successfully');
     }
 
-    // Generate URL for preview/download
-    const fileName = `${cv.cvName}.${cv.mimeType.split('/')[1]}`;
+    if (action !== 'preview' && action !== 'download') {
+      return errorResponse('Invalid action', 400);
+    }
+
+    // Resolve file name for preview/download metadata
+    const fileExtension = resolveCvExtension(cv.fileUrl, cv.mimeType);
+    const baseFileName = cv.cvName.replace(/\.[^/.]+$/, '');
+    const fileName = `${baseFileName}.${fileExtension}`;
+
+    if (action === 'download') {
+      // Proxy file download through API to avoid Cloudinary transformation URL issues
+      // and guarantee a proper attachment response.
+      const upstream = await fetch(cv.fileUrl);
+      if (!upstream.ok) {
+        return errorResponse('Failed to fetch CV file', 502);
+      }
+
+      const fileBuffer = Buffer.from(await upstream.arrayBuffer());
+      if (fileBuffer.byteLength === 0) {
+        return errorResponse('Downloaded file is empty', 502);
+      }
+      const safeFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+
+      return new NextResponse(fileBuffer, {
+        status: 200,
+        headers: {
+          'Content-Type':
+            upstream.headers.get('content-type') || cv.mimeType || 'application/octet-stream',
+          'Content-Disposition': `attachment; filename="${safeFileName}"`,
+          'Cache-Control': 'no-store',
+          'Content-Length': String(fileBuffer.byteLength),
+        },
+      });
+    }
+
+    // Generate URL for preview
     const cvUrl = await UploadService.getCvUrl(
       cv.fileUrl,
-      action as 'preview' | 'download',
+      'preview',
       fileName
     );
 
@@ -77,7 +131,7 @@ export const GET = withRole([UserType.CANDIDATE], async (
         mimeType: cv.mimeType,
         fileSize: cv.fileSize,
       },
-      action === 'download' ? 'Download URL generated successfully' : 'Preview URL generated successfully'
+      'Preview URL generated successfully'
     );
   } catch (error: any) {
     if (error.message === 'CV not found') {

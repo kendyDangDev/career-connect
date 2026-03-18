@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Building2, Users } from 'lucide-react';
+import { Building2 } from 'lucide-react';
 
 export interface CompanyCardData {
   id: string;
@@ -12,6 +12,7 @@ export interface CompanyCardData {
   coverImageUrl?: string | null;
   description?: string | null;
   companySize?: string | null;
+  activeJobsCount?: number | null;
   industry?: {
     name: string;
   } | null;
@@ -22,27 +23,36 @@ interface ModernCompanyCardProps {
 }
 
 export default function ModernCompanyCard({ company }: ModernCompanyCardProps) {
-  // Convert enum formats like SMALL_11_50 to readable
   const formatCompanySize = (size?: string | null) => {
-    if (!size) return 'Chưa cập nhật';
+    if (!size) return 'N/A';
     const mapping: Record<string, string> = {
-      STARTUP_1_10: '1-10 Nhân viên',
-      SMALL_11_50: '11-50 Nhân viên',
-      MEDIUM_51_200: '51-200 Nhân viên',
-      LARGE_201_500: '201-500 Nhân viên',
-      ENTERPRISE_500_PLUS: '500+ Nhân viên',
+      STARTUP_1_10: '1-10',
+      SMALL_11_50: '11-50',
+      MEDIUM_51_200: '51-200',
+      LARGE_201_500: '201-500',
+      ENTERPRISE_500_PLUS: '500+',
     };
+
     return mapping[size] || size;
   };
 
-  const defaultCoverGradient =
-    'bg-gradient-to-br from-purple-500/20 to-purple-800/20 dark:from-purple-900/40 dark:to-slate-900/80';
+  const defaultCoverGradient = 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700';
+  const logoBackgrounds = [
+    'from-emerald-500 to-teal-500',
+    'from-sky-500 to-blue-500',
+    'from-violet-500 to-fuchsia-500',
+    'from-orange-500 to-amber-500',
+  ];
+
+  const logoColorIndex = company.companyName.charCodeAt(0) % logoBackgrounds.length;
+  const activeJobsValue =
+    typeof company.activeJobsCount === 'number' ? String(company.activeJobsCount) : '--';
+  const industryLabel = company.industry?.name || 'Company';
 
   return (
-    <Link href={`/candidate/companies/${company.companySlug}`}>
-      <div className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(127,19,236,0.15)] dark:border-slate-700/50 dark:bg-slate-800/50">
-        {/* Cover Image & Glass Overlays */}
-        <div className="relative h-44 overflow-hidden bg-slate-100 dark:bg-slate-800">
+    <Link href={`/candidate/companies/${company.companySlug}`} className="block">
+      <article className="group relative flex h-full flex-col overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-[0_8px_18px_rgba(15,23,42,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_30px_rgba(124,58,237,0.2)]">
+        <div className="relative h-36 overflow-hidden bg-slate-900">
           {company.coverImageUrl ? (
             <Image
               src={company.coverImageUrl}
@@ -54,57 +64,65 @@ export default function ModernCompanyCard({ company }: ModernCompanyCardProps) {
             <div className={`absolute inset-0 ${defaultCoverGradient}`} />
           )}
 
-          {/* Floating Logo - Glass styled */}
-          <div className="absolute top-4 left-4 z-10 flex h-14 w-14 items-center justify-center rounded-xl border border-white/30 bg-white/70 p-2 shadow-lg backdrop-blur-md dark:border-slate-700/50 dark:bg-slate-900/70">
-            {company.logoUrl ? (
-              <img src={company.logoUrl} alt="Logo" className="h-full w-full object-contain" />
-            ) : (
-              <Building2 className="h-6 w-6 text-purple-600" />
-            )}
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-slate-900/20 to-transparent" />
 
-          {/* Company Info Glass Overlay at Bottom */}
-          <div className="absolute right-4 bottom-4 left-4 z-10 rounded-xl border border-white/30 bg-white/80 p-3 shadow-lg backdrop-blur-md transition-colors group-hover:bg-white/90 dark:border-slate-700/50 dark:bg-slate-900/80 dark:group-hover:bg-slate-900/90">
-            <div className="flex items-center justify-between">
-              <div className="truncate pr-2">
-                <h4 className="truncate leading-tight font-bold text-slate-900 dark:text-white">
-                  {company.companyName}
-                </h4>
-                {company.industry && (
-                  <span className="mt-0.5 block truncate text-[10px] font-semibold tracking-wider text-purple-600 uppercase dark:text-purple-400">
-                    {company.industry.name}
-                  </span>
-                )}
-              </div>
-              <div className="shrink-0 text-right">
-                <div className="flex items-center gap-1 text-[10px] font-bold whitespace-nowrap text-slate-600 dark:text-slate-300">
-                  <Users className="h-3 w-3" />
-                  {formatCompanySize(company.companySize).split(' ')[0]} Emp
-                </div>
-              </div>
-            </div>
+          <div className="absolute top-3 right-3 z-10 inline-flex items-center gap-1.5 rounded-full bg-slate-900/65 px-2.5 py-1 text-[10px] font-bold tracking-wide text-white uppercase backdrop-blur-sm">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_0_3px_rgba(16,185,129,0.22)]" />
+            VERIFIED
           </div>
         </div>
 
-        {/* Content section */}
-        <div className="space-y-4 border-t border-slate-100 bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
-          <p className="line-clamp-3 text-sm text-slate-600 dark:text-slate-400">
-            {company.description || 'Công ty chưa cập nhật mô tả chi tiết.'}
+        <div
+          className={`absolute top-[108px] left-4 z-20 flex h-11 w-11 items-center justify-center rounded-xl border-2 border-white bg-gradient-to-br p-1.5 shadow-lg ${logoBackgrounds[logoColorIndex]}`}
+        >
+          {company.logoUrl ? (
+            <img src={company.logoUrl} alt="Logo" className="h-full w-full object-contain" />
+          ) : (
+            <Building2 className="h-5 w-5 text-white" />
+          )}
+        </div>
+
+        <div className="flex flex-1 flex-col px-4 pt-6 pb-4">
+          <h3 className="line-clamp-1 text-2xl leading-tight font-extrabold tracking-tight text-slate-900">
+            {company.companyName}
+          </h3>
+          <p className="mt-1 text-[11px] font-bold tracking-[0.12em] text-slate-400 uppercase">
+            {industryLabel}
           </p>
 
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2 pt-1">
-            {company.industry && (
-              <span className="rounded-full bg-purple-50 px-2.5 py-1 text-[10px] font-bold tracking-wide text-purple-600 uppercase dark:bg-purple-900/20 dark:text-purple-300">
-                {company.industry.name}
-              </span>
-            )}
-            <span className="rounded-full bg-slate-50 px-2.5 py-1 text-[10px] font-bold tracking-wide text-slate-600 uppercase dark:bg-slate-700/50 dark:text-slate-300">
-              Verified
+          <p className="mt-3 line-clamp-3 min-h-[58px] text-[13px] leading-5 text-slate-600">
+            {company.description || 'Company has not added a detailed description yet.'}
+          </p>
+
+          <div className="mt-4 grid grid-cols-3 gap-2 border-t border-b border-slate-100 py-3">
+            <div>
+              <p className="text-[9px] font-bold tracking-wide text-slate-400 uppercase">
+                EMPLOYEES
+              </p>
+              <p className="mt-1 text-xl font-extrabold text-slate-800">
+                {formatCompanySize(company.companySize)}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-[9px] font-bold tracking-wide text-slate-400 uppercase">
+                ACTIVE JOBS
+              </p>
+              <p className="mt-1 text-xl font-extrabold text-slate-800">{activeJobsValue}</p>
+            </div>
+          </div>
+
+          <div className="mt-4 flex items-center justify-between gap-2">
+            <span className="rounded-md bg-slate-100 px-2.5 py-1 text-[10px] font-bold tracking-wide text-slate-500 uppercase">
+              {industryLabel}
+            </span>
+
+            <span className="inline-flex items-center rounded-full bg-gradient-to-r from-fuchsia-600 to-violet-500 px-4 py-1.5 text-[13px] font-semibold text-white shadow-[0_8px_18px_rgba(168,85,247,0.42)] transition-transform group-hover:scale-105">
+              View Profile
             </span>
           </div>
         </div>
-      </div>
+      </article>
     </Link>
   );
 }

@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import type { JobData } from './JobDetailPage';
+import JobApplicationModal from './JobApplicationModal';
 
 interface JobDetailHeaderCardProps {
   job: JobData;
@@ -54,6 +55,7 @@ export default function JobDetailHeaderCard({
   savedCount,
 }: JobDetailHeaderCardProps) {
   const [saved, setSaved] = useState(false);
+  const [applicationModalOpen, setApplicationModalOpen] = useState(false);
 
   const location = job.address
     ? `${job.address}${job.locationProvince ? `, ${job.locationProvince}` : ''}`
@@ -155,7 +157,10 @@ export default function JobDetailHeaderCard({
 
         {/* Right: Action Buttons */}
         <div className="flex w-full flex-row gap-3 md:w-auto md:flex-col lg:flex-row">
-          <button className="from-primary shadow-primary/20 hover:shadow-primary/40 h-12 min-w-[140px] flex-1 transform rounded-xl bg-gradient-to-r to-purple-500 font-bold text-white shadow-lg transition-all hover:scale-[1.02] md:flex-none lg:flex-none">
+          <button
+            onClick={() => setApplicationModalOpen(true)}
+            className="from-primary shadow-primary/20 hover:shadow-primary/40 h-12 min-w-[140px] flex-1 transform rounded-xl bg-gradient-to-r to-purple-500 font-bold text-white shadow-lg transition-all hover:scale-[1.02] md:flex-none lg:flex-none"
+          >
             Apply Now
           </button>
 
@@ -232,6 +237,12 @@ export default function JobDetailHeaderCard({
           </div>
         </div>
       </div>
+
+      <JobApplicationModal
+        open={applicationModalOpen}
+        onClose={() => setApplicationModalOpen(false)}
+        job={job}
+      />
     </div>
   );
 }

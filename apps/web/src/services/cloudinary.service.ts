@@ -674,40 +674,55 @@ export class CloudinaryService {
    */
   extractPublicIdFromUrl(url: string): string | null {
     try {
-      console.log('🔍 Extracting public ID from URL:', url);
+      console.log('Extracting public ID from URL:', url);
 
-      // Cloudinary URL format: https://res.cloudinary.com/{cloud_name}/{resource_type}/upload/{version}/{public_id}.{format}
-      const regex = /\/v\d+\/(.+)\.\w+$/;
-      const match = url.match(regex);
-      if (match) {
-        console.log('✅ Found public ID with version:', match[1]);
-        return match[1];
-      }
-
-      // Alternative format without version
-      const regex2 = /upload\/(.+)\.\w+$/;
-      const match2 = url.match(regex2);
-      if (match2) {
-        console.log('✅ Found public ID without version:', match2[1]);
-        return match2[1];
-      }
-
-      // For URLs without extension (old format)
-      const regex3 = /\/v\d+\/(.+)$/;
-      const match3 = url.match(regex3);
-      if (match3) {
-        console.log('✅ Found public ID without extension:', match3[1]);
-        return match3[1];
+      if (!url) {
+        return null;
       }
 
       // If URL is already just the public ID
       if (!url.startsWith('http')) {
-        console.log('✅ URL is already a public ID:', url);
         return url;
       }
 
-      console.warn('❌ Could not extract public ID from URL');
-      return null;
+      // Parse safely so query params (e.g. ?_a=...) do not affect extraction
+      const parsedUrl = new URL(url);
+      const pathname = decodeURIComponent(parsedUrl.pathname);
+
+      // Expected pattern:
+      // /{cloud_name}/{resource_type}/upload/{optional_transformations}/{optional_version}/{public_id}
+      const uploadMarker = '/upload/';
+      const uploadIndex = pathname.indexOf(uploadMarker);
+
+      if (uploadIndex === -1) {
+        console.warn('Could not extract public ID: missing /upload/ segment');
+        return null;
+      }
+
+      const resourceTypeMatch = pathname.match(/\/(image|video|raw)\/upload\//);
+      const resourceType = resourceTypeMatch?.[1] ?? 'image';
+
+      const afterUpload = pathname.slice(uploadIndex + uploadMarker.length);
+      const segments = afterUpload.split('/').filter(Boolean);
+
+      // Skip version segment if present (e.g. v1773310704)
+      const versionIndex = segments.findIndex((segment) => /^v\d+$/.test(segment));
+      const publicIdSegments = versionIndex >= 0 ? segments.slice(versionIndex + 1) : segments;
+
+      if (publicIdSegments.length === 0) {
+        console.warn('Could not extract public ID: empty public ID segments');
+        return null;
+      }
+
+      let publicId = publicIdSegments.join('/');
+
+      // Raw assets keep extension as part of public_id (e.g. file.pdf).
+      // Image/video public_id should not include delivery extension.
+      if (resourceType !== 'raw') {
+        publicId = publicId.replace(/\.[^./]+$/, '');
+      }
+
+      return publicId;
     } catch (error) {
       console.error('Error extracting public ID from URL:', error);
       return null;

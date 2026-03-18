@@ -41,13 +41,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Strip null bytes (0x00) which are invalid in PostgreSQL UTF-8 text fields
+    const sanitizedCvText = cvText.replace(/\x00/g, '');
+    const sanitizedJdText = jdText.replace(/\x00/g, '');
+
     // Create the question set record first (status: GENERATING)
     const questionSet = await prisma.interviewQuestionSet.create({
       data: {
         userId: user.id,
         title: `Interview Set - ${new Date().toLocaleDateString('vi-VN')}`,
-        cvText,
-        jdText,
+        cvText: sanitizedCvText,
+        jdText: sanitizedJdText,
         difficulty: difficulty as any,
         totalQuestions,
         estimatedDuration: Math.ceil(totalQuestions * 3), // ~3 min per question
@@ -58,8 +62,8 @@ export async function POST(req: NextRequest) {
     try {
       // Generate questions via AI
       const generatedQuestions = await AIInterviewService.generateQuestionSet(
-        cvText,
-        jdText,
+        sanitizedCvText,
+        sanitizedJdText,
         difficulty as 'EASY' | 'MEDIUM' | 'HARD',
         totalQuestions
       );

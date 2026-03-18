@@ -9,8 +9,8 @@ export const metadata = {
 
 function LoadingFallback() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
-      <Loader2 className="h-8 w-8 text-purple-600 animate-spin" />
+    <div className="flex min-h-screen items-center bg-slate-50 *:justify-center dark:bg-slate-950">
+      <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
     </div>
   );
 }

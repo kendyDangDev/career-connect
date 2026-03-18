@@ -181,7 +181,11 @@ export default function JobDetailPage({ jobId }: JobDetailPageProps) {
           />
 
           {/* Similar Jobs */}
-          <SimilarJobs currentJobId={job.id} jobType={job.jobType || 'FULL_TIME'} />
+          <SimilarJobs
+            currentJobId={job.id}
+            jobType={job.jobType || 'FULL_TIME'}
+            currentSkillNames={skills.map((jobSkill) => jobSkill.skill.name)}
+          />
         </div>
 
         {/* Right Column - Sidebar */}

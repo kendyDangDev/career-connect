@@ -54,7 +54,10 @@ export function CompanyKeyBenefits({ benefits }: CompanyKeyBenefitsProps) {
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-      <h2 className="mb-5 text-lg font-bold text-gray-900">Key Benefits</h2>
+      <div className="mb-4 flex items-center gap-3">
+        <span className="h-7 w-1.5 rounded-full bg-violet-600" />
+        <h2 className="text-lg font-bold text-gray-900">Key Benefits</h2>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         {displayBenefits.map((benefit) => {

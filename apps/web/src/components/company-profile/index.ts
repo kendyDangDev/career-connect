@@ -8,5 +8,7 @@ export { CompanyAbout } from './CompanyAbout';
 export { CompanyKeyBenefits } from './CompanyKeyBenefits';
 export { CompanyActiveOpenings } from './CompanyActiveOpenings';
 export type { JobListing } from './CompanyActiveOpenings';
+export { CompanyReviews } from './CompanyReviews';
+export type { CompanyReviewItem, CompanyReviewStats } from './CompanyReviews';
 
 export { CompanySidebar } from './CompanySidebar';

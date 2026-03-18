@@ -6,6 +6,15 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname, '../../'),
   transpilePackages: ['mapbox-gl'],
   serverExternalPackages: [],
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/candidate',
+        permanent: true,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {

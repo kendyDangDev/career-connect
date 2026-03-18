@@ -1,11 +1,23 @@
 'use client';
 
 import { useState } from 'react';
-import { Building2, Users, MapPin, Calendar, Globe, Mail, Twitter, Github, Bell } from 'lucide-react';
+import {
+  AtSign,
+  Bell,
+  Building,
+  Building2,
+  CalendarDays,
+  Globe,
+  Link2,
+  Mail,
+  UsersRound,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 interface CompanyOverviewItem {
   label: string;
   value: string;
+  icon: LucideIcon;
 }
 
 interface CompanySidebarProps {
@@ -34,10 +46,10 @@ export function CompanySidebar({
   const [alertEmail, setAlertEmail] = useState('');
 
   const overviewItems: CompanyOverviewItem[] = [
-    ...(industry ? [{ label: 'Industry', value: industry }] : []),
-    ...(companySize ? [{ label: 'Company Size', value: companySize }] : []),
-    ...(headquarters ? [{ label: 'Headquarters', value: headquarters }] : []),
-    ...(foundedYear ? [{ label: 'Founded', value: foundedYear }] : []),
+    ...(industry ? [{ label: 'Industry', value: industry, icon: Building2 }] : []),
+    ...(companySize ? [{ label: 'Company Size', value: companySize, icon: UsersRound }] : []),
+    ...(headquarters ? [{ label: 'Headquarters', value: headquarters, icon: Building }] : []),
+    ...(foundedYear ? [{ label: 'Founded', value: foundedYear, icon: CalendarDays }] : []),
   ];
 
   const handleAlertSubmit = (e: React.FormEvent) => {
@@ -52,38 +64,53 @@ export function CompanySidebar({
     <div className="space-y-5">
       {/* Company Overview */}
       <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-        <h3 className="mb-4 text-sm font-bold text-gray-900">Company Overview</h3>
+        <h3 className="mb-5 text-[1.55rem] font-extrabold tracking-tight text-slate-900">
+          Company Overview
+        </h3>
 
-        <dl className="space-y-3">
+        <dl className="space-y-4">
           {overviewItems.map((item) => (
-            <div key={item.label}>
-              <dt className="text-xs text-gray-400">{item.label}</dt>
-              <dd className="mt-0.5 text-sm font-medium text-gray-800">{item.value}</dd>
+            <div key={item.label} className="flex items-start gap-3">
+              <div className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-purple-600">
+                <item.icon className="h-5 w-5" />
+              </div>
+              <div>
+                <dt className="text-[0.72rem] font-bold tracking-[0.11em] text-slate-400 uppercase">
+                  {item.label}
+                </dt>
+                <dd className="mt-0.5 text-sm leading-tight font-bold text-slate-800">
+                  {item.value}
+                </dd>
+              </div>
             </div>
           ))}
         </dl>
 
         {/* Social / Follow Links */}
         {(websiteUrl || email || twitterUrl || githubUrl) && (
-          <div className="mt-4 border-t border-gray-100 pt-4">
-            <p className="mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">Follow Us</p>
-            <div className="flex flex-wrap gap-2">
+          <div className="mt-6 border-t border-gray-100 pt-6">
+            <p className="mb-3 text-[0.78rem] font-bold tracking-[0.11em] text-slate-400 uppercase">
+              Follow Us
+            </p>
+            <div className="flex flex-wrap gap-3">
               {websiteUrl && (
                 <a
                   href={websiteUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs text-gray-600 transition-colors hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
+                  aria-label="Website"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gray-100 text-slate-500 transition-colors hover:bg-purple-50 hover:text-purple-700"
                 >
-                  <Globe className="h-3.5 w-3.5" /> Website
+                  <Globe className="h-5 w-5" />
                 </a>
               )}
               {email && (
                 <a
                   href={`mailto:${email}`}
-                  className="flex items-center gap-1 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs text-gray-600 transition-colors hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
+                  aria-label="Email"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-slate-500 transition-colors hover:bg-purple-50 hover:text-purple-700"
                 >
-                  <Mail className="h-3.5 w-3.5" /> Email
+                  <Mail className="h-5 w-5" />
                 </a>
               )}
               {twitterUrl && (
@@ -91,9 +118,10 @@ export function CompanySidebar({
                   href={twitterUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs text-gray-600 transition-colors hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
+                  aria-label="Twitter"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-slate-500 transition-colors hover:bg-purple-50 hover:text-purple-700"
                 >
-                  <Twitter className="h-3.5 w-3.5" /> Twitter
+                  <AtSign className="h-5 w-5" />
                 </a>
               )}
               {githubUrl && (
@@ -101,9 +129,10 @@ export function CompanySidebar({
                   href={githubUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs text-gray-600 transition-colors hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
+                  aria-label="GitHub"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-slate-500 transition-colors hover:bg-purple-50 hover:text-purple-700"
                 >
-                  <Github className="h-3.5 w-3.5" /> GitHub
+                  <Link2 className="h-5 w-5" />
                 </a>
               )}
             </div>
@@ -112,9 +141,9 @@ export function CompanySidebar({
       </div>
 
       {/* Job Alerts */}
-      <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-purple-50 p-5">
+      <div className="rounded-2xl border border-purple-200 bg-purple-200 p-5">
         <div className="mb-3 flex items-center gap-2">
-          <Bell className="h-4 w-4 text-indigo-600" />
+          <Bell className="h-4 w-4 text-purple-600" />
           <h3 className="text-sm font-bold text-gray-900">Job Alerts</h3>
         </div>
         <p className="mb-3 text-xs leading-relaxed text-gray-600">
@@ -127,11 +156,11 @@ export function CompanySidebar({
             onChange={(e) => setAlertEmail(e.target.value)}
             placeholder="Enter your email"
             required
-            className="w-full rounded-xl border border-indigo-200 bg-white px-3 py-2 text-sm text-gray-800 placeholder-gray-400 outline-none transition-all focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200"
+            className="focus:purple-indigo-400 w-full rounded-xl border border-purple-200 bg-white px-3 py-2 text-sm text-gray-800 placeholder-gray-400 transition-all outline-none focus:ring-2 focus:ring-purple-200"
           />
           <button
             type="submit"
-            className="w-full rounded-xl bg-indigo-600 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-indigo-700 hover:shadow-md active:scale-95"
+            className="w-full rounded-xl bg-purple-600 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-purple-700 hover:shadow-md active:scale-95"
           >
             Subscribe
           </button>

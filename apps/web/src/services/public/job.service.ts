@@ -147,6 +147,17 @@ export class PublicJobService {
               description: true,
             },
           },
+          jobSkills: {
+            select: {
+              requiredLevel: true,
+              skill: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
         },
         orderBy,
         skip: (page - 1) * limit,

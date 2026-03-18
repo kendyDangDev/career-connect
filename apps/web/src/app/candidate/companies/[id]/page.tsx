@@ -8,9 +8,12 @@ import {
   CompanyAbout,
   CompanyKeyBenefits,
   CompanyActiveOpenings,
+  CompanyReviews,
   CompanySidebar,
   type CompanyTabKey,
   type JobListing,
+  type CompanyReviewItem,
+  type CompanyReviewStats,
 } from '@/components/company-profile';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -19,7 +22,7 @@ const COMPANY_SIZE_LABELS: Record<string, string> = {
   STARTUP_1_10: '1 – 10',
   SMALL_11_50: '11 – 50',
   MEDIUM_51_200: '51 – 200',
-  LARGE_201_500: '201 – 500',
+  LARGE_201_500: '200+',
   ENTERPRISE_501_PLUS: '500+',
 };
 
@@ -97,7 +100,21 @@ interface RawJob {
   salaryNegotiable: boolean;
   publishedAt: string | null;
   createdAt: string;
-  jobSkills?: Array<{ skill: { name: string } | null }>;
+  jobSkills?: Array<{
+    requiredLevel?: string | null;
+    skill: { name: string; category?: string | null } | null;
+  }>;
+}
+
+interface CompanyReviewsApiData {
+  reviews: CompanyReviewItem[];
+  total: number;
+  statistics?: CompanyReviewStats;
+}
+
+interface CompanyReviewsApiResponse {
+  success: boolean;
+  data?: CompanyReviewsApiData;
 }
 
 // ─── Page Component ───────────────────────────────────────────────────────────
@@ -110,7 +127,12 @@ export default function CompanyProfilePage() {
   const [company, setCompany] = useState<PublicCompanyProfile | null>(null);
   const [overviewJobs, setOverviewJobs] = useState<JobListing[]>([]);
   const [allJobs, setAllJobs] = useState<JobListing[] | null>(null);
+  const [techStack, setTechStack] = useState<string[]>([]);
   const [allJobsLoading, setAllJobsLoading] = useState(false);
+  const [reviews, setReviews] = useState<CompanyReviewItem[]>([]);
+  const [reviewsTotal, setReviewsTotal] = useState(0);
+  const [reviewStats, setReviewStats] = useState<CompanyReviewStats | null>(null);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -128,13 +150,33 @@ export default function CompanyProfilePage() {
     []
   );
 
+  const extractRequiredTechStack = useCallback((rawJobs: RawJob[]): string[] => {
+    const allowedCategories = new Set(['technical', 'language']);
+    const requiredSkills = new Set<string>();
+
+    rawJobs.forEach((job) => {
+      job.jobSkills?.forEach((jobSkill) => {
+        const level = (jobSkill.requiredLevel || '').toLowerCase();
+        const skillName = jobSkill.skill?.name?.trim();
+        const category = (jobSkill.skill?.category || '').toLowerCase();
+
+        if (level === 'required' && skillName && allowedCategories.has(category)) {
+          requiredSkills.add(skillName);
+        }
+      });
+    });
+
+    return Array.from(requiredSkills).sort((a, b) => a.localeCompare(b));
+  }, []);
+
   useEffect(() => {
     if (!slug) return;
     (async () => {
       try {
-        const [profileRes, jobsRes] = await Promise.all([
+        const [profileRes, jobsRes, techStackJobsRes] = await Promise.all([
           fetch(`/api/companies/${slug}`),
           fetch(`/api/companies/${slug}/jobs?limit=5`),
+          fetch(`/api/companies/${slug}/jobs?limit=50`),
         ]);
 
         if (profileRes.status === 404) {
@@ -161,7 +203,22 @@ export default function CompanyProfilePage() {
 
         if (jobsRes.ok) {
           const jobsJson = await jobsRes.json();
-          if (jobsJson.success) setOverviewJobs(mapJobs(jobsJson.data?.jobs ?? []));
+          if (jobsJson.success) {
+            const rawJobs: RawJob[] = jobsJson.data?.jobs ?? [];
+            setOverviewJobs(mapJobs(rawJobs));
+            setTechStack(extractRequiredTechStack(rawJobs));
+          }
+        }
+
+        if (techStackJobsRes.ok) {
+          const techStackJobsJson = await techStackJobsRes.json();
+          if (techStackJobsJson.success) {
+            const rawJobs: RawJob[] = techStackJobsJson.data?.jobs ?? [];
+            setTechStack((prev) => {
+              const merged = new Set([...prev, ...extractRequiredTechStack(rawJobs)]);
+              return Array.from(merged).sort((a, b) => a.localeCompare(b));
+            });
+          }
         }
       } catch {
         /* silent */
@@ -169,7 +226,7 @@ export default function CompanyProfilePage() {
         setLoading(false);
       }
     })();
-  }, [slug, mapJobs]);
+  }, [slug, mapJobs, extractRequiredTechStack]);
 
   // Lazy-load full jobs list when "jobs" tab is clicked
   useEffect(() => {
@@ -178,12 +235,50 @@ export default function CompanyProfilePage() {
     fetch(`/api/companies/${company.companySlug}/jobs?limit=50`)
       .then((r) => r.json())
       .then((json) => {
-        if (json.success) setAllJobs(mapJobs(json.data?.jobs ?? []));
-        else setAllJobs([]);
+        if (json.success) {
+          const rawJobs: RawJob[] = json.data?.jobs ?? [];
+          setAllJobs(mapJobs(rawJobs));
+          setTechStack((prev) => {
+            const merged = new Set([...prev, ...extractRequiredTechStack(rawJobs)]);
+            return Array.from(merged).sort((a, b) => a.localeCompare(b));
+          });
+          return;
+        }
+
+        setAllJobs([]);
       })
       .catch(() => setAllJobs([]))
       .finally(() => setAllJobsLoading(false));
-  }, [activeTab, allJobs, company, mapJobs]);
+  }, [activeTab, allJobs, company, mapJobs, extractRequiredTechStack]);
+
+  useEffect(() => {
+    if (!slug) return;
+    setReviewsLoading(true);
+
+    const encodedSlug = encodeURIComponent(slug);
+    fetch(
+      `/api/reviews/company?companySlug=${encodedSlug}&page=1&limit=3&sortBy=createdAt&sortOrder=desc`
+    )
+      .then((r) => r.json())
+      .then((json: CompanyReviewsApiResponse) => {
+        if (json.success && json.data) {
+          setReviews(json.data.reviews ?? []);
+          setReviewsTotal(json.data.total ?? 0);
+          setReviewStats(json.data.statistics ?? null);
+          return;
+        }
+
+        setReviews([]);
+        setReviewsTotal(0);
+        setReviewStats(null);
+      })
+      .catch(() => {
+        setReviews([]);
+        setReviewsTotal(0);
+        setReviewStats(null);
+      })
+      .finally(() => setReviewsLoading(false));
+  }, [slug]);
 
   const handleFollow = async () => {
     if (!company || followLoading) return;
@@ -228,7 +323,7 @@ export default function CompanyProfilePage() {
   // ─── Loading skeleton ────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 pt-16">
         <div className="mx-auto max-w-6xl space-y-4 px-4 py-8 sm:px-6 lg:px-8">
           <div className="h-64 animate-pulse rounded-2xl bg-gray-200" />
           <div className="h-12 animate-pulse rounded-2xl bg-gray-200" />
@@ -244,7 +339,7 @@ export default function CompanyProfilePage() {
   // ─── Not found ───────────────────────────────────────────────────────────────
   if (notFound || !company) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-gray-50">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-gray-50 pt-16">
         <p className="text-xl font-semibold text-gray-500">Không tìm thấy công ty.</p>
         <a href="/candidate/companies" className="text-sm text-indigo-600 hover:underline">
           Quay lại danh sách công ty
@@ -259,12 +354,11 @@ export default function CompanyProfilePage() {
     COMPANY_SIZE_LABELS[company.companySize ?? ''] ?? company.companySize ?? '–';
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pt-16">
       <div className="mx-auto max-w-6xl space-y-4 px-4 py-8 sm:px-6 lg:px-8">
         {/* Company Hero */}
         <CompanyHero
           name={company.companyName}
-          tagline={company.industry?.name}
           logoUrl={company.logoUrl ?? undefined}
           coverImageUrl={company.coverImageUrl ?? undefined}
           industry={company.industry?.name}
@@ -280,7 +374,7 @@ export default function CompanyProfilePage() {
         />
 
         {/* Tab Navigation */}
-        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="sticky top-16 z-20 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
           <CompanyTabs
             activeTab={activeTab}
             jobsCount={company.activeJobCount}
@@ -292,20 +386,13 @@ export default function CompanyProfilePage() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Left / Main Content */}
           <div className="space-y-5 lg:col-span-2">
-            {activeTab === 'overview' && (
-              <>
-                <CompanyAbout description={company.description ?? ''} />
-                <CompanyKeyBenefits />
-                <CompanyActiveOpenings
-                  jobs={overviewJobs}
-                  companyId={company.companySlug}
-                  totalCount={company.activeJobCount}
-                />
-              </>
-            )}
+            <section id="company-section-overview" className="scroll-mt-32 space-y-5">
+              <CompanyAbout description={company.description ?? ''} techStack={techStack} />
+              <CompanyKeyBenefits />
+            </section>
 
-            {activeTab === 'jobs' &&
-              (allJobsLoading ? (
+            <section id="company-section-jobs" className="scroll-mt-32">
+              {allJobsLoading ? (
                 <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                   {[1, 2, 3, 4, 5].map((i) => (
                     <div
@@ -324,21 +411,27 @@ export default function CompanyProfilePage() {
                 <CompanyActiveOpenings
                   jobs={allJobs ?? overviewJobs}
                   companyId={company.companySlug}
+                  companyName={company.companyName}
+                  logoUrl={company.logoUrl}
                   totalCount={company.activeJobCount}
                 />
-              ))}
+              )}
+            </section>
 
-            {activeTab === 'life' && (
+            <section id="company-section-life" className="scroll-mt-32">
               <div className="rounded-2xl border border-gray-200 bg-white p-10 text-center shadow-sm">
                 <p className="text-gray-400">Life at Company content coming soon...</p>
               </div>
-            )}
+            </section>
 
-            {activeTab === 'reviews' && (
-              <div className="rounded-2xl border border-gray-200 bg-white p-10 text-center shadow-sm">
-                <p className="text-gray-400">Reviews content coming soon...</p>
-              </div>
-            )}
+            <section id="company-section-reviews" className="scroll-mt-32">
+              <CompanyReviews
+                reviews={reviews}
+                totalReviews={reviewsTotal}
+                stats={reviewStats}
+                isLoading={reviewsLoading}
+              />
+            </section>
           </div>
 
           {/* Sidebar */}

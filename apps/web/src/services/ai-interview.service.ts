@@ -13,7 +13,9 @@ async function withRetry<T>(fn: () => Promise<T>, maxRetries = 3): Promise<T> {
       const is429 = error?.status === 429 || error?.message?.includes('429');
       if (is429 && attempt < maxRetries) {
         const delay = Math.pow(2, attempt) * 5000; // 5s, 10s, 20s
-        console.warn(`Rate limited, retrying in ${delay / 1000}s (attempt ${attempt + 1}/${maxRetries})...`);
+        console.warn(
+          `Rate limited, retrying in ${delay / 1000}s (attempt ${attempt + 1}/${maxRetries})...`
+        );
         await new Promise((r) => setTimeout(r, delay));
         continue;
       }
@@ -107,13 +109,11 @@ export class AIInterviewService {
     const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
     const langInstruction =
-      context.language === 'vi'
-        ? 'Trả lời bằng Tiếng Việt.'
-        : 'Respond in English.';
+      context.language === 'vi' ? 'Trả lời bằng Tiếng Việt.' : 'Respond in English.';
 
     const prompt = `You are a professional job interviewer. ${langInstruction}
 
-Based on the Job Description and Candidate's CV below, generate the FIRST interview question. 
+Based on the Job Description and Candidate's CV below, generate the FIRST interview question.
 The question should be an ice-breaker that helps the candidate feel comfortable while also being relevant to the position.
 
 **Job Description:**
@@ -144,9 +144,7 @@ Rules:
     const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
     const langInstruction =
-      context.language === 'vi'
-        ? 'Trả lời bằng Tiếng Việt.'
-        : 'Respond in English.';
+      context.language === 'vi' ? 'Trả lời bằng Tiếng Việt.' : 'Respond in English.';
 
     // Build conversation transcript
     const transcript = conversationHistory
@@ -188,7 +186,10 @@ Respond in the following JSON format ONLY (no markdown, no code blocks):
     const text = result.response.text().trim();
 
     // Parse JSON — strip markdown code blocks if present
-    const cleaned = text.replace(/```(?:json)?\s*/g, '').replace(/```/g, '').trim();
+    const cleaned = text
+      .replace(/```(?:json)?\s*/g, '')
+      .replace(/```/g, '')
+      .trim();
     try {
       return JSON.parse(cleaned) as LLMResponse;
     } catch {
@@ -212,9 +213,7 @@ Respond in the following JSON format ONLY (no markdown, no code blocks):
     const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
     const langInstruction =
-      context.language === 'vi'
-        ? 'Trả lời bằng Tiếng Việt.'
-        : 'Respond in English.';
+      context.language === 'vi' ? 'Trả lời bằng Tiếng Việt.' : 'Respond in English.';
 
     const transcript = conversationHistory
       .map((msg) => `${msg.role === 'ai' ? 'Interviewer' : 'Candidate'}: ${msg.content}`)
@@ -257,7 +256,10 @@ Rules:
     const result = await withRetry(() => model.generateContent(prompt));
     const text = result.response.text().trim();
 
-    const cleaned = text.replace(/```(?:json)?\s*/g, '').replace(/```/g, '').trim();
+    const cleaned = text
+      .replace(/```(?:json)?\s*/g, '')
+      .replace(/```/g, '')
+      .trim();
     try {
       return JSON.parse(cleaned) as InterviewFeedbackResult;
     } catch {
@@ -275,7 +277,10 @@ Rules:
   /**
    * Convert text to speech using Cartesia Sonic-3 API
    */
-  static async textToSpeech(text: string, language: string = 'vi'): Promise<{ audioBase64: string; mimeType: string }> {
+  static async textToSpeech(
+    text: string,
+    language: string = 'vi'
+  ): Promise<{ audioBase64: string; mimeType: string }> {
     const apiKey = process.env.CARTESIA_API_KEY;
     if (!apiKey) {
       throw new Error('CARTESIA_API_KEY is not configured');
@@ -375,7 +380,10 @@ Respond with ONLY a JSON array (no markdown, no code blocks):
     const result = await withRetry(() => model.generateContent(prompt));
     const text = result.response.text().trim();
 
-    const cleaned = text.replace(/```(?:json)?\s*/g, '').replace(/```/g, '').trim();
+    const cleaned = text
+      .replace(/```(?:json)?\s*/g, '')
+      .replace(/```/g, '')
+      .trim();
     try {
       const parsed = JSON.parse(cleaned) as GeneratedQuestion[];
       return parsed.slice(0, totalQuestions);
@@ -383,6 +391,34 @@ Respond with ONLY a JSON array (no markdown, no code blocks):
       console.error('Failed to parse question generation result:', cleaned);
       throw new Error('Failed to generate interview questions. Please try again.');
     }
+  }
+
+  /**
+   * Generate a concise interview set title from JD only
+   */
+  static async generateQuestionSetTitle(jdText: string): Promise<string> {
+    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
+
+    const prompt = `You are an expert recruiter. Create a short title for an interview question set based only on the job description below.
+
+**Job Description:**
+${jdText.substring(0, 4000)}
+
+Rules:
+- Output only the title text, no quotes, no labels, no markdown.
+- Write in English.
+- Keep it concise: 4 to 10 words.
+- Infer the title only from the job description.
+- Make the title specific to the target role, seniority, and core domain/tech stack when clear.
+- Avoid generic titles like "Bộ câu hỏi phỏng vấn" or "Interview Set".
+
+Good examples:
+- Frontend React Developer Interview
+- Senior Backend Node.js Interview
+- Product Marketing Manager Interview`;
+
+    const result = await withRetry(() => model.generateContent(prompt));
+    return result.response.text().trim();
   }
 
   /**
@@ -427,7 +463,10 @@ Rules:
     const result = await withRetry(() => model.generateContent(prompt));
     const text = result.response.text().trim();
 
-    const cleaned = text.replace(/```(?:json)?\s*/g, '').replace(/```/g, '').trim();
+    const cleaned = text
+      .replace(/```(?:json)?\s*/g, '')
+      .replace(/```/g, '')
+      .trim();
     try {
       return JSON.parse(cleaned) as AnswerEvaluation;
     } catch {

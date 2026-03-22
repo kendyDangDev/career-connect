@@ -145,15 +145,13 @@ export default function ModernJobCard({ job, isUrgent = false }: ModernJobCardPr
             <span className="block text-2xl font-black tracking-tight text-slate-900 dark:text-white">
               {formatSalary(job.salaryMin, job.salaryMax)}
             </span>
-            {
-              job.salaryMin && job.salaryMax && (
-                <span className="text-xs font-bold tracking-widest text-slate-400 uppercase">
-                  {`${Math.round(job.salaryMin / 2600000)*100} - ${Math.round(job.salaryMax / 2600000)*100} USD / Month`}
-                </span> 
-              )
-            }
+            {job.salaryMin && job.salaryMax && (
+              <span className="text-xs font-bold tracking-widest text-slate-400 uppercase">
+                {`${Math.round(job.salaryMin / 2600000) * 100} - ${Math.round(job.salaryMax / 2600000) * 100} USD / Month`}
+              </span>
+            )}
           </div>
-          <Link href={`/job/${job.id}`}>
+          <Link href={`/candidate/jobs/${job.id}`}>
             <button className="flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 px-8 py-3 font-bold text-white shadow-lg shadow-purple-600/20 transition-all hover:bg-purple-700 md:w-auto">
               Quick Apply
               <Zap className="h-5 w-5" />

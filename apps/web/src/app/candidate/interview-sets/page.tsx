@@ -56,47 +56,49 @@ export default function InterviewSetsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 pt-20 font-sans text-slate-900 dark:bg-[#191022] dark:text-slate-100">
-      <div className="flex flex-1 flex-row">
+      <div className="flex items-start">
         {/* Main Content Area */}
-        <main className="mx-auto flex max-w-6xl flex-1 flex-col gap-8 px-6 py-8">
-          <PageHeader />
+        <main className="min-w-0 flex-1">
+          <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-8">
+            <PageHeader />
 
-          <FeatureBanner />
+            <FeatureBanner />
 
-          <FilterSection
-            onSearch={handleSearch}
-            difficulty={difficulty}
-            onDifficultyChange={handleDifficultyChange}
-            status={status}
-            onStatusChange={handleStatusChange}
-          />
+            <FilterSection
+              onSearch={handleSearch}
+              difficulty={difficulty}
+              onDifficultyChange={handleDifficultyChange}
+              status={status}
+              onStatusChange={handleStatusChange}
+            />
 
-          {/* Job Listing Grid */}
-          {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
-            </div>
-          ) : questionSets.length > 0 ? (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {questionSets.map((set) => (
-                <QuestionSetCard key={set.id} {...set} />
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-2xl border border-slate-200 bg-white py-20 text-center dark:border-slate-800 dark:bg-slate-900">
-              <h3 className="mb-2 text-xl font-bold">Chưa có bộ câu hỏi nào</h3>
-              <p className="mx-auto mb-6 max-w-md text-slate-500">
-                Upload CV và nhập mô tả công việc để AI phân tích và tạo cho bạn một bộ câu hỏi
-                phỏng vấn sát với thực tế nhất.
-              </p>
-              <Link
-                href="/candidate/interview-sets/create"
-                className="inline-flex items-center rounded-xl bg-purple-600 px-6 py-3 font-bold text-white transition-colors hover:bg-purple-700"
-              >
-                Tạo bộ câu hỏi ngay
-              </Link>
-            </div>
-          )}
+            {/* Job Listing Grid */}
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+              </div>
+            ) : questionSets.length > 0 ? (
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                {questionSets.map((set) => (
+                  <QuestionSetCard key={set.id} {...set} />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-slate-200 bg-white py-20 text-center dark:border-slate-800 dark:bg-slate-900">
+                <h3 className="mb-2 text-xl font-bold">Chưa có bộ câu hỏi nào</h3>
+                <p className="mx-auto mb-6 max-w-md text-slate-500">
+                  Upload CV và nhập mô tả công việc để AI phân tích và tạo cho bạn một bộ câu hỏi
+                  phỏng vấn sát với thực tế nhất.
+                </p>
+                <Link
+                  href="/candidate/interview-sets/create"
+                  className="inline-flex items-center rounded-xl bg-purple-600 px-6 py-3 font-bold text-white transition-colors hover:bg-purple-700"
+                >
+                  Tạo bộ câu hỏi ngay
+                </Link>
+              </div>
+            )}
+          </div>
         </main>
 
         <RightSidebar />

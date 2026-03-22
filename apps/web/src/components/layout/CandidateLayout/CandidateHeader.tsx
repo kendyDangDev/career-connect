@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 
 const navLinks = [
+  { label: 'Trang chủ', href: '/candidate' },
   { label: 'Tìm việc làm', href: '/candidate/jobs' },
   { label: 'Công ty', href: '/candidate/companies' },
   { label: 'Hồ sơ CV', href: '/candidate/my-cvs' },

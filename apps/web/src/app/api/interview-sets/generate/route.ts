@@ -5,6 +5,23 @@ import { prisma } from '@/lib/prisma';
 import { AIInterviewService } from '@/services/ai-interview.service';
 import { extractText } from 'unpdf';
 
+function sanitizeInterviewSetTitle(rawTitle: string | null | undefined, fallbackTitle: string) {
+  const cleanedTitle = (rawTitle ?? '')
+    .replace(/```(?:text)?\s*/gi, '')
+    .replace(/```/g, '')
+    .replace(/^(?:title|tieu de|tiêu đề)\s*:\s*/i, '')
+    .replace(/[\r\n]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .replace(/^["'\s]+|["'\s]+$/g, '')
+    .trim();
+
+  if (!cleanedTitle) {
+    return fallbackTitle;
+  }
+
+  return cleanedTitle.length > 100 ? `${cleanedTitle.slice(0, 97).trimEnd()}...` : cleanedTitle;
+}
+
 /**
  * POST /api/interview-sets/generate
  * Generate interview questions from CV (PDF) + JD text
@@ -44,12 +61,13 @@ export async function POST(req: NextRequest) {
     // Strip null bytes (0x00) which are invalid in PostgreSQL UTF-8 text fields
     const sanitizedCvText = cvText.replace(/\x00/g, '');
     const sanitizedJdText = jdText.replace(/\x00/g, '');
+    const fallbackTitle = `Interview Set - ${new Date().toLocaleDateString('vi-VN')}`;
 
     // Create the question set record first (status: GENERATING)
     const questionSet = await prisma.interviewQuestionSet.create({
       data: {
         userId: user.id,
-        title: `Interview Set - ${new Date().toLocaleDateString('vi-VN')}`,
+        title: fallbackTitle,
         cvText: sanitizedCvText,
         jdText: sanitizedJdText,
         difficulty: difficulty as any,
@@ -60,13 +78,20 @@ export async function POST(req: NextRequest) {
     });
 
     try {
-      // Generate questions via AI
-      const generatedQuestions = await AIInterviewService.generateQuestionSet(
-        sanitizedCvText,
-        sanitizedJdText,
-        difficulty as 'EASY' | 'MEDIUM' | 'HARD',
-        totalQuestions
-      );
+      // Generate questions and title via AI in parallel.
+      const [generatedQuestions, generatedTitle] = await Promise.all([
+        AIInterviewService.generateQuestionSet(
+          sanitizedCvText,
+          sanitizedJdText,
+          difficulty as 'EASY' | 'MEDIUM' | 'HARD',
+          totalQuestions
+        ),
+        AIInterviewService.generateQuestionSetTitle(sanitizedJdText).catch((titleError) => {
+          console.warn('Failed to generate interview set title:', titleError);
+          return null;
+        }),
+      ]);
+      const finalTitle = sanitizeInterviewSetTitle(generatedTitle, questionSet.title);
 
       // Save questions to DB
       await prisma.interviewQuestion.createMany({
@@ -85,9 +110,7 @@ export async function POST(req: NextRequest) {
         where: { id: questionSet.id },
         data: {
           status: 'READY',
-          title: generatedQuestions[0]?.category
-            ? `${generatedQuestions[0].category} Interview - ${new Date().toLocaleDateString('vi-VN')}`
-            : questionSet.title,
+          title: finalTitle,
         },
         include: {
           questions: { orderBy: { orderIndex: 'asc' } },

@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Briefcase, Facebook, Linkedin, Twitter, Youtube, Mail, Phone, MapPin } from 'lucide-react';
 
 const footerLinks = {
@@ -30,6 +33,12 @@ const socials = [
 ];
 
 export default function CandidateFooter() {
+  const pathname = usePathname();
+
+  if (pathname.startsWith('/candidate/interview-sets')) {
+    return null;
+  }
+
   return (
     <footer className="bg-gray-950 text-gray-400">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">

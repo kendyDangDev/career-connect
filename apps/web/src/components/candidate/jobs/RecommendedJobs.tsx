@@ -55,7 +55,7 @@ export default async function RecommendedJobs() {
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-bold text-slate-900 dark:text-white">Việc làm đề xuất</h3>
       </div>
-      
+
       <div className="space-y-4">
         {recommendedJobs.map((job) => (
           <Link
@@ -79,16 +79,16 @@ export default async function RecommendedJobs() {
                 )}
               </div>
               <div className="flex-1 overflow-hidden">
-                <h4 className="line-clamp-2 font-semibold text-slate-900 transition-colors group-hover:text-purple-700 dark:text-white text-xl">
+                <h4 className="line-clamp-2 text-xl font-semibold text-slate-900 transition-colors group-hover:text-purple-700 dark:text-white">
                   {job.title}
                 </h4>
-                <p className="truncate text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+                <p className="mt-0.5 truncate text-xs font-medium text-slate-500 dark:text-slate-400">
                   {job.company?.companyName}
                 </p>
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2 mt-1">
+            <div className="mt-1 flex flex-wrap gap-2">
               <span className="flex items-center gap-1 rounded bg-white px-2 py-1 text-[10px] font-medium text-slate-600 shadow-sm dark:bg-slate-800 dark:text-slate-300">
                 <DollarSign className="h-3 w-3 text-green-500" />
                 {formatSalary(Number(job.salaryMin), Number(job.salaryMax))}

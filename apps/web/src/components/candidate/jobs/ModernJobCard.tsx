@@ -4,9 +4,41 @@ import { MapPin, TrendingUp, Clock, Users, Eye, Calendar, Zap, ShieldCheck } fro
 import { JobCardData } from '../home/JobCard';
 import Link from 'next/link';
 
+type ModernJobCardJob = JobCardData & {
+  skills?: string[];
+  jobSkills?: Array<{
+    skill?: {
+      id?: string;
+      name?: string | null;
+    } | null;
+  }>;
+};
+
 interface ModernJobCardProps {
-  job: JobCardData;
+  job: ModernJobCardJob;
   isUrgent?: boolean;
+}
+
+function getVisibleRequiredSkills(job: ModernJobCardJob) {
+  const seenSkills = new Set<string>();
+  const normalizedSkills = [
+    ...(job.skills ?? []),
+    ...(job.jobSkills?.map((jobSkill) => jobSkill.skill?.name ?? '') ?? []),
+  ]
+    .map((skill) => skill.trim())
+    .filter(Boolean)
+    .filter((skill) => !/^\+\d+$/.test(skill))
+    .filter((skill) => {
+      const normalizedSkill = skill.toLowerCase();
+      if (seenSkills.has(normalizedSkill)) return false;
+      seenSkills.add(normalizedSkill);
+      return true;
+    });
+
+  return {
+    visibleSkills: normalizedSkills.slice(0, 3),
+    remainingCount: Math.max(normalizedSkills.length - 3, 0),
+  };
 }
 
 export default function ModernJobCard({ job, isUrgent = false }: ModernJobCardProps) {
@@ -60,14 +92,13 @@ export default function ModernJobCard({ job, isUrgent = false }: ModernJobCardPr
     return diffDays <= 7 && diffDays >= 0;
   };
 
-  const location = job.address
-    ? `${job.address}${job.locationProvince ? `, ${job.locationProvince}` : ''}`
-    : 'Remote';
+  const location = job.locationProvince ? job.locationProvince : 'Remote';
 
   const isVerified = job.company?.verificationStatus === 'VERIFIED';
   const companyName = job.company?.companyName || 'Unknown Company';
   const companyLogo = job.company?.logoUrl;
   const companySlug = job.company?.companySlug;
+  const { visibleSkills, remainingCount } = getVisibleRequiredSkills(job);
 
   // Use applicationDeadline if available, fallback to expiresAt
   const deadline = job.applicationDeadline || job.expiresAt;
@@ -137,6 +168,23 @@ export default function ModernJobCard({ job, isUrgent = false }: ModernJobCardPr
               <span>{getJobTypeLabel(job.jobType)}</span>
             </div>
           </div>
+          {visibleSkills.length > 0 && (
+            <div className="mt-3 flex flex-wrap justify-center gap-2 md:justify-start">
+              {visibleSkills.map((skill) => (
+                <span
+                  key={`${job.id}-${skill}`}
+                  className="rounded-md bg-slate-100 px-2.5 py-1 text-[0.7rem] leading-none font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                >
+                  {skill}
+                </span>
+              ))}
+              {remainingCount > 0 && (
+                <span className="rounded-md bg-fuchsia-50 px-2.5 py-1 text-[0.7rem] leading-none font-semibold text-fuchsia-600 dark:bg-fuchsia-900/20 dark:text-fuchsia-300">
+                  +{remainingCount}
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Salary & Apply */}

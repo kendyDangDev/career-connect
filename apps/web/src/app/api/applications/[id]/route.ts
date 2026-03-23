@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withAuth, AuthenticatedRequest } from '@/lib/middleware/auth';
 import { ApplicationService } from '@/services/application.service';
-import { UserType } from '@/generated/prisma';
+import { ApplicationStatus, UserType } from '@/generated/prisma';
 import { prisma } from '@/lib/prisma';
 import {
   successResponse,
@@ -14,6 +14,16 @@ import {
   updateApplicationStatusSchema,
 } from '@/lib/validations/application.validation';
 
+const withApplicationAuth = (
+  handler: (
+    req: AuthenticatedRequest,
+    context: { params: Promise<{ id: string }> }
+  ) => Promise<NextResponse>
+) => {
+  return async (req: NextRequest, context: { params: Promise<{ id: string }> }) =>
+    withAuth((authenticatedRequest) => handler(authenticatedRequest, context))(req);
+};
+
 /**
  * GET /api/applications/[id]
  * Get detailed information about a specific application
@@ -22,7 +32,7 @@ import {
  * - EMPLOYER: Can view applications for their company's jobs
  * - CANDIDATE: Can view their own applications only
  */
-export const GET = async (
+export const GET = withApplicationAuth(async (
   req: AuthenticatedRequest,
   { params }: { params: Promise<{ id: string }> }
 ) => {
@@ -59,7 +69,7 @@ export const GET = async (
   } catch (error) {
     return serverErrorResponse('Failed to retrieve application details', error);
   }
-};
+});
 
 /**
  * PATCH /api/applications/[id]
@@ -68,7 +78,7 @@ export const GET = async (
  * - ADMIN: Can update any application
  * - EMPLOYER: Can update applications for their company's jobs
  */
-export const PATCH = async (
+export const PATCH = withApplicationAuth(async (
   req: AuthenticatedRequest,
   { params }: { params: Promise<{ id: string }> }
 ) => {
@@ -146,7 +156,7 @@ export const PATCH = async (
   } catch (error) {
     return serverErrorResponse('Failed to update application', error);
   }
-};
+});
 
 /**
  * DELETE /api/applications/[id]
@@ -155,7 +165,7 @@ export const PATCH = async (
  * - ADMIN: Can delete any application
  * - CANDIDATE: Can withdraw their own applications (if not yet processed)
  */
-export const DELETE = async (
+export const DELETE = withApplicationAuth(async (
   req: AuthenticatedRequest,
   { params }: { params: Promise<{ id: string }> }
 ) => {
@@ -189,7 +199,10 @@ export const DELETE = async (
 
     // Only allow withdrawal if application is in early stages
     if (user.userType === UserType.CANDIDATE) {
-      const allowedStatuses = ['APPLIED', 'SCREENING'];
+      const allowedStatuses: ApplicationStatus[] = [
+        ApplicationStatus.APPLIED,
+        ApplicationStatus.SCREENING,
+      ];
       if (!allowedStatuses.includes(application.status)) {
         return errorResponse(
           'Cannot withdraw application. It has already progressed beyond the initial stages.',
@@ -207,6 +220,10 @@ export const DELETE = async (
         : 'Application withdrawn by administrator',
       user.id
     );
+
+    if (!updatedApplication) {
+      return errorResponse('Failed to withdraw application', 500);
+    }
 
     // Create audit log
     await prisma.auditLog.create({
@@ -229,4 +246,4 @@ export const DELETE = async (
   } catch (error) {
     return serverErrorResponse('Failed to withdraw application', error);
   }
-};
+});

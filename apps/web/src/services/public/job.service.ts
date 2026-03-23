@@ -12,6 +12,7 @@ export interface PublicJobListParams {
   locationCity?: string;
   locationProvince?: string;
   categoryId?: string;
+  skills?: string[];
   companyId?: string;
   sortBy?: 'createdAt' | 'publishedAt' | 'viewCount' | 'applicationCount';
   sortOrder?: 'asc' | 'desc';
@@ -30,6 +31,7 @@ export class PublicJobService {
       locationCity,
       locationProvince,
       categoryId,
+      skills,
       companyId,
       sortBy = 'publishedAt',
       sortOrder = 'desc',
@@ -53,11 +55,7 @@ export class PublicJobService {
       whereConditions.experienceLevel = experienceLevel as Prisma.EnumExperienceLevelFilter<'Job'>;
 
     // Build AND conditions for salary range filtering.
-    // Convert inputs to numbers (caller may pass strings). Behavior:
-    // - If both reqSalaryMin and reqSalaryMax provided: require job.salaryMin >= reqSalaryMin AND job.salaryMax <= reqSalaryMax
-    //   (job's salary range entirely inside requested range)
-    // - If only reqSalaryMin provided: require job.salaryMax >= reqSalaryMin (potential overlap above min)
-    // - If only reqSalaryMax provided: require job.salaryMin <= reqSalaryMax (potential overlap below max)
+    // Treat the requested range as an overlap filter against the job salary range.
     const andConditions: Prisma.JobWhereInput[] = [];
     const reqSalaryMin =
       salaryMin !== undefined && salaryMin !== null ? Number(salaryMin) : undefined;
@@ -68,15 +66,12 @@ export class PublicJobService {
     const hasMax = reqSalaryMax !== undefined && !Number.isNaN(reqSalaryMax as number);
 
     if (hasMin && hasMax) {
-      // Require the job's salary range to be fully inside requested range
-      andConditions.push({ salaryMin: { gte: reqSalaryMin } });
-      andConditions.push({ salaryMax: { lte: reqSalaryMax } });
+      andConditions.push({ salaryMin: { lte: reqSalaryMax } });
+      andConditions.push({ salaryMax: { gte: reqSalaryMin } });
     } else if (hasMin) {
-      // If only min provided, require the job's minimum salary to meet the requested minimum
-      andConditions.push({ salaryMin: { gte: reqSalaryMin } });
+      andConditions.push({ salaryMax: { gte: reqSalaryMin } });
     } else if (hasMax) {
-      // If only max provided, require the job's maximum salary to be at most the requested max
-      andConditions.push({ salaryMax: { lte: reqSalaryMax } });
+      andConditions.push({ salaryMin: { lte: reqSalaryMax } });
     }
 
     if (locationCity)
@@ -90,6 +85,44 @@ export class PublicJobService {
           categoryId,
         },
       };
+    }
+    const normalizedSkillTerms = [...new Set((skills ?? []).map((skill) => skill.trim()).filter(Boolean))];
+    if (normalizedSkillTerms.length > 0) {
+      andConditions.push({
+        OR: normalizedSkillTerms.flatMap((skillTerm) => [
+          {
+            jobSkills: {
+              some: {
+                OR: [
+                  {
+                    skillId: skillTerm,
+                  },
+                  {
+                    skill: {
+                      name: {
+                        contains: skillTerm,
+                        mode: 'insensitive',
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+          {
+            requirements: {
+              contains: skillTerm,
+              mode: 'insensitive',
+            },
+          },
+          {
+            description: {
+              contains: skillTerm,
+              mode: 'insensitive',
+            },
+          },
+        ]),
+      });
     }
 
     // Combine all conditions

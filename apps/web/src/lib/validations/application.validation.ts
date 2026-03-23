@@ -1,6 +1,42 @@
 import { z } from 'zod';
 import { ApplicationStatus } from '@/generated/prisma';
 
+const createDateBoundarySchema = (endOfDay = false) =>
+  z.preprocess((value) => {
+    if (value === undefined || value === null || value === '') {
+      return undefined;
+    }
+
+    if (value instanceof Date) {
+      return value;
+    }
+
+    if (typeof value === 'string') {
+      const normalizedDate = new Date(
+        `${value}${endOfDay ? 'T23:59:59.999' : 'T00:00:00.000'}`
+      );
+
+      if (!Number.isNaN(normalizedDate.getTime())) {
+        return normalizedDate;
+      }
+    }
+
+    return value;
+  }, z.date().optional());
+
+const applicationStatusFilterSchema = z.preprocess((value) => {
+  if (value === undefined || value === null || value === '') {
+    return undefined;
+  }
+
+  const values = Array.isArray(value) ? value : String(value).split(',');
+  const normalizedValues = values
+    .map((item) => String(item).trim())
+    .filter(Boolean);
+
+  return normalizedValues.length > 0 ? normalizedValues : undefined;
+}, z.array(z.nativeEnum(ApplicationStatus)).min(1).optional());
+
 // Query parameters for getting applications list
 export const getApplicationsQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
@@ -8,9 +44,11 @@ export const getApplicationsQuerySchema = z.object({
   sortBy: z.enum(['appliedAt', 'statusUpdatedAt', 'rating']).default('appliedAt'),
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
   search: z.string().optional(),
-  status: z.nativeEnum(ApplicationStatus).optional(),
+  status: applicationStatusFilterSchema,
   jobId: z.string().cuid().optional(),
   candidateId: z.string().cuid().optional(),
+  dateFrom: createDateBoundarySchema(),
+  dateTo: createDateBoundarySchema(true),
 });
 
 // Update application status schema
@@ -39,8 +77,8 @@ export const getApplicationStatsQuerySchema = z.object({
   companyId: z.string().cuid().optional(),
   jobId: z.string().cuid().optional(),
   candidateId: z.string().cuid().optional(),
-  dateFrom: z.coerce.date().optional(),
-  dateTo: z.coerce.date().optional(),
+  dateFrom: createDateBoundarySchema(),
+  dateTo: createDateBoundarySchema(true),
 });
 
 // Export types

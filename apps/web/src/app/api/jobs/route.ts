@@ -49,6 +49,11 @@ export async function GET(request: NextRequest) {
       locationCity: searchParams.get('locationCity') || undefined,
       locationProvince: searchParams.get('locationProvince') || undefined,
       categoryId: searchParams.get('categoryId') || undefined,
+      skills: searchParams
+        .get('skills')
+        ?.split(',')
+        .map((value) => value.trim())
+        .filter(Boolean),
       companyId: searchParams.get('companyId') || undefined,
       sortBy: (searchParams.get('sortBy') as any) || 'publishedAt',
       sortOrder: (searchParams.get('sortOrder') as any) || 'desc',

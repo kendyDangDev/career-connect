@@ -1,18 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useSession, signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import {
+  Bell,
   Briefcase,
   ChevronDown,
-  LogOut,
-  User,
   FileText,
-  Bell,
-  MessageCircle,
+  LogOut,
   Menu,
+  MessageCircle,
+  User,
   X,
   Zap,
 } from 'lucide-react';
@@ -20,6 +20,7 @@ import {
 const navLinks = [
   { label: 'Trang chủ', href: '/candidate' },
   { label: 'Tìm việc làm', href: '/candidate/jobs' },
+  { label: 'Việc đã ứng tuyển', href: '/candidate/applications' },
   { label: 'Công ty', href: '/candidate/companies' },
   { label: 'Hồ sơ CV', href: '/candidate/my-cvs' },
   { label: 'AI Interview', href: '/candidate/interview-sets' },
@@ -33,7 +34,6 @@ export default function CandidateHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  // Only use transparent/scroll effect on home page
   const solid = !isHome || scrolled;
 
   useEffect(() => {
@@ -42,7 +42,6 @@ export default function CandidateHeader() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Close dropdown on outside click
   useEffect(() => {
     if (!dropdownOpen) return;
     const close = () => setDropdownOpen(false);
@@ -60,7 +59,6 @@ export default function CandidateHeader() {
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
           <Link href="/candidate" className="flex shrink-0 items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 shadow">
               <Briefcase className="h-4 w-4 text-white" />
@@ -74,7 +72,6 @@ export default function CandidateHeader() {
             </span>
           </Link>
 
-          {/* Desktop nav links */}
           <nav className="hidden items-center gap-1 md:flex">
             {navLinks.map((link) => (
               <Link
@@ -95,7 +92,6 @@ export default function CandidateHeader() {
             ))}
           </nav>
 
-          {/* Desktop auth */}
           <div className="hidden items-center gap-3 md:flex">
             {session ? (
               <>
@@ -118,7 +114,7 @@ export default function CandidateHeader() {
                   <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
                 </Link>
 
-                <div className="relative" onClick={(e) => e.stopPropagation()}>
+                <div className="relative" onClick={(event) => event.stopPropagation()}>
                   <button
                     onClick={() => setDropdownOpen(!dropdownOpen)}
                     className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium transition ${
@@ -144,12 +140,14 @@ export default function CandidateHeader() {
                         </p>
                         <p className="truncate text-xs text-gray-500">{session.user?.email}</p>
                       </div>
+
                       {[
                         { label: 'Hồ sơ cá nhân', href: '/candidate/profile', icon: User },
                         { label: 'Quản lý CV', href: '/candidate/cv-management', icon: FileText },
                         { label: 'Việc làm phù hợp', href: '/candidate/matches', icon: Zap },
                       ].map((item) => {
                         const Icon = item.icon;
+
                         return (
                           <Link
                             key={item.href}
@@ -162,6 +160,7 @@ export default function CandidateHeader() {
                           </Link>
                         );
                       })}
+
                       <div className="border-t border-gray-50">
                         <button
                           onClick={() => signOut()}
@@ -195,7 +194,6 @@ export default function CandidateHeader() {
             )}
           </div>
 
-          {/* Mobile menu toggle */}
           <button
             className={`rounded-lg p-2 md:hidden ${solid ? 'text-gray-700' : 'text-white'}`}
             onClick={() => setMenuOpen(!menuOpen)}
@@ -205,7 +203,6 @@ export default function CandidateHeader() {
         </div>
       </div>
 
-      {/* Mobile menu */}
       {menuOpen && (
         <div className="border-t border-white/20 bg-white/80 px-4 pb-4 shadow-lg backdrop-blur-xl md:hidden">
           <nav className="flex flex-col gap-1 pt-3">
@@ -224,6 +221,7 @@ export default function CandidateHeader() {
               </Link>
             ))}
           </nav>
+
           <div className="mt-4 flex flex-col gap-2">
             {session ? (
               <button

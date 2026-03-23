@@ -7,9 +7,12 @@ export interface ApplicationListParams {
   sortBy?: 'appliedAt' | 'statusUpdatedAt' | 'rating';
   sortOrder?: 'asc' | 'desc';
   search?: string;
-  status?: ApplicationStatus;
+  status?: ApplicationStatus | ApplicationStatus[];
   jobId?: string;
+  jobIds?: string[];
   candidateId?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
 }
 
 export interface ApplicationListResponse {
@@ -38,6 +41,13 @@ export interface ApplicationListItem {
   job: {
     id: string;
     title: string;
+    workLocationType?: string | null;
+    salaryMin?: number | string | null;
+    salaryMax?: number | string | null;
+    currency?: string | null;
+    salaryNegotiable?: boolean;
+    locationCity?: string | null;
+    locationProvince?: string | null;
     company: {
       id: string;
       companyName: string;
@@ -148,7 +158,10 @@ export class ApplicationService {
       search,
       status,
       jobId,
+      jobIds,
       candidateId,
+      dateFrom,
+      dateTo,
     } = params;
 
     const offset = (page - 1) * limit;
@@ -157,15 +170,29 @@ export class ApplicationService {
     const where: any = {};
 
     if (status) {
-      where.status = status;
+      where.status = Array.isArray(status) ? { in: status } : status;
     }
 
     if (jobId) {
       where.jobId = jobId;
+    } else if (jobIds && jobIds.length > 0) {
+      where.jobId = {
+        in: jobIds,
+      };
     }
 
     if (candidateId) {
       where.candidateId = candidateId;
+    }
+
+    if (dateFrom || dateTo) {
+      where.appliedAt = {};
+      if (dateFrom) {
+        where.appliedAt.gte = dateFrom;
+      }
+      if (dateTo) {
+        where.appliedAt.lte = dateTo;
+      }
     }
 
     if (search) {

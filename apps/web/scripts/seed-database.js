@@ -356,7 +356,7 @@ async function seedDatabase() {
         foundedYear: 2015,
         companySize: 'LARGE_201_500',
         logoUrl:
-          'https://cloztalk.com/cdn/shop/collections/Tech_Corps_-_color_logo_400x.png?v=1610723181',
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774192754/Tech_Corps_-_color_logo_400x_prrzhc.webp',
       },
       {
         companyName: 'Innovate Solutions',
@@ -371,7 +371,7 @@ async function seedDatabase() {
         foundedYear: 2018,
         companySize: 'MEDIUM_51_200',
         logoUrl:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRHQPL5w3i3StyeIenRIAEai93KoP5vPrq9Q&s',
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774192813/techinno_wsjdqw.jpg',
       },
       {
         companyName: 'FinTech Pro',
@@ -385,8 +385,7 @@ async function seedDatabase() {
         email: 'contact@fintechpro.vn',
         foundedYear: 2025,
         companySize: 'SMALL_11_50',
-        logoUrl:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYe1NtZ0TJwo0P6Z26X2GxA3s124zX8TTa3Q&s',
+        logoUrl: 'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774192723/fintech_jmsgt0.jpg',
       },
 
       {
@@ -402,7 +401,7 @@ async function seedDatabase() {
         foundedYear: 2018,
         companySize: 'MEDIUM_51_200',
         logoUrl:
-          'https://static.vecteezy.com/system/resources/thumbnails/036/152/209/small_2x/technology-innovation-concept-logo-design-template-free-vector.jpg',
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774192813/techinno_wsjdqw.jpg',
       },
       {
         companyName: 'Green Solutions',
@@ -417,7 +416,7 @@ async function seedDatabase() {
         foundedYear: 2019,
         companySize: 'SMALL_11_50',
         logoUrl:
-          'https://mir-s3-cdn-cf.behance.net/project_modules/hd/304b4775024763.5c40e92d045d3.jpg',
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774192724/greensolution_g1icts.jpg',
       },
       {
         companyName: 'EduTech Hub',
@@ -431,8 +430,7 @@ async function seedDatabase() {
         email: 'contact@edutechhub.vn',
         foundedYear: 2025,
         companySize: 'SMALL_11_50',
-        logoUrl:
-          'https://i0.wp.com/edtechhub.org/wp-content/uploads/2025/09/favicon.png?fit=300%2C300&ssl=1',
+        logoUrl: 'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774192724/edutech_at3tjt.jpg',
       },
       {
         companyName: 'HealthCare Plus',
@@ -447,7 +445,7 @@ async function seedDatabase() {
         foundedYear: 2017,
         companySize: 'ENTERPRISE_500_PLUS',
         logoUrl:
-          'https://static.vecteezy.com/system/resources/previews/021/980/611/non_2x/medical-logo-healthcare-and-pharmacy-logo-design-and-icon-template-vector.jpg',
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774192724/healthcare_nbto8r.jpg',
       },
       {
         companyName: 'LogiTech',
@@ -462,7 +460,7 @@ async function seedDatabase() {
         foundedYear: 2025,
         companySize: 'SMALL_11_50',
         logoUrl:
-          'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Logitech.svg/250px-Logitech.svg.png',
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774192752/logitech_l06lm5.png',
       },
       {
         companyName: 'RetailMaster',
@@ -477,7 +475,7 @@ async function seedDatabase() {
         foundedYear: 2016,
         companySize: 'MEDIUM_51_200',
         logoUrl:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThZgmeV2ZwKYC8wROSuvDpIrWIBUGV8uqArQ&s',
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774192752/retailmaster_gr2lme.png',
       },
       {
         companyName: 'SmartBuild',
@@ -492,7 +490,7 @@ async function seedDatabase() {
         foundedYear: 2025,
         companySize: 'SMALL_11_50',
         logoUrl:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzEsYoKLzHCaSClK_XqnS3-KiDysxC3zGFww&s',
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774192753/smartbuild_t6uffi.png',
       },
       {
         companyName: 'CyberSec',
@@ -507,7 +505,7 @@ async function seedDatabase() {
         foundedYear: 2015,
         companySize: 'MEDIUM_51_200',
         logoUrl:
-          'https://t4.ftcdn.net/jpg/05/96/89/71/360_F_596897127_EZfIxmLrtfqUW0IFXgIh3qzHN3hxs0TP.jpg',
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774192724/cybersec_bherxg.jpg',
       },
       {
         companyName: 'TravelEasy',
@@ -522,7 +520,7 @@ async function seedDatabase() {
         foundedYear: 2025,
         companySize: 'SMALL_11_50',
         logoUrl:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLgmzPGLPRZtbU5LKSpCvBQkdEcMhBs_O7Kw&s',
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774192978/traveleasy_v2f1ur.png',
       },
       {
         companyName: 'AgriTech',
@@ -537,7 +535,7 @@ async function seedDatabase() {
         foundedYear: 2019,
         companySize: 'MEDIUM_51_200',
         logoUrl:
-          'https://khoinghiepnongnghiep.vn/lovable-uploads/c6a3b8b8-6077-46fc-bc94-7b4ef797f08b.png',
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774192724/agritech_yv2wsq.png',
       },
     ];
 

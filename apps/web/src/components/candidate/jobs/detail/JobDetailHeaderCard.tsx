@@ -1,9 +1,14 @@
 'use client';
 
 import Image from 'next/image';
+import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import type { JobData } from './JobDetailPage';
 import JobApplicationModal from './JobApplicationModal';
+import {
+  useCandidateSavedJobStatus,
+  useToggleSavedJob,
+} from '@/hooks/candidate/useSavedJobs';
 
 interface JobDetailHeaderCardProps {
   job: JobData;
@@ -54,8 +59,9 @@ export default function JobDetailHeaderCard({
   applicationCount,
   savedCount,
 }: JobDetailHeaderCardProps) {
-  const [saved, setSaved] = useState(false);
   const [applicationModalOpen, setApplicationModalOpen] = useState(false);
+  const { data: savedStatus } = useCandidateSavedJobStatus(job.id);
+  const { toggleSavedJob, isPending } = useToggleSavedJob();
 
   const location = job.address
     ? `${job.address}${job.locationProvince ? `, ${job.locationProvince}` : ''}`
@@ -63,17 +69,34 @@ export default function JobDetailHeaderCard({
 
   const salary = formatSalary(job.salaryMin, job.salaryMax, job.currency, job.salaryNegotiable);
   const isVerified = job.company?.verificationStatus === 'VERIFIED';
+  const isSaved = savedStatus?.isSaved ?? false;
 
   const handleShare = async () => {
     const url = window.location.href;
     if (navigator.share) {
       try {
         await navigator.share({ title: job.title, url });
-      } catch (err) {
+      } catch {
         // User cancelled
       }
     } else {
       await navigator.clipboard.writeText(url);
+    }
+  };
+
+  const handleToggleSavedJob = async () => {
+    if (isPending) {
+      return;
+    }
+
+    try {
+      await toggleSavedJob({
+        jobId: job.id,
+        isSaved,
+        savedJobId: savedStatus?.savedJobId,
+      });
+    } catch {
+      // Errors are surfaced through the shared mutation handlers.
     }
   };
 
@@ -165,14 +188,21 @@ export default function JobDetailHeaderCard({
           </button>
 
           <button
-            onClick={() => setSaved(!saved)}
+            type="button"
+            onClick={handleToggleSavedJob}
+            disabled={isPending}
             className={`flex h-12 w-12 items-center justify-center rounded-xl border transition-colors ${
-              saved
+              isSaved
                 ? 'border-primary bg-primary-light text-primary dark:bg-primary/20'
                 : 'hover:bg-primary-light hover:text-primary border-slate-200 text-slate-600 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800'
-            }`}
+            } ${isPending ? 'cursor-not-allowed opacity-70' : ''}`}
+            aria-label={isSaved ? 'Bo luu viec lam' : 'Luu viec lam'}
           >
-            <span className="material-symbols-outlined">bookmark</span>
+            {isPending ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <span className="material-symbols-outlined">bookmark</span>
+            )}
           </button>
 
           <button

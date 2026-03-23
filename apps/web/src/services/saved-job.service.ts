@@ -24,6 +24,7 @@ export class SavedJobService {
   }> {
     const {
       search,
+      applicationStatus,
       jobType,
       workLocationType,
       experienceLevel,
@@ -37,41 +38,80 @@ export class SavedJobService {
 
     const { page = 1, limit = 20 } = pagination;
     const skip = (page - 1) * limit;
+    const now = new Date();
+
+    const jobConditions: Prisma.JobWhereInput[] = [];
+
+    if (search) {
+      jobConditions.push({
+        OR: [
+          { title: { contains: search, mode: 'insensitive' } },
+          { company: { companyName: { contains: search, mode: 'insensitive' } } },
+        ],
+      });
+    }
+
+    if (applicationStatus === 'open') {
+      jobConditions.push({
+        OR: [{ applicationDeadline: null }, { applicationDeadline: { gte: now } }],
+      });
+    }
+
+    if (applicationStatus === 'expired') {
+      jobConditions.push({
+        applicationDeadline: { lt: now },
+      });
+    }
+
+    if (jobType && jobType.length > 0) {
+      jobConditions.push({
+        jobType: { in: jobType },
+      });
+    }
+
+    if (workLocationType && workLocationType.length > 0) {
+      jobConditions.push({
+        workLocationType: { in: workLocationType },
+      });
+    }
+
+    if (experienceLevel && experienceLevel.length > 0) {
+      jobConditions.push({
+        experienceLevel: { in: experienceLevel },
+      });
+    }
+
+    if (salaryMin) {
+      jobConditions.push({
+        OR: [{ salaryMax: { gte: salaryMin } }, { salaryNegotiable: true }],
+      });
+    }
+
+    if (salaryMax) {
+      jobConditions.push({
+        OR: [{ salaryMin: { lte: salaryMax } }, { salaryNegotiable: true }],
+      });
+    }
+
+    if (locationCity) {
+      jobConditions.push({
+        locationCity: { contains: locationCity, mode: 'insensitive' },
+      });
+    }
+
+    if (locationProvince) {
+      jobConditions.push({
+        locationProvince: { contains: locationProvince, mode: 'insensitive' },
+      });
+    }
 
     // Build where clause
     const where: Prisma.SavedJobWhereInput = {
       candidateId,
       job: {
         status: JobStatus.ACTIVE, // Only show active jobs
-        ...(search && {
-          OR: [
-            { title: { contains: search, mode: 'insensitive' } },
-            { company: { companyName: { contains: search, mode: 'insensitive' } } },
-          ],
-        }),
-        ...(jobType &&
-          jobType.length > 0 && {
-            jobType: { in: jobType },
-          }),
-        ...(workLocationType &&
-          workLocationType.length > 0 && {
-            workLocationType: { in: workLocationType },
-          }),
-        ...(experienceLevel &&
-          experienceLevel.length > 0 && {
-            experienceLevel: { in: experienceLevel },
-          }),
-        ...(salaryMin && {
-          OR: [{ salaryMax: { gte: salaryMin } }, { salaryNegotiable: true }],
-        }),
-        ...(salaryMax && {
-          OR: [{ salaryMin: { lte: salaryMax } }, { salaryNegotiable: true }],
-        }),
-        ...(locationCity && {
-          locationCity: { contains: locationCity, mode: 'insensitive' },
-        }),
-        ...(locationProvince && {
-          locationProvince: { contains: locationProvince, mode: 'insensitive' },
+        ...(jobConditions.length > 0 && {
+          AND: jobConditions,
         }),
       },
     };

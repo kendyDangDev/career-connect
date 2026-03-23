@@ -41,6 +41,10 @@ export const GET = withRole([UserType.CANDIDATE], async (req: AuthenticatedReque
     // Build filters
     const filters: SavedJobFilters = {
       search: params.search,
+      applicationStatus:
+        params.applicationStatus === 'open' || params.applicationStatus === 'expired'
+          ? params.applicationStatus
+          : undefined,
       jobType: params.jobType as JobType[],
       workLocationType: params.workLocationType as WorkLocationType[],
       experienceLevel: params.experienceLevel as ExperienceLevel[],

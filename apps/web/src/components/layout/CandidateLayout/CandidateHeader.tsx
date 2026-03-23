@@ -21,6 +21,7 @@ const navLinks = [
   { label: 'Trang chủ', href: '/candidate' },
   { label: 'Tìm việc làm', href: '/candidate/jobs' },
   { label: 'Việc đã ứng tuyển', href: '/candidate/applications' },
+  { label: 'Việc làm đã lưu', href: '/candidate/saved-jobs' },
   { label: 'Công ty', href: '/candidate/companies' },
   { label: 'Hồ sơ CV', href: '/candidate/my-cvs' },
   { label: 'AI Interview', href: '/candidate/interview-sets' },

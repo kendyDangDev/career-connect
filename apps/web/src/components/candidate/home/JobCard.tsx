@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -10,7 +12,13 @@ import {
   Flame,
   Sparkles,
   AlertCircle,
+  Loader2,
 } from 'lucide-react';
+
+import {
+  useCandidateSavedJobStatus,
+  useToggleSavedJob,
+} from '@/hooks/candidate/useSavedJobs';
 
 export interface JobCardData {
   id: string;
@@ -40,8 +48,6 @@ export interface JobCardData {
 
 interface JobCardProps {
   job: JobCardData;
-  saved?: boolean;
-  onSave?: (id: string) => void;
 }
 
 const jobTypeLabel: Record<string, string> = {
@@ -98,7 +104,9 @@ function daysUntilExpiry(date?: string | Date | null): number | null {
   return Math.ceil(diff / 86_400_000);
 }
 
-export default function JobCard({ job, saved, onSave }: JobCardProps) {
+export default function JobCard({ job }: JobCardProps) {
+  const { data: savedStatus } = useCandidateSavedJobStatus(job.id);
+  const { toggleSavedJob, isPending } = useToggleSavedJob();
   const salary = formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency);
   const when = timeAgo(job.createdAt);
   const isNew = isNewJob(job.createdAt);
@@ -108,6 +116,23 @@ export default function JobCard({ job, saved, onSave }: JobCardProps) {
     ? (jobTypeColor[job.jobType] ?? 'bg-gray-50 text-gray-600 border-gray-100')
     : '';
   const location = job.locationProvince;
+  const isSaved = savedStatus?.isSaved ?? false;
+
+  const handleToggleSavedJob = async () => {
+    if (isPending) {
+      return;
+    }
+
+    try {
+      await toggleSavedJob({
+        jobId: job.id,
+        isSaved,
+        savedJobId: savedStatus?.savedJobId,
+      });
+    } catch {
+      // Errors are surfaced through the shared mutation handlers.
+    }
+  };
 
   return (
     <div className="group backdrop-bltop-0 ur-smition-all relative flex flex-col gap-4 rounded-2xl border border-gray-100/80 bg-white/95 p-5 shadow-sm duration-300 hover:-translate-y-1 hover:border-purple-200/70 hover:bg-white hover:shadow-lg hover:ring-1 hover:shadow-purple-200/40 hover:ring-purple-100/50">
@@ -165,15 +190,21 @@ export default function JobCard({ job, saved, onSave }: JobCardProps) {
 
         {/* Save button */}
         <button
-          onClick={() => onSave?.(job.id)}
+          type="button"
+          onClick={handleToggleSavedJob}
+          disabled={isPending}
           className={`shrink-0 rounded-full p-2 transition ${
-            saved
+            isSaved
               ? 'bg-purple-100 text-purple-600'
               : 'bg-gray-50 text-gray-400 hover:bg-purple-50 hover:text-purple-500'
-          }`}
-          aria-label="Save job"
+          } ${isPending ? 'cursor-not-allowed opacity-70' : ''}`}
+          aria-label={isSaved ? 'Bo luu viec lam' : 'Luu viec lam'}
         >
-          <Bookmark className={`h-4 w-4 ${saved ? 'fill-current' : ''}`} />
+          {isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Bookmark className={`h-4 w-4 ${isSaved ? 'fill-current' : ''}`} />
+          )}
         </button>
       </div>
 

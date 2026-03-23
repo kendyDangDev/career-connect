@@ -53,6 +53,7 @@ export interface PaginationParams {
 // Filter parameters for saved jobs
 export interface SavedJobFilters {
   search?: string;
+  applicationStatus?: 'open' | 'expired';
   jobType?: JobType[];
   workLocationType?: WorkLocationType[];
   experienceLevel?: ExperienceLevel[];

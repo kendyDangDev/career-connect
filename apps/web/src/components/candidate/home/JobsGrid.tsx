@@ -19,7 +19,6 @@ export default function JobsGrid() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [pagination, setPagination] = useState<Pagination>({ page: 1, totalPages: 1, total: 0 });
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState(false);
 
   const fetchJobs = useCallback(async (page: number, category: string, append = false) => {
@@ -57,14 +56,6 @@ export default function JobsGrid() {
     setLoadingMore(true);
     await fetchJobs(pagination.page + 1, selectedCategory, true);
     setLoadingMore(false);
-  };
-
-  const handleSave = (id: string) => {
-    setSavedIds((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
   };
 
   return (
@@ -210,12 +201,7 @@ export default function JobsGrid() {
                 {/* Jobs Grid */}
                 <div className="relative grid grid-cols-1 gap-5 py-4 sm:grid-cols-2 sm:py-6 lg:grid-cols-3 lg:gap-6 lg:py-8">
                   {jobs.map((job) => (
-                    <JobCard
-                      key={job.id}
-                      job={job}
-                      saved={savedIds.has(job.id)}
-                      onSave={handleSave}
-                    />
+                    <JobCard key={job.id} job={job} />
                   ))}
                 </div>
               </div>

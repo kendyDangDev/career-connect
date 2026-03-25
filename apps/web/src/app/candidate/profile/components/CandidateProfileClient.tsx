@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 
 import { candidateProfileApi } from '@/api/candidate/profile.api';
 import { Button } from '@/components/ui/button';
+import { getCandidateProfileCompletionScore } from '@/lib/candidate/profile-completion';
 import type { CandidateProfileFormValues } from '@/types/candidate/profile.types';
 
 import AIResumeCard from './AIResumeCard';
@@ -17,23 +18,6 @@ import ProfileSidebar from './ProfileSidebar';
 interface CandidateProfileClientProps {
   initialData: CandidateProfileFormValues;
 }
-
-const buildCompletionChecklist = (values: CandidateProfileFormValues) => [
-  Boolean(values.user.firstName && values.user.lastName),
-  Boolean(values.user.phone),
-  Boolean(values.profile.city),
-  Boolean(values.profile.country),
-  Boolean(values.profile.bio),
-  Boolean(values.profile.linkedinUrl),
-  Boolean(values.profile.githubUrl),
-  Boolean(values.candidate.currentPosition),
-  typeof values.candidate.experienceYears === 'number',
-  typeof values.candidate.expectedSalaryMin === 'number',
-  typeof values.candidate.expectedSalaryMax === 'number',
-  Boolean(values.candidate.preferredWorkType),
-  Boolean(values.candidate.preferredLocationType),
-  Boolean(values.candidate.cvFileUrl),
-];
 
 const buildSuggestions = (values: CandidateProfileFormValues) => {
   const suggestions: string[] = [];
@@ -88,10 +72,7 @@ export default function CandidateProfileClient({ initialData }: CandidateProfile
   });
 
   const values = watch();
-  const completionChecklist = buildCompletionChecklist(values);
-  const completionScore = Math.round(
-    (completionChecklist.filter(Boolean).length / completionChecklist.length) * 100
-  );
+  const completionScore = getCandidateProfileCompletionScore(values);
   const suggestions = buildSuggestions(values);
 
   const leftRailStats = [

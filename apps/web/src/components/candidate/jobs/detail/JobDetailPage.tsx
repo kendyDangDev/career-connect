@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Loader2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import JobDetailBreadcrumb from './JobDetailBreadcrumb';
@@ -88,6 +88,7 @@ export default function JobDetailPage({ jobId }: JobDetailPageProps) {
   const [job, setJob] = useState<JobData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const trackedViewJobIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     async function fetchJobDetail() {
@@ -116,6 +117,20 @@ export default function JobDetailPage({ jobId }: JobDetailPageProps) {
       fetchJobDetail();
     }
   }, [jobId]);
+
+  useEffect(() => {
+    if (!job?.id || trackedViewJobIdRef.current === job.id) {
+      return;
+    }
+
+    trackedViewJobIdRef.current = job.id;
+
+    void fetch(`/api/jobs/${job.id}/view`, {
+      method: 'POST',
+    }).catch((viewError) => {
+      console.error('Error tracking job view:', viewError);
+    });
+  }, [job?.id]);
 
   // Loading state
   if (loading) {
@@ -153,6 +168,9 @@ export default function JobDetailPage({ jobId }: JobDetailPageProps) {
   const categories = job.jobCategories?.map((jc) => jc.category) || [];
   const skills = job.jobSkills || [];
   const categoryName = categories.length > 0 ? categories[0].name : undefined;
+  const isApplicationExpired = Boolean(
+    job.applicationDeadline && new Date(job.applicationDeadline).getTime() < Date.now()
+  );
 
   return (
     <main className="mx-auto w-full max-w-[1280px] flex-1 px-4 py-8 md:px-8 lg:py-12">
@@ -169,6 +187,7 @@ export default function JobDetailPage({ jobId }: JobDetailPageProps) {
             viewCount={job.viewCount || job._count?.jobViews || 0}
             applicationCount={job.applicationCount || job._count?.applications || 0}
             savedCount={job._count?.savedJobs || 0}
+            isApplicationExpired={isApplicationExpired}
           />
 
           {/* About the Role */}
@@ -181,11 +200,7 @@ export default function JobDetailPage({ jobId }: JobDetailPageProps) {
           />
 
           {/* Similar Jobs */}
-          <SimilarJobs
-            currentJobId={job.id}
-            jobType={job.jobType || 'FULL_TIME'}
-            currentSkillNames={skills.map((jobSkill) => jobSkill.skill.name)}
-          />
+          <SimilarJobs currentJobId={job.id} />
         </div>
 
         {/* Right Column - Sidebar */}
@@ -197,6 +212,7 @@ export default function JobDetailPage({ jobId }: JobDetailPageProps) {
             workLocationType={job.workLocationType}
             applicationDeadline={job.applicationDeadline}
             createdAt={job.createdAt || job.publishedAt}
+            isApplicationExpired={isApplicationExpired}
           />
 
           <CompanyProfileCard company={job.company} />

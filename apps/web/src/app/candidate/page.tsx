@@ -1,4 +1,5 @@
 import HeroSection from '@/components/candidate/home/HeroSection';
+import RecommendedJobs from '@/components/candidate/home/RecommendedJobs';
 import StatsSection from '@/components/candidate/home/StatsSection';
 import TopCompaniesSection from '@/components/candidate/home/TopCompaniesSection';
 import JobMatchBanner from '@/components/candidate/home/JobMatchBanner';
@@ -12,6 +13,10 @@ export default function Home() {
     <div className="min-h-screen bg-white antialiased">
       {/* 1. Hero — search + headline (Full-width background) */}
       <HeroSection />
+      {/*
+      <Container>
+        <RecommendedJobs />
+      </Container> */}
 
       {/* 2. Stats — platform numbers (Full-width background) */}
       <StatsSection />

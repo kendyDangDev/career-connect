@@ -17,6 +17,7 @@ interface JobDetailSidebarProps {
   workLocationType?: string | null;
   applicationDeadline?: Date | string | null;
   createdAt?: Date | string | null;
+  isApplicationExpired?: boolean;
 }
 
 const jobTypeLabels: Record<string, string> = {
@@ -54,6 +55,7 @@ export default function JobDetailSidebar({
   workLocationType,
   applicationDeadline,
   createdAt,
+  isApplicationExpired = false,
 }: JobDetailSidebarProps) {
   return (
     <div className="shadow-sophisticated rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
@@ -136,8 +138,13 @@ export default function JobDetailSidebar({
               <p className="mb-0.5 h-4 text-xs font-bold tracking-wider text-slate-400 uppercase">
                 Application Deadline
               </p>
-              <p className="text-sm font-semibold text-slate-900 dark:text-white">
+              <p
+                className={`text-sm font-semibold ${
+                  isApplicationExpired ? 'text-rose-600 dark:text-rose-400' : 'text-slate-900 dark:text-white'
+                }`}
+              >
                 {formatDate(applicationDeadline)}
+                {isApplicationExpired ? ' (đã hết hạn)' : ''}
               </p>
             </div>
           </div>

@@ -44,6 +44,11 @@ export type UserProfile = $Result.DefaultSelection<Prisma.$UserProfilePayload>
  */
 export type Candidate = $Result.DefaultSelection<Prisma.$CandidatePayload>
 /**
+ * Model CandidateSearchHistory
+ * 
+ */
+export type CandidateSearchHistory = $Result.DefaultSelection<Prisma.$CandidateSearchHistoryPayload>
+/**
  * Model CandidateSkill
  * 
  */
@@ -133,6 +138,11 @@ export type SavedJob = $Result.DefaultSelection<Prisma.$SavedJobPayload>
  * 
  */
 export type JobView = $Result.DefaultSelection<Prisma.$JobViewPayload>
+/**
+ * Model JobSimilarity
+ * 
+ */
+export type JobSimilarity = $Result.DefaultSelection<Prisma.$JobSimilarityPayload>
 /**
  * Model CompanyFollower
  * 
@@ -840,6 +850,16 @@ export class PrismaClient<
   get candidate(): Prisma.CandidateDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.candidateSearchHistory`: Exposes CRUD operations for the **CandidateSearchHistory** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CandidateSearchHistories
+    * const candidateSearchHistories = await prisma.candidateSearchHistory.findMany()
+    * ```
+    */
+  get candidateSearchHistory(): Prisma.CandidateSearchHistoryDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.candidateSkill`: Exposes CRUD operations for the **CandidateSkill** model.
     * Example usage:
     * ```ts
@@ -1018,6 +1038,16 @@ export class PrismaClient<
     * ```
     */
   get jobView(): Prisma.JobViewDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.jobSimilarity`: Exposes CRUD operations for the **JobSimilarity** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more JobSimilarities
+    * const jobSimilarities = await prisma.jobSimilarity.findMany()
+    * ```
+    */
+  get jobSimilarity(): Prisma.JobSimilarityDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.companyFollower`: Exposes CRUD operations for the **CompanyFollower** model.
@@ -1654,6 +1684,7 @@ export namespace Prisma {
     User: 'User',
     UserProfile: 'UserProfile',
     Candidate: 'Candidate',
+    CandidateSearchHistory: 'CandidateSearchHistory',
     CandidateSkill: 'CandidateSkill',
     CandidateEducation: 'CandidateEducation',
     CandidateExperience: 'CandidateExperience',
@@ -1672,6 +1703,7 @@ export namespace Prisma {
     Location: 'Location',
     SavedJob: 'SavedJob',
     JobView: 'JobView',
+    JobSimilarity: 'JobSimilarity',
     CompanyFollower: 'CompanyFollower',
     JobAlert: 'JobAlert',
     CompanyReview: 'CompanyReview',
@@ -1709,7 +1741,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "account" | "session" | "verificationToken" | "user" | "userProfile" | "candidate" | "candidateSkill" | "candidateEducation" | "candidateExperience" | "candidateCertification" | "candidateCv" | "company" | "companyUser" | "job" | "jobSkill" | "jobCategory" | "application" | "applicationTimeline" | "skill" | "category" | "industry" | "location" | "savedJob" | "jobView" | "companyFollower" | "jobAlert" | "companyReview" | "interviewReview" | "notification" | "conversation" | "conversationParticipant" | "message" | "messageAttachment" | "messageRead" | "systemSetting" | "auditLog" | "emailVerificationToken" | "phoneVerificationToken" | "passwordResetToken" | "interviewQuestionSet" | "interviewQuestion" | "practiceSession" | "practiceAnswer"
+      modelProps: "account" | "session" | "verificationToken" | "user" | "userProfile" | "candidate" | "candidateSearchHistory" | "candidateSkill" | "candidateEducation" | "candidateExperience" | "candidateCertification" | "candidateCv" | "company" | "companyUser" | "job" | "jobSkill" | "jobCategory" | "application" | "applicationTimeline" | "skill" | "category" | "industry" | "location" | "savedJob" | "jobView" | "jobSimilarity" | "companyFollower" | "jobAlert" | "companyReview" | "interviewReview" | "notification" | "conversation" | "conversationParticipant" | "message" | "messageAttachment" | "messageRead" | "systemSetting" | "auditLog" | "emailVerificationToken" | "phoneVerificationToken" | "passwordResetToken" | "interviewQuestionSet" | "interviewQuestion" | "practiceSession" | "practiceAnswer"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2154,6 +2186,80 @@ export namespace Prisma {
           count: {
             args: Prisma.CandidateCountArgs<ExtArgs>
             result: $Utils.Optional<CandidateCountAggregateOutputType> | number
+          }
+        }
+      }
+      CandidateSearchHistory: {
+        payload: Prisma.$CandidateSearchHistoryPayload<ExtArgs>
+        fields: Prisma.CandidateSearchHistoryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CandidateSearchHistoryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CandidateSearchHistoryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CandidateSearchHistoryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CandidateSearchHistoryPayload>
+          }
+          findFirst: {
+            args: Prisma.CandidateSearchHistoryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CandidateSearchHistoryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CandidateSearchHistoryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CandidateSearchHistoryPayload>
+          }
+          findMany: {
+            args: Prisma.CandidateSearchHistoryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CandidateSearchHistoryPayload>[]
+          }
+          create: {
+            args: Prisma.CandidateSearchHistoryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CandidateSearchHistoryPayload>
+          }
+          createMany: {
+            args: Prisma.CandidateSearchHistoryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CandidateSearchHistoryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CandidateSearchHistoryPayload>[]
+          }
+          delete: {
+            args: Prisma.CandidateSearchHistoryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CandidateSearchHistoryPayload>
+          }
+          update: {
+            args: Prisma.CandidateSearchHistoryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CandidateSearchHistoryPayload>
+          }
+          deleteMany: {
+            args: Prisma.CandidateSearchHistoryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CandidateSearchHistoryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CandidateSearchHistoryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CandidateSearchHistoryPayload>[]
+          }
+          upsert: {
+            args: Prisma.CandidateSearchHistoryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CandidateSearchHistoryPayload>
+          }
+          aggregate: {
+            args: Prisma.CandidateSearchHistoryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCandidateSearchHistory>
+          }
+          groupBy: {
+            args: Prisma.CandidateSearchHistoryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CandidateSearchHistoryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CandidateSearchHistoryCountArgs<ExtArgs>
+            result: $Utils.Optional<CandidateSearchHistoryCountAggregateOutputType> | number
           }
         }
       }
@@ -3486,6 +3592,80 @@ export namespace Prisma {
           count: {
             args: Prisma.JobViewCountArgs<ExtArgs>
             result: $Utils.Optional<JobViewCountAggregateOutputType> | number
+          }
+        }
+      }
+      JobSimilarity: {
+        payload: Prisma.$JobSimilarityPayload<ExtArgs>
+        fields: Prisma.JobSimilarityFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.JobSimilarityFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobSimilarityPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.JobSimilarityFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobSimilarityPayload>
+          }
+          findFirst: {
+            args: Prisma.JobSimilarityFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobSimilarityPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.JobSimilarityFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobSimilarityPayload>
+          }
+          findMany: {
+            args: Prisma.JobSimilarityFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobSimilarityPayload>[]
+          }
+          create: {
+            args: Prisma.JobSimilarityCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobSimilarityPayload>
+          }
+          createMany: {
+            args: Prisma.JobSimilarityCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.JobSimilarityCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobSimilarityPayload>[]
+          }
+          delete: {
+            args: Prisma.JobSimilarityDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobSimilarityPayload>
+          }
+          update: {
+            args: Prisma.JobSimilarityUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobSimilarityPayload>
+          }
+          deleteMany: {
+            args: Prisma.JobSimilarityDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.JobSimilarityUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.JobSimilarityUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobSimilarityPayload>[]
+          }
+          upsert: {
+            args: Prisma.JobSimilarityUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$JobSimilarityPayload>
+          }
+          aggregate: {
+            args: Prisma.JobSimilarityAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateJobSimilarity>
+          }
+          groupBy: {
+            args: Prisma.JobSimilarityGroupByArgs<ExtArgs>
+            result: $Utils.Optional<JobSimilarityGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.JobSimilarityCountArgs<ExtArgs>
+            result: $Utils.Optional<JobSimilarityCountAggregateOutputType> | number
           }
         }
       }
@@ -4997,6 +5177,7 @@ export namespace Prisma {
     user?: UserOmit
     userProfile?: UserProfileOmit
     candidate?: CandidateOmit
+    candidateSearchHistory?: CandidateSearchHistoryOmit
     candidateSkill?: CandidateSkillOmit
     candidateEducation?: CandidateEducationOmit
     candidateExperience?: CandidateExperienceOmit
@@ -5015,6 +5196,7 @@ export namespace Prisma {
     location?: LocationOmit
     savedJob?: SavedJobOmit
     jobView?: JobViewOmit
+    jobSimilarity?: JobSimilarityOmit
     companyFollower?: CompanyFollowerOmit
     jobAlert?: JobAlertOmit
     companyReview?: CompanyReviewOmit
@@ -5325,6 +5507,7 @@ export namespace Prisma {
     companyFollowers: number
     jobAlerts: number
     savedJobs: number
+    searchHistory: number
   }
 
   export type CandidateCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5337,6 +5520,7 @@ export namespace Prisma {
     companyFollowers?: boolean | CandidateCountOutputTypeCountCompanyFollowersArgs
     jobAlerts?: boolean | CandidateCountOutputTypeCountJobAlertsArgs
     savedJobs?: boolean | CandidateCountOutputTypeCountSavedJobsArgs
+    searchHistory?: boolean | CandidateCountOutputTypeCountSearchHistoryArgs
   }
 
   // Custom InputTypes
@@ -5411,6 +5595,13 @@ export namespace Prisma {
    */
   export type CandidateCountOutputTypeCountSavedJobsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SavedJobWhereInput
+  }
+
+  /**
+   * CandidateCountOutputType without action
+   */
+  export type CandidateCountOutputTypeCountSearchHistoryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CandidateSearchHistoryWhereInput
   }
 
 
@@ -5492,6 +5683,8 @@ export namespace Prisma {
     jobSkills: number
     jobViews: number
     savedJobs: number
+    sourceJobMatches: number
+    targetJobMatches: number
     conversations: number
   }
 
@@ -5502,6 +5695,8 @@ export namespace Prisma {
     jobSkills?: boolean | JobCountOutputTypeCountJobSkillsArgs
     jobViews?: boolean | JobCountOutputTypeCountJobViewsArgs
     savedJobs?: boolean | JobCountOutputTypeCountSavedJobsArgs
+    sourceJobMatches?: boolean | JobCountOutputTypeCountSourceJobMatchesArgs
+    targetJobMatches?: boolean | JobCountOutputTypeCountTargetJobMatchesArgs
     conversations?: boolean | JobCountOutputTypeCountConversationsArgs
   }
 
@@ -5556,6 +5751,20 @@ export namespace Prisma {
    */
   export type JobCountOutputTypeCountSavedJobsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SavedJobWhereInput
+  }
+
+  /**
+   * JobCountOutputType without action
+   */
+  export type JobCountOutputTypeCountSourceJobMatchesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JobSimilarityWhereInput
+  }
+
+  /**
+   * JobCountOutputType without action
+   */
+  export type JobCountOutputTypeCountTargetJobMatchesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JobSimilarityWhereInput
   }
 
   /**
@@ -12368,6 +12577,7 @@ export namespace Prisma {
     companyFollowers?: boolean | Candidate$companyFollowersArgs<ExtArgs>
     jobAlerts?: boolean | Candidate$jobAlertsArgs<ExtArgs>
     savedJobs?: boolean | Candidate$savedJobsArgs<ExtArgs>
+    searchHistory?: boolean | Candidate$searchHistoryArgs<ExtArgs>
     _count?: boolean | CandidateCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["candidate"]>
 
@@ -12436,6 +12646,7 @@ export namespace Prisma {
     companyFollowers?: boolean | Candidate$companyFollowersArgs<ExtArgs>
     jobAlerts?: boolean | Candidate$jobAlertsArgs<ExtArgs>
     savedJobs?: boolean | Candidate$savedJobsArgs<ExtArgs>
+    searchHistory?: boolean | Candidate$searchHistoryArgs<ExtArgs>
     _count?: boolean | CandidateCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CandidateIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -12458,6 +12669,7 @@ export namespace Prisma {
       companyFollowers: Prisma.$CompanyFollowerPayload<ExtArgs>[]
       jobAlerts: Prisma.$JobAlertPayload<ExtArgs>[]
       savedJobs: Prisma.$SavedJobPayload<ExtArgs>[]
+      searchHistory: Prisma.$CandidateSearchHistoryPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -12878,6 +13090,7 @@ export namespace Prisma {
     companyFollowers<T extends Candidate$companyFollowersArgs<ExtArgs> = {}>(args?: Subset<T, Candidate$companyFollowersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyFollowerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     jobAlerts<T extends Candidate$jobAlertsArgs<ExtArgs> = {}>(args?: Subset<T, Candidate$jobAlertsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobAlertPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     savedJobs<T extends Candidate$savedJobsArgs<ExtArgs> = {}>(args?: Subset<T, Candidate$savedJobsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SavedJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    searchHistory<T extends Candidate$searchHistoryArgs<ExtArgs> = {}>(args?: Subset<T, Candidate$searchHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CandidateSearchHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13533,6 +13746,30 @@ export namespace Prisma {
   }
 
   /**
+   * Candidate.searchHistory
+   */
+  export type Candidate$searchHistoryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CandidateSearchHistory
+     */
+    select?: CandidateSearchHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CandidateSearchHistory
+     */
+    omit?: CandidateSearchHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateSearchHistoryInclude<ExtArgs> | null
+    where?: CandidateSearchHistoryWhereInput
+    orderBy?: CandidateSearchHistoryOrderByWithRelationInput | CandidateSearchHistoryOrderByWithRelationInput[]
+    cursor?: CandidateSearchHistoryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CandidateSearchHistoryScalarFieldEnum | CandidateSearchHistoryScalarFieldEnum[]
+  }
+
+  /**
    * Candidate without action
    */
   export type CandidateDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -13548,6 +13785,1064 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: CandidateInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model CandidateSearchHistory
+   */
+
+  export type AggregateCandidateSearchHistory = {
+    _count: CandidateSearchHistoryCountAggregateOutputType | null
+    _min: CandidateSearchHistoryMinAggregateOutputType | null
+    _max: CandidateSearchHistoryMaxAggregateOutputType | null
+  }
+
+  export type CandidateSearchHistoryMinAggregateOutputType = {
+    id: string | null
+    candidateId: string | null
+    keyword: string | null
+    normalizedKeyword: string | null
+    searchedAt: Date | null
+  }
+
+  export type CandidateSearchHistoryMaxAggregateOutputType = {
+    id: string | null
+    candidateId: string | null
+    keyword: string | null
+    normalizedKeyword: string | null
+    searchedAt: Date | null
+  }
+
+  export type CandidateSearchHistoryCountAggregateOutputType = {
+    id: number
+    candidateId: number
+    keyword: number
+    normalizedKeyword: number
+    searchedAt: number
+    _all: number
+  }
+
+
+  export type CandidateSearchHistoryMinAggregateInputType = {
+    id?: true
+    candidateId?: true
+    keyword?: true
+    normalizedKeyword?: true
+    searchedAt?: true
+  }
+
+  export type CandidateSearchHistoryMaxAggregateInputType = {
+    id?: true
+    candidateId?: true
+    keyword?: true
+    normalizedKeyword?: true
+    searchedAt?: true
+  }
+
+  export type CandidateSearchHistoryCountAggregateInputType = {
+    id?: true
+    candidateId?: true
+    keyword?: true
+    normalizedKeyword?: true
+    searchedAt?: true
+    _all?: true
+  }
+
+  export type CandidateSearchHistoryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CandidateSearchHistory to aggregate.
+     */
+    where?: CandidateSearchHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CandidateSearchHistories to fetch.
+     */
+    orderBy?: CandidateSearchHistoryOrderByWithRelationInput | CandidateSearchHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CandidateSearchHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CandidateSearchHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CandidateSearchHistories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CandidateSearchHistories
+    **/
+    _count?: true | CandidateSearchHistoryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CandidateSearchHistoryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CandidateSearchHistoryMaxAggregateInputType
+  }
+
+  export type GetCandidateSearchHistoryAggregateType<T extends CandidateSearchHistoryAggregateArgs> = {
+        [P in keyof T & keyof AggregateCandidateSearchHistory]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCandidateSearchHistory[P]>
+      : GetScalarType<T[P], AggregateCandidateSearchHistory[P]>
+  }
+
+
+
+
+  export type CandidateSearchHistoryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CandidateSearchHistoryWhereInput
+    orderBy?: CandidateSearchHistoryOrderByWithAggregationInput | CandidateSearchHistoryOrderByWithAggregationInput[]
+    by: CandidateSearchHistoryScalarFieldEnum[] | CandidateSearchHistoryScalarFieldEnum
+    having?: CandidateSearchHistoryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CandidateSearchHistoryCountAggregateInputType | true
+    _min?: CandidateSearchHistoryMinAggregateInputType
+    _max?: CandidateSearchHistoryMaxAggregateInputType
+  }
+
+  export type CandidateSearchHistoryGroupByOutputType = {
+    id: string
+    candidateId: string
+    keyword: string
+    normalizedKeyword: string
+    searchedAt: Date
+    _count: CandidateSearchHistoryCountAggregateOutputType | null
+    _min: CandidateSearchHistoryMinAggregateOutputType | null
+    _max: CandidateSearchHistoryMaxAggregateOutputType | null
+  }
+
+  type GetCandidateSearchHistoryGroupByPayload<T extends CandidateSearchHistoryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CandidateSearchHistoryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CandidateSearchHistoryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CandidateSearchHistoryGroupByOutputType[P]>
+            : GetScalarType<T[P], CandidateSearchHistoryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CandidateSearchHistorySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    candidateId?: boolean
+    keyword?: boolean
+    normalizedKeyword?: boolean
+    searchedAt?: boolean
+    candidate?: boolean | CandidateDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["candidateSearchHistory"]>
+
+  export type CandidateSearchHistorySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    candidateId?: boolean
+    keyword?: boolean
+    normalizedKeyword?: boolean
+    searchedAt?: boolean
+    candidate?: boolean | CandidateDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["candidateSearchHistory"]>
+
+  export type CandidateSearchHistorySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    candidateId?: boolean
+    keyword?: boolean
+    normalizedKeyword?: boolean
+    searchedAt?: boolean
+    candidate?: boolean | CandidateDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["candidateSearchHistory"]>
+
+  export type CandidateSearchHistorySelectScalar = {
+    id?: boolean
+    candidateId?: boolean
+    keyword?: boolean
+    normalizedKeyword?: boolean
+    searchedAt?: boolean
+  }
+
+  export type CandidateSearchHistoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "candidateId" | "keyword" | "normalizedKeyword" | "searchedAt", ExtArgs["result"]["candidateSearchHistory"]>
+  export type CandidateSearchHistoryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    candidate?: boolean | CandidateDefaultArgs<ExtArgs>
+  }
+  export type CandidateSearchHistoryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    candidate?: boolean | CandidateDefaultArgs<ExtArgs>
+  }
+  export type CandidateSearchHistoryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    candidate?: boolean | CandidateDefaultArgs<ExtArgs>
+  }
+
+  export type $CandidateSearchHistoryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CandidateSearchHistory"
+    objects: {
+      candidate: Prisma.$CandidatePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      candidateId: string
+      keyword: string
+      normalizedKeyword: string
+      searchedAt: Date
+    }, ExtArgs["result"]["candidateSearchHistory"]>
+    composites: {}
+  }
+
+  type CandidateSearchHistoryGetPayload<S extends boolean | null | undefined | CandidateSearchHistoryDefaultArgs> = $Result.GetResult<Prisma.$CandidateSearchHistoryPayload, S>
+
+  type CandidateSearchHistoryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CandidateSearchHistoryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CandidateSearchHistoryCountAggregateInputType | true
+    }
+
+  export interface CandidateSearchHistoryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CandidateSearchHistory'], meta: { name: 'CandidateSearchHistory' } }
+    /**
+     * Find zero or one CandidateSearchHistory that matches the filter.
+     * @param {CandidateSearchHistoryFindUniqueArgs} args - Arguments to find a CandidateSearchHistory
+     * @example
+     * // Get one CandidateSearchHistory
+     * const candidateSearchHistory = await prisma.candidateSearchHistory.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CandidateSearchHistoryFindUniqueArgs>(args: SelectSubset<T, CandidateSearchHistoryFindUniqueArgs<ExtArgs>>): Prisma__CandidateSearchHistoryClient<$Result.GetResult<Prisma.$CandidateSearchHistoryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CandidateSearchHistory that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CandidateSearchHistoryFindUniqueOrThrowArgs} args - Arguments to find a CandidateSearchHistory
+     * @example
+     * // Get one CandidateSearchHistory
+     * const candidateSearchHistory = await prisma.candidateSearchHistory.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CandidateSearchHistoryFindUniqueOrThrowArgs>(args: SelectSubset<T, CandidateSearchHistoryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CandidateSearchHistoryClient<$Result.GetResult<Prisma.$CandidateSearchHistoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CandidateSearchHistory that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CandidateSearchHistoryFindFirstArgs} args - Arguments to find a CandidateSearchHistory
+     * @example
+     * // Get one CandidateSearchHistory
+     * const candidateSearchHistory = await prisma.candidateSearchHistory.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CandidateSearchHistoryFindFirstArgs>(args?: SelectSubset<T, CandidateSearchHistoryFindFirstArgs<ExtArgs>>): Prisma__CandidateSearchHistoryClient<$Result.GetResult<Prisma.$CandidateSearchHistoryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CandidateSearchHistory that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CandidateSearchHistoryFindFirstOrThrowArgs} args - Arguments to find a CandidateSearchHistory
+     * @example
+     * // Get one CandidateSearchHistory
+     * const candidateSearchHistory = await prisma.candidateSearchHistory.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CandidateSearchHistoryFindFirstOrThrowArgs>(args?: SelectSubset<T, CandidateSearchHistoryFindFirstOrThrowArgs<ExtArgs>>): Prisma__CandidateSearchHistoryClient<$Result.GetResult<Prisma.$CandidateSearchHistoryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CandidateSearchHistories that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CandidateSearchHistoryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CandidateSearchHistories
+     * const candidateSearchHistories = await prisma.candidateSearchHistory.findMany()
+     * 
+     * // Get first 10 CandidateSearchHistories
+     * const candidateSearchHistories = await prisma.candidateSearchHistory.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const candidateSearchHistoryWithIdOnly = await prisma.candidateSearchHistory.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CandidateSearchHistoryFindManyArgs>(args?: SelectSubset<T, CandidateSearchHistoryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CandidateSearchHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CandidateSearchHistory.
+     * @param {CandidateSearchHistoryCreateArgs} args - Arguments to create a CandidateSearchHistory.
+     * @example
+     * // Create one CandidateSearchHistory
+     * const CandidateSearchHistory = await prisma.candidateSearchHistory.create({
+     *   data: {
+     *     // ... data to create a CandidateSearchHistory
+     *   }
+     * })
+     * 
+     */
+    create<T extends CandidateSearchHistoryCreateArgs>(args: SelectSubset<T, CandidateSearchHistoryCreateArgs<ExtArgs>>): Prisma__CandidateSearchHistoryClient<$Result.GetResult<Prisma.$CandidateSearchHistoryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CandidateSearchHistories.
+     * @param {CandidateSearchHistoryCreateManyArgs} args - Arguments to create many CandidateSearchHistories.
+     * @example
+     * // Create many CandidateSearchHistories
+     * const candidateSearchHistory = await prisma.candidateSearchHistory.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CandidateSearchHistoryCreateManyArgs>(args?: SelectSubset<T, CandidateSearchHistoryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CandidateSearchHistories and returns the data saved in the database.
+     * @param {CandidateSearchHistoryCreateManyAndReturnArgs} args - Arguments to create many CandidateSearchHistories.
+     * @example
+     * // Create many CandidateSearchHistories
+     * const candidateSearchHistory = await prisma.candidateSearchHistory.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CandidateSearchHistories and only return the `id`
+     * const candidateSearchHistoryWithIdOnly = await prisma.candidateSearchHistory.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CandidateSearchHistoryCreateManyAndReturnArgs>(args?: SelectSubset<T, CandidateSearchHistoryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CandidateSearchHistoryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CandidateSearchHistory.
+     * @param {CandidateSearchHistoryDeleteArgs} args - Arguments to delete one CandidateSearchHistory.
+     * @example
+     * // Delete one CandidateSearchHistory
+     * const CandidateSearchHistory = await prisma.candidateSearchHistory.delete({
+     *   where: {
+     *     // ... filter to delete one CandidateSearchHistory
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CandidateSearchHistoryDeleteArgs>(args: SelectSubset<T, CandidateSearchHistoryDeleteArgs<ExtArgs>>): Prisma__CandidateSearchHistoryClient<$Result.GetResult<Prisma.$CandidateSearchHistoryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CandidateSearchHistory.
+     * @param {CandidateSearchHistoryUpdateArgs} args - Arguments to update one CandidateSearchHistory.
+     * @example
+     * // Update one CandidateSearchHistory
+     * const candidateSearchHistory = await prisma.candidateSearchHistory.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CandidateSearchHistoryUpdateArgs>(args: SelectSubset<T, CandidateSearchHistoryUpdateArgs<ExtArgs>>): Prisma__CandidateSearchHistoryClient<$Result.GetResult<Prisma.$CandidateSearchHistoryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CandidateSearchHistories.
+     * @param {CandidateSearchHistoryDeleteManyArgs} args - Arguments to filter CandidateSearchHistories to delete.
+     * @example
+     * // Delete a few CandidateSearchHistories
+     * const { count } = await prisma.candidateSearchHistory.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CandidateSearchHistoryDeleteManyArgs>(args?: SelectSubset<T, CandidateSearchHistoryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CandidateSearchHistories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CandidateSearchHistoryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CandidateSearchHistories
+     * const candidateSearchHistory = await prisma.candidateSearchHistory.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CandidateSearchHistoryUpdateManyArgs>(args: SelectSubset<T, CandidateSearchHistoryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CandidateSearchHistories and returns the data updated in the database.
+     * @param {CandidateSearchHistoryUpdateManyAndReturnArgs} args - Arguments to update many CandidateSearchHistories.
+     * @example
+     * // Update many CandidateSearchHistories
+     * const candidateSearchHistory = await prisma.candidateSearchHistory.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CandidateSearchHistories and only return the `id`
+     * const candidateSearchHistoryWithIdOnly = await prisma.candidateSearchHistory.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CandidateSearchHistoryUpdateManyAndReturnArgs>(args: SelectSubset<T, CandidateSearchHistoryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CandidateSearchHistoryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CandidateSearchHistory.
+     * @param {CandidateSearchHistoryUpsertArgs} args - Arguments to update or create a CandidateSearchHistory.
+     * @example
+     * // Update or create a CandidateSearchHistory
+     * const candidateSearchHistory = await prisma.candidateSearchHistory.upsert({
+     *   create: {
+     *     // ... data to create a CandidateSearchHistory
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CandidateSearchHistory we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CandidateSearchHistoryUpsertArgs>(args: SelectSubset<T, CandidateSearchHistoryUpsertArgs<ExtArgs>>): Prisma__CandidateSearchHistoryClient<$Result.GetResult<Prisma.$CandidateSearchHistoryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CandidateSearchHistories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CandidateSearchHistoryCountArgs} args - Arguments to filter CandidateSearchHistories to count.
+     * @example
+     * // Count the number of CandidateSearchHistories
+     * const count = await prisma.candidateSearchHistory.count({
+     *   where: {
+     *     // ... the filter for the CandidateSearchHistories we want to count
+     *   }
+     * })
+    **/
+    count<T extends CandidateSearchHistoryCountArgs>(
+      args?: Subset<T, CandidateSearchHistoryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CandidateSearchHistoryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CandidateSearchHistory.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CandidateSearchHistoryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CandidateSearchHistoryAggregateArgs>(args: Subset<T, CandidateSearchHistoryAggregateArgs>): Prisma.PrismaPromise<GetCandidateSearchHistoryAggregateType<T>>
+
+    /**
+     * Group by CandidateSearchHistory.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CandidateSearchHistoryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CandidateSearchHistoryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CandidateSearchHistoryGroupByArgs['orderBy'] }
+        : { orderBy?: CandidateSearchHistoryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CandidateSearchHistoryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCandidateSearchHistoryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CandidateSearchHistory model
+   */
+  readonly fields: CandidateSearchHistoryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CandidateSearchHistory.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CandidateSearchHistoryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    candidate<T extends CandidateDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CandidateDefaultArgs<ExtArgs>>): Prisma__CandidateClient<$Result.GetResult<Prisma.$CandidatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CandidateSearchHistory model
+   */
+  interface CandidateSearchHistoryFieldRefs {
+    readonly id: FieldRef<"CandidateSearchHistory", 'String'>
+    readonly candidateId: FieldRef<"CandidateSearchHistory", 'String'>
+    readonly keyword: FieldRef<"CandidateSearchHistory", 'String'>
+    readonly normalizedKeyword: FieldRef<"CandidateSearchHistory", 'String'>
+    readonly searchedAt: FieldRef<"CandidateSearchHistory", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CandidateSearchHistory findUnique
+   */
+  export type CandidateSearchHistoryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CandidateSearchHistory
+     */
+    select?: CandidateSearchHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CandidateSearchHistory
+     */
+    omit?: CandidateSearchHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateSearchHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which CandidateSearchHistory to fetch.
+     */
+    where: CandidateSearchHistoryWhereUniqueInput
+  }
+
+  /**
+   * CandidateSearchHistory findUniqueOrThrow
+   */
+  export type CandidateSearchHistoryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CandidateSearchHistory
+     */
+    select?: CandidateSearchHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CandidateSearchHistory
+     */
+    omit?: CandidateSearchHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateSearchHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which CandidateSearchHistory to fetch.
+     */
+    where: CandidateSearchHistoryWhereUniqueInput
+  }
+
+  /**
+   * CandidateSearchHistory findFirst
+   */
+  export type CandidateSearchHistoryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CandidateSearchHistory
+     */
+    select?: CandidateSearchHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CandidateSearchHistory
+     */
+    omit?: CandidateSearchHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateSearchHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which CandidateSearchHistory to fetch.
+     */
+    where?: CandidateSearchHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CandidateSearchHistories to fetch.
+     */
+    orderBy?: CandidateSearchHistoryOrderByWithRelationInput | CandidateSearchHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CandidateSearchHistories.
+     */
+    cursor?: CandidateSearchHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CandidateSearchHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CandidateSearchHistories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CandidateSearchHistories.
+     */
+    distinct?: CandidateSearchHistoryScalarFieldEnum | CandidateSearchHistoryScalarFieldEnum[]
+  }
+
+  /**
+   * CandidateSearchHistory findFirstOrThrow
+   */
+  export type CandidateSearchHistoryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CandidateSearchHistory
+     */
+    select?: CandidateSearchHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CandidateSearchHistory
+     */
+    omit?: CandidateSearchHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateSearchHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which CandidateSearchHistory to fetch.
+     */
+    where?: CandidateSearchHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CandidateSearchHistories to fetch.
+     */
+    orderBy?: CandidateSearchHistoryOrderByWithRelationInput | CandidateSearchHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CandidateSearchHistories.
+     */
+    cursor?: CandidateSearchHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CandidateSearchHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CandidateSearchHistories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CandidateSearchHistories.
+     */
+    distinct?: CandidateSearchHistoryScalarFieldEnum | CandidateSearchHistoryScalarFieldEnum[]
+  }
+
+  /**
+   * CandidateSearchHistory findMany
+   */
+  export type CandidateSearchHistoryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CandidateSearchHistory
+     */
+    select?: CandidateSearchHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CandidateSearchHistory
+     */
+    omit?: CandidateSearchHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateSearchHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which CandidateSearchHistories to fetch.
+     */
+    where?: CandidateSearchHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CandidateSearchHistories to fetch.
+     */
+    orderBy?: CandidateSearchHistoryOrderByWithRelationInput | CandidateSearchHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CandidateSearchHistories.
+     */
+    cursor?: CandidateSearchHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CandidateSearchHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CandidateSearchHistories.
+     */
+    skip?: number
+    distinct?: CandidateSearchHistoryScalarFieldEnum | CandidateSearchHistoryScalarFieldEnum[]
+  }
+
+  /**
+   * CandidateSearchHistory create
+   */
+  export type CandidateSearchHistoryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CandidateSearchHistory
+     */
+    select?: CandidateSearchHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CandidateSearchHistory
+     */
+    omit?: CandidateSearchHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateSearchHistoryInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CandidateSearchHistory.
+     */
+    data: XOR<CandidateSearchHistoryCreateInput, CandidateSearchHistoryUncheckedCreateInput>
+  }
+
+  /**
+   * CandidateSearchHistory createMany
+   */
+  export type CandidateSearchHistoryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CandidateSearchHistories.
+     */
+    data: CandidateSearchHistoryCreateManyInput | CandidateSearchHistoryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CandidateSearchHistory createManyAndReturn
+   */
+  export type CandidateSearchHistoryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CandidateSearchHistory
+     */
+    select?: CandidateSearchHistorySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CandidateSearchHistory
+     */
+    omit?: CandidateSearchHistoryOmit<ExtArgs> | null
+    /**
+     * The data used to create many CandidateSearchHistories.
+     */
+    data: CandidateSearchHistoryCreateManyInput | CandidateSearchHistoryCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateSearchHistoryIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CandidateSearchHistory update
+   */
+  export type CandidateSearchHistoryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CandidateSearchHistory
+     */
+    select?: CandidateSearchHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CandidateSearchHistory
+     */
+    omit?: CandidateSearchHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateSearchHistoryInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CandidateSearchHistory.
+     */
+    data: XOR<CandidateSearchHistoryUpdateInput, CandidateSearchHistoryUncheckedUpdateInput>
+    /**
+     * Choose, which CandidateSearchHistory to update.
+     */
+    where: CandidateSearchHistoryWhereUniqueInput
+  }
+
+  /**
+   * CandidateSearchHistory updateMany
+   */
+  export type CandidateSearchHistoryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CandidateSearchHistories.
+     */
+    data: XOR<CandidateSearchHistoryUpdateManyMutationInput, CandidateSearchHistoryUncheckedUpdateManyInput>
+    /**
+     * Filter which CandidateSearchHistories to update
+     */
+    where?: CandidateSearchHistoryWhereInput
+    /**
+     * Limit how many CandidateSearchHistories to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CandidateSearchHistory updateManyAndReturn
+   */
+  export type CandidateSearchHistoryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CandidateSearchHistory
+     */
+    select?: CandidateSearchHistorySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CandidateSearchHistory
+     */
+    omit?: CandidateSearchHistoryOmit<ExtArgs> | null
+    /**
+     * The data used to update CandidateSearchHistories.
+     */
+    data: XOR<CandidateSearchHistoryUpdateManyMutationInput, CandidateSearchHistoryUncheckedUpdateManyInput>
+    /**
+     * Filter which CandidateSearchHistories to update
+     */
+    where?: CandidateSearchHistoryWhereInput
+    /**
+     * Limit how many CandidateSearchHistories to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateSearchHistoryIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CandidateSearchHistory upsert
+   */
+  export type CandidateSearchHistoryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CandidateSearchHistory
+     */
+    select?: CandidateSearchHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CandidateSearchHistory
+     */
+    omit?: CandidateSearchHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateSearchHistoryInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CandidateSearchHistory to update in case it exists.
+     */
+    where: CandidateSearchHistoryWhereUniqueInput
+    /**
+     * In case the CandidateSearchHistory found by the `where` argument doesn't exist, create a new CandidateSearchHistory with this data.
+     */
+    create: XOR<CandidateSearchHistoryCreateInput, CandidateSearchHistoryUncheckedCreateInput>
+    /**
+     * In case the CandidateSearchHistory was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CandidateSearchHistoryUpdateInput, CandidateSearchHistoryUncheckedUpdateInput>
+  }
+
+  /**
+   * CandidateSearchHistory delete
+   */
+  export type CandidateSearchHistoryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CandidateSearchHistory
+     */
+    select?: CandidateSearchHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CandidateSearchHistory
+     */
+    omit?: CandidateSearchHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateSearchHistoryInclude<ExtArgs> | null
+    /**
+     * Filter which CandidateSearchHistory to delete.
+     */
+    where: CandidateSearchHistoryWhereUniqueInput
+  }
+
+  /**
+   * CandidateSearchHistory deleteMany
+   */
+  export type CandidateSearchHistoryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CandidateSearchHistories to delete
+     */
+    where?: CandidateSearchHistoryWhereInput
+    /**
+     * Limit how many CandidateSearchHistories to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CandidateSearchHistory without action
+   */
+  export type CandidateSearchHistoryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CandidateSearchHistory
+     */
+    select?: CandidateSearchHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CandidateSearchHistory
+     */
+    omit?: CandidateSearchHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CandidateSearchHistoryInclude<ExtArgs> | null
   }
 
 
@@ -22192,6 +23487,8 @@ export namespace Prisma {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     recruiter?: boolean | UserDefaultArgs<ExtArgs>
     savedJobs?: boolean | Job$savedJobsArgs<ExtArgs>
+    sourceJobMatches?: boolean | Job$sourceJobMatchesArgs<ExtArgs>
+    targetJobMatches?: boolean | Job$targetJobMatchesArgs<ExtArgs>
     conversations?: boolean | Job$conversationsArgs<ExtArgs>
     _count?: boolean | JobCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["job"]>
@@ -22303,6 +23600,8 @@ export namespace Prisma {
     company?: boolean | CompanyDefaultArgs<ExtArgs>
     recruiter?: boolean | UserDefaultArgs<ExtArgs>
     savedJobs?: boolean | Job$savedJobsArgs<ExtArgs>
+    sourceJobMatches?: boolean | Job$sourceJobMatchesArgs<ExtArgs>
+    targetJobMatches?: boolean | Job$targetJobMatchesArgs<ExtArgs>
     conversations?: boolean | Job$conversationsArgs<ExtArgs>
     _count?: boolean | JobCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -22326,6 +23625,8 @@ export namespace Prisma {
       company: Prisma.$CompanyPayload<ExtArgs>
       recruiter: Prisma.$UserPayload<ExtArgs>
       savedJobs: Prisma.$SavedJobPayload<ExtArgs>[]
+      sourceJobMatches: Prisma.$JobSimilarityPayload<ExtArgs>[]
+      targetJobMatches: Prisma.$JobSimilarityPayload<ExtArgs>[]
       conversations: Prisma.$ConversationPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -22759,6 +24060,8 @@ export namespace Prisma {
     company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     recruiter<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     savedJobs<T extends Job$savedJobsArgs<ExtArgs> = {}>(args?: Subset<T, Job$savedJobsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SavedJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    sourceJobMatches<T extends Job$sourceJobMatchesArgs<ExtArgs> = {}>(args?: Subset<T, Job$sourceJobMatchesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobSimilarityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    targetJobMatches<T extends Job$targetJobMatchesArgs<ExtArgs> = {}>(args?: Subset<T, Job$targetJobMatchesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobSimilarityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     conversations<T extends Job$conversationsArgs<ExtArgs> = {}>(args?: Subset<T, Job$conversationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -23354,6 +24657,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: SavedJobScalarFieldEnum | SavedJobScalarFieldEnum[]
+  }
+
+  /**
+   * Job.sourceJobMatches
+   */
+  export type Job$sourceJobMatchesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobSimilarity
+     */
+    select?: JobSimilaritySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobSimilarity
+     */
+    omit?: JobSimilarityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobSimilarityInclude<ExtArgs> | null
+    where?: JobSimilarityWhereInput
+    orderBy?: JobSimilarityOrderByWithRelationInput | JobSimilarityOrderByWithRelationInput[]
+    cursor?: JobSimilarityWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: JobSimilarityScalarFieldEnum | JobSimilarityScalarFieldEnum[]
+  }
+
+  /**
+   * Job.targetJobMatches
+   */
+  export type Job$targetJobMatchesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobSimilarity
+     */
+    select?: JobSimilaritySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobSimilarity
+     */
+    omit?: JobSimilarityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobSimilarityInclude<ExtArgs> | null
+    where?: JobSimilarityWhereInput
+    orderBy?: JobSimilarityOrderByWithRelationInput | JobSimilarityOrderByWithRelationInput[]
+    cursor?: JobSimilarityWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: JobSimilarityScalarFieldEnum | JobSimilarityScalarFieldEnum[]
   }
 
   /**
@@ -34760,6 +36111,1106 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: JobViewInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model JobSimilarity
+   */
+
+  export type AggregateJobSimilarity = {
+    _count: JobSimilarityCountAggregateOutputType | null
+    _avg: JobSimilarityAvgAggregateOutputType | null
+    _sum: JobSimilaritySumAggregateOutputType | null
+    _min: JobSimilarityMinAggregateOutputType | null
+    _max: JobSimilarityMaxAggregateOutputType | null
+  }
+
+  export type JobSimilarityAvgAggregateOutputType = {
+    similarityScore: number | null
+  }
+
+  export type JobSimilaritySumAggregateOutputType = {
+    similarityScore: number | null
+  }
+
+  export type JobSimilarityMinAggregateOutputType = {
+    id: string | null
+    sourceJobId: string | null
+    targetJobId: string | null
+    similarityScore: number | null
+    createdAt: Date | null
+  }
+
+  export type JobSimilarityMaxAggregateOutputType = {
+    id: string | null
+    sourceJobId: string | null
+    targetJobId: string | null
+    similarityScore: number | null
+    createdAt: Date | null
+  }
+
+  export type JobSimilarityCountAggregateOutputType = {
+    id: number
+    sourceJobId: number
+    targetJobId: number
+    similarityScore: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type JobSimilarityAvgAggregateInputType = {
+    similarityScore?: true
+  }
+
+  export type JobSimilaritySumAggregateInputType = {
+    similarityScore?: true
+  }
+
+  export type JobSimilarityMinAggregateInputType = {
+    id?: true
+    sourceJobId?: true
+    targetJobId?: true
+    similarityScore?: true
+    createdAt?: true
+  }
+
+  export type JobSimilarityMaxAggregateInputType = {
+    id?: true
+    sourceJobId?: true
+    targetJobId?: true
+    similarityScore?: true
+    createdAt?: true
+  }
+
+  export type JobSimilarityCountAggregateInputType = {
+    id?: true
+    sourceJobId?: true
+    targetJobId?: true
+    similarityScore?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type JobSimilarityAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which JobSimilarity to aggregate.
+     */
+    where?: JobSimilarityWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JobSimilarities to fetch.
+     */
+    orderBy?: JobSimilarityOrderByWithRelationInput | JobSimilarityOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: JobSimilarityWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JobSimilarities from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JobSimilarities.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned JobSimilarities
+    **/
+    _count?: true | JobSimilarityCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: JobSimilarityAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: JobSimilaritySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: JobSimilarityMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: JobSimilarityMaxAggregateInputType
+  }
+
+  export type GetJobSimilarityAggregateType<T extends JobSimilarityAggregateArgs> = {
+        [P in keyof T & keyof AggregateJobSimilarity]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateJobSimilarity[P]>
+      : GetScalarType<T[P], AggregateJobSimilarity[P]>
+  }
+
+
+
+
+  export type JobSimilarityGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: JobSimilarityWhereInput
+    orderBy?: JobSimilarityOrderByWithAggregationInput | JobSimilarityOrderByWithAggregationInput[]
+    by: JobSimilarityScalarFieldEnum[] | JobSimilarityScalarFieldEnum
+    having?: JobSimilarityScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: JobSimilarityCountAggregateInputType | true
+    _avg?: JobSimilarityAvgAggregateInputType
+    _sum?: JobSimilaritySumAggregateInputType
+    _min?: JobSimilarityMinAggregateInputType
+    _max?: JobSimilarityMaxAggregateInputType
+  }
+
+  export type JobSimilarityGroupByOutputType = {
+    id: string
+    sourceJobId: string
+    targetJobId: string
+    similarityScore: number
+    createdAt: Date
+    _count: JobSimilarityCountAggregateOutputType | null
+    _avg: JobSimilarityAvgAggregateOutputType | null
+    _sum: JobSimilaritySumAggregateOutputType | null
+    _min: JobSimilarityMinAggregateOutputType | null
+    _max: JobSimilarityMaxAggregateOutputType | null
+  }
+
+  type GetJobSimilarityGroupByPayload<T extends JobSimilarityGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<JobSimilarityGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof JobSimilarityGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], JobSimilarityGroupByOutputType[P]>
+            : GetScalarType<T[P], JobSimilarityGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type JobSimilaritySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sourceJobId?: boolean
+    targetJobId?: boolean
+    similarityScore?: boolean
+    createdAt?: boolean
+    sourceJob?: boolean | JobDefaultArgs<ExtArgs>
+    targetJob?: boolean | JobDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["jobSimilarity"]>
+
+  export type JobSimilaritySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sourceJobId?: boolean
+    targetJobId?: boolean
+    similarityScore?: boolean
+    createdAt?: boolean
+    sourceJob?: boolean | JobDefaultArgs<ExtArgs>
+    targetJob?: boolean | JobDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["jobSimilarity"]>
+
+  export type JobSimilaritySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sourceJobId?: boolean
+    targetJobId?: boolean
+    similarityScore?: boolean
+    createdAt?: boolean
+    sourceJob?: boolean | JobDefaultArgs<ExtArgs>
+    targetJob?: boolean | JobDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["jobSimilarity"]>
+
+  export type JobSimilaritySelectScalar = {
+    id?: boolean
+    sourceJobId?: boolean
+    targetJobId?: boolean
+    similarityScore?: boolean
+    createdAt?: boolean
+  }
+
+  export type JobSimilarityOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sourceJobId" | "targetJobId" | "similarityScore" | "createdAt", ExtArgs["result"]["jobSimilarity"]>
+  export type JobSimilarityInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    sourceJob?: boolean | JobDefaultArgs<ExtArgs>
+    targetJob?: boolean | JobDefaultArgs<ExtArgs>
+  }
+  export type JobSimilarityIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    sourceJob?: boolean | JobDefaultArgs<ExtArgs>
+    targetJob?: boolean | JobDefaultArgs<ExtArgs>
+  }
+  export type JobSimilarityIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    sourceJob?: boolean | JobDefaultArgs<ExtArgs>
+    targetJob?: boolean | JobDefaultArgs<ExtArgs>
+  }
+
+  export type $JobSimilarityPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "JobSimilarity"
+    objects: {
+      sourceJob: Prisma.$JobPayload<ExtArgs>
+      targetJob: Prisma.$JobPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      sourceJobId: string
+      targetJobId: string
+      similarityScore: number
+      createdAt: Date
+    }, ExtArgs["result"]["jobSimilarity"]>
+    composites: {}
+  }
+
+  type JobSimilarityGetPayload<S extends boolean | null | undefined | JobSimilarityDefaultArgs> = $Result.GetResult<Prisma.$JobSimilarityPayload, S>
+
+  type JobSimilarityCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<JobSimilarityFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: JobSimilarityCountAggregateInputType | true
+    }
+
+  export interface JobSimilarityDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['JobSimilarity'], meta: { name: 'JobSimilarity' } }
+    /**
+     * Find zero or one JobSimilarity that matches the filter.
+     * @param {JobSimilarityFindUniqueArgs} args - Arguments to find a JobSimilarity
+     * @example
+     * // Get one JobSimilarity
+     * const jobSimilarity = await prisma.jobSimilarity.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends JobSimilarityFindUniqueArgs>(args: SelectSubset<T, JobSimilarityFindUniqueArgs<ExtArgs>>): Prisma__JobSimilarityClient<$Result.GetResult<Prisma.$JobSimilarityPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one JobSimilarity that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {JobSimilarityFindUniqueOrThrowArgs} args - Arguments to find a JobSimilarity
+     * @example
+     * // Get one JobSimilarity
+     * const jobSimilarity = await prisma.jobSimilarity.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends JobSimilarityFindUniqueOrThrowArgs>(args: SelectSubset<T, JobSimilarityFindUniqueOrThrowArgs<ExtArgs>>): Prisma__JobSimilarityClient<$Result.GetResult<Prisma.$JobSimilarityPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first JobSimilarity that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobSimilarityFindFirstArgs} args - Arguments to find a JobSimilarity
+     * @example
+     * // Get one JobSimilarity
+     * const jobSimilarity = await prisma.jobSimilarity.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends JobSimilarityFindFirstArgs>(args?: SelectSubset<T, JobSimilarityFindFirstArgs<ExtArgs>>): Prisma__JobSimilarityClient<$Result.GetResult<Prisma.$JobSimilarityPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first JobSimilarity that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobSimilarityFindFirstOrThrowArgs} args - Arguments to find a JobSimilarity
+     * @example
+     * // Get one JobSimilarity
+     * const jobSimilarity = await prisma.jobSimilarity.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends JobSimilarityFindFirstOrThrowArgs>(args?: SelectSubset<T, JobSimilarityFindFirstOrThrowArgs<ExtArgs>>): Prisma__JobSimilarityClient<$Result.GetResult<Prisma.$JobSimilarityPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more JobSimilarities that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobSimilarityFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all JobSimilarities
+     * const jobSimilarities = await prisma.jobSimilarity.findMany()
+     * 
+     * // Get first 10 JobSimilarities
+     * const jobSimilarities = await prisma.jobSimilarity.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const jobSimilarityWithIdOnly = await prisma.jobSimilarity.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends JobSimilarityFindManyArgs>(args?: SelectSubset<T, JobSimilarityFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobSimilarityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a JobSimilarity.
+     * @param {JobSimilarityCreateArgs} args - Arguments to create a JobSimilarity.
+     * @example
+     * // Create one JobSimilarity
+     * const JobSimilarity = await prisma.jobSimilarity.create({
+     *   data: {
+     *     // ... data to create a JobSimilarity
+     *   }
+     * })
+     * 
+     */
+    create<T extends JobSimilarityCreateArgs>(args: SelectSubset<T, JobSimilarityCreateArgs<ExtArgs>>): Prisma__JobSimilarityClient<$Result.GetResult<Prisma.$JobSimilarityPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many JobSimilarities.
+     * @param {JobSimilarityCreateManyArgs} args - Arguments to create many JobSimilarities.
+     * @example
+     * // Create many JobSimilarities
+     * const jobSimilarity = await prisma.jobSimilarity.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends JobSimilarityCreateManyArgs>(args?: SelectSubset<T, JobSimilarityCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many JobSimilarities and returns the data saved in the database.
+     * @param {JobSimilarityCreateManyAndReturnArgs} args - Arguments to create many JobSimilarities.
+     * @example
+     * // Create many JobSimilarities
+     * const jobSimilarity = await prisma.jobSimilarity.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many JobSimilarities and only return the `id`
+     * const jobSimilarityWithIdOnly = await prisma.jobSimilarity.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends JobSimilarityCreateManyAndReturnArgs>(args?: SelectSubset<T, JobSimilarityCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobSimilarityPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a JobSimilarity.
+     * @param {JobSimilarityDeleteArgs} args - Arguments to delete one JobSimilarity.
+     * @example
+     * // Delete one JobSimilarity
+     * const JobSimilarity = await prisma.jobSimilarity.delete({
+     *   where: {
+     *     // ... filter to delete one JobSimilarity
+     *   }
+     * })
+     * 
+     */
+    delete<T extends JobSimilarityDeleteArgs>(args: SelectSubset<T, JobSimilarityDeleteArgs<ExtArgs>>): Prisma__JobSimilarityClient<$Result.GetResult<Prisma.$JobSimilarityPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one JobSimilarity.
+     * @param {JobSimilarityUpdateArgs} args - Arguments to update one JobSimilarity.
+     * @example
+     * // Update one JobSimilarity
+     * const jobSimilarity = await prisma.jobSimilarity.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends JobSimilarityUpdateArgs>(args: SelectSubset<T, JobSimilarityUpdateArgs<ExtArgs>>): Prisma__JobSimilarityClient<$Result.GetResult<Prisma.$JobSimilarityPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more JobSimilarities.
+     * @param {JobSimilarityDeleteManyArgs} args - Arguments to filter JobSimilarities to delete.
+     * @example
+     * // Delete a few JobSimilarities
+     * const { count } = await prisma.jobSimilarity.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends JobSimilarityDeleteManyArgs>(args?: SelectSubset<T, JobSimilarityDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more JobSimilarities.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobSimilarityUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many JobSimilarities
+     * const jobSimilarity = await prisma.jobSimilarity.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends JobSimilarityUpdateManyArgs>(args: SelectSubset<T, JobSimilarityUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more JobSimilarities and returns the data updated in the database.
+     * @param {JobSimilarityUpdateManyAndReturnArgs} args - Arguments to update many JobSimilarities.
+     * @example
+     * // Update many JobSimilarities
+     * const jobSimilarity = await prisma.jobSimilarity.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more JobSimilarities and only return the `id`
+     * const jobSimilarityWithIdOnly = await prisma.jobSimilarity.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends JobSimilarityUpdateManyAndReturnArgs>(args: SelectSubset<T, JobSimilarityUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$JobSimilarityPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one JobSimilarity.
+     * @param {JobSimilarityUpsertArgs} args - Arguments to update or create a JobSimilarity.
+     * @example
+     * // Update or create a JobSimilarity
+     * const jobSimilarity = await prisma.jobSimilarity.upsert({
+     *   create: {
+     *     // ... data to create a JobSimilarity
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the JobSimilarity we want to update
+     *   }
+     * })
+     */
+    upsert<T extends JobSimilarityUpsertArgs>(args: SelectSubset<T, JobSimilarityUpsertArgs<ExtArgs>>): Prisma__JobSimilarityClient<$Result.GetResult<Prisma.$JobSimilarityPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of JobSimilarities.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobSimilarityCountArgs} args - Arguments to filter JobSimilarities to count.
+     * @example
+     * // Count the number of JobSimilarities
+     * const count = await prisma.jobSimilarity.count({
+     *   where: {
+     *     // ... the filter for the JobSimilarities we want to count
+     *   }
+     * })
+    **/
+    count<T extends JobSimilarityCountArgs>(
+      args?: Subset<T, JobSimilarityCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], JobSimilarityCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a JobSimilarity.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobSimilarityAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends JobSimilarityAggregateArgs>(args: Subset<T, JobSimilarityAggregateArgs>): Prisma.PrismaPromise<GetJobSimilarityAggregateType<T>>
+
+    /**
+     * Group by JobSimilarity.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {JobSimilarityGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends JobSimilarityGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: JobSimilarityGroupByArgs['orderBy'] }
+        : { orderBy?: JobSimilarityGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, JobSimilarityGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetJobSimilarityGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the JobSimilarity model
+   */
+  readonly fields: JobSimilarityFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for JobSimilarity.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__JobSimilarityClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    sourceJob<T extends JobDefaultArgs<ExtArgs> = {}>(args?: Subset<T, JobDefaultArgs<ExtArgs>>): Prisma__JobClient<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    targetJob<T extends JobDefaultArgs<ExtArgs> = {}>(args?: Subset<T, JobDefaultArgs<ExtArgs>>): Prisma__JobClient<$Result.GetResult<Prisma.$JobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the JobSimilarity model
+   */
+  interface JobSimilarityFieldRefs {
+    readonly id: FieldRef<"JobSimilarity", 'String'>
+    readonly sourceJobId: FieldRef<"JobSimilarity", 'String'>
+    readonly targetJobId: FieldRef<"JobSimilarity", 'String'>
+    readonly similarityScore: FieldRef<"JobSimilarity", 'Float'>
+    readonly createdAt: FieldRef<"JobSimilarity", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * JobSimilarity findUnique
+   */
+  export type JobSimilarityFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobSimilarity
+     */
+    select?: JobSimilaritySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobSimilarity
+     */
+    omit?: JobSimilarityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobSimilarityInclude<ExtArgs> | null
+    /**
+     * Filter, which JobSimilarity to fetch.
+     */
+    where: JobSimilarityWhereUniqueInput
+  }
+
+  /**
+   * JobSimilarity findUniqueOrThrow
+   */
+  export type JobSimilarityFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobSimilarity
+     */
+    select?: JobSimilaritySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobSimilarity
+     */
+    omit?: JobSimilarityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobSimilarityInclude<ExtArgs> | null
+    /**
+     * Filter, which JobSimilarity to fetch.
+     */
+    where: JobSimilarityWhereUniqueInput
+  }
+
+  /**
+   * JobSimilarity findFirst
+   */
+  export type JobSimilarityFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobSimilarity
+     */
+    select?: JobSimilaritySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobSimilarity
+     */
+    omit?: JobSimilarityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobSimilarityInclude<ExtArgs> | null
+    /**
+     * Filter, which JobSimilarity to fetch.
+     */
+    where?: JobSimilarityWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JobSimilarities to fetch.
+     */
+    orderBy?: JobSimilarityOrderByWithRelationInput | JobSimilarityOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for JobSimilarities.
+     */
+    cursor?: JobSimilarityWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JobSimilarities from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JobSimilarities.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of JobSimilarities.
+     */
+    distinct?: JobSimilarityScalarFieldEnum | JobSimilarityScalarFieldEnum[]
+  }
+
+  /**
+   * JobSimilarity findFirstOrThrow
+   */
+  export type JobSimilarityFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobSimilarity
+     */
+    select?: JobSimilaritySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobSimilarity
+     */
+    omit?: JobSimilarityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobSimilarityInclude<ExtArgs> | null
+    /**
+     * Filter, which JobSimilarity to fetch.
+     */
+    where?: JobSimilarityWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JobSimilarities to fetch.
+     */
+    orderBy?: JobSimilarityOrderByWithRelationInput | JobSimilarityOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for JobSimilarities.
+     */
+    cursor?: JobSimilarityWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JobSimilarities from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JobSimilarities.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of JobSimilarities.
+     */
+    distinct?: JobSimilarityScalarFieldEnum | JobSimilarityScalarFieldEnum[]
+  }
+
+  /**
+   * JobSimilarity findMany
+   */
+  export type JobSimilarityFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobSimilarity
+     */
+    select?: JobSimilaritySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobSimilarity
+     */
+    omit?: JobSimilarityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobSimilarityInclude<ExtArgs> | null
+    /**
+     * Filter, which JobSimilarities to fetch.
+     */
+    where?: JobSimilarityWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of JobSimilarities to fetch.
+     */
+    orderBy?: JobSimilarityOrderByWithRelationInput | JobSimilarityOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing JobSimilarities.
+     */
+    cursor?: JobSimilarityWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` JobSimilarities from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` JobSimilarities.
+     */
+    skip?: number
+    distinct?: JobSimilarityScalarFieldEnum | JobSimilarityScalarFieldEnum[]
+  }
+
+  /**
+   * JobSimilarity create
+   */
+  export type JobSimilarityCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobSimilarity
+     */
+    select?: JobSimilaritySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobSimilarity
+     */
+    omit?: JobSimilarityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobSimilarityInclude<ExtArgs> | null
+    /**
+     * The data needed to create a JobSimilarity.
+     */
+    data: XOR<JobSimilarityCreateInput, JobSimilarityUncheckedCreateInput>
+  }
+
+  /**
+   * JobSimilarity createMany
+   */
+  export type JobSimilarityCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many JobSimilarities.
+     */
+    data: JobSimilarityCreateManyInput | JobSimilarityCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * JobSimilarity createManyAndReturn
+   */
+  export type JobSimilarityCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobSimilarity
+     */
+    select?: JobSimilaritySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobSimilarity
+     */
+    omit?: JobSimilarityOmit<ExtArgs> | null
+    /**
+     * The data used to create many JobSimilarities.
+     */
+    data: JobSimilarityCreateManyInput | JobSimilarityCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobSimilarityIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * JobSimilarity update
+   */
+  export type JobSimilarityUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobSimilarity
+     */
+    select?: JobSimilaritySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobSimilarity
+     */
+    omit?: JobSimilarityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobSimilarityInclude<ExtArgs> | null
+    /**
+     * The data needed to update a JobSimilarity.
+     */
+    data: XOR<JobSimilarityUpdateInput, JobSimilarityUncheckedUpdateInput>
+    /**
+     * Choose, which JobSimilarity to update.
+     */
+    where: JobSimilarityWhereUniqueInput
+  }
+
+  /**
+   * JobSimilarity updateMany
+   */
+  export type JobSimilarityUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update JobSimilarities.
+     */
+    data: XOR<JobSimilarityUpdateManyMutationInput, JobSimilarityUncheckedUpdateManyInput>
+    /**
+     * Filter which JobSimilarities to update
+     */
+    where?: JobSimilarityWhereInput
+    /**
+     * Limit how many JobSimilarities to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * JobSimilarity updateManyAndReturn
+   */
+  export type JobSimilarityUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobSimilarity
+     */
+    select?: JobSimilaritySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobSimilarity
+     */
+    omit?: JobSimilarityOmit<ExtArgs> | null
+    /**
+     * The data used to update JobSimilarities.
+     */
+    data: XOR<JobSimilarityUpdateManyMutationInput, JobSimilarityUncheckedUpdateManyInput>
+    /**
+     * Filter which JobSimilarities to update
+     */
+    where?: JobSimilarityWhereInput
+    /**
+     * Limit how many JobSimilarities to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobSimilarityIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * JobSimilarity upsert
+   */
+  export type JobSimilarityUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobSimilarity
+     */
+    select?: JobSimilaritySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobSimilarity
+     */
+    omit?: JobSimilarityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobSimilarityInclude<ExtArgs> | null
+    /**
+     * The filter to search for the JobSimilarity to update in case it exists.
+     */
+    where: JobSimilarityWhereUniqueInput
+    /**
+     * In case the JobSimilarity found by the `where` argument doesn't exist, create a new JobSimilarity with this data.
+     */
+    create: XOR<JobSimilarityCreateInput, JobSimilarityUncheckedCreateInput>
+    /**
+     * In case the JobSimilarity was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<JobSimilarityUpdateInput, JobSimilarityUncheckedUpdateInput>
+  }
+
+  /**
+   * JobSimilarity delete
+   */
+  export type JobSimilarityDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobSimilarity
+     */
+    select?: JobSimilaritySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobSimilarity
+     */
+    omit?: JobSimilarityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobSimilarityInclude<ExtArgs> | null
+    /**
+     * Filter which JobSimilarity to delete.
+     */
+    where: JobSimilarityWhereUniqueInput
+  }
+
+  /**
+   * JobSimilarity deleteMany
+   */
+  export type JobSimilarityDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which JobSimilarities to delete
+     */
+    where?: JobSimilarityWhereInput
+    /**
+     * Limit how many JobSimilarities to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * JobSimilarity without action
+   */
+  export type JobSimilarityDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the JobSimilarity
+     */
+    select?: JobSimilaritySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the JobSimilarity
+     */
+    omit?: JobSimilarityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: JobSimilarityInclude<ExtArgs> | null
   }
 
 
@@ -56593,6 +59044,17 @@ export namespace Prisma {
   export type CandidateScalarFieldEnum = (typeof CandidateScalarFieldEnum)[keyof typeof CandidateScalarFieldEnum]
 
 
+  export const CandidateSearchHistoryScalarFieldEnum: {
+    id: 'id',
+    candidateId: 'candidateId',
+    keyword: 'keyword',
+    normalizedKeyword: 'normalizedKeyword',
+    searchedAt: 'searchedAt'
+  };
+
+  export type CandidateSearchHistoryScalarFieldEnum = (typeof CandidateSearchHistoryScalarFieldEnum)[keyof typeof CandidateSearchHistoryScalarFieldEnum]
+
+
   export const CandidateSkillScalarFieldEnum: {
     id: 'id',
     candidateId: 'candidateId',
@@ -56875,6 +59337,17 @@ export namespace Prisma {
   };
 
   export type JobViewScalarFieldEnum = (typeof JobViewScalarFieldEnum)[keyof typeof JobViewScalarFieldEnum]
+
+
+  export const JobSimilarityScalarFieldEnum: {
+    id: 'id',
+    sourceJobId: 'sourceJobId',
+    targetJobId: 'targetJobId',
+    similarityScore: 'similarityScore',
+    createdAt: 'createdAt'
+  };
+
+  export type JobSimilarityScalarFieldEnum = (typeof JobSimilarityScalarFieldEnum)[keyof typeof JobSimilarityScalarFieldEnum]
 
 
   export const CompanyFollowerScalarFieldEnum: {
@@ -58208,6 +60681,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerListRelationFilter
     jobAlerts?: JobAlertListRelationFilter
     savedJobs?: SavedJobListRelationFilter
+    searchHistory?: CandidateSearchHistoryListRelationFilter
   }
 
   export type CandidateOrderByWithRelationInput = {
@@ -58235,6 +60709,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerOrderByRelationAggregateInput
     jobAlerts?: JobAlertOrderByRelationAggregateInput
     savedJobs?: SavedJobOrderByRelationAggregateInput
+    searchHistory?: CandidateSearchHistoryOrderByRelationAggregateInput
   }
 
   export type CandidateWhereUniqueInput = Prisma.AtLeast<{
@@ -58265,6 +60740,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerListRelationFilter
     jobAlerts?: JobAlertListRelationFilter
     savedJobs?: SavedJobListRelationFilter
+    searchHistory?: CandidateSearchHistoryListRelationFilter
   }, "id" | "userId">
 
   export type CandidateOrderByWithAggregationInput = {
@@ -58307,6 +60783,61 @@ export namespace Prisma {
     coverLetter?: StringNullableWithAggregatesFilter<"Candidate"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Candidate"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Candidate"> | Date | string
+  }
+
+  export type CandidateSearchHistoryWhereInput = {
+    AND?: CandidateSearchHistoryWhereInput | CandidateSearchHistoryWhereInput[]
+    OR?: CandidateSearchHistoryWhereInput[]
+    NOT?: CandidateSearchHistoryWhereInput | CandidateSearchHistoryWhereInput[]
+    id?: StringFilter<"CandidateSearchHistory"> | string
+    candidateId?: StringFilter<"CandidateSearchHistory"> | string
+    keyword?: StringFilter<"CandidateSearchHistory"> | string
+    normalizedKeyword?: StringFilter<"CandidateSearchHistory"> | string
+    searchedAt?: DateTimeFilter<"CandidateSearchHistory"> | Date | string
+    candidate?: XOR<CandidateScalarRelationFilter, CandidateWhereInput>
+  }
+
+  export type CandidateSearchHistoryOrderByWithRelationInput = {
+    id?: SortOrder
+    candidateId?: SortOrder
+    keyword?: SortOrder
+    normalizedKeyword?: SortOrder
+    searchedAt?: SortOrder
+    candidate?: CandidateOrderByWithRelationInput
+  }
+
+  export type CandidateSearchHistoryWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: CandidateSearchHistoryWhereInput | CandidateSearchHistoryWhereInput[]
+    OR?: CandidateSearchHistoryWhereInput[]
+    NOT?: CandidateSearchHistoryWhereInput | CandidateSearchHistoryWhereInput[]
+    candidateId?: StringFilter<"CandidateSearchHistory"> | string
+    keyword?: StringFilter<"CandidateSearchHistory"> | string
+    normalizedKeyword?: StringFilter<"CandidateSearchHistory"> | string
+    searchedAt?: DateTimeFilter<"CandidateSearchHistory"> | Date | string
+    candidate?: XOR<CandidateScalarRelationFilter, CandidateWhereInput>
+  }, "id">
+
+  export type CandidateSearchHistoryOrderByWithAggregationInput = {
+    id?: SortOrder
+    candidateId?: SortOrder
+    keyword?: SortOrder
+    normalizedKeyword?: SortOrder
+    searchedAt?: SortOrder
+    _count?: CandidateSearchHistoryCountOrderByAggregateInput
+    _max?: CandidateSearchHistoryMaxOrderByAggregateInput
+    _min?: CandidateSearchHistoryMinOrderByAggregateInput
+  }
+
+  export type CandidateSearchHistoryScalarWhereWithAggregatesInput = {
+    AND?: CandidateSearchHistoryScalarWhereWithAggregatesInput | CandidateSearchHistoryScalarWhereWithAggregatesInput[]
+    OR?: CandidateSearchHistoryScalarWhereWithAggregatesInput[]
+    NOT?: CandidateSearchHistoryScalarWhereWithAggregatesInput | CandidateSearchHistoryScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CandidateSearchHistory"> | string
+    candidateId?: StringWithAggregatesFilter<"CandidateSearchHistory"> | string
+    keyword?: StringWithAggregatesFilter<"CandidateSearchHistory"> | string
+    normalizedKeyword?: StringWithAggregatesFilter<"CandidateSearchHistory"> | string
+    searchedAt?: DateTimeWithAggregatesFilter<"CandidateSearchHistory"> | Date | string
   }
 
   export type CandidateSkillWhereInput = {
@@ -58965,6 +61496,8 @@ export namespace Prisma {
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     recruiter?: XOR<UserScalarRelationFilter, UserWhereInput>
     savedJobs?: SavedJobListRelationFilter
+    sourceJobMatches?: JobSimilarityListRelationFilter
+    targetJobMatches?: JobSimilarityListRelationFilter
     conversations?: ConversationListRelationFilter
   }
 
@@ -59005,6 +61538,8 @@ export namespace Prisma {
     company?: CompanyOrderByWithRelationInput
     recruiter?: UserOrderByWithRelationInput
     savedJobs?: SavedJobOrderByRelationAggregateInput
+    sourceJobMatches?: JobSimilarityOrderByRelationAggregateInput
+    targetJobMatches?: JobSimilarityOrderByRelationAggregateInput
     conversations?: ConversationOrderByRelationAggregateInput
   }
 
@@ -59048,6 +61583,8 @@ export namespace Prisma {
     company?: XOR<CompanyScalarRelationFilter, CompanyWhereInput>
     recruiter?: XOR<UserScalarRelationFilter, UserWhereInput>
     savedJobs?: SavedJobListRelationFilter
+    sourceJobMatches?: JobSimilarityListRelationFilter
+    targetJobMatches?: JobSimilarityListRelationFilter
     conversations?: ConversationListRelationFilter
   }, "id" | "slug">
 
@@ -59836,6 +62373,67 @@ export namespace Prisma {
     ipAddress?: StringWithAggregatesFilter<"JobView"> | string
     userAgent?: StringWithAggregatesFilter<"JobView"> | string
     viewedAt?: DateTimeWithAggregatesFilter<"JobView"> | Date | string
+  }
+
+  export type JobSimilarityWhereInput = {
+    AND?: JobSimilarityWhereInput | JobSimilarityWhereInput[]
+    OR?: JobSimilarityWhereInput[]
+    NOT?: JobSimilarityWhereInput | JobSimilarityWhereInput[]
+    id?: StringFilter<"JobSimilarity"> | string
+    sourceJobId?: StringFilter<"JobSimilarity"> | string
+    targetJobId?: StringFilter<"JobSimilarity"> | string
+    similarityScore?: FloatFilter<"JobSimilarity"> | number
+    createdAt?: DateTimeFilter<"JobSimilarity"> | Date | string
+    sourceJob?: XOR<JobScalarRelationFilter, JobWhereInput>
+    targetJob?: XOR<JobScalarRelationFilter, JobWhereInput>
+  }
+
+  export type JobSimilarityOrderByWithRelationInput = {
+    id?: SortOrder
+    sourceJobId?: SortOrder
+    targetJobId?: SortOrder
+    similarityScore?: SortOrder
+    createdAt?: SortOrder
+    sourceJob?: JobOrderByWithRelationInput
+    targetJob?: JobOrderByWithRelationInput
+  }
+
+  export type JobSimilarityWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    sourceJobId_targetJobId?: JobSimilaritySourceJobIdTargetJobIdCompoundUniqueInput
+    AND?: JobSimilarityWhereInput | JobSimilarityWhereInput[]
+    OR?: JobSimilarityWhereInput[]
+    NOT?: JobSimilarityWhereInput | JobSimilarityWhereInput[]
+    sourceJobId?: StringFilter<"JobSimilarity"> | string
+    targetJobId?: StringFilter<"JobSimilarity"> | string
+    similarityScore?: FloatFilter<"JobSimilarity"> | number
+    createdAt?: DateTimeFilter<"JobSimilarity"> | Date | string
+    sourceJob?: XOR<JobScalarRelationFilter, JobWhereInput>
+    targetJob?: XOR<JobScalarRelationFilter, JobWhereInput>
+  }, "id" | "sourceJobId_targetJobId">
+
+  export type JobSimilarityOrderByWithAggregationInput = {
+    id?: SortOrder
+    sourceJobId?: SortOrder
+    targetJobId?: SortOrder
+    similarityScore?: SortOrder
+    createdAt?: SortOrder
+    _count?: JobSimilarityCountOrderByAggregateInput
+    _avg?: JobSimilarityAvgOrderByAggregateInput
+    _max?: JobSimilarityMaxOrderByAggregateInput
+    _min?: JobSimilarityMinOrderByAggregateInput
+    _sum?: JobSimilaritySumOrderByAggregateInput
+  }
+
+  export type JobSimilarityScalarWhereWithAggregatesInput = {
+    AND?: JobSimilarityScalarWhereWithAggregatesInput | JobSimilarityScalarWhereWithAggregatesInput[]
+    OR?: JobSimilarityScalarWhereWithAggregatesInput[]
+    NOT?: JobSimilarityScalarWhereWithAggregatesInput | JobSimilarityScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"JobSimilarity"> | string
+    sourceJobId?: StringWithAggregatesFilter<"JobSimilarity"> | string
+    targetJobId?: StringWithAggregatesFilter<"JobSimilarity"> | string
+    similarityScore?: FloatWithAggregatesFilter<"JobSimilarity"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"JobSimilarity"> | Date | string
   }
 
   export type CompanyFollowerWhereInput = {
@@ -61861,6 +64459,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerCreateNestedManyWithoutCandidateInput
     jobAlerts?: JobAlertCreateNestedManyWithoutCandidateInput
     savedJobs?: SavedJobCreateNestedManyWithoutCandidateInput
+    searchHistory?: CandidateSearchHistoryCreateNestedManyWithoutCandidateInput
   }
 
   export type CandidateUncheckedCreateInput = {
@@ -61887,6 +64486,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUncheckedCreateNestedManyWithoutCandidateInput
     jobAlerts?: JobAlertUncheckedCreateNestedManyWithoutCandidateInput
     savedJobs?: SavedJobUncheckedCreateNestedManyWithoutCandidateInput
+    searchHistory?: CandidateSearchHistoryUncheckedCreateNestedManyWithoutCandidateInput
   }
 
   export type CandidateUpdateInput = {
@@ -61913,6 +64513,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUpdateManyWithoutCandidateNestedInput
     jobAlerts?: JobAlertUpdateManyWithoutCandidateNestedInput
     savedJobs?: SavedJobUpdateManyWithoutCandidateNestedInput
+    searchHistory?: CandidateSearchHistoryUpdateManyWithoutCandidateNestedInput
   }
 
   export type CandidateUncheckedUpdateInput = {
@@ -61939,6 +64540,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUncheckedUpdateManyWithoutCandidateNestedInput
     jobAlerts?: JobAlertUncheckedUpdateManyWithoutCandidateNestedInput
     savedJobs?: SavedJobUncheckedUpdateManyWithoutCandidateNestedInput
+    searchHistory?: CandidateSearchHistoryUncheckedUpdateManyWithoutCandidateNestedInput
   }
 
   export type CandidateCreateManyInput = {
@@ -61989,6 +64591,61 @@ export namespace Prisma {
     coverLetter?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CandidateSearchHistoryCreateInput = {
+    id?: string
+    keyword: string
+    normalizedKeyword: string
+    searchedAt?: Date | string
+    candidate: CandidateCreateNestedOneWithoutSearchHistoryInput
+  }
+
+  export type CandidateSearchHistoryUncheckedCreateInput = {
+    id?: string
+    candidateId: string
+    keyword: string
+    normalizedKeyword: string
+    searchedAt?: Date | string
+  }
+
+  export type CandidateSearchHistoryUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    keyword?: StringFieldUpdateOperationsInput | string
+    normalizedKeyword?: StringFieldUpdateOperationsInput | string
+    searchedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    candidate?: CandidateUpdateOneRequiredWithoutSearchHistoryNestedInput
+  }
+
+  export type CandidateSearchHistoryUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    candidateId?: StringFieldUpdateOperationsInput | string
+    keyword?: StringFieldUpdateOperationsInput | string
+    normalizedKeyword?: StringFieldUpdateOperationsInput | string
+    searchedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CandidateSearchHistoryCreateManyInput = {
+    id?: string
+    candidateId: string
+    keyword: string
+    normalizedKeyword: string
+    searchedAt?: Date | string
+  }
+
+  export type CandidateSearchHistoryUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    keyword?: StringFieldUpdateOperationsInput | string
+    normalizedKeyword?: StringFieldUpdateOperationsInput | string
+    searchedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CandidateSearchHistoryUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    candidateId?: StringFieldUpdateOperationsInput | string
+    keyword?: StringFieldUpdateOperationsInput | string
+    normalizedKeyword?: StringFieldUpdateOperationsInput | string
+    searchedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CandidateSkillCreateInput = {
@@ -62709,6 +65366,8 @@ export namespace Prisma {
     company: CompanyCreateNestedOneWithoutJobsInput
     recruiter: UserCreateNestedOneWithoutCreatedJobsInput
     savedJobs?: SavedJobCreateNestedManyWithoutJobInput
+    sourceJobMatches?: JobSimilarityCreateNestedManyWithoutSourceJobInput
+    targetJobMatches?: JobSimilarityCreateNestedManyWithoutTargetJobInput
     conversations?: ConversationCreateNestedManyWithoutJobInput
   }
 
@@ -62747,6 +65406,8 @@ export namespace Prisma {
     jobSkills?: JobSkillUncheckedCreateNestedManyWithoutJobInput
     jobViews?: JobViewUncheckedCreateNestedManyWithoutJobInput
     savedJobs?: SavedJobUncheckedCreateNestedManyWithoutJobInput
+    sourceJobMatches?: JobSimilarityUncheckedCreateNestedManyWithoutSourceJobInput
+    targetJobMatches?: JobSimilarityUncheckedCreateNestedManyWithoutTargetJobInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutJobInput
   }
 
@@ -62785,6 +65446,8 @@ export namespace Prisma {
     company?: CompanyUpdateOneRequiredWithoutJobsNestedInput
     recruiter?: UserUpdateOneRequiredWithoutCreatedJobsNestedInput
     savedJobs?: SavedJobUpdateManyWithoutJobNestedInput
+    sourceJobMatches?: JobSimilarityUpdateManyWithoutSourceJobNestedInput
+    targetJobMatches?: JobSimilarityUpdateManyWithoutTargetJobNestedInput
     conversations?: ConversationUpdateManyWithoutJobNestedInput
   }
 
@@ -62823,6 +65486,8 @@ export namespace Prisma {
     jobSkills?: JobSkillUncheckedUpdateManyWithoutJobNestedInput
     jobViews?: JobViewUncheckedUpdateManyWithoutJobNestedInput
     savedJobs?: SavedJobUncheckedUpdateManyWithoutJobNestedInput
+    sourceJobMatches?: JobSimilarityUncheckedUpdateManyWithoutSourceJobNestedInput
+    targetJobMatches?: JobSimilarityUncheckedUpdateManyWithoutTargetJobNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutJobNestedInput
   }
 
@@ -63653,6 +66318,60 @@ export namespace Prisma {
     ipAddress?: StringFieldUpdateOperationsInput | string
     userAgent?: StringFieldUpdateOperationsInput | string
     viewedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobSimilarityCreateInput = {
+    id?: string
+    similarityScore: number
+    createdAt?: Date | string
+    sourceJob: JobCreateNestedOneWithoutSourceJobMatchesInput
+    targetJob: JobCreateNestedOneWithoutTargetJobMatchesInput
+  }
+
+  export type JobSimilarityUncheckedCreateInput = {
+    id?: string
+    sourceJobId: string
+    targetJobId: string
+    similarityScore: number
+    createdAt?: Date | string
+  }
+
+  export type JobSimilarityUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    similarityScore?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sourceJob?: JobUpdateOneRequiredWithoutSourceJobMatchesNestedInput
+    targetJob?: JobUpdateOneRequiredWithoutTargetJobMatchesNestedInput
+  }
+
+  export type JobSimilarityUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sourceJobId?: StringFieldUpdateOperationsInput | string
+    targetJobId?: StringFieldUpdateOperationsInput | string
+    similarityScore?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobSimilarityCreateManyInput = {
+    id?: string
+    sourceJobId: string
+    targetJobId: string
+    similarityScore: number
+    createdAt?: Date | string
+  }
+
+  export type JobSimilarityUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    similarityScore?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobSimilarityUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sourceJobId?: StringFieldUpdateOperationsInput | string
+    targetJobId?: StringFieldUpdateOperationsInput | string
+    similarityScore?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CompanyFollowerCreateInput = {
@@ -65933,6 +68652,12 @@ export namespace Prisma {
     none?: SavedJobWhereInput
   }
 
+  export type CandidateSearchHistoryListRelationFilter = {
+    every?: CandidateSearchHistoryWhereInput
+    some?: CandidateSearchHistoryWhereInput
+    none?: CandidateSearchHistoryWhereInput
+  }
+
   export type CandidateCertificationOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -65962,6 +68687,10 @@ export namespace Prisma {
   }
 
   export type SavedJobOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CandidateSearchHistoryOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -66074,16 +68803,40 @@ export namespace Prisma {
     _max?: NestedEnumPreferredLocationTypeNullableFilter<$PrismaModel>
   }
 
+  export type CandidateScalarRelationFilter = {
+    is?: CandidateWhereInput
+    isNot?: CandidateWhereInput
+  }
+
+  export type CandidateSearchHistoryCountOrderByAggregateInput = {
+    id?: SortOrder
+    candidateId?: SortOrder
+    keyword?: SortOrder
+    normalizedKeyword?: SortOrder
+    searchedAt?: SortOrder
+  }
+
+  export type CandidateSearchHistoryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    candidateId?: SortOrder
+    keyword?: SortOrder
+    normalizedKeyword?: SortOrder
+    searchedAt?: SortOrder
+  }
+
+  export type CandidateSearchHistoryMinOrderByAggregateInput = {
+    id?: SortOrder
+    candidateId?: SortOrder
+    keyword?: SortOrder
+    normalizedKeyword?: SortOrder
+    searchedAt?: SortOrder
+  }
+
   export type EnumProficiencyLevelFilter<$PrismaModel = never> = {
     equals?: $Enums.ProficiencyLevel | EnumProficiencyLevelFieldRefInput<$PrismaModel>
     in?: $Enums.ProficiencyLevel[] | ListEnumProficiencyLevelFieldRefInput<$PrismaModel>
     notIn?: $Enums.ProficiencyLevel[] | ListEnumProficiencyLevelFieldRefInput<$PrismaModel>
     not?: NestedEnumProficiencyLevelFilter<$PrismaModel> | $Enums.ProficiencyLevel
-  }
-
-  export type CandidateScalarRelationFilter = {
-    is?: CandidateWhereInput
-    isNot?: CandidateWhereInput
   }
 
   export type SkillScalarRelationFilter = {
@@ -66669,6 +69422,12 @@ export namespace Prisma {
     none?: JobSkillWhereInput
   }
 
+  export type JobSimilarityListRelationFilter = {
+    every?: JobSimilarityWhereInput
+    some?: JobSimilarityWhereInput
+    none?: JobSimilarityWhereInput
+  }
+
   export type ConversationListRelationFilter = {
     every?: ConversationWhereInput
     some?: ConversationWhereInput
@@ -66680,6 +69439,10 @@ export namespace Prisma {
   }
 
   export type JobSkillOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type JobSimilarityOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -67326,6 +70089,70 @@ export namespace Prisma {
     ipAddress?: SortOrder
     userAgent?: SortOrder
     viewedAt?: SortOrder
+  }
+
+  export type FloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type JobSimilaritySourceJobIdTargetJobIdCompoundUniqueInput = {
+    sourceJobId: string
+    targetJobId: string
+  }
+
+  export type JobSimilarityCountOrderByAggregateInput = {
+    id?: SortOrder
+    sourceJobId?: SortOrder
+    targetJobId?: SortOrder
+    similarityScore?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type JobSimilarityAvgOrderByAggregateInput = {
+    similarityScore?: SortOrder
+  }
+
+  export type JobSimilarityMaxOrderByAggregateInput = {
+    id?: SortOrder
+    sourceJobId?: SortOrder
+    targetJobId?: SortOrder
+    similarityScore?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type JobSimilarityMinOrderByAggregateInput = {
+    id?: SortOrder
+    sourceJobId?: SortOrder
+    targetJobId?: SortOrder
+    similarityScore?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type JobSimilaritySumOrderByAggregateInput = {
+    similarityScore?: SortOrder
+  }
+
+  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type CompanyFollowerCompanyIdCandidateIdCompoundUniqueInput = {
@@ -69425,6 +72252,13 @@ export namespace Prisma {
     connect?: SavedJobWhereUniqueInput | SavedJobWhereUniqueInput[]
   }
 
+  export type CandidateSearchHistoryCreateNestedManyWithoutCandidateInput = {
+    create?: XOR<CandidateSearchHistoryCreateWithoutCandidateInput, CandidateSearchHistoryUncheckedCreateWithoutCandidateInput> | CandidateSearchHistoryCreateWithoutCandidateInput[] | CandidateSearchHistoryUncheckedCreateWithoutCandidateInput[]
+    connectOrCreate?: CandidateSearchHistoryCreateOrConnectWithoutCandidateInput | CandidateSearchHistoryCreateOrConnectWithoutCandidateInput[]
+    createMany?: CandidateSearchHistoryCreateManyCandidateInputEnvelope
+    connect?: CandidateSearchHistoryWhereUniqueInput | CandidateSearchHistoryWhereUniqueInput[]
+  }
+
   export type ApplicationUncheckedCreateNestedManyWithoutCandidateInput = {
     create?: XOR<ApplicationCreateWithoutCandidateInput, ApplicationUncheckedCreateWithoutCandidateInput> | ApplicationCreateWithoutCandidateInput[] | ApplicationUncheckedCreateWithoutCandidateInput[]
     connectOrCreate?: ApplicationCreateOrConnectWithoutCandidateInput | ApplicationCreateOrConnectWithoutCandidateInput[]
@@ -69486,6 +72320,13 @@ export namespace Prisma {
     connectOrCreate?: SavedJobCreateOrConnectWithoutCandidateInput | SavedJobCreateOrConnectWithoutCandidateInput[]
     createMany?: SavedJobCreateManyCandidateInputEnvelope
     connect?: SavedJobWhereUniqueInput | SavedJobWhereUniqueInput[]
+  }
+
+  export type CandidateSearchHistoryUncheckedCreateNestedManyWithoutCandidateInput = {
+    create?: XOR<CandidateSearchHistoryCreateWithoutCandidateInput, CandidateSearchHistoryUncheckedCreateWithoutCandidateInput> | CandidateSearchHistoryCreateWithoutCandidateInput[] | CandidateSearchHistoryUncheckedCreateWithoutCandidateInput[]
+    connectOrCreate?: CandidateSearchHistoryCreateOrConnectWithoutCandidateInput | CandidateSearchHistoryCreateOrConnectWithoutCandidateInput[]
+    createMany?: CandidateSearchHistoryCreateManyCandidateInputEnvelope
+    connect?: CandidateSearchHistoryWhereUniqueInput | CandidateSearchHistoryWhereUniqueInput[]
   }
 
   export type NullableDecimalFieldUpdateOperationsInput = {
@@ -69642,6 +72483,20 @@ export namespace Prisma {
     deleteMany?: SavedJobScalarWhereInput | SavedJobScalarWhereInput[]
   }
 
+  export type CandidateSearchHistoryUpdateManyWithoutCandidateNestedInput = {
+    create?: XOR<CandidateSearchHistoryCreateWithoutCandidateInput, CandidateSearchHistoryUncheckedCreateWithoutCandidateInput> | CandidateSearchHistoryCreateWithoutCandidateInput[] | CandidateSearchHistoryUncheckedCreateWithoutCandidateInput[]
+    connectOrCreate?: CandidateSearchHistoryCreateOrConnectWithoutCandidateInput | CandidateSearchHistoryCreateOrConnectWithoutCandidateInput[]
+    upsert?: CandidateSearchHistoryUpsertWithWhereUniqueWithoutCandidateInput | CandidateSearchHistoryUpsertWithWhereUniqueWithoutCandidateInput[]
+    createMany?: CandidateSearchHistoryCreateManyCandidateInputEnvelope
+    set?: CandidateSearchHistoryWhereUniqueInput | CandidateSearchHistoryWhereUniqueInput[]
+    disconnect?: CandidateSearchHistoryWhereUniqueInput | CandidateSearchHistoryWhereUniqueInput[]
+    delete?: CandidateSearchHistoryWhereUniqueInput | CandidateSearchHistoryWhereUniqueInput[]
+    connect?: CandidateSearchHistoryWhereUniqueInput | CandidateSearchHistoryWhereUniqueInput[]
+    update?: CandidateSearchHistoryUpdateWithWhereUniqueWithoutCandidateInput | CandidateSearchHistoryUpdateWithWhereUniqueWithoutCandidateInput[]
+    updateMany?: CandidateSearchHistoryUpdateManyWithWhereWithoutCandidateInput | CandidateSearchHistoryUpdateManyWithWhereWithoutCandidateInput[]
+    deleteMany?: CandidateSearchHistoryScalarWhereInput | CandidateSearchHistoryScalarWhereInput[]
+  }
+
   export type ApplicationUncheckedUpdateManyWithoutCandidateNestedInput = {
     create?: XOR<ApplicationCreateWithoutCandidateInput, ApplicationUncheckedCreateWithoutCandidateInput> | ApplicationCreateWithoutCandidateInput[] | ApplicationUncheckedCreateWithoutCandidateInput[]
     connectOrCreate?: ApplicationCreateOrConnectWithoutCandidateInput | ApplicationCreateOrConnectWithoutCandidateInput[]
@@ -69766,6 +72621,34 @@ export namespace Prisma {
     update?: SavedJobUpdateWithWhereUniqueWithoutCandidateInput | SavedJobUpdateWithWhereUniqueWithoutCandidateInput[]
     updateMany?: SavedJobUpdateManyWithWhereWithoutCandidateInput | SavedJobUpdateManyWithWhereWithoutCandidateInput[]
     deleteMany?: SavedJobScalarWhereInput | SavedJobScalarWhereInput[]
+  }
+
+  export type CandidateSearchHistoryUncheckedUpdateManyWithoutCandidateNestedInput = {
+    create?: XOR<CandidateSearchHistoryCreateWithoutCandidateInput, CandidateSearchHistoryUncheckedCreateWithoutCandidateInput> | CandidateSearchHistoryCreateWithoutCandidateInput[] | CandidateSearchHistoryUncheckedCreateWithoutCandidateInput[]
+    connectOrCreate?: CandidateSearchHistoryCreateOrConnectWithoutCandidateInput | CandidateSearchHistoryCreateOrConnectWithoutCandidateInput[]
+    upsert?: CandidateSearchHistoryUpsertWithWhereUniqueWithoutCandidateInput | CandidateSearchHistoryUpsertWithWhereUniqueWithoutCandidateInput[]
+    createMany?: CandidateSearchHistoryCreateManyCandidateInputEnvelope
+    set?: CandidateSearchHistoryWhereUniqueInput | CandidateSearchHistoryWhereUniqueInput[]
+    disconnect?: CandidateSearchHistoryWhereUniqueInput | CandidateSearchHistoryWhereUniqueInput[]
+    delete?: CandidateSearchHistoryWhereUniqueInput | CandidateSearchHistoryWhereUniqueInput[]
+    connect?: CandidateSearchHistoryWhereUniqueInput | CandidateSearchHistoryWhereUniqueInput[]
+    update?: CandidateSearchHistoryUpdateWithWhereUniqueWithoutCandidateInput | CandidateSearchHistoryUpdateWithWhereUniqueWithoutCandidateInput[]
+    updateMany?: CandidateSearchHistoryUpdateManyWithWhereWithoutCandidateInput | CandidateSearchHistoryUpdateManyWithWhereWithoutCandidateInput[]
+    deleteMany?: CandidateSearchHistoryScalarWhereInput | CandidateSearchHistoryScalarWhereInput[]
+  }
+
+  export type CandidateCreateNestedOneWithoutSearchHistoryInput = {
+    create?: XOR<CandidateCreateWithoutSearchHistoryInput, CandidateUncheckedCreateWithoutSearchHistoryInput>
+    connectOrCreate?: CandidateCreateOrConnectWithoutSearchHistoryInput
+    connect?: CandidateWhereUniqueInput
+  }
+
+  export type CandidateUpdateOneRequiredWithoutSearchHistoryNestedInput = {
+    create?: XOR<CandidateCreateWithoutSearchHistoryInput, CandidateUncheckedCreateWithoutSearchHistoryInput>
+    connectOrCreate?: CandidateCreateOrConnectWithoutSearchHistoryInput
+    upsert?: CandidateUpsertWithoutSearchHistoryInput
+    connect?: CandidateWhereUniqueInput
+    update?: XOR<XOR<CandidateUpdateToOneWithWhereWithoutSearchHistoryInput, CandidateUpdateWithoutSearchHistoryInput>, CandidateUncheckedUpdateWithoutSearchHistoryInput>
   }
 
   export type CandidateCreateNestedOneWithoutSkillsInput = {
@@ -70200,6 +73083,20 @@ export namespace Prisma {
     connect?: SavedJobWhereUniqueInput | SavedJobWhereUniqueInput[]
   }
 
+  export type JobSimilarityCreateNestedManyWithoutSourceJobInput = {
+    create?: XOR<JobSimilarityCreateWithoutSourceJobInput, JobSimilarityUncheckedCreateWithoutSourceJobInput> | JobSimilarityCreateWithoutSourceJobInput[] | JobSimilarityUncheckedCreateWithoutSourceJobInput[]
+    connectOrCreate?: JobSimilarityCreateOrConnectWithoutSourceJobInput | JobSimilarityCreateOrConnectWithoutSourceJobInput[]
+    createMany?: JobSimilarityCreateManySourceJobInputEnvelope
+    connect?: JobSimilarityWhereUniqueInput | JobSimilarityWhereUniqueInput[]
+  }
+
+  export type JobSimilarityCreateNestedManyWithoutTargetJobInput = {
+    create?: XOR<JobSimilarityCreateWithoutTargetJobInput, JobSimilarityUncheckedCreateWithoutTargetJobInput> | JobSimilarityCreateWithoutTargetJobInput[] | JobSimilarityUncheckedCreateWithoutTargetJobInput[]
+    connectOrCreate?: JobSimilarityCreateOrConnectWithoutTargetJobInput | JobSimilarityCreateOrConnectWithoutTargetJobInput[]
+    createMany?: JobSimilarityCreateManyTargetJobInputEnvelope
+    connect?: JobSimilarityWhereUniqueInput | JobSimilarityWhereUniqueInput[]
+  }
+
   export type ConversationCreateNestedManyWithoutJobInput = {
     create?: XOR<ConversationCreateWithoutJobInput, ConversationUncheckedCreateWithoutJobInput> | ConversationCreateWithoutJobInput[] | ConversationUncheckedCreateWithoutJobInput[]
     connectOrCreate?: ConversationCreateOrConnectWithoutJobInput | ConversationCreateOrConnectWithoutJobInput[]
@@ -70247,6 +73144,20 @@ export namespace Prisma {
     connectOrCreate?: SavedJobCreateOrConnectWithoutJobInput | SavedJobCreateOrConnectWithoutJobInput[]
     createMany?: SavedJobCreateManyJobInputEnvelope
     connect?: SavedJobWhereUniqueInput | SavedJobWhereUniqueInput[]
+  }
+
+  export type JobSimilarityUncheckedCreateNestedManyWithoutSourceJobInput = {
+    create?: XOR<JobSimilarityCreateWithoutSourceJobInput, JobSimilarityUncheckedCreateWithoutSourceJobInput> | JobSimilarityCreateWithoutSourceJobInput[] | JobSimilarityUncheckedCreateWithoutSourceJobInput[]
+    connectOrCreate?: JobSimilarityCreateOrConnectWithoutSourceJobInput | JobSimilarityCreateOrConnectWithoutSourceJobInput[]
+    createMany?: JobSimilarityCreateManySourceJobInputEnvelope
+    connect?: JobSimilarityWhereUniqueInput | JobSimilarityWhereUniqueInput[]
+  }
+
+  export type JobSimilarityUncheckedCreateNestedManyWithoutTargetJobInput = {
+    create?: XOR<JobSimilarityCreateWithoutTargetJobInput, JobSimilarityUncheckedCreateWithoutTargetJobInput> | JobSimilarityCreateWithoutTargetJobInput[] | JobSimilarityUncheckedCreateWithoutTargetJobInput[]
+    connectOrCreate?: JobSimilarityCreateOrConnectWithoutTargetJobInput | JobSimilarityCreateOrConnectWithoutTargetJobInput[]
+    createMany?: JobSimilarityCreateManyTargetJobInputEnvelope
+    connect?: JobSimilarityWhereUniqueInput | JobSimilarityWhereUniqueInput[]
   }
 
   export type ConversationUncheckedCreateNestedManyWithoutJobInput = {
@@ -70372,6 +73283,34 @@ export namespace Prisma {
     deleteMany?: SavedJobScalarWhereInput | SavedJobScalarWhereInput[]
   }
 
+  export type JobSimilarityUpdateManyWithoutSourceJobNestedInput = {
+    create?: XOR<JobSimilarityCreateWithoutSourceJobInput, JobSimilarityUncheckedCreateWithoutSourceJobInput> | JobSimilarityCreateWithoutSourceJobInput[] | JobSimilarityUncheckedCreateWithoutSourceJobInput[]
+    connectOrCreate?: JobSimilarityCreateOrConnectWithoutSourceJobInput | JobSimilarityCreateOrConnectWithoutSourceJobInput[]
+    upsert?: JobSimilarityUpsertWithWhereUniqueWithoutSourceJobInput | JobSimilarityUpsertWithWhereUniqueWithoutSourceJobInput[]
+    createMany?: JobSimilarityCreateManySourceJobInputEnvelope
+    set?: JobSimilarityWhereUniqueInput | JobSimilarityWhereUniqueInput[]
+    disconnect?: JobSimilarityWhereUniqueInput | JobSimilarityWhereUniqueInput[]
+    delete?: JobSimilarityWhereUniqueInput | JobSimilarityWhereUniqueInput[]
+    connect?: JobSimilarityWhereUniqueInput | JobSimilarityWhereUniqueInput[]
+    update?: JobSimilarityUpdateWithWhereUniqueWithoutSourceJobInput | JobSimilarityUpdateWithWhereUniqueWithoutSourceJobInput[]
+    updateMany?: JobSimilarityUpdateManyWithWhereWithoutSourceJobInput | JobSimilarityUpdateManyWithWhereWithoutSourceJobInput[]
+    deleteMany?: JobSimilarityScalarWhereInput | JobSimilarityScalarWhereInput[]
+  }
+
+  export type JobSimilarityUpdateManyWithoutTargetJobNestedInput = {
+    create?: XOR<JobSimilarityCreateWithoutTargetJobInput, JobSimilarityUncheckedCreateWithoutTargetJobInput> | JobSimilarityCreateWithoutTargetJobInput[] | JobSimilarityUncheckedCreateWithoutTargetJobInput[]
+    connectOrCreate?: JobSimilarityCreateOrConnectWithoutTargetJobInput | JobSimilarityCreateOrConnectWithoutTargetJobInput[]
+    upsert?: JobSimilarityUpsertWithWhereUniqueWithoutTargetJobInput | JobSimilarityUpsertWithWhereUniqueWithoutTargetJobInput[]
+    createMany?: JobSimilarityCreateManyTargetJobInputEnvelope
+    set?: JobSimilarityWhereUniqueInput | JobSimilarityWhereUniqueInput[]
+    disconnect?: JobSimilarityWhereUniqueInput | JobSimilarityWhereUniqueInput[]
+    delete?: JobSimilarityWhereUniqueInput | JobSimilarityWhereUniqueInput[]
+    connect?: JobSimilarityWhereUniqueInput | JobSimilarityWhereUniqueInput[]
+    update?: JobSimilarityUpdateWithWhereUniqueWithoutTargetJobInput | JobSimilarityUpdateWithWhereUniqueWithoutTargetJobInput[]
+    updateMany?: JobSimilarityUpdateManyWithWhereWithoutTargetJobInput | JobSimilarityUpdateManyWithWhereWithoutTargetJobInput[]
+    deleteMany?: JobSimilarityScalarWhereInput | JobSimilarityScalarWhereInput[]
+  }
+
   export type ConversationUpdateManyWithoutJobNestedInput = {
     create?: XOR<ConversationCreateWithoutJobInput, ConversationUncheckedCreateWithoutJobInput> | ConversationCreateWithoutJobInput[] | ConversationUncheckedCreateWithoutJobInput[]
     connectOrCreate?: ConversationCreateOrConnectWithoutJobInput | ConversationCreateOrConnectWithoutJobInput[]
@@ -70468,6 +73407,34 @@ export namespace Prisma {
     update?: SavedJobUpdateWithWhereUniqueWithoutJobInput | SavedJobUpdateWithWhereUniqueWithoutJobInput[]
     updateMany?: SavedJobUpdateManyWithWhereWithoutJobInput | SavedJobUpdateManyWithWhereWithoutJobInput[]
     deleteMany?: SavedJobScalarWhereInput | SavedJobScalarWhereInput[]
+  }
+
+  export type JobSimilarityUncheckedUpdateManyWithoutSourceJobNestedInput = {
+    create?: XOR<JobSimilarityCreateWithoutSourceJobInput, JobSimilarityUncheckedCreateWithoutSourceJobInput> | JobSimilarityCreateWithoutSourceJobInput[] | JobSimilarityUncheckedCreateWithoutSourceJobInput[]
+    connectOrCreate?: JobSimilarityCreateOrConnectWithoutSourceJobInput | JobSimilarityCreateOrConnectWithoutSourceJobInput[]
+    upsert?: JobSimilarityUpsertWithWhereUniqueWithoutSourceJobInput | JobSimilarityUpsertWithWhereUniqueWithoutSourceJobInput[]
+    createMany?: JobSimilarityCreateManySourceJobInputEnvelope
+    set?: JobSimilarityWhereUniqueInput | JobSimilarityWhereUniqueInput[]
+    disconnect?: JobSimilarityWhereUniqueInput | JobSimilarityWhereUniqueInput[]
+    delete?: JobSimilarityWhereUniqueInput | JobSimilarityWhereUniqueInput[]
+    connect?: JobSimilarityWhereUniqueInput | JobSimilarityWhereUniqueInput[]
+    update?: JobSimilarityUpdateWithWhereUniqueWithoutSourceJobInput | JobSimilarityUpdateWithWhereUniqueWithoutSourceJobInput[]
+    updateMany?: JobSimilarityUpdateManyWithWhereWithoutSourceJobInput | JobSimilarityUpdateManyWithWhereWithoutSourceJobInput[]
+    deleteMany?: JobSimilarityScalarWhereInput | JobSimilarityScalarWhereInput[]
+  }
+
+  export type JobSimilarityUncheckedUpdateManyWithoutTargetJobNestedInput = {
+    create?: XOR<JobSimilarityCreateWithoutTargetJobInput, JobSimilarityUncheckedCreateWithoutTargetJobInput> | JobSimilarityCreateWithoutTargetJobInput[] | JobSimilarityUncheckedCreateWithoutTargetJobInput[]
+    connectOrCreate?: JobSimilarityCreateOrConnectWithoutTargetJobInput | JobSimilarityCreateOrConnectWithoutTargetJobInput[]
+    upsert?: JobSimilarityUpsertWithWhereUniqueWithoutTargetJobInput | JobSimilarityUpsertWithWhereUniqueWithoutTargetJobInput[]
+    createMany?: JobSimilarityCreateManyTargetJobInputEnvelope
+    set?: JobSimilarityWhereUniqueInput | JobSimilarityWhereUniqueInput[]
+    disconnect?: JobSimilarityWhereUniqueInput | JobSimilarityWhereUniqueInput[]
+    delete?: JobSimilarityWhereUniqueInput | JobSimilarityWhereUniqueInput[]
+    connect?: JobSimilarityWhereUniqueInput | JobSimilarityWhereUniqueInput[]
+    update?: JobSimilarityUpdateWithWhereUniqueWithoutTargetJobInput | JobSimilarityUpdateWithWhereUniqueWithoutTargetJobInput[]
+    updateMany?: JobSimilarityUpdateManyWithWhereWithoutTargetJobInput | JobSimilarityUpdateManyWithWhereWithoutTargetJobInput[]
+    deleteMany?: JobSimilarityScalarWhereInput | JobSimilarityScalarWhereInput[]
   }
 
   export type ConversationUncheckedUpdateManyWithoutJobNestedInput = {
@@ -71050,6 +74017,42 @@ export namespace Prisma {
     delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutJobViewsInput, UserUpdateWithoutJobViewsInput>, UserUncheckedUpdateWithoutJobViewsInput>
+  }
+
+  export type JobCreateNestedOneWithoutSourceJobMatchesInput = {
+    create?: XOR<JobCreateWithoutSourceJobMatchesInput, JobUncheckedCreateWithoutSourceJobMatchesInput>
+    connectOrCreate?: JobCreateOrConnectWithoutSourceJobMatchesInput
+    connect?: JobWhereUniqueInput
+  }
+
+  export type JobCreateNestedOneWithoutTargetJobMatchesInput = {
+    create?: XOR<JobCreateWithoutTargetJobMatchesInput, JobUncheckedCreateWithoutTargetJobMatchesInput>
+    connectOrCreate?: JobCreateOrConnectWithoutTargetJobMatchesInput
+    connect?: JobWhereUniqueInput
+  }
+
+  export type FloatFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type JobUpdateOneRequiredWithoutSourceJobMatchesNestedInput = {
+    create?: XOR<JobCreateWithoutSourceJobMatchesInput, JobUncheckedCreateWithoutSourceJobMatchesInput>
+    connectOrCreate?: JobCreateOrConnectWithoutSourceJobMatchesInput
+    upsert?: JobUpsertWithoutSourceJobMatchesInput
+    connect?: JobWhereUniqueInput
+    update?: XOR<XOR<JobUpdateToOneWithWhereWithoutSourceJobMatchesInput, JobUpdateWithoutSourceJobMatchesInput>, JobUncheckedUpdateWithoutSourceJobMatchesInput>
+  }
+
+  export type JobUpdateOneRequiredWithoutTargetJobMatchesNestedInput = {
+    create?: XOR<JobCreateWithoutTargetJobMatchesInput, JobUncheckedCreateWithoutTargetJobMatchesInput>
+    connectOrCreate?: JobCreateOrConnectWithoutTargetJobMatchesInput
+    upsert?: JobUpsertWithoutTargetJobMatchesInput
+    connect?: JobWhereUniqueInput
+    update?: XOR<XOR<JobUpdateToOneWithWhereWithoutTargetJobMatchesInput, JobUpdateWithoutTargetJobMatchesInput>, JobUncheckedUpdateWithoutTargetJobMatchesInput>
   }
 
   export type CandidateCreateNestedOneWithoutCompanyFollowersInput = {
@@ -72517,6 +75520,22 @@ export namespace Prisma {
     _max?: NestedEnumLocationTypeFilter<$PrismaModel>
   }
 
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
   export type NestedEnumJobTypeNullableFilter<$PrismaModel = never> = {
     equals?: $Enums.JobType | EnumJobTypeFieldRefInput<$PrismaModel> | null
     in?: $Enums.JobType[] | ListEnumJobTypeFieldRefInput<$PrismaModel> | null
@@ -73233,6 +76252,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerCreateNestedManyWithoutCandidateInput
     jobAlerts?: JobAlertCreateNestedManyWithoutCandidateInput
     savedJobs?: SavedJobCreateNestedManyWithoutCandidateInput
+    searchHistory?: CandidateSearchHistoryCreateNestedManyWithoutCandidateInput
   }
 
   export type CandidateUncheckedCreateWithoutUserInput = {
@@ -73258,6 +76278,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUncheckedCreateNestedManyWithoutCandidateInput
     jobAlerts?: JobAlertUncheckedCreateNestedManyWithoutCandidateInput
     savedJobs?: SavedJobUncheckedCreateNestedManyWithoutCandidateInput
+    searchHistory?: CandidateSearchHistoryUncheckedCreateNestedManyWithoutCandidateInput
   }
 
   export type CandidateCreateOrConnectWithoutUserInput = {
@@ -73471,6 +76492,8 @@ export namespace Prisma {
     jobViews?: JobViewCreateNestedManyWithoutJobInput
     company: CompanyCreateNestedOneWithoutJobsInput
     savedJobs?: SavedJobCreateNestedManyWithoutJobInput
+    sourceJobMatches?: JobSimilarityCreateNestedManyWithoutSourceJobInput
+    targetJobMatches?: JobSimilarityCreateNestedManyWithoutTargetJobInput
     conversations?: ConversationCreateNestedManyWithoutJobInput
   }
 
@@ -73508,6 +76531,8 @@ export namespace Prisma {
     jobSkills?: JobSkillUncheckedCreateNestedManyWithoutJobInput
     jobViews?: JobViewUncheckedCreateNestedManyWithoutJobInput
     savedJobs?: SavedJobUncheckedCreateNestedManyWithoutJobInput
+    sourceJobMatches?: JobSimilarityUncheckedCreateNestedManyWithoutSourceJobInput
+    targetJobMatches?: JobSimilarityUncheckedCreateNestedManyWithoutTargetJobInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutJobInput
   }
 
@@ -74022,6 +77047,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUpdateManyWithoutCandidateNestedInput
     jobAlerts?: JobAlertUpdateManyWithoutCandidateNestedInput
     savedJobs?: SavedJobUpdateManyWithoutCandidateNestedInput
+    searchHistory?: CandidateSearchHistoryUpdateManyWithoutCandidateNestedInput
   }
 
   export type CandidateUncheckedUpdateWithoutUserInput = {
@@ -74047,6 +77073,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUncheckedUpdateManyWithoutCandidateNestedInput
     jobAlerts?: JobAlertUncheckedUpdateManyWithoutCandidateNestedInput
     savedJobs?: SavedJobUncheckedUpdateManyWithoutCandidateNestedInput
+    searchHistory?: CandidateSearchHistoryUncheckedUpdateManyWithoutCandidateNestedInput
   }
 
   export type CompanyReviewUpsertWithWhereUniqueWithoutReviewerInput = {
@@ -75139,6 +78166,30 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type CandidateSearchHistoryCreateWithoutCandidateInput = {
+    id?: string
+    keyword: string
+    normalizedKeyword: string
+    searchedAt?: Date | string
+  }
+
+  export type CandidateSearchHistoryUncheckedCreateWithoutCandidateInput = {
+    id?: string
+    keyword: string
+    normalizedKeyword: string
+    searchedAt?: Date | string
+  }
+
+  export type CandidateSearchHistoryCreateOrConnectWithoutCandidateInput = {
+    where: CandidateSearchHistoryWhereUniqueInput
+    create: XOR<CandidateSearchHistoryCreateWithoutCandidateInput, CandidateSearchHistoryUncheckedCreateWithoutCandidateInput>
+  }
+
+  export type CandidateSearchHistoryCreateManyCandidateInputEnvelope = {
+    data: CandidateSearchHistoryCreateManyCandidateInput | CandidateSearchHistoryCreateManyCandidateInput[]
+    skipDuplicates?: boolean
+  }
+
   export type ApplicationUpsertWithWhereUniqueWithoutCandidateInput = {
     where: ApplicationWhereUniqueInput
     update: XOR<ApplicationUpdateWithoutCandidateInput, ApplicationUncheckedUpdateWithoutCandidateInput>
@@ -75486,6 +78537,153 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"SavedJob"> | Date | string
   }
 
+  export type CandidateSearchHistoryUpsertWithWhereUniqueWithoutCandidateInput = {
+    where: CandidateSearchHistoryWhereUniqueInput
+    update: XOR<CandidateSearchHistoryUpdateWithoutCandidateInput, CandidateSearchHistoryUncheckedUpdateWithoutCandidateInput>
+    create: XOR<CandidateSearchHistoryCreateWithoutCandidateInput, CandidateSearchHistoryUncheckedCreateWithoutCandidateInput>
+  }
+
+  export type CandidateSearchHistoryUpdateWithWhereUniqueWithoutCandidateInput = {
+    where: CandidateSearchHistoryWhereUniqueInput
+    data: XOR<CandidateSearchHistoryUpdateWithoutCandidateInput, CandidateSearchHistoryUncheckedUpdateWithoutCandidateInput>
+  }
+
+  export type CandidateSearchHistoryUpdateManyWithWhereWithoutCandidateInput = {
+    where: CandidateSearchHistoryScalarWhereInput
+    data: XOR<CandidateSearchHistoryUpdateManyMutationInput, CandidateSearchHistoryUncheckedUpdateManyWithoutCandidateInput>
+  }
+
+  export type CandidateSearchHistoryScalarWhereInput = {
+    AND?: CandidateSearchHistoryScalarWhereInput | CandidateSearchHistoryScalarWhereInput[]
+    OR?: CandidateSearchHistoryScalarWhereInput[]
+    NOT?: CandidateSearchHistoryScalarWhereInput | CandidateSearchHistoryScalarWhereInput[]
+    id?: StringFilter<"CandidateSearchHistory"> | string
+    candidateId?: StringFilter<"CandidateSearchHistory"> | string
+    keyword?: StringFilter<"CandidateSearchHistory"> | string
+    normalizedKeyword?: StringFilter<"CandidateSearchHistory"> | string
+    searchedAt?: DateTimeFilter<"CandidateSearchHistory"> | Date | string
+  }
+
+  export type CandidateCreateWithoutSearchHistoryInput = {
+    id?: string
+    currentPosition?: string | null
+    experienceYears?: number | null
+    expectedSalaryMin?: Decimal | DecimalJsLike | number | string | null
+    expectedSalaryMax?: Decimal | DecimalJsLike | number | string | null
+    currency?: string | null
+    availabilityStatus?: $Enums.AvailabilityStatus
+    preferredWorkType?: $Enums.PreferredWorkType | null
+    preferredLocationType?: $Enums.PreferredLocationType | null
+    cvFileUrl?: string | null
+    coverLetter?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    applications?: ApplicationCreateNestedManyWithoutCandidateInput
+    certifications?: CandidateCertificationCreateNestedManyWithoutCandidateInput
+    cvs?: CandidateCvCreateNestedManyWithoutCandidateInput
+    education?: CandidateEducationCreateNestedManyWithoutCandidateInput
+    experience?: CandidateExperienceCreateNestedManyWithoutCandidateInput
+    skills?: CandidateSkillCreateNestedManyWithoutCandidateInput
+    user: UserCreateNestedOneWithoutCandidateInput
+    companyFollowers?: CompanyFollowerCreateNestedManyWithoutCandidateInput
+    jobAlerts?: JobAlertCreateNestedManyWithoutCandidateInput
+    savedJobs?: SavedJobCreateNestedManyWithoutCandidateInput
+  }
+
+  export type CandidateUncheckedCreateWithoutSearchHistoryInput = {
+    id?: string
+    userId: string
+    currentPosition?: string | null
+    experienceYears?: number | null
+    expectedSalaryMin?: Decimal | DecimalJsLike | number | string | null
+    expectedSalaryMax?: Decimal | DecimalJsLike | number | string | null
+    currency?: string | null
+    availabilityStatus?: $Enums.AvailabilityStatus
+    preferredWorkType?: $Enums.PreferredWorkType | null
+    preferredLocationType?: $Enums.PreferredLocationType | null
+    cvFileUrl?: string | null
+    coverLetter?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    applications?: ApplicationUncheckedCreateNestedManyWithoutCandidateInput
+    certifications?: CandidateCertificationUncheckedCreateNestedManyWithoutCandidateInput
+    cvs?: CandidateCvUncheckedCreateNestedManyWithoutCandidateInput
+    education?: CandidateEducationUncheckedCreateNestedManyWithoutCandidateInput
+    experience?: CandidateExperienceUncheckedCreateNestedManyWithoutCandidateInput
+    skills?: CandidateSkillUncheckedCreateNestedManyWithoutCandidateInput
+    companyFollowers?: CompanyFollowerUncheckedCreateNestedManyWithoutCandidateInput
+    jobAlerts?: JobAlertUncheckedCreateNestedManyWithoutCandidateInput
+    savedJobs?: SavedJobUncheckedCreateNestedManyWithoutCandidateInput
+  }
+
+  export type CandidateCreateOrConnectWithoutSearchHistoryInput = {
+    where: CandidateWhereUniqueInput
+    create: XOR<CandidateCreateWithoutSearchHistoryInput, CandidateUncheckedCreateWithoutSearchHistoryInput>
+  }
+
+  export type CandidateUpsertWithoutSearchHistoryInput = {
+    update: XOR<CandidateUpdateWithoutSearchHistoryInput, CandidateUncheckedUpdateWithoutSearchHistoryInput>
+    create: XOR<CandidateCreateWithoutSearchHistoryInput, CandidateUncheckedCreateWithoutSearchHistoryInput>
+    where?: CandidateWhereInput
+  }
+
+  export type CandidateUpdateToOneWithWhereWithoutSearchHistoryInput = {
+    where?: CandidateWhereInput
+    data: XOR<CandidateUpdateWithoutSearchHistoryInput, CandidateUncheckedUpdateWithoutSearchHistoryInput>
+  }
+
+  export type CandidateUpdateWithoutSearchHistoryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    currentPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    experienceYears?: NullableIntFieldUpdateOperationsInput | number | null
+    expectedSalaryMin?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    expectedSalaryMax?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    availabilityStatus?: EnumAvailabilityStatusFieldUpdateOperationsInput | $Enums.AvailabilityStatus
+    preferredWorkType?: NullableEnumPreferredWorkTypeFieldUpdateOperationsInput | $Enums.PreferredWorkType | null
+    preferredLocationType?: NullableEnumPreferredLocationTypeFieldUpdateOperationsInput | $Enums.PreferredLocationType | null
+    cvFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    coverLetter?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    applications?: ApplicationUpdateManyWithoutCandidateNestedInput
+    certifications?: CandidateCertificationUpdateManyWithoutCandidateNestedInput
+    cvs?: CandidateCvUpdateManyWithoutCandidateNestedInput
+    education?: CandidateEducationUpdateManyWithoutCandidateNestedInput
+    experience?: CandidateExperienceUpdateManyWithoutCandidateNestedInput
+    skills?: CandidateSkillUpdateManyWithoutCandidateNestedInput
+    user?: UserUpdateOneRequiredWithoutCandidateNestedInput
+    companyFollowers?: CompanyFollowerUpdateManyWithoutCandidateNestedInput
+    jobAlerts?: JobAlertUpdateManyWithoutCandidateNestedInput
+    savedJobs?: SavedJobUpdateManyWithoutCandidateNestedInput
+  }
+
+  export type CandidateUncheckedUpdateWithoutSearchHistoryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    currentPosition?: NullableStringFieldUpdateOperationsInput | string | null
+    experienceYears?: NullableIntFieldUpdateOperationsInput | number | null
+    expectedSalaryMin?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    expectedSalaryMax?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    availabilityStatus?: EnumAvailabilityStatusFieldUpdateOperationsInput | $Enums.AvailabilityStatus
+    preferredWorkType?: NullableEnumPreferredWorkTypeFieldUpdateOperationsInput | $Enums.PreferredWorkType | null
+    preferredLocationType?: NullableEnumPreferredLocationTypeFieldUpdateOperationsInput | $Enums.PreferredLocationType | null
+    cvFileUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    coverLetter?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    applications?: ApplicationUncheckedUpdateManyWithoutCandidateNestedInput
+    certifications?: CandidateCertificationUncheckedUpdateManyWithoutCandidateNestedInput
+    cvs?: CandidateCvUncheckedUpdateManyWithoutCandidateNestedInput
+    education?: CandidateEducationUncheckedUpdateManyWithoutCandidateNestedInput
+    experience?: CandidateExperienceUncheckedUpdateManyWithoutCandidateNestedInput
+    skills?: CandidateSkillUncheckedUpdateManyWithoutCandidateNestedInput
+    companyFollowers?: CompanyFollowerUncheckedUpdateManyWithoutCandidateNestedInput
+    jobAlerts?: JobAlertUncheckedUpdateManyWithoutCandidateNestedInput
+    savedJobs?: SavedJobUncheckedUpdateManyWithoutCandidateNestedInput
+  }
+
   export type CandidateCreateWithoutSkillsInput = {
     id?: string
     currentPosition?: string | null
@@ -75509,6 +78707,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerCreateNestedManyWithoutCandidateInput
     jobAlerts?: JobAlertCreateNestedManyWithoutCandidateInput
     savedJobs?: SavedJobCreateNestedManyWithoutCandidateInput
+    searchHistory?: CandidateSearchHistoryCreateNestedManyWithoutCandidateInput
   }
 
   export type CandidateUncheckedCreateWithoutSkillsInput = {
@@ -75534,6 +78733,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUncheckedCreateNestedManyWithoutCandidateInput
     jobAlerts?: JobAlertUncheckedCreateNestedManyWithoutCandidateInput
     savedJobs?: SavedJobUncheckedCreateNestedManyWithoutCandidateInput
+    searchHistory?: CandidateSearchHistoryUncheckedCreateNestedManyWithoutCandidateInput
   }
 
   export type CandidateCreateOrConnectWithoutSkillsInput = {
@@ -75604,6 +78804,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUpdateManyWithoutCandidateNestedInput
     jobAlerts?: JobAlertUpdateManyWithoutCandidateNestedInput
     savedJobs?: SavedJobUpdateManyWithoutCandidateNestedInput
+    searchHistory?: CandidateSearchHistoryUpdateManyWithoutCandidateNestedInput
   }
 
   export type CandidateUncheckedUpdateWithoutSkillsInput = {
@@ -75629,6 +78830,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUncheckedUpdateManyWithoutCandidateNestedInput
     jobAlerts?: JobAlertUncheckedUpdateManyWithoutCandidateNestedInput
     savedJobs?: SavedJobUncheckedUpdateManyWithoutCandidateNestedInput
+    searchHistory?: CandidateSearchHistoryUncheckedUpdateManyWithoutCandidateNestedInput
   }
 
   export type SkillUpsertWithoutCandidateSkillsInput = {
@@ -75689,6 +78891,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerCreateNestedManyWithoutCandidateInput
     jobAlerts?: JobAlertCreateNestedManyWithoutCandidateInput
     savedJobs?: SavedJobCreateNestedManyWithoutCandidateInput
+    searchHistory?: CandidateSearchHistoryCreateNestedManyWithoutCandidateInput
   }
 
   export type CandidateUncheckedCreateWithoutEducationInput = {
@@ -75714,6 +78917,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUncheckedCreateNestedManyWithoutCandidateInput
     jobAlerts?: JobAlertUncheckedCreateNestedManyWithoutCandidateInput
     savedJobs?: SavedJobUncheckedCreateNestedManyWithoutCandidateInput
+    searchHistory?: CandidateSearchHistoryUncheckedCreateNestedManyWithoutCandidateInput
   }
 
   export type CandidateCreateOrConnectWithoutEducationInput = {
@@ -75755,6 +78959,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUpdateManyWithoutCandidateNestedInput
     jobAlerts?: JobAlertUpdateManyWithoutCandidateNestedInput
     savedJobs?: SavedJobUpdateManyWithoutCandidateNestedInput
+    searchHistory?: CandidateSearchHistoryUpdateManyWithoutCandidateNestedInput
   }
 
   export type CandidateUncheckedUpdateWithoutEducationInput = {
@@ -75780,6 +78985,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUncheckedUpdateManyWithoutCandidateNestedInput
     jobAlerts?: JobAlertUncheckedUpdateManyWithoutCandidateNestedInput
     savedJobs?: SavedJobUncheckedUpdateManyWithoutCandidateNestedInput
+    searchHistory?: CandidateSearchHistoryUncheckedUpdateManyWithoutCandidateNestedInput
   }
 
   export type CandidateCreateWithoutExperienceInput = {
@@ -75805,6 +79011,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerCreateNestedManyWithoutCandidateInput
     jobAlerts?: JobAlertCreateNestedManyWithoutCandidateInput
     savedJobs?: SavedJobCreateNestedManyWithoutCandidateInput
+    searchHistory?: CandidateSearchHistoryCreateNestedManyWithoutCandidateInput
   }
 
   export type CandidateUncheckedCreateWithoutExperienceInput = {
@@ -75830,6 +79037,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUncheckedCreateNestedManyWithoutCandidateInput
     jobAlerts?: JobAlertUncheckedCreateNestedManyWithoutCandidateInput
     savedJobs?: SavedJobUncheckedCreateNestedManyWithoutCandidateInput
+    searchHistory?: CandidateSearchHistoryUncheckedCreateNestedManyWithoutCandidateInput
   }
 
   export type CandidateCreateOrConnectWithoutExperienceInput = {
@@ -75871,6 +79079,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUpdateManyWithoutCandidateNestedInput
     jobAlerts?: JobAlertUpdateManyWithoutCandidateNestedInput
     savedJobs?: SavedJobUpdateManyWithoutCandidateNestedInput
+    searchHistory?: CandidateSearchHistoryUpdateManyWithoutCandidateNestedInput
   }
 
   export type CandidateUncheckedUpdateWithoutExperienceInput = {
@@ -75896,6 +79105,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUncheckedUpdateManyWithoutCandidateNestedInput
     jobAlerts?: JobAlertUncheckedUpdateManyWithoutCandidateNestedInput
     savedJobs?: SavedJobUncheckedUpdateManyWithoutCandidateNestedInput
+    searchHistory?: CandidateSearchHistoryUncheckedUpdateManyWithoutCandidateNestedInput
   }
 
   export type CandidateCreateWithoutCertificationsInput = {
@@ -75921,6 +79131,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerCreateNestedManyWithoutCandidateInput
     jobAlerts?: JobAlertCreateNestedManyWithoutCandidateInput
     savedJobs?: SavedJobCreateNestedManyWithoutCandidateInput
+    searchHistory?: CandidateSearchHistoryCreateNestedManyWithoutCandidateInput
   }
 
   export type CandidateUncheckedCreateWithoutCertificationsInput = {
@@ -75946,6 +79157,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUncheckedCreateNestedManyWithoutCandidateInput
     jobAlerts?: JobAlertUncheckedCreateNestedManyWithoutCandidateInput
     savedJobs?: SavedJobUncheckedCreateNestedManyWithoutCandidateInput
+    searchHistory?: CandidateSearchHistoryUncheckedCreateNestedManyWithoutCandidateInput
   }
 
   export type CandidateCreateOrConnectWithoutCertificationsInput = {
@@ -75987,6 +79199,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUpdateManyWithoutCandidateNestedInput
     jobAlerts?: JobAlertUpdateManyWithoutCandidateNestedInput
     savedJobs?: SavedJobUpdateManyWithoutCandidateNestedInput
+    searchHistory?: CandidateSearchHistoryUpdateManyWithoutCandidateNestedInput
   }
 
   export type CandidateUncheckedUpdateWithoutCertificationsInput = {
@@ -76012,6 +79225,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUncheckedUpdateManyWithoutCandidateNestedInput
     jobAlerts?: JobAlertUncheckedUpdateManyWithoutCandidateNestedInput
     savedJobs?: SavedJobUncheckedUpdateManyWithoutCandidateNestedInput
+    searchHistory?: CandidateSearchHistoryUncheckedUpdateManyWithoutCandidateNestedInput
   }
 
   export type CandidateCreateWithoutCvsInput = {
@@ -76037,6 +79251,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerCreateNestedManyWithoutCandidateInput
     jobAlerts?: JobAlertCreateNestedManyWithoutCandidateInput
     savedJobs?: SavedJobCreateNestedManyWithoutCandidateInput
+    searchHistory?: CandidateSearchHistoryCreateNestedManyWithoutCandidateInput
   }
 
   export type CandidateUncheckedCreateWithoutCvsInput = {
@@ -76062,6 +79277,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUncheckedCreateNestedManyWithoutCandidateInput
     jobAlerts?: JobAlertUncheckedCreateNestedManyWithoutCandidateInput
     savedJobs?: SavedJobUncheckedCreateNestedManyWithoutCandidateInput
+    searchHistory?: CandidateSearchHistoryUncheckedCreateNestedManyWithoutCandidateInput
   }
 
   export type CandidateCreateOrConnectWithoutCvsInput = {
@@ -76103,6 +79319,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUpdateManyWithoutCandidateNestedInput
     jobAlerts?: JobAlertUpdateManyWithoutCandidateNestedInput
     savedJobs?: SavedJobUpdateManyWithoutCandidateNestedInput
+    searchHistory?: CandidateSearchHistoryUpdateManyWithoutCandidateNestedInput
   }
 
   export type CandidateUncheckedUpdateWithoutCvsInput = {
@@ -76128,6 +79345,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUncheckedUpdateManyWithoutCandidateNestedInput
     jobAlerts?: JobAlertUncheckedUpdateManyWithoutCandidateNestedInput
     savedJobs?: SavedJobUncheckedUpdateManyWithoutCandidateNestedInput
+    searchHistory?: CandidateSearchHistoryUncheckedUpdateManyWithoutCandidateNestedInput
   }
 
   export type IndustryCreateWithoutCompaniesInput = {
@@ -76331,6 +79549,8 @@ export namespace Prisma {
     jobViews?: JobViewCreateNestedManyWithoutJobInput
     recruiter: UserCreateNestedOneWithoutCreatedJobsInput
     savedJobs?: SavedJobCreateNestedManyWithoutJobInput
+    sourceJobMatches?: JobSimilarityCreateNestedManyWithoutSourceJobInput
+    targetJobMatches?: JobSimilarityCreateNestedManyWithoutTargetJobInput
     conversations?: ConversationCreateNestedManyWithoutJobInput
   }
 
@@ -76368,6 +79588,8 @@ export namespace Prisma {
     jobSkills?: JobSkillUncheckedCreateNestedManyWithoutJobInput
     jobViews?: JobViewUncheckedCreateNestedManyWithoutJobInput
     savedJobs?: SavedJobUncheckedCreateNestedManyWithoutJobInput
+    sourceJobMatches?: JobSimilarityUncheckedCreateNestedManyWithoutSourceJobInput
+    targetJobMatches?: JobSimilarityUncheckedCreateNestedManyWithoutTargetJobInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutJobInput
   }
 
@@ -77096,6 +80318,54 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type JobSimilarityCreateWithoutSourceJobInput = {
+    id?: string
+    similarityScore: number
+    createdAt?: Date | string
+    targetJob: JobCreateNestedOneWithoutTargetJobMatchesInput
+  }
+
+  export type JobSimilarityUncheckedCreateWithoutSourceJobInput = {
+    id?: string
+    targetJobId: string
+    similarityScore: number
+    createdAt?: Date | string
+  }
+
+  export type JobSimilarityCreateOrConnectWithoutSourceJobInput = {
+    where: JobSimilarityWhereUniqueInput
+    create: XOR<JobSimilarityCreateWithoutSourceJobInput, JobSimilarityUncheckedCreateWithoutSourceJobInput>
+  }
+
+  export type JobSimilarityCreateManySourceJobInputEnvelope = {
+    data: JobSimilarityCreateManySourceJobInput | JobSimilarityCreateManySourceJobInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type JobSimilarityCreateWithoutTargetJobInput = {
+    id?: string
+    similarityScore: number
+    createdAt?: Date | string
+    sourceJob: JobCreateNestedOneWithoutSourceJobMatchesInput
+  }
+
+  export type JobSimilarityUncheckedCreateWithoutTargetJobInput = {
+    id?: string
+    sourceJobId: string
+    similarityScore: number
+    createdAt?: Date | string
+  }
+
+  export type JobSimilarityCreateOrConnectWithoutTargetJobInput = {
+    where: JobSimilarityWhereUniqueInput
+    create: XOR<JobSimilarityCreateWithoutTargetJobInput, JobSimilarityUncheckedCreateWithoutTargetJobInput>
+  }
+
+  export type JobSimilarityCreateManyTargetJobInputEnvelope = {
+    data: JobSimilarityCreateManyTargetJobInput | JobSimilarityCreateManyTargetJobInput[]
+    skipDuplicates?: boolean
+  }
+
   export type ConversationCreateWithoutJobInput = {
     id?: string
     name?: string | null
@@ -77396,6 +80666,49 @@ export namespace Prisma {
     data: XOR<SavedJobUpdateManyMutationInput, SavedJobUncheckedUpdateManyWithoutJobInput>
   }
 
+  export type JobSimilarityUpsertWithWhereUniqueWithoutSourceJobInput = {
+    where: JobSimilarityWhereUniqueInput
+    update: XOR<JobSimilarityUpdateWithoutSourceJobInput, JobSimilarityUncheckedUpdateWithoutSourceJobInput>
+    create: XOR<JobSimilarityCreateWithoutSourceJobInput, JobSimilarityUncheckedCreateWithoutSourceJobInput>
+  }
+
+  export type JobSimilarityUpdateWithWhereUniqueWithoutSourceJobInput = {
+    where: JobSimilarityWhereUniqueInput
+    data: XOR<JobSimilarityUpdateWithoutSourceJobInput, JobSimilarityUncheckedUpdateWithoutSourceJobInput>
+  }
+
+  export type JobSimilarityUpdateManyWithWhereWithoutSourceJobInput = {
+    where: JobSimilarityScalarWhereInput
+    data: XOR<JobSimilarityUpdateManyMutationInput, JobSimilarityUncheckedUpdateManyWithoutSourceJobInput>
+  }
+
+  export type JobSimilarityScalarWhereInput = {
+    AND?: JobSimilarityScalarWhereInput | JobSimilarityScalarWhereInput[]
+    OR?: JobSimilarityScalarWhereInput[]
+    NOT?: JobSimilarityScalarWhereInput | JobSimilarityScalarWhereInput[]
+    id?: StringFilter<"JobSimilarity"> | string
+    sourceJobId?: StringFilter<"JobSimilarity"> | string
+    targetJobId?: StringFilter<"JobSimilarity"> | string
+    similarityScore?: FloatFilter<"JobSimilarity"> | number
+    createdAt?: DateTimeFilter<"JobSimilarity"> | Date | string
+  }
+
+  export type JobSimilarityUpsertWithWhereUniqueWithoutTargetJobInput = {
+    where: JobSimilarityWhereUniqueInput
+    update: XOR<JobSimilarityUpdateWithoutTargetJobInput, JobSimilarityUncheckedUpdateWithoutTargetJobInput>
+    create: XOR<JobSimilarityCreateWithoutTargetJobInput, JobSimilarityUncheckedCreateWithoutTargetJobInput>
+  }
+
+  export type JobSimilarityUpdateWithWhereUniqueWithoutTargetJobInput = {
+    where: JobSimilarityWhereUniqueInput
+    data: XOR<JobSimilarityUpdateWithoutTargetJobInput, JobSimilarityUncheckedUpdateWithoutTargetJobInput>
+  }
+
+  export type JobSimilarityUpdateManyWithWhereWithoutTargetJobInput = {
+    where: JobSimilarityScalarWhereInput
+    data: XOR<JobSimilarityUpdateManyMutationInput, JobSimilarityUncheckedUpdateManyWithoutTargetJobInput>
+  }
+
   export type ConversationUpsertWithWhereUniqueWithoutJobInput = {
     where: ConversationWhereUniqueInput
     update: XOR<ConversationUpdateWithoutJobInput, ConversationUncheckedUpdateWithoutJobInput>
@@ -77460,6 +80773,8 @@ export namespace Prisma {
     company: CompanyCreateNestedOneWithoutJobsInput
     recruiter: UserCreateNestedOneWithoutCreatedJobsInput
     savedJobs?: SavedJobCreateNestedManyWithoutJobInput
+    sourceJobMatches?: JobSimilarityCreateNestedManyWithoutSourceJobInput
+    targetJobMatches?: JobSimilarityCreateNestedManyWithoutTargetJobInput
     conversations?: ConversationCreateNestedManyWithoutJobInput
   }
 
@@ -77497,6 +80812,8 @@ export namespace Prisma {
     jobCategories?: JobCategoryUncheckedCreateNestedManyWithoutJobInput
     jobViews?: JobViewUncheckedCreateNestedManyWithoutJobInput
     savedJobs?: SavedJobUncheckedCreateNestedManyWithoutJobInput
+    sourceJobMatches?: JobSimilarityUncheckedCreateNestedManyWithoutSourceJobInput
+    targetJobMatches?: JobSimilarityUncheckedCreateNestedManyWithoutTargetJobInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutJobInput
   }
 
@@ -77579,6 +80896,8 @@ export namespace Prisma {
     company?: CompanyUpdateOneRequiredWithoutJobsNestedInput
     recruiter?: UserUpdateOneRequiredWithoutCreatedJobsNestedInput
     savedJobs?: SavedJobUpdateManyWithoutJobNestedInput
+    sourceJobMatches?: JobSimilarityUpdateManyWithoutSourceJobNestedInput
+    targetJobMatches?: JobSimilarityUpdateManyWithoutTargetJobNestedInput
     conversations?: ConversationUpdateManyWithoutJobNestedInput
   }
 
@@ -77616,6 +80935,8 @@ export namespace Prisma {
     jobCategories?: JobCategoryUncheckedUpdateManyWithoutJobNestedInput
     jobViews?: JobViewUncheckedUpdateManyWithoutJobNestedInput
     savedJobs?: SavedJobUncheckedUpdateManyWithoutJobNestedInput
+    sourceJobMatches?: JobSimilarityUncheckedUpdateManyWithoutSourceJobNestedInput
+    targetJobMatches?: JobSimilarityUncheckedUpdateManyWithoutTargetJobNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutJobNestedInput
   }
 
@@ -77719,6 +81040,8 @@ export namespace Prisma {
     company: CompanyCreateNestedOneWithoutJobsInput
     recruiter: UserCreateNestedOneWithoutCreatedJobsInput
     savedJobs?: SavedJobCreateNestedManyWithoutJobInput
+    sourceJobMatches?: JobSimilarityCreateNestedManyWithoutSourceJobInput
+    targetJobMatches?: JobSimilarityCreateNestedManyWithoutTargetJobInput
     conversations?: ConversationCreateNestedManyWithoutJobInput
   }
 
@@ -77756,6 +81079,8 @@ export namespace Prisma {
     jobSkills?: JobSkillUncheckedCreateNestedManyWithoutJobInput
     jobViews?: JobViewUncheckedCreateNestedManyWithoutJobInput
     savedJobs?: SavedJobUncheckedCreateNestedManyWithoutJobInput
+    sourceJobMatches?: JobSimilarityUncheckedCreateNestedManyWithoutSourceJobInput
+    targetJobMatches?: JobSimilarityUncheckedCreateNestedManyWithoutTargetJobInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutJobInput
   }
 
@@ -77846,6 +81171,8 @@ export namespace Prisma {
     company?: CompanyUpdateOneRequiredWithoutJobsNestedInput
     recruiter?: UserUpdateOneRequiredWithoutCreatedJobsNestedInput
     savedJobs?: SavedJobUpdateManyWithoutJobNestedInput
+    sourceJobMatches?: JobSimilarityUpdateManyWithoutSourceJobNestedInput
+    targetJobMatches?: JobSimilarityUpdateManyWithoutTargetJobNestedInput
     conversations?: ConversationUpdateManyWithoutJobNestedInput
   }
 
@@ -77883,6 +81210,8 @@ export namespace Prisma {
     jobSkills?: JobSkillUncheckedUpdateManyWithoutJobNestedInput
     jobViews?: JobViewUncheckedUpdateManyWithoutJobNestedInput
     savedJobs?: SavedJobUncheckedUpdateManyWithoutJobNestedInput
+    sourceJobMatches?: JobSimilarityUncheckedUpdateManyWithoutSourceJobNestedInput
+    targetJobMatches?: JobSimilarityUncheckedUpdateManyWithoutTargetJobNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutJobNestedInput
   }
 
@@ -77935,6 +81264,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerCreateNestedManyWithoutCandidateInput
     jobAlerts?: JobAlertCreateNestedManyWithoutCandidateInput
     savedJobs?: SavedJobCreateNestedManyWithoutCandidateInput
+    searchHistory?: CandidateSearchHistoryCreateNestedManyWithoutCandidateInput
   }
 
   export type CandidateUncheckedCreateWithoutApplicationsInput = {
@@ -77960,6 +81290,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUncheckedCreateNestedManyWithoutCandidateInput
     jobAlerts?: JobAlertUncheckedCreateNestedManyWithoutCandidateInput
     savedJobs?: SavedJobUncheckedCreateNestedManyWithoutCandidateInput
+    searchHistory?: CandidateSearchHistoryUncheckedCreateNestedManyWithoutCandidateInput
   }
 
   export type CandidateCreateOrConnectWithoutApplicationsInput = {
@@ -78001,6 +81332,8 @@ export namespace Prisma {
     company: CompanyCreateNestedOneWithoutJobsInput
     recruiter: UserCreateNestedOneWithoutCreatedJobsInput
     savedJobs?: SavedJobCreateNestedManyWithoutJobInput
+    sourceJobMatches?: JobSimilarityCreateNestedManyWithoutSourceJobInput
+    targetJobMatches?: JobSimilarityCreateNestedManyWithoutTargetJobInput
     conversations?: ConversationCreateNestedManyWithoutJobInput
   }
 
@@ -78038,6 +81371,8 @@ export namespace Prisma {
     jobSkills?: JobSkillUncheckedCreateNestedManyWithoutJobInput
     jobViews?: JobViewUncheckedCreateNestedManyWithoutJobInput
     savedJobs?: SavedJobUncheckedCreateNestedManyWithoutJobInput
+    sourceJobMatches?: JobSimilarityUncheckedCreateNestedManyWithoutSourceJobInput
+    targetJobMatches?: JobSimilarityUncheckedCreateNestedManyWithoutTargetJobInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutJobInput
   }
 
@@ -78209,6 +81544,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUpdateManyWithoutCandidateNestedInput
     jobAlerts?: JobAlertUpdateManyWithoutCandidateNestedInput
     savedJobs?: SavedJobUpdateManyWithoutCandidateNestedInput
+    searchHistory?: CandidateSearchHistoryUpdateManyWithoutCandidateNestedInput
   }
 
   export type CandidateUncheckedUpdateWithoutApplicationsInput = {
@@ -78234,6 +81570,7 @@ export namespace Prisma {
     companyFollowers?: CompanyFollowerUncheckedUpdateManyWithoutCandidateNestedInput
     jobAlerts?: JobAlertUncheckedUpdateManyWithoutCandidateNestedInput
     savedJobs?: SavedJobUncheckedUpdateManyWithoutCandidateNestedInput
+    searchHistory?: CandidateSearchHistoryUncheckedUpdateManyWithoutCandidateNestedInput
   }
 
   export type JobUpsertWithoutApplicationsInput = {
@@ -78281,6 +81618,8 @@ export namespace Prisma {
     company?: CompanyUpdateOneRequiredWithoutJobsNestedInput
     recruiter?: UserUpdateOneRequiredWithoutCreatedJobsNestedInput
     savedJobs?: SavedJobUpdateManyWithoutJobNestedInput
+    sourceJobMatches?: JobSimilarityUpdateManyWithoutSourceJobNestedInput
+    targetJobMatches?: JobSimilarityUpdateManyWithoutTargetJobNestedInput
     conversations?: ConversationUpdateManyWithoutJobNestedInput
   }
 
@@ -78318,6 +81657,8 @@ export namespace Prisma {
     jobSkills?: JobSkillUncheckedUpdateManyWithoutJobNestedInput
     jobViews?: JobViewUncheckedUpdateManyWithoutJobNestedInput
     savedJobs?: SavedJobUncheckedUpdateManyWithoutJobNestedInput
+    sourceJobMatches?: JobSimilarityUncheckedUpdateManyWithoutSourceJobNestedInput
+    targetJobMatches?: JobSimilarityUncheckedUpdateManyWithoutTargetJobNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutJobNestedInput
   }
 
@@ -79179,6 +82520,7 @@ export namespace Prisma {
     user: UserCreateNestedOneWithoutCandidateInput
     companyFollowers?: CompanyFollowerCreateNestedManyWithoutCandidateInput
     jobAlerts?: JobAlertCreateNestedManyWithoutCandidateInput
+    searchHistory?: CandidateSearchHistoryCreateNestedManyWithoutCandidateInput
   }
 
   export type CandidateUncheckedCreateWithoutSavedJobsInput = {
@@ -79204,6 +82546,7 @@ export namespace Prisma {
     skills?: CandidateSkillUncheckedCreateNestedManyWithoutCandidateInput
     companyFollowers?: CompanyFollowerUncheckedCreateNestedManyWithoutCandidateInput
     jobAlerts?: JobAlertUncheckedCreateNestedManyWithoutCandidateInput
+    searchHistory?: CandidateSearchHistoryUncheckedCreateNestedManyWithoutCandidateInput
   }
 
   export type CandidateCreateOrConnectWithoutSavedJobsInput = {
@@ -79245,6 +82588,8 @@ export namespace Prisma {
     jobViews?: JobViewCreateNestedManyWithoutJobInput
     company: CompanyCreateNestedOneWithoutJobsInput
     recruiter: UserCreateNestedOneWithoutCreatedJobsInput
+    sourceJobMatches?: JobSimilarityCreateNestedManyWithoutSourceJobInput
+    targetJobMatches?: JobSimilarityCreateNestedManyWithoutTargetJobInput
     conversations?: ConversationCreateNestedManyWithoutJobInput
   }
 
@@ -79282,6 +82627,8 @@ export namespace Prisma {
     jobCategories?: JobCategoryUncheckedCreateNestedManyWithoutJobInput
     jobSkills?: JobSkillUncheckedCreateNestedManyWithoutJobInput
     jobViews?: JobViewUncheckedCreateNestedManyWithoutJobInput
+    sourceJobMatches?: JobSimilarityUncheckedCreateNestedManyWithoutSourceJobInput
+    targetJobMatches?: JobSimilarityUncheckedCreateNestedManyWithoutTargetJobInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutJobInput
   }
 
@@ -79324,6 +82671,7 @@ export namespace Prisma {
     user?: UserUpdateOneRequiredWithoutCandidateNestedInput
     companyFollowers?: CompanyFollowerUpdateManyWithoutCandidateNestedInput
     jobAlerts?: JobAlertUpdateManyWithoutCandidateNestedInput
+    searchHistory?: CandidateSearchHistoryUpdateManyWithoutCandidateNestedInput
   }
 
   export type CandidateUncheckedUpdateWithoutSavedJobsInput = {
@@ -79349,6 +82697,7 @@ export namespace Prisma {
     skills?: CandidateSkillUncheckedUpdateManyWithoutCandidateNestedInput
     companyFollowers?: CompanyFollowerUncheckedUpdateManyWithoutCandidateNestedInput
     jobAlerts?: JobAlertUncheckedUpdateManyWithoutCandidateNestedInput
+    searchHistory?: CandidateSearchHistoryUncheckedUpdateManyWithoutCandidateNestedInput
   }
 
   export type JobUpsertWithoutSavedJobsInput = {
@@ -79396,6 +82745,8 @@ export namespace Prisma {
     jobViews?: JobViewUpdateManyWithoutJobNestedInput
     company?: CompanyUpdateOneRequiredWithoutJobsNestedInput
     recruiter?: UserUpdateOneRequiredWithoutCreatedJobsNestedInput
+    sourceJobMatches?: JobSimilarityUpdateManyWithoutSourceJobNestedInput
+    targetJobMatches?: JobSimilarityUpdateManyWithoutTargetJobNestedInput
     conversations?: ConversationUpdateManyWithoutJobNestedInput
   }
 
@@ -79433,6 +82784,8 @@ export namespace Prisma {
     jobCategories?: JobCategoryUncheckedUpdateManyWithoutJobNestedInput
     jobSkills?: JobSkillUncheckedUpdateManyWithoutJobNestedInput
     jobViews?: JobViewUncheckedUpdateManyWithoutJobNestedInput
+    sourceJobMatches?: JobSimilarityUncheckedUpdateManyWithoutSourceJobNestedInput
+    targetJobMatches?: JobSimilarityUncheckedUpdateManyWithoutTargetJobNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutJobNestedInput
   }
 
@@ -79470,6 +82823,8 @@ export namespace Prisma {
     company: CompanyCreateNestedOneWithoutJobsInput
     recruiter: UserCreateNestedOneWithoutCreatedJobsInput
     savedJobs?: SavedJobCreateNestedManyWithoutJobInput
+    sourceJobMatches?: JobSimilarityCreateNestedManyWithoutSourceJobInput
+    targetJobMatches?: JobSimilarityCreateNestedManyWithoutTargetJobInput
     conversations?: ConversationCreateNestedManyWithoutJobInput
   }
 
@@ -79507,6 +82862,8 @@ export namespace Prisma {
     jobCategories?: JobCategoryUncheckedCreateNestedManyWithoutJobInput
     jobSkills?: JobSkillUncheckedCreateNestedManyWithoutJobInput
     savedJobs?: SavedJobUncheckedCreateNestedManyWithoutJobInput
+    sourceJobMatches?: JobSimilarityUncheckedCreateNestedManyWithoutSourceJobInput
+    targetJobMatches?: JobSimilarityUncheckedCreateNestedManyWithoutTargetJobInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutJobInput
   }
 
@@ -79639,6 +82996,8 @@ export namespace Prisma {
     company?: CompanyUpdateOneRequiredWithoutJobsNestedInput
     recruiter?: UserUpdateOneRequiredWithoutCreatedJobsNestedInput
     savedJobs?: SavedJobUpdateManyWithoutJobNestedInput
+    sourceJobMatches?: JobSimilarityUpdateManyWithoutSourceJobNestedInput
+    targetJobMatches?: JobSimilarityUpdateManyWithoutTargetJobNestedInput
     conversations?: ConversationUpdateManyWithoutJobNestedInput
   }
 
@@ -79676,6 +83035,8 @@ export namespace Prisma {
     jobCategories?: JobCategoryUncheckedUpdateManyWithoutJobNestedInput
     jobSkills?: JobSkillUncheckedUpdateManyWithoutJobNestedInput
     savedJobs?: SavedJobUncheckedUpdateManyWithoutJobNestedInput
+    sourceJobMatches?: JobSimilarityUncheckedUpdateManyWithoutSourceJobNestedInput
+    targetJobMatches?: JobSimilarityUncheckedUpdateManyWithoutTargetJobNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutJobNestedInput
   }
 
@@ -79764,6 +83125,350 @@ export namespace Prisma {
     practiceSessions?: PracticeSessionUncheckedUpdateManyWithoutUserNestedInput
   }
 
+  export type JobCreateWithoutSourceJobMatchesInput = {
+    id?: string
+    title: string
+    slug: string
+    description: string
+    requirements: string
+    benefits?: string | null
+    jobType: $Enums.JobType
+    workLocationType: $Enums.WorkLocationType
+    experienceLevel: $Enums.ExperienceLevel
+    salaryMin?: Decimal | DecimalJsLike | number | string | null
+    salaryMax?: Decimal | DecimalJsLike | number | string | null
+    currency?: string | null
+    salaryNegotiable?: boolean
+    address?: string | null
+    locationCity?: string | null
+    locationProvince?: string | null
+    locationCountry?: string | null
+    applicationDeadline?: Date | string | null
+    status?: $Enums.JobStatus
+    viewCount?: number
+    applicationCount?: number
+    featured?: boolean
+    urgent?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    applications?: ApplicationCreateNestedManyWithoutJobInput
+    interviewReviews?: InterviewReviewCreateNestedManyWithoutJobInput
+    jobCategories?: JobCategoryCreateNestedManyWithoutJobInput
+    jobSkills?: JobSkillCreateNestedManyWithoutJobInput
+    jobViews?: JobViewCreateNestedManyWithoutJobInput
+    company: CompanyCreateNestedOneWithoutJobsInput
+    recruiter: UserCreateNestedOneWithoutCreatedJobsInput
+    savedJobs?: SavedJobCreateNestedManyWithoutJobInput
+    targetJobMatches?: JobSimilarityCreateNestedManyWithoutTargetJobInput
+    conversations?: ConversationCreateNestedManyWithoutJobInput
+  }
+
+  export type JobUncheckedCreateWithoutSourceJobMatchesInput = {
+    id?: string
+    companyId: string
+    recruiterId: string
+    title: string
+    slug: string
+    description: string
+    requirements: string
+    benefits?: string | null
+    jobType: $Enums.JobType
+    workLocationType: $Enums.WorkLocationType
+    experienceLevel: $Enums.ExperienceLevel
+    salaryMin?: Decimal | DecimalJsLike | number | string | null
+    salaryMax?: Decimal | DecimalJsLike | number | string | null
+    currency?: string | null
+    salaryNegotiable?: boolean
+    address?: string | null
+    locationCity?: string | null
+    locationProvince?: string | null
+    locationCountry?: string | null
+    applicationDeadline?: Date | string | null
+    status?: $Enums.JobStatus
+    viewCount?: number
+    applicationCount?: number
+    featured?: boolean
+    urgent?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    applications?: ApplicationUncheckedCreateNestedManyWithoutJobInput
+    interviewReviews?: InterviewReviewUncheckedCreateNestedManyWithoutJobInput
+    jobCategories?: JobCategoryUncheckedCreateNestedManyWithoutJobInput
+    jobSkills?: JobSkillUncheckedCreateNestedManyWithoutJobInput
+    jobViews?: JobViewUncheckedCreateNestedManyWithoutJobInput
+    savedJobs?: SavedJobUncheckedCreateNestedManyWithoutJobInput
+    targetJobMatches?: JobSimilarityUncheckedCreateNestedManyWithoutTargetJobInput
+    conversations?: ConversationUncheckedCreateNestedManyWithoutJobInput
+  }
+
+  export type JobCreateOrConnectWithoutSourceJobMatchesInput = {
+    where: JobWhereUniqueInput
+    create: XOR<JobCreateWithoutSourceJobMatchesInput, JobUncheckedCreateWithoutSourceJobMatchesInput>
+  }
+
+  export type JobCreateWithoutTargetJobMatchesInput = {
+    id?: string
+    title: string
+    slug: string
+    description: string
+    requirements: string
+    benefits?: string | null
+    jobType: $Enums.JobType
+    workLocationType: $Enums.WorkLocationType
+    experienceLevel: $Enums.ExperienceLevel
+    salaryMin?: Decimal | DecimalJsLike | number | string | null
+    salaryMax?: Decimal | DecimalJsLike | number | string | null
+    currency?: string | null
+    salaryNegotiable?: boolean
+    address?: string | null
+    locationCity?: string | null
+    locationProvince?: string | null
+    locationCountry?: string | null
+    applicationDeadline?: Date | string | null
+    status?: $Enums.JobStatus
+    viewCount?: number
+    applicationCount?: number
+    featured?: boolean
+    urgent?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    applications?: ApplicationCreateNestedManyWithoutJobInput
+    interviewReviews?: InterviewReviewCreateNestedManyWithoutJobInput
+    jobCategories?: JobCategoryCreateNestedManyWithoutJobInput
+    jobSkills?: JobSkillCreateNestedManyWithoutJobInput
+    jobViews?: JobViewCreateNestedManyWithoutJobInput
+    company: CompanyCreateNestedOneWithoutJobsInput
+    recruiter: UserCreateNestedOneWithoutCreatedJobsInput
+    savedJobs?: SavedJobCreateNestedManyWithoutJobInput
+    sourceJobMatches?: JobSimilarityCreateNestedManyWithoutSourceJobInput
+    conversations?: ConversationCreateNestedManyWithoutJobInput
+  }
+
+  export type JobUncheckedCreateWithoutTargetJobMatchesInput = {
+    id?: string
+    companyId: string
+    recruiterId: string
+    title: string
+    slug: string
+    description: string
+    requirements: string
+    benefits?: string | null
+    jobType: $Enums.JobType
+    workLocationType: $Enums.WorkLocationType
+    experienceLevel: $Enums.ExperienceLevel
+    salaryMin?: Decimal | DecimalJsLike | number | string | null
+    salaryMax?: Decimal | DecimalJsLike | number | string | null
+    currency?: string | null
+    salaryNegotiable?: boolean
+    address?: string | null
+    locationCity?: string | null
+    locationProvince?: string | null
+    locationCountry?: string | null
+    applicationDeadline?: Date | string | null
+    status?: $Enums.JobStatus
+    viewCount?: number
+    applicationCount?: number
+    featured?: boolean
+    urgent?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    publishedAt?: Date | string | null
+    applications?: ApplicationUncheckedCreateNestedManyWithoutJobInput
+    interviewReviews?: InterviewReviewUncheckedCreateNestedManyWithoutJobInput
+    jobCategories?: JobCategoryUncheckedCreateNestedManyWithoutJobInput
+    jobSkills?: JobSkillUncheckedCreateNestedManyWithoutJobInput
+    jobViews?: JobViewUncheckedCreateNestedManyWithoutJobInput
+    savedJobs?: SavedJobUncheckedCreateNestedManyWithoutJobInput
+    sourceJobMatches?: JobSimilarityUncheckedCreateNestedManyWithoutSourceJobInput
+    conversations?: ConversationUncheckedCreateNestedManyWithoutJobInput
+  }
+
+  export type JobCreateOrConnectWithoutTargetJobMatchesInput = {
+    where: JobWhereUniqueInput
+    create: XOR<JobCreateWithoutTargetJobMatchesInput, JobUncheckedCreateWithoutTargetJobMatchesInput>
+  }
+
+  export type JobUpsertWithoutSourceJobMatchesInput = {
+    update: XOR<JobUpdateWithoutSourceJobMatchesInput, JobUncheckedUpdateWithoutSourceJobMatchesInput>
+    create: XOR<JobCreateWithoutSourceJobMatchesInput, JobUncheckedCreateWithoutSourceJobMatchesInput>
+    where?: JobWhereInput
+  }
+
+  export type JobUpdateToOneWithWhereWithoutSourceJobMatchesInput = {
+    where?: JobWhereInput
+    data: XOR<JobUpdateWithoutSourceJobMatchesInput, JobUncheckedUpdateWithoutSourceJobMatchesInput>
+  }
+
+  export type JobUpdateWithoutSourceJobMatchesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    requirements?: StringFieldUpdateOperationsInput | string
+    benefits?: NullableStringFieldUpdateOperationsInput | string | null
+    jobType?: EnumJobTypeFieldUpdateOperationsInput | $Enums.JobType
+    workLocationType?: EnumWorkLocationTypeFieldUpdateOperationsInput | $Enums.WorkLocationType
+    experienceLevel?: EnumExperienceLevelFieldUpdateOperationsInput | $Enums.ExperienceLevel
+    salaryMin?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    salaryMax?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    salaryNegotiable?: BoolFieldUpdateOperationsInput | boolean
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    locationCity?: NullableStringFieldUpdateOperationsInput | string | null
+    locationProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    locationCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    applicationDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    viewCount?: IntFieldUpdateOperationsInput | number
+    applicationCount?: IntFieldUpdateOperationsInput | number
+    featured?: BoolFieldUpdateOperationsInput | boolean
+    urgent?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    applications?: ApplicationUpdateManyWithoutJobNestedInput
+    interviewReviews?: InterviewReviewUpdateManyWithoutJobNestedInput
+    jobCategories?: JobCategoryUpdateManyWithoutJobNestedInput
+    jobSkills?: JobSkillUpdateManyWithoutJobNestedInput
+    jobViews?: JobViewUpdateManyWithoutJobNestedInput
+    company?: CompanyUpdateOneRequiredWithoutJobsNestedInput
+    recruiter?: UserUpdateOneRequiredWithoutCreatedJobsNestedInput
+    savedJobs?: SavedJobUpdateManyWithoutJobNestedInput
+    targetJobMatches?: JobSimilarityUpdateManyWithoutTargetJobNestedInput
+    conversations?: ConversationUpdateManyWithoutJobNestedInput
+  }
+
+  export type JobUncheckedUpdateWithoutSourceJobMatchesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    recruiterId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    requirements?: StringFieldUpdateOperationsInput | string
+    benefits?: NullableStringFieldUpdateOperationsInput | string | null
+    jobType?: EnumJobTypeFieldUpdateOperationsInput | $Enums.JobType
+    workLocationType?: EnumWorkLocationTypeFieldUpdateOperationsInput | $Enums.WorkLocationType
+    experienceLevel?: EnumExperienceLevelFieldUpdateOperationsInput | $Enums.ExperienceLevel
+    salaryMin?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    salaryMax?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    salaryNegotiable?: BoolFieldUpdateOperationsInput | boolean
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    locationCity?: NullableStringFieldUpdateOperationsInput | string | null
+    locationProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    locationCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    applicationDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    viewCount?: IntFieldUpdateOperationsInput | number
+    applicationCount?: IntFieldUpdateOperationsInput | number
+    featured?: BoolFieldUpdateOperationsInput | boolean
+    urgent?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    applications?: ApplicationUncheckedUpdateManyWithoutJobNestedInput
+    interviewReviews?: InterviewReviewUncheckedUpdateManyWithoutJobNestedInput
+    jobCategories?: JobCategoryUncheckedUpdateManyWithoutJobNestedInput
+    jobSkills?: JobSkillUncheckedUpdateManyWithoutJobNestedInput
+    jobViews?: JobViewUncheckedUpdateManyWithoutJobNestedInput
+    savedJobs?: SavedJobUncheckedUpdateManyWithoutJobNestedInput
+    targetJobMatches?: JobSimilarityUncheckedUpdateManyWithoutTargetJobNestedInput
+    conversations?: ConversationUncheckedUpdateManyWithoutJobNestedInput
+  }
+
+  export type JobUpsertWithoutTargetJobMatchesInput = {
+    update: XOR<JobUpdateWithoutTargetJobMatchesInput, JobUncheckedUpdateWithoutTargetJobMatchesInput>
+    create: XOR<JobCreateWithoutTargetJobMatchesInput, JobUncheckedCreateWithoutTargetJobMatchesInput>
+    where?: JobWhereInput
+  }
+
+  export type JobUpdateToOneWithWhereWithoutTargetJobMatchesInput = {
+    where?: JobWhereInput
+    data: XOR<JobUpdateWithoutTargetJobMatchesInput, JobUncheckedUpdateWithoutTargetJobMatchesInput>
+  }
+
+  export type JobUpdateWithoutTargetJobMatchesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    requirements?: StringFieldUpdateOperationsInput | string
+    benefits?: NullableStringFieldUpdateOperationsInput | string | null
+    jobType?: EnumJobTypeFieldUpdateOperationsInput | $Enums.JobType
+    workLocationType?: EnumWorkLocationTypeFieldUpdateOperationsInput | $Enums.WorkLocationType
+    experienceLevel?: EnumExperienceLevelFieldUpdateOperationsInput | $Enums.ExperienceLevel
+    salaryMin?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    salaryMax?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    salaryNegotiable?: BoolFieldUpdateOperationsInput | boolean
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    locationCity?: NullableStringFieldUpdateOperationsInput | string | null
+    locationProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    locationCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    applicationDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    viewCount?: IntFieldUpdateOperationsInput | number
+    applicationCount?: IntFieldUpdateOperationsInput | number
+    featured?: BoolFieldUpdateOperationsInput | boolean
+    urgent?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    applications?: ApplicationUpdateManyWithoutJobNestedInput
+    interviewReviews?: InterviewReviewUpdateManyWithoutJobNestedInput
+    jobCategories?: JobCategoryUpdateManyWithoutJobNestedInput
+    jobSkills?: JobSkillUpdateManyWithoutJobNestedInput
+    jobViews?: JobViewUpdateManyWithoutJobNestedInput
+    company?: CompanyUpdateOneRequiredWithoutJobsNestedInput
+    recruiter?: UserUpdateOneRequiredWithoutCreatedJobsNestedInput
+    savedJobs?: SavedJobUpdateManyWithoutJobNestedInput
+    sourceJobMatches?: JobSimilarityUpdateManyWithoutSourceJobNestedInput
+    conversations?: ConversationUpdateManyWithoutJobNestedInput
+  }
+
+  export type JobUncheckedUpdateWithoutTargetJobMatchesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    companyId?: StringFieldUpdateOperationsInput | string
+    recruiterId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    requirements?: StringFieldUpdateOperationsInput | string
+    benefits?: NullableStringFieldUpdateOperationsInput | string | null
+    jobType?: EnumJobTypeFieldUpdateOperationsInput | $Enums.JobType
+    workLocationType?: EnumWorkLocationTypeFieldUpdateOperationsInput | $Enums.WorkLocationType
+    experienceLevel?: EnumExperienceLevelFieldUpdateOperationsInput | $Enums.ExperienceLevel
+    salaryMin?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    salaryMax?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    salaryNegotiable?: BoolFieldUpdateOperationsInput | boolean
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    locationCity?: NullableStringFieldUpdateOperationsInput | string | null
+    locationProvince?: NullableStringFieldUpdateOperationsInput | string | null
+    locationCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    applicationDeadline?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    viewCount?: IntFieldUpdateOperationsInput | number
+    applicationCount?: IntFieldUpdateOperationsInput | number
+    featured?: BoolFieldUpdateOperationsInput | boolean
+    urgent?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    applications?: ApplicationUncheckedUpdateManyWithoutJobNestedInput
+    interviewReviews?: InterviewReviewUncheckedUpdateManyWithoutJobNestedInput
+    jobCategories?: JobCategoryUncheckedUpdateManyWithoutJobNestedInput
+    jobSkills?: JobSkillUncheckedUpdateManyWithoutJobNestedInput
+    jobViews?: JobViewUncheckedUpdateManyWithoutJobNestedInput
+    savedJobs?: SavedJobUncheckedUpdateManyWithoutJobNestedInput
+    sourceJobMatches?: JobSimilarityUncheckedUpdateManyWithoutSourceJobNestedInput
+    conversations?: ConversationUncheckedUpdateManyWithoutJobNestedInput
+  }
+
   export type CandidateCreateWithoutCompanyFollowersInput = {
     id?: string
     currentPosition?: string | null
@@ -79787,6 +83492,7 @@ export namespace Prisma {
     user: UserCreateNestedOneWithoutCandidateInput
     jobAlerts?: JobAlertCreateNestedManyWithoutCandidateInput
     savedJobs?: SavedJobCreateNestedManyWithoutCandidateInput
+    searchHistory?: CandidateSearchHistoryCreateNestedManyWithoutCandidateInput
   }
 
   export type CandidateUncheckedCreateWithoutCompanyFollowersInput = {
@@ -79812,6 +83518,7 @@ export namespace Prisma {
     skills?: CandidateSkillUncheckedCreateNestedManyWithoutCandidateInput
     jobAlerts?: JobAlertUncheckedCreateNestedManyWithoutCandidateInput
     savedJobs?: SavedJobUncheckedCreateNestedManyWithoutCandidateInput
+    searchHistory?: CandidateSearchHistoryUncheckedCreateNestedManyWithoutCandidateInput
   }
 
   export type CandidateCreateOrConnectWithoutCompanyFollowersInput = {
@@ -79910,6 +83617,7 @@ export namespace Prisma {
     user?: UserUpdateOneRequiredWithoutCandidateNestedInput
     jobAlerts?: JobAlertUpdateManyWithoutCandidateNestedInput
     savedJobs?: SavedJobUpdateManyWithoutCandidateNestedInput
+    searchHistory?: CandidateSearchHistoryUpdateManyWithoutCandidateNestedInput
   }
 
   export type CandidateUncheckedUpdateWithoutCompanyFollowersInput = {
@@ -79935,6 +83643,7 @@ export namespace Prisma {
     skills?: CandidateSkillUncheckedUpdateManyWithoutCandidateNestedInput
     jobAlerts?: JobAlertUncheckedUpdateManyWithoutCandidateNestedInput
     savedJobs?: SavedJobUncheckedUpdateManyWithoutCandidateNestedInput
+    searchHistory?: CandidateSearchHistoryUncheckedUpdateManyWithoutCandidateNestedInput
   }
 
   export type CompanyUpsertWithoutCompanyFollowersInput = {
@@ -80023,6 +83732,7 @@ export namespace Prisma {
     user: UserCreateNestedOneWithoutCandidateInput
     companyFollowers?: CompanyFollowerCreateNestedManyWithoutCandidateInput
     savedJobs?: SavedJobCreateNestedManyWithoutCandidateInput
+    searchHistory?: CandidateSearchHistoryCreateNestedManyWithoutCandidateInput
   }
 
   export type CandidateUncheckedCreateWithoutJobAlertsInput = {
@@ -80048,6 +83758,7 @@ export namespace Prisma {
     skills?: CandidateSkillUncheckedCreateNestedManyWithoutCandidateInput
     companyFollowers?: CompanyFollowerUncheckedCreateNestedManyWithoutCandidateInput
     savedJobs?: SavedJobUncheckedCreateNestedManyWithoutCandidateInput
+    searchHistory?: CandidateSearchHistoryUncheckedCreateNestedManyWithoutCandidateInput
   }
 
   export type CandidateCreateOrConnectWithoutJobAlertsInput = {
@@ -80089,6 +83800,7 @@ export namespace Prisma {
     user?: UserUpdateOneRequiredWithoutCandidateNestedInput
     companyFollowers?: CompanyFollowerUpdateManyWithoutCandidateNestedInput
     savedJobs?: SavedJobUpdateManyWithoutCandidateNestedInput
+    searchHistory?: CandidateSearchHistoryUpdateManyWithoutCandidateNestedInput
   }
 
   export type CandidateUncheckedUpdateWithoutJobAlertsInput = {
@@ -80114,6 +83826,7 @@ export namespace Prisma {
     skills?: CandidateSkillUncheckedUpdateManyWithoutCandidateNestedInput
     companyFollowers?: CompanyFollowerUncheckedUpdateManyWithoutCandidateNestedInput
     savedJobs?: SavedJobUncheckedUpdateManyWithoutCandidateNestedInput
+    searchHistory?: CandidateSearchHistoryUncheckedUpdateManyWithoutCandidateNestedInput
   }
 
   export type CompanyCreateWithoutCompanyReviewsInput = {
@@ -80491,6 +84204,8 @@ export namespace Prisma {
     company: CompanyCreateNestedOneWithoutJobsInput
     recruiter: UserCreateNestedOneWithoutCreatedJobsInput
     savedJobs?: SavedJobCreateNestedManyWithoutJobInput
+    sourceJobMatches?: JobSimilarityCreateNestedManyWithoutSourceJobInput
+    targetJobMatches?: JobSimilarityCreateNestedManyWithoutTargetJobInput
     conversations?: ConversationCreateNestedManyWithoutJobInput
   }
 
@@ -80528,6 +84243,8 @@ export namespace Prisma {
     jobSkills?: JobSkillUncheckedCreateNestedManyWithoutJobInput
     jobViews?: JobViewUncheckedCreateNestedManyWithoutJobInput
     savedJobs?: SavedJobUncheckedCreateNestedManyWithoutJobInput
+    sourceJobMatches?: JobSimilarityUncheckedCreateNestedManyWithoutSourceJobInput
+    targetJobMatches?: JobSimilarityUncheckedCreateNestedManyWithoutTargetJobInput
     conversations?: ConversationUncheckedCreateNestedManyWithoutJobInput
   }
 
@@ -80723,6 +84440,8 @@ export namespace Prisma {
     company?: CompanyUpdateOneRequiredWithoutJobsNestedInput
     recruiter?: UserUpdateOneRequiredWithoutCreatedJobsNestedInput
     savedJobs?: SavedJobUpdateManyWithoutJobNestedInput
+    sourceJobMatches?: JobSimilarityUpdateManyWithoutSourceJobNestedInput
+    targetJobMatches?: JobSimilarityUpdateManyWithoutTargetJobNestedInput
     conversations?: ConversationUpdateManyWithoutJobNestedInput
   }
 
@@ -80760,6 +84479,8 @@ export namespace Prisma {
     jobSkills?: JobSkillUncheckedUpdateManyWithoutJobNestedInput
     jobViews?: JobViewUncheckedUpdateManyWithoutJobNestedInput
     savedJobs?: SavedJobUncheckedUpdateManyWithoutJobNestedInput
+    sourceJobMatches?: JobSimilarityUncheckedUpdateManyWithoutSourceJobNestedInput
+    targetJobMatches?: JobSimilarityUncheckedUpdateManyWithoutTargetJobNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutJobNestedInput
   }
 
@@ -81088,6 +84809,8 @@ export namespace Prisma {
     company: CompanyCreateNestedOneWithoutJobsInput
     recruiter: UserCreateNestedOneWithoutCreatedJobsInput
     savedJobs?: SavedJobCreateNestedManyWithoutJobInput
+    sourceJobMatches?: JobSimilarityCreateNestedManyWithoutSourceJobInput
+    targetJobMatches?: JobSimilarityCreateNestedManyWithoutTargetJobInput
   }
 
   export type JobUncheckedCreateWithoutConversationsInput = {
@@ -81125,6 +84848,8 @@ export namespace Prisma {
     jobSkills?: JobSkillUncheckedCreateNestedManyWithoutJobInput
     jobViews?: JobViewUncheckedCreateNestedManyWithoutJobInput
     savedJobs?: SavedJobUncheckedCreateNestedManyWithoutJobInput
+    sourceJobMatches?: JobSimilarityUncheckedCreateNestedManyWithoutSourceJobInput
+    targetJobMatches?: JobSimilarityUncheckedCreateNestedManyWithoutTargetJobInput
   }
 
   export type JobCreateOrConnectWithoutConversationsInput = {
@@ -81293,6 +85018,8 @@ export namespace Prisma {
     company?: CompanyUpdateOneRequiredWithoutJobsNestedInput
     recruiter?: UserUpdateOneRequiredWithoutCreatedJobsNestedInput
     savedJobs?: SavedJobUpdateManyWithoutJobNestedInput
+    sourceJobMatches?: JobSimilarityUpdateManyWithoutSourceJobNestedInput
+    targetJobMatches?: JobSimilarityUpdateManyWithoutTargetJobNestedInput
   }
 
   export type JobUncheckedUpdateWithoutConversationsInput = {
@@ -81330,6 +85057,8 @@ export namespace Prisma {
     jobSkills?: JobSkillUncheckedUpdateManyWithoutJobNestedInput
     jobViews?: JobViewUncheckedUpdateManyWithoutJobNestedInput
     savedJobs?: SavedJobUncheckedUpdateManyWithoutJobNestedInput
+    sourceJobMatches?: JobSimilarityUncheckedUpdateManyWithoutSourceJobNestedInput
+    targetJobMatches?: JobSimilarityUncheckedUpdateManyWithoutTargetJobNestedInput
   }
 
   export type ConversationParticipantUpsertWithWhereUniqueWithoutConversationInput = {
@@ -84615,6 +88344,8 @@ export namespace Prisma {
     jobViews?: JobViewUpdateManyWithoutJobNestedInput
     company?: CompanyUpdateOneRequiredWithoutJobsNestedInput
     savedJobs?: SavedJobUpdateManyWithoutJobNestedInput
+    sourceJobMatches?: JobSimilarityUpdateManyWithoutSourceJobNestedInput
+    targetJobMatches?: JobSimilarityUpdateManyWithoutTargetJobNestedInput
     conversations?: ConversationUpdateManyWithoutJobNestedInput
   }
 
@@ -84652,6 +88383,8 @@ export namespace Prisma {
     jobSkills?: JobSkillUncheckedUpdateManyWithoutJobNestedInput
     jobViews?: JobViewUncheckedUpdateManyWithoutJobNestedInput
     savedJobs?: SavedJobUncheckedUpdateManyWithoutJobNestedInput
+    sourceJobMatches?: JobSimilarityUncheckedUpdateManyWithoutSourceJobNestedInput
+    targetJobMatches?: JobSimilarityUncheckedUpdateManyWithoutTargetJobNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutJobNestedInput
   }
 
@@ -85078,6 +88811,13 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type CandidateSearchHistoryCreateManyCandidateInput = {
+    id?: string
+    keyword: string
+    normalizedKeyword: string
+    searchedAt?: Date | string
+  }
+
   export type ApplicationUpdateWithoutCandidateInput = {
     id?: StringFieldUpdateOperationsInput | string
     coverLetter?: NullableStringFieldUpdateOperationsInput | string | null
@@ -85388,6 +89128,27 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CandidateSearchHistoryUpdateWithoutCandidateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    keyword?: StringFieldUpdateOperationsInput | string
+    normalizedKeyword?: StringFieldUpdateOperationsInput | string
+    searchedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CandidateSearchHistoryUncheckedUpdateWithoutCandidateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    keyword?: StringFieldUpdateOperationsInput | string
+    normalizedKeyword?: StringFieldUpdateOperationsInput | string
+    searchedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CandidateSearchHistoryUncheckedUpdateManyWithoutCandidateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    keyword?: StringFieldUpdateOperationsInput | string
+    normalizedKeyword?: StringFieldUpdateOperationsInput | string
+    searchedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type CompanyFollowerCreateManyCompanyInput = {
     id?: string
     candidateId: string
@@ -85652,6 +89413,8 @@ export namespace Prisma {
     jobViews?: JobViewUpdateManyWithoutJobNestedInput
     recruiter?: UserUpdateOneRequiredWithoutCreatedJobsNestedInput
     savedJobs?: SavedJobUpdateManyWithoutJobNestedInput
+    sourceJobMatches?: JobSimilarityUpdateManyWithoutSourceJobNestedInput
+    targetJobMatches?: JobSimilarityUpdateManyWithoutTargetJobNestedInput
     conversations?: ConversationUpdateManyWithoutJobNestedInput
   }
 
@@ -85689,6 +89452,8 @@ export namespace Prisma {
     jobSkills?: JobSkillUncheckedUpdateManyWithoutJobNestedInput
     jobViews?: JobViewUncheckedUpdateManyWithoutJobNestedInput
     savedJobs?: SavedJobUncheckedUpdateManyWithoutJobNestedInput
+    sourceJobMatches?: JobSimilarityUncheckedUpdateManyWithoutSourceJobNestedInput
+    targetJobMatches?: JobSimilarityUncheckedUpdateManyWithoutTargetJobNestedInput
     conversations?: ConversationUncheckedUpdateManyWithoutJobNestedInput
   }
 
@@ -85778,6 +89543,20 @@ export namespace Prisma {
   export type SavedJobCreateManyJobInput = {
     id?: string
     candidateId: string
+    createdAt?: Date | string
+  }
+
+  export type JobSimilarityCreateManySourceJobInput = {
+    id?: string
+    targetJobId: string
+    similarityScore: number
+    createdAt?: Date | string
+  }
+
+  export type JobSimilarityCreateManyTargetJobInput = {
+    id?: string
+    sourceJobId: string
+    similarityScore: number
     createdAt?: Date | string
   }
 
@@ -85969,6 +89748,48 @@ export namespace Prisma {
   export type SavedJobUncheckedUpdateManyWithoutJobInput = {
     id?: StringFieldUpdateOperationsInput | string
     candidateId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobSimilarityUpdateWithoutSourceJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    similarityScore?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    targetJob?: JobUpdateOneRequiredWithoutTargetJobMatchesNestedInput
+  }
+
+  export type JobSimilarityUncheckedUpdateWithoutSourceJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    targetJobId?: StringFieldUpdateOperationsInput | string
+    similarityScore?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobSimilarityUncheckedUpdateManyWithoutSourceJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    targetJobId?: StringFieldUpdateOperationsInput | string
+    similarityScore?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobSimilarityUpdateWithoutTargetJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    similarityScore?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sourceJob?: JobUpdateOneRequiredWithoutSourceJobMatchesNestedInput
+  }
+
+  export type JobSimilarityUncheckedUpdateWithoutTargetJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sourceJobId?: StringFieldUpdateOperationsInput | string
+    similarityScore?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type JobSimilarityUncheckedUpdateManyWithoutTargetJobInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sourceJobId?: StringFieldUpdateOperationsInput | string
+    similarityScore?: FloatFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

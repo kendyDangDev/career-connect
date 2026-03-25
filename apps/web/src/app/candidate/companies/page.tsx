@@ -113,11 +113,11 @@ export default async function CompaniesPage({ searchParams }: CompaniesPageProps
       <div className="mx-auto w-full max-w-7xl px-4 pt-12 pb-20 lg:px-8">
         <CompanyHeroSection />
 
-        <Suspense fallback={<div className="mt-12 h-48 animate-pulse rounded-2xl bg-slate-100" />}>
+        {/* <Suspense fallback={<div className="mt-12 h-48 animate-pulse rounded-2xl bg-slate-100" />}>
           <FeaturedCompanies />
-        </Suspense>
+        </Suspense> */}
 
-        <div className="mt-12">
+        <div className="mt-0">
           <CompanyFiltersBar industries={industries} totalCount={totalCount} />
           <CompanyGrid companies={companyCards} />
           <CompanyPagination currentPage={currentPage} totalPages={totalPages} />

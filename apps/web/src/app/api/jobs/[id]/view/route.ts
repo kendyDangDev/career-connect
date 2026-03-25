@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth, AuthenticatedRequest } from '@/lib/middleware/auth';
+import { withAuth, AuthenticatedRequest, authenticateUser } from '@/lib/middleware/auth';
 import { JobViewService } from '@/services/candidate/job-view.service';
 import { JobViewInput } from '@/types/candidate/job-view.types';
-import { verifyAccessToken, extractBearerToken } from '@/lib/jwt-utils';
-import { prisma } from '@/lib/prisma';
 
 /**
  * POST /api/jobs/[id]/view
@@ -13,26 +11,8 @@ import { prisma } from '@/lib/prisma';
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: jobId } = await params;
-
-    // Try to get user from Bearer token (for React Native)
-    let userId: string | null = null;
-    const authHeader = request.headers.get('authorization');
-    const token = extractBearerToken(authHeader);
-
-    if (token) {
-      const decoded = verifyAccessToken(token);
-      if (decoded) {
-        // Verify user still exists
-        const dbUser = await prisma.user.findUnique({
-          where: { id: decoded.id },
-          select: { id: true, status: true },
-        });
-
-        if (dbUser && dbUser.status === 'ACTIVE') {
-          userId = dbUser.id;
-        }
-      }
-    }
+    const authenticatedUser = await authenticateUser(request);
+    const userId = authenticatedUser?.id ?? null;
 
     // Get client information
     const ipAddress =

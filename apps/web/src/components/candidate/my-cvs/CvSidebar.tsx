@@ -2,7 +2,6 @@ import {
   Sparkles,
   TrendingUp,
   BarChart3,
-  HardDrive,
   Eye,
   ChevronRight,
   MessageSquare,
@@ -11,6 +10,7 @@ import {
 import Link from 'next/link';
 
 interface CvSidebarProps {
+  completionScore: number;
   statistics: {
     totalCvs: number;
     totalFileSize: number;
@@ -25,7 +25,7 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export default function CvSidebar({ statistics }: CvSidebarProps) {
+export default function CvSidebar({ completionScore, statistics }: CvSidebarProps) {
   return (
     <aside className="space-y-5">
       {/* AI CV Optimizer */}
@@ -124,10 +124,13 @@ export default function CvSidebar({ statistics }: CvSidebarProps) {
         <div className="mb-3">
           <div className="mb-1.5 flex items-center justify-between text-xs font-semibold">
             <span className="text-slate-600 dark:text-slate-400">Mức độ hoàn thiện</span>
-            <span className="text-purple-600">85%</span>
+            <span className="text-purple-600">{completionScore}%</span>
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
-            <div className="h-full w-[85%] rounded-full bg-gradient-to-r from-purple-500 to-indigo-500" />
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-purple-500 to-indigo-500"
+              style={{ width: `${completionScore}%` }}
+            />
           </div>
         </div>
         <Link

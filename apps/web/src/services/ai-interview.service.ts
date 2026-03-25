@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // ─── Gemini Client (LLM + STT) ─────────────────────────────────────────────
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY!);
-const GEMINI_MODEL = 'gemini-3.1-flash-lite-preview';
+const GEMINI_MODEL = 'gemini-3.1-flash-lite';
 
 // ─── Retry helper for rate-limited API calls ────────────────────────────────
 async function withRetry<T>(fn: () => Promise<T>, maxRetries = 3): Promise<T> {

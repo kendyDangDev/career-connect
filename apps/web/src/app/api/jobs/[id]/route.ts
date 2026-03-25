@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PublicJobService } from '@/services/public/job.service';
-import { prisma } from '@/lib/prisma';
 
 interface Params {
   params: Promise<{
@@ -42,16 +41,6 @@ export async function GET(request: NextRequest, { params }: Params) {
         { status: 404 }
       );
     }
-
-    // Increment view count
-    await prisma.job.update({
-      where: { id: job.id },
-      data: {
-        viewCount: {
-          increment: 1,
-        },
-      },
-    });
 
     return NextResponse.json({
       success: true,

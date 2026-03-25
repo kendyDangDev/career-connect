@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import {
   Bell,
+  Bookmark,
   Briefcase,
   ChevronDown,
   FileText,
@@ -20,8 +21,6 @@ import {
 const navLinks = [
   { label: 'Trang chủ', href: '/candidate' },
   { label: 'Tìm việc làm', href: '/candidate/jobs' },
-  { label: 'Việc đã ứng tuyển', href: '/candidate/applications' },
-  { label: 'Việc làm đã lưu', href: '/candidate/saved-jobs' },
   { label: 'Công ty', href: '/candidate/companies' },
   { label: 'Hồ sơ CV', href: '/candidate/my-cvs' },
   { label: 'AI Interview', href: '/candidate/interview-sets' },
@@ -144,8 +143,17 @@ export default function CandidateHeader() {
 
                       {[
                         { label: 'Hồ sơ cá nhân', href: '/candidate/profile', icon: User },
-                        { label: 'Quản lý CV', href: '/candidate/cv-management', icon: FileText },
-                        { label: 'Việc làm phù hợp', href: '/candidate/matches', icon: Zap },
+                        { label: 'Quản lý CV', href: '/candidate/my-cvs', icon: FileText },
+                        {
+                          label: 'Việc làm đã ứng tuyển',
+                          href: '/candidate/applications',
+                          icon: Briefcase,
+                        },
+                        {
+                          label: 'Việc làm đã lưu',
+                          href: '/candidate/saved-jobs',
+                          icon: Bookmark,
+                        },
                       ].map((item) => {
                         const Icon = item.icon;
 

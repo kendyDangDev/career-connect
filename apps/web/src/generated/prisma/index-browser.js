@@ -199,6 +199,14 @@ exports.Prisma.CandidateScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.CandidateSearchHistoryScalarFieldEnum = {
+  id: 'id',
+  candidateId: 'candidateId',
+  keyword: 'keyword',
+  normalizedKeyword: 'normalizedKeyword',
+  searchedAt: 'searchedAt'
+};
+
 exports.Prisma.CandidateSkillScalarFieldEnum = {
   id: 'id',
   candidateId: 'candidateId',
@@ -427,6 +435,14 @@ exports.Prisma.JobViewScalarFieldEnum = {
   ipAddress: 'ipAddress',
   userAgent: 'userAgent',
   viewedAt: 'viewedAt'
+};
+
+exports.Prisma.JobSimilarityScalarFieldEnum = {
+  id: 'id',
+  sourceJobId: 'sourceJobId',
+  targetJobId: 'targetJobId',
+  similarityScore: 'similarityScore',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.CompanyFollowerScalarFieldEnum = {
@@ -894,6 +910,7 @@ exports.Prisma.ModelName = {
   User: 'User',
   UserProfile: 'UserProfile',
   Candidate: 'Candidate',
+  CandidateSearchHistory: 'CandidateSearchHistory',
   CandidateSkill: 'CandidateSkill',
   CandidateEducation: 'CandidateEducation',
   CandidateExperience: 'CandidateExperience',
@@ -912,6 +929,7 @@ exports.Prisma.ModelName = {
   Location: 'Location',
   SavedJob: 'SavedJob',
   JobView: 'JobView',
+  JobSimilarity: 'JobSimilarity',
   CompanyFollower: 'CompanyFollower',
   JobAlert: 'JobAlert',
   CompanyReview: 'CompanyReview',

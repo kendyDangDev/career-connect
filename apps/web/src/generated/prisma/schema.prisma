@@ -132,8 +132,22 @@ model Candidate {
   companyFollowers      CompanyFollower[]
   jobAlerts             JobAlert[]
   savedJobs             SavedJob[]
+  searchHistory         CandidateSearchHistory[]
 
   @@map("candidates")
+}
+
+model CandidateSearchHistory {
+  id                String    @id @default(cuid())
+  candidateId       String    @map("candidate_id")
+  keyword           String
+  normalizedKeyword String    @map("normalized_keyword")
+  searchedAt        DateTime  @default(now()) @map("searched_at")
+  candidate         Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId, searchedAt(sort: Desc)], map: "idx_candidate_search_history_recent")
+  @@index([candidateId, normalizedKeyword, searchedAt(sort: Desc)], map: "idx_candidate_search_history_keyword_recent")
+  @@map("candidate_search_history")
 }
 
 model CandidateSkill {
@@ -300,6 +314,8 @@ model Job {
   company             Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
   recruiter           User              @relation("JobRecruiter", fields: [recruiterId], references: [id])
   savedJobs           SavedJob[]
+  sourceJobMatches    JobSimilarity[]   @relation("SourceJobMatches")
+  targetJobMatches    JobSimilarity[]   @relation("TargetJobMatches")
   conversations       Conversation[]
 
   @@index([status, publishedAt], map: "idx_jobs_status_published")
@@ -357,6 +373,7 @@ model Application {
   conversations        Conversation[]
 
   @@index([status, appliedAt], map: "idx_applications_status")
+  @@index([userId, jobId, appliedAt], map: "idx_applications_user_job_applied")
   @@map("applications")
 }
 
@@ -443,6 +460,7 @@ model SavedJob {
   job         Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
   @@unique([candidateId, jobId])
+  @@index([candidateId, createdAt], map: "idx_saved_jobs_candidate_created")
   @@map("saved_jobs")
 }
 
@@ -456,7 +474,22 @@ model JobView {
   job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
   user      User?    @relation(fields: [userId], references: [id])
 
+  @@index([userId, jobId, viewedAt], map: "idx_job_views_user_job_viewed")
   @@map("job_views")
+}
+
+model JobSimilarity {
+  id              String   @id @default(cuid())
+  sourceJobId     String   @map("source_job_id")
+  targetJobId     String   @map("target_job_id")
+  similarityScore Float    @map("similarity_score")
+  createdAt       DateTime @default(now()) @map("created_at")
+  sourceJob       Job      @relation("SourceJobMatches", fields: [sourceJobId], references: [id], onDelete: Cascade)
+  targetJob       Job      @relation("TargetJobMatches", fields: [targetJobId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceJobId, targetJobId])
+  @@index([sourceJobId, similarityScore(sort: Desc)], map: "idx_job_similarities_source_score")
+  @@map("job_similarities")
 }
 
 model CompanyFollower {

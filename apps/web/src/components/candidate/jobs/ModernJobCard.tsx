@@ -92,6 +92,11 @@ export default function ModernJobCard({ job, isUrgent = false }: ModernJobCardPr
     return diffDays <= 7 && diffDays >= 0;
   };
 
+  const isDeadlineExpired = (date?: string | Date | null) => {
+    if (!date) return false;
+    return new Date(date).getTime() < Date.now();
+  };
+
   const location = job.locationProvince ? job.locationProvince : 'Remote';
 
   const isVerified = job.company?.verificationStatus === 'VERIFIED';
@@ -99,9 +104,15 @@ export default function ModernJobCard({ job, isUrgent = false }: ModernJobCardPr
   const companyLogo = job.company?.logoUrl;
   const companySlug = job.company?.companySlug;
   const { visibleSkills, remainingCount } = getVisibleRequiredSkills(job);
+  const generalTags = [
+    { key: 'location', label: location, Icon: MapPin },
+    { key: 'experience', label: getExperienceLabel(job.experienceLevel), Icon: TrendingUp },
+    { key: 'job-type', label: getJobTypeLabel(job.jobType), Icon: Clock },
+  ];
 
   // Use applicationDeadline if available, fallback to expiresAt
   const deadline = job.applicationDeadline || job.expiresAt;
+  const isExpired = isDeadlineExpired(deadline);
   const viewsCount = job.viewCount || 0;
   const applicationsCount = job.applicationCount || 0;
 
@@ -114,11 +125,21 @@ export default function ModernJobCard({ job, isUrgent = false }: ModernJobCardPr
   };
 
   return (
-    <div className="group rounded-2xl border border-purple-100 bg-white shadow-sm transition-all duration-300 hover:border-purple-600/50 hover:shadow-xl hover:shadow-purple-600/5 dark:border-slate-800 dark:bg-slate-900">
+    <div
+      className={`group rounded-2xl border bg-white shadow-sm transition-all duration-300 dark:border-slate-800 dark:bg-slate-900 ${
+        isExpired
+          ? 'border-rose-200 hover:border-rose-300 hover:shadow-xl hover:shadow-rose-500/5'
+          : 'border-purple-100 hover:border-purple-600/50 hover:shadow-xl hover:shadow-purple-600/5'
+      }`}
+    >
       <div className="flex flex-col items-center p-6 md:flex-row">
         {/* Company Logo */}
         <div className="relative mb-4 flex-shrink-0 text-center md:mr-8 md:mb-0 md:text-left">
-          <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border border-purple-100 bg-purple-50 dark:border-slate-700 dark:bg-slate-800">
+          <div
+            className={`flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border dark:border-slate-700 dark:bg-slate-800 ${
+              isExpired ? 'border-rose-100 bg-rose-50' : 'border-purple-100 bg-purple-50'
+            }`}
+          >
             {companyLogo ? (
               <img alt={companyName} className="h-12 w-12 object-contain" src={companyLogo} />
             ) : (
@@ -127,11 +148,15 @@ export default function ModernJobCard({ job, isUrgent = false }: ModernJobCardPr
               </div>
             )}
           </div>
-          {isUrgent && (
+          {isExpired ? (
+            <span className="absolute -top-2 -right-2 rounded-lg bg-rose-500 px-2 py-1 text-[9px] font-black tracking-tighter text-white uppercase shadow-lg">
+              Expired
+            </span>
+          ) : isUrgent ? (
             <span className="absolute -top-2 -right-2 rounded-lg bg-red-500 px-2 py-1 text-[9px] font-black tracking-tighter text-white uppercase shadow-lg">
               Urgent
             </span>
-          )}
+          ) : null}
         </div>
 
         {/* Job Details */}
@@ -154,37 +179,37 @@ export default function ModernJobCard({ job, isUrgent = false }: ModernJobCardPr
               {companyName}
             </p>
           </Link>
-          <div className="flex flex-wrap justify-center gap-4 text-sm text-slate-500 md:justify-start dark:text-slate-400">
-            <div className="flex items-center gap-1.5">
-              <MapPin className="h-[18px] w-[18px] text-slate-400" />
-              <span>{location}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <TrendingUp className="h-[18px] w-[18px] text-slate-400" />
-              <span>{getExperienceLabel(job.experienceLevel)}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Clock className="h-[18px] w-[18px] text-slate-400" />
-              <span>{getJobTypeLabel(job.jobType)}</span>
-            </div>
-          </div>
-          {visibleSkills.length > 0 && (
-            <div className="mt-3 flex flex-wrap justify-center gap-2 md:justify-start">
-              {visibleSkills.map((skill) => (
+          <div className="mt-4 space-y-3">
+            <div className="flex flex-wrap justify-center gap-2 md:justify-start">
+              {generalTags.map(({ key, label, Icon }) => (
                 <span
-                  key={`${job.id}-${skill}`}
-                  className="rounded-md bg-slate-100 px-2.5 py-1 text-[0.7rem] leading-none font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  key={`${job.id}-${key}`}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
                 >
-                  {skill}
+                  <Icon className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
+                  {label}
                 </span>
               ))}
-              {remainingCount > 0 && (
-                <span className="rounded-md bg-fuchsia-50 px-2.5 py-1 text-[0.7rem] leading-none font-semibold text-fuchsia-600 dark:bg-fuchsia-900/20 dark:text-fuchsia-300">
-                  +{remainingCount}
-                </span>
-              )}
             </div>
-          )}
+
+            {visibleSkills.length > 0 ? (
+              <div className="flex flex-wrap justify-center gap-2 md:justify-start">
+                {visibleSkills.map((skill) => (
+                  <span
+                    key={`${job.id}-${skill}`}
+                    className="rounded-full border border-purple-100 bg-purple-50 px-3 py-1 text-[0.72rem] leading-none font-medium text-purple-700 dark:border-purple-800 dark:bg-purple-900/30 dark:text-purple-200"
+                  >
+                    {skill}
+                  </span>
+                ))}
+                {remainingCount > 0 && (
+                  <span className="rounded-full border border-purple-200 bg-purple-100 px-3 py-1 text-[0.72rem] leading-none font-semibold text-purple-700 dark:border-purple-700 dark:bg-purple-900/50 dark:text-purple-200">
+                    +{remainingCount}
+                  </span>
+                )}
+              </div>
+            ) : null}
+          </div>
         </div>
 
         {/* Salary & Apply */}
@@ -200,17 +225,23 @@ export default function ModernJobCard({ job, isUrgent = false }: ModernJobCardPr
             )}
           </div>
           <Link href={`/candidate/jobs/${job.id}`}>
-            <button className="flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 px-8 py-3 font-bold text-white shadow-lg shadow-purple-600/20 transition-all hover:bg-purple-700 md:w-auto">
-              Quick Apply
-              <Zap className="h-5 w-5" />
+            <button
+              className={`flex w-full items-center justify-center gap-2 rounded-xl px-8 py-3 font-bold transition-all md:w-auto ${
+                isExpired
+                  ? 'border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100'
+                  : 'bg-purple-600 text-white shadow-lg shadow-purple-600/20 hover:bg-purple-700'
+              }`}
+            >
+              {isExpired ? 'View Details' : 'Quick Apply'}
+              {isExpired ? <Eye className="h-5 w-5" /> : <Zap className="h-5 w-5" />}
             </button>
           </Link>
         </div>
       </div>
 
       {/* Stats Footer */}
-      <div className="flex flex-wrap items-center justify-center gap-4 rounded-b-2xl border-t border-purple-50 bg-slate-50/50 px-6 py-3 md:justify-between dark:border-slate-800 dark:bg-slate-800/50">
-        <div className="flex items-center gap-6">
+      <div className="flex flex-col gap-3 rounded-b-2xl border-t border-purple-50 bg-slate-50/50 px-6 py-3 md:flex-row md:items-center md:justify-between dark:border-slate-800 dark:bg-slate-800/50">
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 md:justify-start">
           <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
             <Users className="h-[18px] w-[18px] text-slate-400" />
             {applicationsCount} Applications
@@ -222,12 +253,17 @@ export default function ModernJobCard({ job, isUrgent = false }: ModernJobCardPr
         </div>
         {deadline && (
           <div
-            className={`flex items-center gap-2 text-xs font-bold tracking-wider uppercase ${
-              isDeadlineSoon(deadline) ? 'text-red-500' : 'text-slate-500'
+            className={`inline-flex items-center justify-center gap-2 text-xs font-bold md:justify-end ${
+              isExpired
+                ? 'text-rose-600'
+                : isDeadlineSoon(deadline)
+                  ? 'text-red-500'
+                  : 'text-green-600'
             }`}
           >
             <Calendar className="h-[18px] w-[18px]" />
-            Deadline: {formatDeadline(deadline)}
+            <span className="tracking-[0.12em] uppercase">{isExpired ? 'Closed' : 'Deadline'}</span>
+            <span className="tracking-normal normal-case">{formatDeadline(deadline)}</span>
           </div>
         )}
       </div>

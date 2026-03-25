@@ -64,13 +64,6 @@ async function cleanupDatabase() {
     console.log('Xóa Candidates...');
     await prisma.candidate.deleteMany();
 
-    console.log('Xóa User CVs và CV Sections...');
-    await prisma.cvSection.deleteMany();
-    await prisma.userCv.deleteMany();
-
-    console.log('Xóa Templates...');
-    await prisma.template.deleteMany();
-
     console.log('Xóa Notifications...');
     await prisma.notification.deleteMany();
 

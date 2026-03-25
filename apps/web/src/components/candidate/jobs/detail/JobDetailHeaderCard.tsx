@@ -15,6 +15,7 @@ interface JobDetailHeaderCardProps {
   viewCount: number;
   applicationCount: number;
   savedCount: number;
+  isApplicationExpired?: boolean;
 }
 
 const jobTypeLabels: Record<string, string> = {
@@ -58,6 +59,7 @@ export default function JobDetailHeaderCard({
   viewCount,
   applicationCount,
   savedCount,
+  isApplicationExpired = false,
 }: JobDetailHeaderCardProps) {
   const [applicationModalOpen, setApplicationModalOpen] = useState(false);
   const { data: savedStatus } = useCandidateSavedJobStatus(job.id);
@@ -181,10 +183,20 @@ export default function JobDetailHeaderCard({
         {/* Right: Action Buttons */}
         <div className="flex w-full flex-row gap-3 md:w-auto md:flex-col lg:flex-row">
           <button
-            onClick={() => setApplicationModalOpen(true)}
-            className="from-primary shadow-primary/20 hover:shadow-primary/40 h-12 min-w-[140px] flex-1 transform rounded-xl bg-gradient-to-r to-purple-500 font-bold text-white shadow-lg transition-all hover:scale-[1.02] md:flex-none lg:flex-none"
+            type="button"
+            onClick={() => {
+              if (!isApplicationExpired) {
+                setApplicationModalOpen(true);
+              }
+            }}
+            disabled={isApplicationExpired}
+            className={`h-12 min-w-[140px] flex-1 rounded-xl font-bold transition-all md:flex-none lg:flex-none ${
+              isApplicationExpired
+                ? 'cursor-not-allowed border border-rose-200 bg-rose-50 text-rose-700'
+                : 'from-primary shadow-primary/20 hover:shadow-primary/40 transform bg-gradient-to-r to-purple-500 text-white shadow-lg hover:scale-[1.02]'
+            }`}
           >
-            Apply Now
+            {isApplicationExpired ? 'Application Closed' : 'Apply Now'}
           </button>
 
           <button
@@ -269,7 +281,7 @@ export default function JobDetailHeaderCard({
       </div>
 
       <JobApplicationModal
-        open={applicationModalOpen}
+        open={applicationModalOpen && !isApplicationExpired}
         onClose={() => setApplicationModalOpen(false)}
         job={job}
       />

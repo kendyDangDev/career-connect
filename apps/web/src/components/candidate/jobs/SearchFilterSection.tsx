@@ -2,7 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { Search, MapPin, SlidersHorizontal, X, Plus, Bell } from 'lucide-react';
-import { useEffect, useMemo, useState, type ChangeEvent, type KeyboardEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
+import { useSession } from 'next-auth/react';
 import { JobListFilters } from './JobListPage';
 import { useDebounce } from '@/hooks/useDebounced';
 import {
@@ -10,6 +11,7 @@ import {
   vietnamProvincesApi,
   vietnamProvincesKeys,
 } from '@/api/vietnam-provinces.api';
+import RecentSearchesDropdown from '@/components/candidate/search/RecentSearchesDropdown';
 import {
   Select,
   SelectContent,
@@ -17,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useCandidateSearchHistory } from '@/hooks/candidate/useSearchHistory';
 
 interface SearchFilterSectionProps {
   filters: JobListFilters;
@@ -111,8 +114,15 @@ export default function SearchFilterSection({
   ]);
   const [skillInput, setSkillInput] = useState('');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [showRecentSearches, setShowRecentSearches] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
   const debouncedSalaryRange = useDebounce(salaryRange, 400);
   const debouncedSkillInput = useDebounce(skillInput, 250);
+  const { data: session, status } = useSession();
+  const isCandidate = status === 'authenticated' && session?.user?.userType === 'CANDIDATE';
+  const { searches, isLoadingRecentSearches, trackSearch } = useCandidateSearchHistory(
+    isCandidate
+  );
 
   const provincesQuery = useQuery({
     queryKey: vietnamProvincesKeys.all,
@@ -212,6 +222,24 @@ export default function SearchFilterSection({
       setSkillInput('');
     }
   }, [filters.skills]);
+
+  useEffect(() => {
+    if (!showRecentSearches) {
+      return undefined;
+    }
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target as Node)
+      ) {
+        setShowRecentSearches(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showRecentSearches]);
 
   useEffect(() => {
     const [nextMin, nextMax] = debouncedSalaryRange;
@@ -326,7 +354,14 @@ export default function SearchFilterSection({
   };
 
   const handleSearchClick = () => {
-    onSearchSubmit(searchValue);
+    const trimmedSearchValue = searchValue.trim();
+
+    if (trimmedSearchValue && isCandidate) {
+      void trackSearch(trimmedSearchValue);
+    }
+
+    setShowRecentSearches(false);
+    onSearchSubmit(trimmedSearchValue);
   };
 
   const handleSkillKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -384,16 +419,44 @@ export default function SearchFilterSection({
         <div className="rounded-3xl bg-gradient-to-br from-purple-600 to-indigo-800 p-1 shadow-2xl shadow-purple-600/20">
           <div className="rounded-[calc(1.5rem-2px)] bg-white p-6 lg:p-8 dark:bg-slate-900">
             <div className="flex flex-col items-stretch gap-4 lg:flex-row">
-              <div className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 md:flex-row dark:border-slate-700 dark:bg-slate-800">
-                <div className="relative flex flex-1 items-center border-b border-slate-200 px-4 py-3.5 md:border-r md:border-b-0 dark:border-slate-700">
+              <div className="flex flex-1 flex-col overflow-visible rounded-2xl border border-slate-200 bg-slate-50 md:flex-row dark:border-slate-700 dark:bg-slate-800">
+                <div
+                  ref={searchContainerRef}
+                  className="relative flex flex-1 items-center border-b border-slate-200 px-4 py-3.5 md:border-r md:border-b-0 dark:border-slate-700"
+                >
                   <Search className="mr-3 h-5 w-5 text-purple-600/70" />
                   <input
                     className="w-full border-none bg-transparent text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400 focus:border-transparent focus:shadow-none focus:ring-0 focus:outline-none dark:text-white"
                     placeholder="Job title, keywords, or company"
                     type="text"
                     value={searchValue}
+                    onFocus={() => isCandidate && setShowRecentSearches(true)}
                     onChange={(event) => onSearchChange(event.target.value)}
-                    onKeyDown={(event) => event.key === 'Enter' && handleSearchClick()}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        event.preventDefault();
+                        handleSearchClick();
+                      }
+
+                      if (event.key === 'Escape') {
+                        setShowRecentSearches(false);
+                      }
+                    }}
+                  />
+                  <RecentSearchesDropdown
+                    visible={isCandidate && showRecentSearches}
+                    searches={searches}
+                    isLoading={isLoadingRecentSearches}
+                    onSelect={(keyword) => {
+                      onSearchChange(keyword);
+                      const trimmedKeyword = keyword.trim();
+                      if (trimmedKeyword && isCandidate) {
+                        void trackSearch(trimmedKeyword);
+                      }
+                      setShowRecentSearches(false);
+                      onSearchSubmit(trimmedKeyword);
+                    }}
+                    className="left-4 right-4"
                   />
                 </div>
                 <div className="relative flex flex-1 items-center px-4 py-3.5">

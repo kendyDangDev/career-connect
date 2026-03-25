@@ -31,7 +31,11 @@ interface DeleteConfirmState {
   cv: CvData | null;
 }
 
-export default function MyCVsClient() {
+interface MyCVsClientProps {
+  initialCompletionScore: number;
+}
+
+export default function MyCVsClient({ initialCompletionScore }: MyCVsClientProps) {
   const [cvs, setCvs] = useState<CvData[]>([]);
   const [statistics, setStatistics] = useState<Statistics>({
     totalCvs: 0,
@@ -285,7 +289,7 @@ export default function MyCVsClient() {
 
             {/* Sidebar */}
             <div className="shrink-0 lg:w-80">
-              <CvSidebar statistics={statistics} />
+              <CvSidebar completionScore={initialCompletionScore} statistics={statistics} />
             </div>
           </div>
         </div>

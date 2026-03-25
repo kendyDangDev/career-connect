@@ -12,7 +12,7 @@ function getRandomNumber(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function getRandomDate(start = new Date(2025, 0, 1), end = new Date()) {
+function getRandomDate(start = new Date(2023, 0, 1), end = new Date()) {
   return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
 }
 
@@ -20,7 +20,7 @@ async function seedDatabase() {
   try {
     console.log('🌱 Bắt đầu seed database...');
 
-    // 1. Seed Industries
+    // 1. Industries
     console.log('📊 Tạo Industries...');
     const industries = [
       {
@@ -59,16 +59,14 @@ async function seedDatabase() {
 
     const createdIndustries = [];
     for (const industry of industries) {
-      const created = await prisma.industry.create({
-        data: {
-          ...industry,
-          sortOrder: industries.indexOf(industry) + 1,
-        },
-      });
-      createdIndustries.push(created);
+      createdIndustries.push(
+        await prisma.industry.create({
+          data: { ...industry, sortOrder: industries.indexOf(industry) + 1 },
+        })
+      );
     }
 
-    // 2. Seed Categories
+    // 2. Categories
     console.log('📂 Tạo Categories...');
     const categories = [
       { name: 'Lập trình', slug: 'lap-trinh', description: 'Các vị trí lập trình viên' },
@@ -83,143 +81,77 @@ async function seedDatabase() {
 
     const createdCategories = [];
     for (const category of categories) {
-      const created = await prisma.category.create({
-        data: {
-          ...category,
-          sortOrder: categories.indexOf(category) + 1,
-        },
-      });
-      createdCategories.push(created);
+      createdCategories.push(
+        await prisma.category.create({
+          data: { ...category, sortOrder: categories.indexOf(category) + 1 },
+        })
+      );
     }
 
-    // 3. Seed Skills
+    // 3. Skills
     console.log('🛠️ Tạo Skills...');
     const skills = [
-      // Technical Skills
-      {
-        name: 'JavaScript',
-        slug: 'javascript',
-        category: 'TECHNICAL',
-        description: 'Ngôn ngữ lập trình JavaScript',
-      },
-      {
-        name: 'TypeScript',
-        slug: 'typescript',
-        category: 'TECHNICAL',
-        description: 'Ngôn ngữ lập trình TypeScript',
-      },
-      {
-        name: 'React',
-        slug: 'react',
-        category: 'TECHNICAL',
-        description: 'Thư viện React cho frontend',
-      },
-      { name: 'Next.js', slug: 'nextjs', category: 'TECHNICAL', description: 'Framework Next.js' },
-      {
-        name: 'Node.js',
-        slug: 'nodejs',
-        category: 'TECHNICAL',
-        description: 'Runtime Node.js cho backend',
-      },
-      {
-        name: 'Python',
-        slug: 'python',
-        category: 'TECHNICAL',
-        description: 'Ngôn ngữ lập trình Python',
-      },
-      { name: 'Java', slug: 'java', category: 'TECHNICAL', description: 'Ngôn ngữ lập trình Java' },
-      { name: 'C#', slug: 'csharp', category: 'TECHNICAL', description: 'Ngôn ngữ lập trình C#' },
-      { name: 'PHP', slug: 'php', category: 'TECHNICAL', description: 'Ngôn ngữ lập trình PHP' },
-      { name: 'SQL', slug: 'sql', category: 'TECHNICAL', description: 'Cơ sở dữ liệu SQL' },
-      {
-        name: 'MongoDB',
-        slug: 'mongodb',
-        category: 'TECHNICAL',
-        description: 'Cơ sở dữ liệu NoSQL MongoDB',
-      },
-      {
-        name: 'PostgreSQL',
-        slug: 'postgresql',
-        category: 'TECHNICAL',
-        description: 'Cơ sở dữ liệu PostgreSQL',
-      },
-      {
-        name: 'Docker',
-        slug: 'docker',
-        category: 'TOOL',
-        description: 'Containerization với Docker',
-      },
-      { name: 'AWS', slug: 'aws', category: 'TOOL', description: 'Amazon Web Services' },
-      { name: 'Git', slug: 'git', category: 'TOOL', description: 'Version control với Git' },
-
-      // Soft Skills
-      {
-        name: 'Giao tiếp',
-        slug: 'giao-tiep',
-        category: 'SOFT',
-        description: 'Kỹ năng giao tiếp hiệu quả',
-      },
-      {
-        name: 'Làm việc nhóm',
-        slug: 'lam-viec-nhom',
-        category: 'SOFT',
-        description: 'Khả năng làm việc nhóm',
-      },
-      { name: 'Lãnh đạo', slug: 'lanh-dao', category: 'SOFT', description: 'Kỹ năng lãnh đạo' },
-      {
-        name: 'Giải quyết vấn đề',
-        slug: 'giai-quyet-van-de',
-        category: 'SOFT',
-        description: 'Tư duy phân tích và giải quyết vấn đề',
-      },
-      {
-        name: 'Quản lý thời gian',
-        slug: 'quan-ly-thoi-gian',
-        category: 'SOFT',
-        description: 'Kỹ năng quản lý thời gian',
-      },
-
+      { name: 'JavaScript', slug: 'javascript', category: 'TECHNICAL' },
+      { name: 'TypeScript', slug: 'typescript', category: 'TECHNICAL' },
+      { name: 'React', slug: 'react', category: 'TECHNICAL' },
+      { name: 'Next.js', slug: 'nextjs', category: 'TECHNICAL' },
+      { name: 'Node.js', slug: 'nodejs', category: 'TECHNICAL' },
+      { name: 'Python', slug: 'python', category: 'TECHNICAL' },
+      { name: 'Java', slug: 'java', category: 'TECHNICAL' },
+      { name: 'C#', slug: 'csharp', category: 'TECHNICAL' },
+      { name: 'PHP', slug: 'php', category: 'TECHNICAL' },
+      { name: 'SQL', slug: 'sql', category: 'TECHNICAL' },
+      { name: 'MongoDB', slug: 'mongodb', category: 'TECHNICAL' },
+      { name: 'PostgreSQL', slug: 'postgresql', category: 'TECHNICAL' },
+      { name: 'Docker', slug: 'docker', category: 'TOOL' },
+      { name: 'AWS', slug: 'aws', category: 'TOOL' },
+      { name: 'Git', slug: 'git', category: 'TOOL' },
+      { name: 'Giao tiếp', slug: 'giao-tiep', category: 'SOFT' },
+      { name: 'Làm việc nhóm', slug: 'lam-viec-nhom', category: 'SOFT' },
+      { name: 'Lãnh đạo', slug: 'lanh-dao', category: 'SOFT' },
+      { name: 'Giải quyết vấn đề', slug: 'giai-quyet-van-de', category: 'SOFT' },
+      { name: 'Quản lý thời gian', slug: 'quan-ly-thoi-gian', category: 'SOFT' },
       // Language Skills
       {
         name: 'Tiếng Anh',
         slug: 'tieng-anh',
         category: 'LANGUAGE',
-        description: 'Ngôn ngữ tiếng Anh',
       },
       {
         name: 'Tiếng Nhật',
         slug: 'tieng-nhat',
         category: 'LANGUAGE',
-        description: 'Ngôn ngữ tiếng Nhật',
       },
       {
         name: 'Tiếng Hàn',
         slug: 'tieng-han',
         category: 'LANGUAGE',
-        description: 'Ngôn ngữ tiếng Hàn',
       },
       {
         name: 'Tiếng Trung',
         slug: 'tieng-trung',
         category: 'LANGUAGE',
-        description: 'Ngôn ngữ tiếng Trung',
       },
     ];
 
     const createdSkills = [];
     for (const skill of skills) {
-      const created = await prisma.skill.create({
-        data: skill,
-      });
-      createdSkills.push(created);
+      createdSkills.push(await prisma.skill.create({ data: skill }));
     }
 
-    // 4. Seed Users (Admin, Candidates, Employers)
-    console.log('👥 Tạo Users...');
-    const users = [];
+    // Groups logic setup
+    const skillGroups = {
+      frontend: ['javascript', 'typescript', 'react', 'nextjs'],
+      backend: ['nodejs', 'python', 'java', 'csharp', 'php', 'sql', 'mongodb', 'postgresql'],
+      design: ['giao-tiep', 'lam-viec-nhom', 'lanh-dao', 'giai-quyet-van-de', 'quan-ly-thoi-gian'],
+    };
+    const mapSkillIds = (slugArray) =>
+      createdSkills.filter((s) => slugArray.includes(s.slug)).map((s) => s.id);
 
-    // Admin user
-    const adminUser = await prisma.user.create({
+    // 4. Users (Admin, Employers, Candidate context overlaps)
+    console.log('👥 Tạo Users...');
+
+    await prisma.user.create({
       data: {
         email: 'admin@careerconnect.com',
         passwordHash: await bcryptjs.hash('admin123', 12),
@@ -228,78 +160,10 @@ async function seedDatabase() {
         userType: 'ADMIN',
         emailVerified: true,
         status: 'ACTIVE',
-        profile: {
-          create: {
-            bio: 'System Administrator',
-            country: 'Vietnam',
-          },
-        },
+        profile: { create: { bio: 'System Administrator', country: 'Vietnam' } },
       },
     });
-    users.push(adminUser);
 
-    // Candidate users
-    const candidateData = [
-      {
-        email: 'nguyenvana@gmail.com',
-        firstName: 'Văn A',
-        lastName: 'Nguyễn',
-        phone: '0901234567',
-      },
-      { email: 'tranthib@gmail.com', firstName: 'Thị B', lastName: 'Trần', phone: '0901234568' },
-      { email: 'levanc@gmail.com', firstName: 'Văn C', lastName: 'Lê', phone: '0901234569' },
-      { email: 'phamthid@gmail.com', firstName: 'Thị D', lastName: 'Phạm', phone: '0901234570' },
-      { email: 'hoangvane@gmail.com', firstName: 'Văn E', lastName: 'Hoàng', phone: '0901234571' },
-    ];
-
-    const candidates = [];
-    for (const candidateInfo of candidateData) {
-      const candidate = await prisma.user.create({
-        data: {
-          ...candidateInfo,
-          passwordHash: await bcryptjs.hash('123456', 12),
-          userType: 'CANDIDATE',
-          emailVerified: true,
-          status: 'ACTIVE',
-          profile: {
-            create: {
-              dateOfBirth: getRandomDate(new Date(1990, 0, 1), new Date(2000, 11, 31)),
-              gender: getRandomElement(['MALE', 'FEMALE']),
-              city: getRandomElement(['Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng', 'Cần Thơ', 'Hải Phòng']),
-              province: getRandomElement([
-                'Hà Nội',
-                'Hồ Chí Minh',
-                'Đà Nẵng',
-                'Cần Thơ',
-                'Hải Phòng',
-              ]),
-              country: 'Vietnam',
-              bio: 'Chuyên viên IT với nhiều năm kinh nghiệm',
-            },
-          },
-          candidate: {
-            create: {
-              currentPosition: getRandomElement([
-                'Developer',
-                'Designer',
-                'Tester',
-                'Business Analyst',
-              ]),
-              experienceYears: getRandomNumber(1, 8),
-              expectedSalaryMin: getRandomNumber(800, 1500) * 10000,
-              expectedSalaryMax: getRandomNumber(1500, 3000) * 10000,
-              currency: 'VND',
-              availabilityStatus: getRandomElement(['AVAILABLE', 'PASSIVE']),
-              preferredWorkType: getRandomElement(['FULL_TIME', 'PART_TIME', 'CONTRACT']),
-              preferredLocationType: getRandomElement(['ONSITE', 'REMOTE', 'HYBRID']),
-            },
-          },
-        },
-      });
-      candidates.push(candidate);
-    }
-
-    // Employer users
     const employerData = [
       { email: 'hr@techcorp.com', firstName: 'HR', lastName: 'Manager', phone: '0281234567' },
       {
@@ -325,28 +189,165 @@ async function seedDatabase() {
           userType: 'EMPLOYER',
           emailVerified: true,
           status: 'ACTIVE',
-          profile: {
-            create: {
-              city: getRandomElement(['Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng']),
-              province: getRandomElement(['Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng']),
-              country: 'Vietnam',
-              bio: 'Chuyên viên tuyển dụng',
-            },
-          },
+          profile: { create: { city: 'Hồ Chí Minh', province: 'Hồ Chí Minh', country: 'Vietnam' } },
         },
       });
       employers.push(employer);
     }
 
-    users.push(...candidates, ...employers);
+    // Candidate structure combining groups + bulk data
+    const candidateContexts = [
+      // Frontend users
+      {
+        email: 'fe1@gmail.com',
+        firstName: 'FE',
+        lastName: 'Một',
+        phone: '0901234501',
+        group: 'frontend',
+      },
+      {
+        email: 'fe2@gmail.com',
+        firstName: 'FE',
+        lastName: 'Hai',
+        phone: '0901234502',
+        group: 'frontend',
+      },
+      {
+        email: 'fe3@gmail.com',
+        firstName: 'FE',
+        lastName: 'Ba',
+        phone: '0901234503',
+        group: 'frontend',
+      },
+      {
+        email: 'nguyenvana@gmail.com',
+        firstName: 'Văn A',
+        lastName: 'Nguyễn',
+        phone: '0901234567',
+        group: 'frontend',
+      },
+      {
+        email: 'phamthid@gmail.com',
+        firstName: 'Thị D',
+        lastName: 'Phạm',
+        phone: '0901234570',
+        group: 'frontend',
+      },
 
-    // 5. Seed Companies
+      // Backend users
+      {
+        email: 'be1@gmail.com',
+        firstName: 'BE',
+        lastName: 'Một',
+        phone: '0901234511',
+        group: 'backend',
+      },
+      {
+        email: 'be2@gmail.com',
+        firstName: 'BE',
+        lastName: 'Hai',
+        phone: '0901234512',
+        group: 'backend',
+      },
+      {
+        email: 'be3@gmail.com',
+        firstName: 'BE',
+        lastName: 'Ba',
+        phone: '0901234513',
+        group: 'backend',
+      },
+      {
+        email: 'tranthib@gmail.com',
+        firstName: 'Thị B',
+        lastName: 'Trần',
+        phone: '0901234568',
+        group: 'backend',
+      },
+      {
+        email: 'hoangvane@gmail.com',
+        firstName: 'Văn E',
+        lastName: 'Hoàng',
+        phone: '0901234571',
+        group: 'backend',
+      },
+
+      // Design users
+      {
+        email: 'ui1@gmail.com',
+        firstName: 'UI',
+        lastName: 'Một',
+        phone: '0901234521',
+        group: 'design',
+      },
+      {
+        email: 'ui2@gmail.com',
+        firstName: 'UI',
+        lastName: 'Hai',
+        phone: '0901234522',
+        group: 'design',
+      },
+      {
+        email: 'levanc@gmail.com',
+        firstName: 'Văn C',
+        lastName: 'Lê',
+        phone: '0901234569',
+        group: 'design',
+      },
+    ];
+
+    const candidates = [];
+    for (const info of candidateContexts) {
+      const candidate = await prisma.user.create({
+        data: {
+          email: info.email,
+          firstName: info.firstName,
+          lastName: info.lastName,
+          phone: info.phone,
+          passwordHash: await bcryptjs.hash('123456', 12),
+          userType: 'CANDIDATE',
+          emailVerified: true,
+          status: 'ACTIVE',
+          profile: { create: { country: 'Vietnam', city: 'Hà Nội' } },
+          candidate: {
+            create: {
+              currentPosition:
+                info.group === 'frontend'
+                  ? 'Frontend Dev'
+                  : info.group === 'backend'
+                    ? 'Backend Dev'
+                    : 'UI Designer',
+              experienceYears: getRandomNumber(2, 8),
+              expectedSalaryMin: getRandomNumber(800, 1500) * 10000,
+              expectedSalaryMax: getRandomNumber(1500, 3000) * 10000,
+              preferredWorkType: 'FULL_TIME',
+              preferredLocationType: 'ONSITE',
+            },
+          },
+        },
+        include: { candidate: true },
+      });
+
+      const groupSkillIds = mapSkillIds(skillGroups[info.group]);
+      if (groupSkillIds.length > 0) {
+        await prisma.candidateSkill.createMany({
+          data: groupSkillIds.map((skillId) => ({
+            candidateId: candidate.candidate.id,
+            skillId: skillId,
+            proficiencyLevel: 'INTERMEDIATE',
+          })),
+        });
+      }
+      candidates.push({ ...candidate, group: info.group });
+    }
+
+    // 5. Companies
     console.log('🏢 Tạo Companies...');
     const companyData = [
       {
         companyName: 'TechCorp Vietnam',
         companySlug: 'techcorp-vietnam',
-        description: 'Công ty công nghệ hàng đầu Việt Nam',
+        description:
+          'TechCorp Vietnam là công ty nền tảng công nghệ hàng đầu, chuyên cung cấp giải pháp phần mềm và điện toán đám mây. Với môi trường làm việc năng động và chú trọng đổi mới, chúng tôi luôn tạo ra cơ hội phát triển vượt bậc cho nhân tài IT.',
         websiteUrl: 'https://techcorp.vn',
         address: '123 Trần Hưng Đạo, Quận 1',
         city: 'Hồ Chí Minh',
@@ -361,7 +362,8 @@ async function seedDatabase() {
       {
         companyName: 'Innovate Solutions',
         companySlug: 'innovate-solutions',
-        description: 'Giải pháp công nghệ sáng tạo',
+        description:
+          'Innovate Solutions tập trung phát triển các giải pháp công nghệ sáng tạo, hỗ trợ quá trình chuyển đổi số toàn diện cho doanh nghiệp. Chúng tôi đề cao tinh thần làm việc nhóm và cam kết mang lại những giá trị cốt lõi bền vững cho khách hàng.',
         websiteUrl: 'https://innovate.com',
         address: '456 Nguyễn Trãi, Thanh Xuân',
         city: 'Hà Nội',
@@ -376,7 +378,8 @@ async function seedDatabase() {
       {
         companyName: 'FinTech Pro',
         companySlug: 'fintech-pro',
-        description: 'Công nghệ tài chính tiên tiến',
+        description:
+          'FinTech Pro là đơn vị tiên phong trong lĩnh vực công nghệ tài chính, không ngừng mang đến những giải pháp thanh toán và quản lý dòng tiền đột phá. Chúng tôi quy tụ đội ngũ chuyên gia hàng đầu để kiến tạo hệ sinh thái tài chính số an toàn.',
         websiteUrl: 'https://fintechpro.vn',
         address: '789 Lê Lợi, Hải Châu',
         city: 'Đà Nẵng',
@@ -385,13 +388,15 @@ async function seedDatabase() {
         email: 'contact@fintechpro.vn',
         foundedYear: 2025,
         companySize: 'SMALL_11_50',
-        logoUrl: 'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774192723/fintech_jmsgt0.jpg',
+        logoUrl:
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774192723/fintech_jmsgt0.jpg',
       },
 
       {
         companyName: 'Tech Innovate',
         companySlug: 'tech-innovate',
-        description: 'Đổi mới công nghệ hàng đầu',
+        description:
+          'Đổi mới công nghệ luôn là kim chỉ nam tại Tech Innovate. Chúng tôi cung cấp các nền tảng trí tuệ nhân tạo và tự động hóa giúp tối ưu hóa nghiệp vụ cho các đối tác lớn. Gia nhập Tech Innovate là bước đệm hoàn hảo để thành công.',
         websiteUrl: 'https://techinnovate.vn',
         address: '123 Nguyễn Huệ, Quận 1',
         city: 'Hồ Chí Minh',
@@ -406,7 +411,8 @@ async function seedDatabase() {
       {
         companyName: 'Green Solutions',
         companySlug: 'green-solutions',
-        description: 'Giải pháp xanh bền vững',
+        description:
+          'Tiên phong trong mảng công nghệ xanh, Green Solutions nghiên cứu và cung cấp các giải pháp vận hành bền vững nhằm bảo vệ môi trường. Cùng hướng đến giảm thiểu rác thải, tối ưu hóa năng lượng tái tạo và chung tay xây dựng một hệ sinh thái sống văn minh.',
         websiteUrl: 'https://greensolutions.vn',
         address: '456 Trần Phú, Thanh Khê',
         city: 'Đà Nẵng',
@@ -421,7 +427,8 @@ async function seedDatabase() {
       {
         companyName: 'EduTech Hub',
         companySlug: 'edutech-hub',
-        description: 'Trung tâm công nghệ giáo dục',
+        description:
+          'EduTech Hub là trung tâm công nghệ giáo dục hàng đầu, chuyên phát triển các nền tảng học tập trực tuyến thông minh. Chúng tôi ứng dụng công nghệ tương tác ảo để mang đến trải nghiệm giáo dục cá nhân hóa, giúp học viên tiếp thu tri thức mọi lúc.',
         websiteUrl: 'https://edutechhub.vn',
         address: '101 Hùng Vương, Hải Phòng',
         city: 'Hải Phòng',
@@ -430,12 +437,14 @@ async function seedDatabase() {
         email: 'contact@edutechhub.vn',
         foundedYear: 2025,
         companySize: 'SMALL_11_50',
-        logoUrl: 'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774192724/edutech_at3tjt.jpg',
+        logoUrl:
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774192724/edutech_at3tjt.jpg',
       },
       {
         companyName: 'HealthCare Plus',
         companySlug: 'healthcare-plus',
-        description: 'Dịch vụ y tế tiên tiến',
+        description:
+          'HealthCare Plus mang những ứng dụng tiên tiến nhất vào lĩnh vực y tế thông qua hệ thống quản lý bệnh viện và theo dõi sức khỏe từ xa. Sứ mệnh của chúng tôi là cải thiện chất lượng chăm sóc người bệnh, tối ưu quy trình khám chữa bệnh hiện đại.',
         websiteUrl: 'https://healthcareplus.vn',
         address: '321 Lý Thường Kiệt, Cầu Giấy',
         city: 'Hà Nội',
@@ -450,7 +459,8 @@ async function seedDatabase() {
       {
         companyName: 'LogiTech',
         companySlug: 'logitech',
-        description: 'Giải pháp logistics thông minh',
+        description:
+          'Với mạng lưới vận hành đa dạng, LogiTech ứng dụng thành công trí tuệ nhân tạo vào quản lý chuỗi cung ứng. Hệ thống phần mềm của chúng tôi giúp doanh nghiệp tối ưu nguồn lực, rút ngắn tối đa thời gian giao nhận và tăng cường hiệu suất vận tải.',
         websiteUrl: 'https://logitech.vn',
         address: '654 Nguyễn Trãi, Thanh Xuân',
         city: 'Hà Nội',
@@ -465,7 +475,8 @@ async function seedDatabase() {
       {
         companyName: 'RetailMaster',
         companySlug: 'retail-master',
-        description: 'Nền tảng bán lẻ hiện đại',
+        description:
+          'RetailMaster cung cấp nền tảng bán lẻ đa kênh hiện đại nhằm kết nối người mua và người bán một cách liền mạch. Các giải pháp do chúng tôi thiết kế giúp tối ưu quy trình bán hàng, quản lý kho bãi chính xác và nâng cao trải nghiệm mua sắm.',
         websiteUrl: 'https://retailmaster.vn',
         address: '987 Hai Bà Trưng, Ninh Kiều',
         city: 'Cần Thơ',
@@ -480,7 +491,8 @@ async function seedDatabase() {
       {
         companyName: 'SmartBuild',
         companySlug: 'smart-build',
-        description: 'Xây dựng thông minh và bền vững',
+        description:
+          'SmartBuild là đơn vị dẫn đầu trong công nghệ xây dựng thông minh (PropTech), chuyên số hóa công tác thiết kế và quản lý các công trình kiến trúc. Chúng tôi giúp các nhà thầu kiểm soát dự án chặt chẽ, rút ngắn thời gian và tối ưu nguyên vật liệu.',
         websiteUrl: 'https://smartbuild.vn',
         address: '258 Lê Đại Hành, Liên Chiểu',
         city: 'Đà Nẵng',
@@ -495,7 +507,8 @@ async function seedDatabase() {
       {
         companyName: 'CyberSec',
         companySlug: 'cyber-sec',
-        description: 'Bảo mật mạng chuyên sâu',
+        description:
+          'CyberSec là tổ chức nghiên cứu và cung cấp giải pháp bảo mật mạng chuyên sâu, bảo vệ khối dữ liệu nhạy cảm của các tập đoàn vừa và lớn. Đội ngũ chuyên gia an ninh mạng của chúng tôi liên tục rà soát rủi ro và đánh chặn lỗ hổng.',
         websiteUrl: 'https://cybersec.vn',
         address: '147 Trần Hưng Đạo, Hải Châu',
         city: 'Đà Nẵng',
@@ -510,7 +523,8 @@ async function seedDatabase() {
       {
         companyName: 'TravelEasy',
         companySlug: 'travel-easy',
-        description: 'Giải pháp du lịch tiện lợi',
+        description:
+          'Nhằm tối ưu hóa trải nghiệm xê dịch, TravelEasy đem lại giải pháp đặt vé, phòng khách sạn và lên kế hoạch du lịch cực kỳ cá nhân hóa. Sứ mệnh của chúng tôi là áp dụng công nghệ số để mọi chuyến đi trở nên dễ dàng và thư giãn tuyệt đối.',
         websiteUrl: 'https://traveleasy.vn',
         address: '369 Hoàng Văn Thụ, Tân Bình',
         city: 'Hồ Chí Minh',
@@ -525,7 +539,8 @@ async function seedDatabase() {
       {
         companyName: 'AgriTech',
         companySlug: 'agri-tech',
-        description: 'Công nghệ nông nghiệp hiện đại',
+        description:
+          'AgriTech tự hào là công ty nông nghiệp công nghệ cao, ứng dụng phần mềm phân tích dữ liệu cánh đồng và tự động hóa khâu tưới tiêu. Chúng tôi mong muốn hỗ trợ người nông dân gia tăng năng suất mùa vụ và mở ra kỷ nguyên nông nghiệp xanh.',
         websiteUrl: 'https://agritech.vn',
         address: '852 Nguyễn Văn Cừ, Ninh Kiều',
         city: 'Cần Thơ',
@@ -550,7 +565,6 @@ async function seedDatabase() {
       });
       companies.push(company);
 
-      // Create company users
       await prisma.companyUser.create({
         data: {
           companyId: company.id,
@@ -561,316 +575,154 @@ async function seedDatabase() {
       });
     }
 
-    // 6. Add candidate skills
-    console.log('🎯 Tạo Candidate Skills...');
-    for (const candidate of candidates) {
-      const candidateRecord = await prisma.candidate.findUnique({
-        where: { userId: candidate.id },
-      });
-
-      // Add random skills to each candidate
-      const randomSkills = createdSkills
-        .sort(() => 0.5 - Math.random())
-        .slice(0, getRandomNumber(3, 8));
-
-      for (const skill of randomSkills) {
-        await prisma.candidateSkill.create({
-          data: {
-            candidateId: candidateRecord.id,
-            skillId: skill.id,
-            proficiencyLevel: getRandomElement(['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT']),
-            yearsExperience: getRandomNumber(1, 5),
-          },
-        });
-      }
-
-      // Add education
-      await prisma.candidateEducation.create({
-        data: {
-          candidateId: candidateRecord.id,
-          institutionName: getRandomElement([
-            'ĐH Bách Khoa',
-            'ĐH Kinh Tế',
-            'ĐH Công Nghệ',
-            'ĐH Sư Phạm',
-          ]),
-          degreeType: getRandomElement(['BACHELOR', 'MASTER']),
-          fieldOfStudy: getRandomElement([
-            'Công nghệ thông tin',
-            'Kỹ thuật phần mềm',
-            'Khoa học máy tính',
-            'Kinh tế',
-          ]),
-          startDate: getRandomDate(new Date(2015, 0, 1), new Date(2018, 11, 31)),
-          endDate: getRandomDate(new Date(2019, 0, 1), new Date(2025, 11, 31)),
-          gpa: parseFloat((Math.random() * (4.0 - 2.5) + 2.5).toFixed(2)),
-          description: 'Tốt nghiệp loại khá',
-        },
-      });
-
-      // Add experience
-      const startDate = getRandomDate(new Date(2025, 0, 1), new Date(2025, 11, 31));
-      await prisma.candidateExperience.create({
-        data: {
-          candidateId: candidateRecord.id,
-          companyName: getRandomElement(['ABC Tech', 'XYZ Software', 'DEF Solutions']),
-          positionTitle: getRandomElement([
-            'Junior Developer',
-            'Software Engineer',
-            'Web Developer',
-          ]),
-          employmentType: getRandomElement(['FULL_TIME', 'PART_TIME', 'CONTRACT']),
-          startDate: startDate,
-          endDate: getRandomDate(startDate, new Date()),
-          isCurrent: Math.random() < 0.3,
-          description: 'Phát triển và bảo trì ứng dụng web',
-          achievements: 'Hoàn thành xuất sắc các dự án được giao',
-        },
-      });
-    }
-
-    // 7. Seed Jobs
-    console.log('💼 Tạo Jobs...');
-    const jobTitles = [
-      'Frontend Developer (React/Next.js)',
-      'Backend Developer (Node.js)',
-      'Full-stack Developer',
-      'UI/UX Designer',
-      'Project Manager',
-      'Business Analyst',
-      'DevOps Engineer',
-      'QA Tester',
-      'Product Manager',
-      'Data Analyst',
+    // 6. Jobs
+    console.log('💼 Tạo Jobs theo phân loại...');
+    const jobTemplates = [
+      { t: 'Senior Frontend ReactJS', c: 'frontend' },
+      { t: 'Frontend Developer (NextJS)', c: 'frontend' },
+      { t: 'Web UI Developer (JS/TS)', c: 'frontend' },
+      { t: 'Backend Developer (Node.js)', c: 'backend' },
+      { t: 'Java Backend System', c: 'backend' },
+      { t: 'DevOps / Backend Python', c: 'backend' },
+      { t: 'Senior UI/UX Designer', c: 'design' },
+      { t: 'Product Designer', c: 'design' },
+      { t: 'Frontend Engineer (React/Vue)', c: 'frontend' },
+      { t: 'Backend Engineer (C# .NET)', c: 'backend' },
+      { t: 'Full-stack JS Developer', c: 'frontend' },
+      { t: 'UI/UX Visual Designer', c: 'design' },
+      { t: 'Database Administrator', c: 'backend' },
+      { t: 'System Architect', c: 'backend' },
+      { t: 'Creative Director', c: 'design' },
+      { t: 'Junior Frontend Developer', c: 'frontend' },
+      { t: 'Senior Node.js Backend', c: 'backend' },
+      { t: 'Lead Product Designer', c: 'design' },
+      { t: 'Mobile App Developer (React Native)', c: 'frontend' },
+      { t: 'Backend Python Engineer', c: 'backend' },
     ];
 
     const jobs = [];
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < jobTemplates.length; i++) {
       const company = companies[i % companies.length];
       const employer = employers[i % employers.length];
-      const title = jobTitles[i % jobTitles.length];
 
       const job = await prisma.job.create({
         data: {
           companyId: company.id,
           recruiterId: employer.id,
-          title: title,
-          slug: `${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${i + 1}`,
-          description: `Mô tả công việc cho vị trí ${title}. Chúng tôi đang tìm kiếm một chuyên viên có kinh nghiệm để tham gia vào đội ngũ phát triển sản phẩm.`,
-          requirements: `
-- Tối thiểu 2 năm kinh nghiệm trong lĩnh vực liên quan
-- Có kiến thức vững về các công nghệ hiện đại
-- Khả năng làm việc nhóm tốt
-- Thái độ học hỏi và phát triển bản thân
-          `,
-          benefits: `
-- Lương thưởng hấp dẫn
-- Bảo hiểm đầy đủ
-- Môi trường làm việc năng động
-- Cơ hội thăng tiến rõ ràng
-          `,
-          jobType: getRandomElement(['FULL_TIME', 'PART_TIME', 'CONTRACT']),
-          workLocationType: getRandomElement(['ONSITE', 'REMOTE', 'HYBRID']),
-          experienceLevel: getRandomElement(['ENTRY', 'MID', 'SENIOR']),
+          title: jobTemplates[i].t,
+          slug: `job-${jobTemplates[i].c}-${i}`,
+          description: `Mô tả công việc cho vị trí ${jobTemplates[i].t}.`,
+          requirements: 'Yêu cầu công việc.',
+          jobType: 'FULL_TIME',
+          workLocationType: 'ONSITE',
+          experienceLevel: 'MID',
           salaryMin: getRandomNumber(1000, 2000) * 10000,
           salaryMax: getRandomNumber(2000, 4000) * 10000,
           currency: 'VND',
-          salaryNegotiable: Math.random() < 0.3,
           locationCity: company.city,
           locationProvince: company.province,
-          locationCountry: 'Vietnam',
-          applicationDeadline: getRandomDate(new Date(), new Date(2025, 11, 31)),
           status: 'ACTIVE',
-          viewCount: getRandomNumber(50, 500),
-          applicationCount: getRandomNumber(5, 50),
-          featured: Math.random() < 0.2,
-          urgent: Math.random() < 0.1,
-          publishedAt: getRandomDate(new Date(2025, 0, 1), new Date()),
+          publishedAt: new Date(),
+          viewCount: getRandomNumber(10, 50),
+          applicationCount: 0,
         },
       });
-      jobs.push(job);
 
-      // Add job categories
-      const randomCategories = createdCategories
-        .sort(() => 0.5 - Math.random())
-        .slice(0, getRandomNumber(1, 3));
-
-      for (const category of randomCategories) {
-        await prisma.jobCategory.create({
-          data: {
+      const groupSkillIds = mapSkillIds(skillGroups[jobTemplates[i].c]);
+      if (groupSkillIds.length > 0) {
+        await prisma.jobSkill.createMany({
+          data: groupSkillIds.map((skillId) => ({
             jobId: job.id,
-            categoryId: category.id,
-          },
+            skillId: skillId,
+            requiredLevel: 'REQUIRED', // Explicitly setting this per schema constraints
+          })),
         });
       }
 
-      // Add job skills
-      const randomSkills = createdSkills
-        .sort(() => 0.5 - Math.random())
-        .slice(0, getRandomNumber(3, 6));
+      // Random category
+      await prisma.jobCategory.create({
+        data: {
+          jobId: job.id,
+          categoryId: createdCategories[i % createdCategories.length].id,
+        },
+      });
 
-      for (const skill of randomSkills) {
-        await prisma.jobSkill.create({
-          data: {
-            jobId: job.id,
-            skillId: skill.id,
-            requiredLevel: getRandomElement(['NICE_TO_HAVE', 'PREFERRED', 'REQUIRED']),
-            minYearsExperience: getRandomNumber(1, 5),
-          },
-        });
+      jobs.push({ id: job.id, group: jobTemplates[i].c, title: jobTemplates[i].t });
+    }
+
+    // 7. Behavioural Network Overlaps (Views, Saves, Applications)
+    console.log('📋 Tạo Mạng Lưới Hành Vi (Views/Saves/Applies)...');
+
+    for (const groupName of ['frontend', 'backend', 'design']) {
+      const groupCandidates = candidates.filter((c) => c.group === groupName);
+      const groupJobs = jobs.filter((j) => j.group === groupName);
+
+      for (const candidate of groupCandidates) {
+        // Cross-interactions - 3-5 random jobs within their specialized group to build overlap
+        const interactJobs = groupJobs.sort(() => 0.5 - Math.random()).slice(0, 5);
+        for (const job of interactJobs) {
+          // Must provide ipAddress & userAgent per schema fix
+          await prisma.jobView.create({
+            data: {
+              jobId: job.id,
+              userId: candidate.id,
+              viewedAt: getRandomDate(),
+              ipAddress: `192.168.1.${getRandomNumber(1, 255)}`,
+              userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36',
+            },
+          });
+
+          // Some randomness for saved jobs
+          if (Math.random() > 0.4) {
+            await prisma.savedJob.create({
+              data: {
+                jobId: job.id,
+                candidateId: candidate.candidate.id,
+                createdAt: getRandomDate(),
+              },
+            });
+          }
+
+          // Randomness for applications
+          if (Math.random() > 0.6) {
+            const app = await prisma.application.create({
+              data: {
+                jobId: job.id,
+                candidateId: candidate.candidate.id,
+                userId: candidate.id,
+                status: 'APPLIED',
+                appliedAt: getRandomDate(),
+              },
+            });
+
+            await prisma.applicationTimeline.create({
+              data: {
+                application: { connect: { id: app.id } },
+                user: { connect: { id: candidate.id } },
+                status: 'APPLIED',
+                note: 'Applied via Auto System',
+              },
+            });
+          }
+        }
       }
-    }
-
-    // 8. Seed Applications
-    console.log('📋 Tạo Applications...');
-    for (let i = 0; i < 30; i++) {
-      const candidate = candidates[i % candidates.length];
-      const job = jobs[i % jobs.length];
-
-      const candidateRecord = await prisma.candidate.findUnique({
-        where: { userId: candidate.id },
-      });
-
-      const application = await prisma.application.create({
-        data: {
-          jobId: job.id,
-          candidateId: candidateRecord.id,
-          userId: candidate.id,
-          coverLetter:
-            'Tôi rất quan tâm đến vị trí này và tin rằng kỹ năng của tôi phù hợp với yêu cầu công việc.',
-          cvFileUrl:
-            'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1760330983/career-connect/candidates/cvs/cmgnrwmoe0004ulfgwjtuht8i/Do-Dang-Thang-TopCV_1760330980293_5b4da3f4.pdf.pdf',
-          status: getRandomElement([
-            'APPLIED',
-            'SCREENING',
-            'INTERVIEWING',
-            'OFFERED',
-            'HIRED',
-            'REJECTED',
-          ]),
-          appliedAt: getRandomDate(new Date(2025, 0, 1), new Date()),
-          rating: getRandomNumber(1, 5),
-        },
-      });
-
-      // Add application timeline
-      await prisma.applicationTimeline.create({
-        data: {
-          applicationId: application.id,
-          status: 'APPLIED',
-          note: 'Ứng viên đã nộp hồ sơ',
-          changedBy: job.recruiterId,
-        },
-      });
-    }
-
-    // 9. Seed other data
-    console.log('🔔 Tạo Notifications...');
-    for (const user of candidates.slice(0, 3)) {
-      await prisma.notification.create({
-        data: {
-          userId: user.id,
-          type: 'APPLICATION_STATUS',
-          title: 'Trạng thái ứng tuyển đã được cập nhật',
-          message: 'Hồ sơ của bạn đang được xem xét bởi nhà tuyển dụng.',
-          data: { applicationId: 'app_123' },
-        },
-      });
-    }
-
-    console.log('📊 Tạo Job Views...');
-    for (let i = 0; i < 50; i++) {
-      const job = jobs[i % jobs.length];
-      const user = users[i % users.length];
-
-      await prisma.jobView.create({
-        data: {
-          jobId: job.id,
-          userId: user.id,
-          ipAddress: `192.168.1.${getRandomNumber(1, 255)}`,
-          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          viewedAt: getRandomDate(new Date(2025, 0, 1), new Date()),
-        },
-      });
-    }
-
-    console.log('⭐ Tạo Company Reviews...');
-    for (let i = 0; i < 10; i++) {
-      const company = companies[i % companies.length];
-      const user = candidates[i % candidates.length];
-
-      await prisma.companyReview.create({
-        data: {
-          companyId: company.id,
-          reviewerId: user.id,
-          rating: getRandomNumber(3, 5),
-          title: 'Công ty tốt để làm việc',
-          reviewText: 'Môi trường làm việc chuyên nghiệp, đồng nghiệp thân thiện.',
-          pros: 'Lương tốt, phúc lợi đầy đủ',
-          cons: 'Áp lực công việc cao',
-          workLifeBalanceRating: getRandomNumber(3, 5),
-          salaryBenefitRating: getRandomNumber(3, 5),
-          managementRating: getRandomNumber(3, 5),
-          cultureRating: getRandomNumber(3, 5),
-          employmentStatus: 'CURRENT',
-          positionTitle: 'Software Developer',
-          employmentLength: '1-2 năm',
-          isApproved: true,
-        },
-      });
-    }
-
-    // 10. Create system settings
-    console.log('⚙️ Tạo System Settings...');
-    const systemSettings = [
-      { key: 'site_name', value: 'Career Connect', description: 'Tên website', dataType: 'STRING' },
-      {
-        key: 'max_file_size',
-        value: '10485760',
-        description: 'Kích thước file tối đa (bytes)',
-        dataType: 'NUMBER',
-      },
-      {
-        key: 'email_notifications',
-        value: 'true',
-        description: 'Bật thông báo email',
-        dataType: 'BOOLEAN',
-      },
-      {
-        key: 'maintenance_mode',
-        value: 'false',
-        description: 'Chế độ bảo trì',
-        dataType: 'BOOLEAN',
-      },
-    ];
-
-    for (const setting of systemSettings) {
-      await prisma.systemSetting.create({
-        data: {
-          ...setting,
-          updatedBy: adminUser.id,
-        },
-      });
     }
 
     console.log('✅ Seed database hoàn thành!');
     console.log(`
-📊 Thống kê:
+📊 Thống kê Refactored Database:
 - Industries: ${createdIndustries.length}
 - Categories: ${createdCategories.length}
 - Skills: ${createdSkills.length}
-- Users: ${users.length} (1 admin, ${candidates.length} candidates, ${employers.length} employers)
+- Users: ${candidates.length + employers.length + 1} (1 Admin, ${employers.length} Employers, ${candidates.length} Candidates)
 - Companies: ${companies.length}
 - Jobs: ${jobs.length}
-- Applications: 30
-- Notifications: 3
-- Job Views: 50
-- Company Reviews: 10
-- System Settings: ${systemSettings.length}
 
 🔑 Test Accounts:
 Admin: admin@careerconnect.com / admin123
-Candidate: nguyenvana@gmail.com / 123456
+Candidate (Frontend): nguyenvana@gmail.com / fe1@gmail.com / 123456
+Candidate (Backend): tranthib@gmail.com / be1@gmail.com / 123456
+Candidate (Design): levanc@gmail.com / ui1@gmail.com / 123456
 Employer: hr@techcorp.com / 123456
     `);
   } catch (error) {
@@ -881,7 +733,6 @@ Employer: hr@techcorp.com / 123456
   }
 }
 
-// Run the seed function
 if (require.main === module) {
   seedDatabase().catch((e) => {
     console.error(e);

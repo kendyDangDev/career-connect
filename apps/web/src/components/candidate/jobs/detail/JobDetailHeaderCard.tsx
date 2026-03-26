@@ -1,14 +1,11 @@
 'use client';
 
 import Image from 'next/image';
-import { Loader2 } from 'lucide-react';
+import { BadgeDollarSign, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import type { JobData } from './JobDetailPage';
 import JobApplicationModal from './JobApplicationModal';
-import {
-  useCandidateSavedJobStatus,
-  useToggleSavedJob,
-} from '@/hooks/candidate/useSavedJobs';
+import { useCandidateSavedJobStatus, useToggleSavedJob } from '@/hooks/candidate/useSavedJobs';
 
 interface JobDetailHeaderCardProps {
   job: JobData;
@@ -42,11 +39,11 @@ function formatSalary(
   if (!min && !max) return 'Thỏa thuận';
 
   const fmt = (n: number) =>
-    currency === 'VND' ? `${(n / 1_000_000).toFixed(0)}M VND` : `$${(n / 1_000).toFixed(0)}k`;
+    currency === 'VND' ? `${(n / 1_000_000).toFixed(0)}` : `$${(n / 1_000).toFixed(0)}k`;
 
-  if (min && max) return `${fmt(min)} - ${fmt(max)}`;
-  if (min) return `Từ ${fmt(min)}`;
-  return `Đến ${fmt(max!)}`;
+  if (min && max) return `${fmt(min)} - ${fmt(max)} Triệu`;
+  if (min) return `Từ ${fmt(min)} Triệu`;
+  return `Đến ${fmt(max!)} Triệu `;
 }
 
 function formatCount(count: number): string {
@@ -155,6 +152,7 @@ export default function JobDetailHeaderCard({
               <span className="h-1 w-1 rounded-full bg-slate-300" />
 
               <span className="flex items-center gap-1.5 rounded-full font-bold text-emerald-600 dark:text-emerald-400">
+                <BadgeDollarSign />
                 {salary}
               </span>
             </div>

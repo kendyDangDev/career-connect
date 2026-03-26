@@ -158,6 +158,11 @@ const getNavItems = (jobStats: JobStatistics | null, isLoading: boolean): NavIte
     icon: Building2,
   },
   {
+    title: 'Đánh giá công ty',
+    href: '/admin/reviews',
+    icon: Star,
+  },
+  {
     title: 'Tài khoản',
     href: '/admin/users',
     icon: UserCheck,

@@ -388,8 +388,7 @@ async function seedDatabase() {
         email: 'contact@fintechpro.vn',
         foundedYear: 2025,
         companySize: 'SMALL_11_50',
-        logoUrl:
-          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774192723/fintech_jmsgt0.jpg',
+        logoUrl: 'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774192723/fintech_jmsgt0.jpg',
       },
 
       {
@@ -437,8 +436,7 @@ async function seedDatabase() {
         email: 'contact@edutechhub.vn',
         foundedYear: 2025,
         companySize: 'SMALL_11_50',
-        logoUrl:
-          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774192724/edutech_at3tjt.jpg',
+        logoUrl: 'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774192724/edutech_at3tjt.jpg',
       },
       {
         companyName: 'HealthCare Plus',
@@ -706,6 +704,62 @@ async function seedDatabase() {
           }
         }
       }
+    }
+
+    // 9. Seed other data
+    console.log('🔔 Tạo Notifications...');
+    for (const user of candidates.slice(0, 3)) {
+      await prisma.notification.create({
+        data: {
+          userId: user.id,
+          type: 'APPLICATION_STATUS',
+          title: 'Trạng thái ứng tuyển đã được cập nhật',
+          message: 'Hồ sơ của bạn đang được xem xét bởi nhà tuyển dụng.',
+          data: { applicationId: 'app_123' },
+        },
+      });
+    }
+
+    console.log('📊 Tạo Job Views...');
+    for (let i = 0; i < 50; i++) {
+      const job = jobs[i % jobs.length];
+      const user = users[i % users.length];
+
+      await prisma.jobView.create({
+        data: {
+          jobId: job.id,
+          userId: user.id,
+          ipAddress: `192.168.1.${getRandomNumber(1, 255)}`,
+          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          viewedAt: getRandomDate(new Date(2025, 0, 1), new Date()),
+        },
+      });
+    }
+
+    console.log('⭐ Tạo Company Reviews...');
+    for (let i = 0; i < 10; i++) {
+      const company = companies[i % companies.length];
+      const user = candidates[i % candidates.length];
+
+      await prisma.companyReview.create({
+        data: {
+          companyId: company.id,
+          reviewerId: user.id,
+          rating: getRandomNumber(3, 5),
+          title: 'Công ty tốt để làm việc',
+          reviewText: 'Môi trường làm việc chuyên nghiệp, đồng nghiệp thân thiện.',
+          pros: 'Lương tốt, phúc lợi đầy đủ',
+          cons: 'Áp lực công việc cao',
+          workLifeBalanceRating: getRandomNumber(3, 5),
+          salaryBenefitRating: getRandomNumber(3, 5),
+          managementRating: getRandomNumber(3, 5),
+          cultureRating: getRandomNumber(3, 5),
+          employmentStatus: 'CURRENT',
+          positionTitle: 'Software Developer',
+          employmentLength: '1-2 năm',
+          isApproved: true,
+        },
+      });
     }
 
     console.log('✅ Seed database hoàn thành!');

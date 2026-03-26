@@ -10,5 +10,6 @@ export { CompanyActiveOpenings } from './CompanyActiveOpenings';
 export type { JobListing } from './CompanyActiveOpenings';
 export { CompanyReviews } from './CompanyReviews';
 export type { CompanyReviewItem, CompanyReviewStats } from './CompanyReviews';
+export { CompanyReviewDialog } from './CompanyReviewDialog';
 
 export { CompanySidebar } from './CompanySidebar';

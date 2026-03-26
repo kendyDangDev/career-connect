@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { toast } from 'sonner';
 import {
   CompanyHero,
   CompanyTabs,
@@ -15,13 +17,17 @@ import {
   type CompanyReviewItem,
   type CompanyReviewStats,
 } from '@/components/company-profile';
+import { CompanyReviewDialog } from '@/components/company-profile/CompanyReviewDialog';
+import type { CreateCompanyReviewInput } from '@/lib/validations/company-review.validation';
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+const DEFAULT_REVIEWS_LIMIT = 3;
+const EXPANDED_REVIEWS_LIMIT = 10;
+const REVIEWS_SECTION_ID = 'company-section-reviews';
 
 const COMPANY_SIZE_LABELS: Record<string, string> = {
-  STARTUP_1_10: '1 – 10',
-  SMALL_11_50: '11 – 50',
-  MEDIUM_51_200: '51 – 200',
+  STARTUP_1_10: '1 - 10',
+  SMALL_11_50: '11 - 50',
+  MEDIUM_51_200: '51 - 200',
   LARGE_201_500: '200+',
   ENTERPRISE_501_PLUS: '500+',
 };
@@ -42,31 +48,71 @@ function formatFollowers(n: number): string {
 
 function formatJobSalary(job: RawJob): string | undefined {
   if (job.salaryNegotiable) return 'Thỏa thuận';
+
   const min = job.salaryMin ? Number(job.salaryMin) : null;
   const max = job.salaryMax ? Number(job.salaryMax) : null;
+
   if (!min && !max) return undefined;
-  const fmt = (n: number) =>
-    job.currency === 'VND' ? `${(n / 1_000_000).toFixed(0)}M` : `$${(n / 1_000).toFixed(0)}k`;
-  if (min && max) return `${fmt(min)} – ${fmt(max)}`;
-  if (min) return `Từ ${fmt(min)}`;
-  return `Đến ${fmt(max!)}`;
+
+  const formatAmount = (value: number) =>
+    job.currency === 'VND'
+      ? `${(value / 1_000_000).toFixed(0)}`
+      : `$${(value / 1_000).toFixed(0)}k`;
+
+  if (min && max) return `${formatAmount(min)} - ${formatAmount(max)} Triệu`;
+  if (min) return `Từ ${formatAmount(min)} Triệu`;
+  return `Đến ${formatAmount(max!)} Triệu`;
 }
 
 function timeAgo(dateStr: string | null | undefined): string {
   if (!dateStr) return '';
+
   const diff = Date.now() - new Date(dateStr).getTime();
-  const d = Math.floor(diff / 86_400_000);
-  if (d === 0) return 'Hôm nay';
-  if (d === 1) return '1 ngày trước';
-  if (d < 7) return `${d} ngày trước`;
-  const w = Math.floor(d / 7);
-  if (w === 1) return '1 tuần trước';
-  if (w < 5) return `${w} tuần trước`;
-  const m = Math.floor(d / 30);
-  return `${m} tháng trước`;
+  const days = Math.floor(diff / 86_400_000);
+
+  if (days === 0) return 'Hôm nay';
+  if (days === 1) return '1 ngày trước';
+  if (days < 7) return `${days} ngày trước`;
+
+  const weeks = Math.floor(days / 7);
+  if (weeks === 1) return '1 tuần trước';
+  if (weeks < 5) return `${weeks} tuần trước`;
+
+  const months = Math.floor(days / 30);
+  return `${months} tháng trước`;
 }
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+function mergeUniqueReviews(
+  currentReviews: CompanyReviewItem[],
+  nextReviews: CompanyReviewItem[]
+): CompanyReviewItem[] {
+  const seenIds = new Set(currentReviews.map((review) => review.id));
+  const merged = [...currentReviews];
+
+  nextReviews.forEach((review) => {
+    if (!seenIds.has(review.id)) {
+      seenIds.add(review.id);
+      merged.push(review);
+    }
+  });
+
+  return merged;
+}
+
+function getApiMessage(payload: unknown): string | null {
+  if (!payload || typeof payload !== 'object') return null;
+
+  const maybeMessage = payload as { error?: string; message?: string };
+  return maybeMessage.error || maybeMessage.message || null;
+}
+
+function scrollToReviewsSection() {
+  const section = document.getElementById(REVIEWS_SECTION_ID);
+  if (!section) return;
+
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  window.history.replaceState(null, '', `#${REVIEWS_SECTION_ID}`);
+}
 
 interface PublicCompanyProfile {
   id: string;
@@ -109,18 +155,40 @@ interface RawJob {
 interface CompanyReviewsApiData {
   reviews: CompanyReviewItem[];
   total: number;
+  page: number;
+  totalPages: number;
+  hasMore: boolean;
   statistics?: CompanyReviewStats;
 }
 
 interface CompanyReviewsApiResponse {
   success: boolean;
   data?: CompanyReviewsApiData;
+  error?: string;
+  message?: string;
 }
 
-// ─── Page Component ───────────────────────────────────────────────────────────
+interface CompanyUserReviewsApiResponse {
+  success: boolean;
+  data?: {
+    reviews: CompanyReviewItem[];
+    total: number;
+  };
+  error?: string;
+  message?: string;
+}
+
+interface FetchApprovedReviewsOptions {
+  append?: boolean;
+  limit?: number;
+  page?: number;
+}
 
 export default function CompanyProfilePage() {
   const { id: slug } = useParams<{ id: string }>();
+  const router = useRouter();
+  const { data: session, status: sessionStatus } = useSession();
+
   const [activeTab, setActiveTab] = useState<CompanyTabKey>('overview');
   const [isFollowing, setIsFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
@@ -133,19 +201,34 @@ export default function CompanyProfilePage() {
   const [reviewsTotal, setReviewsTotal] = useState(0);
   const [reviewStats, setReviewStats] = useState<CompanyReviewStats | null>(null);
   const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [reviewsLoadingMore, setReviewsLoadingMore] = useState(false);
+  const [reviewsPage, setReviewsPage] = useState(1);
+  const [reviewsHasMore, setReviewsHasMore] = useState(false);
+  const [reviewsExpanded, setReviewsExpanded] = useState(false);
+  const [currentUserReview, setCurrentUserReview] = useState<CompanyReviewItem | null>(null);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
+  const isCandidateUser = session?.user?.userType === 'CANDIDATE';
+  const canWriteReview = !currentUserReview;
+  const writeReviewLabel = currentUserReview
+    ? currentUserReview.isApproved === false
+      ? 'Review pending approval'
+      : 'Review submitted'
+    : 'Write review';
+
   const mapJobs = useCallback(
     (rawJobs: RawJob[]): JobListing[] =>
-      rawJobs.map((j) => ({
-        id: j.id,
-        title: j.title,
-        location: [j.locationCity, j.locationProvince].filter(Boolean).join(', ') || '',
-        type: JOB_TYPE_LABELS[j.jobType] ?? j.jobType,
-        salary: formatJobSalary(j),
-        postedAt: timeAgo(j.publishedAt ?? j.createdAt),
-        tags: j.jobSkills?.map((s) => s.skill?.name).filter(Boolean) as string[],
+      rawJobs.map((job) => ({
+        id: job.id,
+        title: job.title,
+        location: [job.locationCity, job.locationProvince].filter(Boolean).join(', ') || '',
+        type: JOB_TYPE_LABELS[job.jobType] ?? job.jobType,
+        salary: formatJobSalary(job),
+        postedAt: timeAgo(job.publishedAt ?? job.createdAt),
+        tags: job.jobSkills?.map((skill) => skill.skill?.name).filter(Boolean) as string[],
       })),
     []
   );
@@ -169,8 +252,125 @@ export default function CompanyProfilePage() {
     return Array.from(requiredSkills).sort((a, b) => a.localeCompare(b));
   }, []);
 
+  const fetchApprovedReviews = useCallback(
+    async ({
+      append = false,
+      limit = DEFAULT_REVIEWS_LIMIT,
+      page = 1,
+    }: FetchApprovedReviewsOptions = {}) => {
+      if (!slug) return;
+
+      if (append) {
+        setReviewsLoadingMore(true);
+      } else {
+        setReviewsLoading(true);
+      }
+
+      try {
+        const params = new URLSearchParams({
+          companySlug: slug,
+          page: String(page),
+          limit: String(limit),
+          sortBy: 'createdAt',
+          sortOrder: 'desc',
+        });
+
+        const response = await fetch(`/api/reviews/company?${params.toString()}`);
+        const payload = (await response
+          .json()
+          .catch(() => null)) as CompanyReviewsApiResponse | null;
+
+        if (!response.ok || !payload?.success || !payload.data) {
+          throw new Error(getApiMessage(payload) || 'Failed to load company reviews');
+        }
+
+        const nextReviews = payload.data.reviews ?? [];
+        setReviews((previousReviews) =>
+          append ? mergeUniqueReviews(previousReviews, nextReviews) : nextReviews
+        );
+        setReviewsTotal(payload.data.total ?? 0);
+        setReviewStats(payload.data.statistics ?? null);
+        setReviewsPage(payload.data.page ?? page);
+        setReviewsHasMore(payload.data.hasMore ?? false);
+      } catch {
+        if (append) {
+          toast.error('Failed to load more reviews.');
+          return;
+        }
+
+        setReviews([]);
+        setReviewsTotal(0);
+        setReviewStats(null);
+        setReviewsPage(1);
+        setReviewsHasMore(false);
+      } finally {
+        if (append) {
+          setReviewsLoadingMore(false);
+        } else {
+          setReviewsLoading(false);
+        }
+      }
+    },
+    [slug]
+  );
+
+  const fetchCurrentUserCompanyReview = useCallback(async () => {
+    if (!company?.id || sessionStatus !== 'authenticated' || !isCandidateUser) {
+      setCurrentUserReview(null);
+      return null;
+    }
+
+    try {
+      const response = await fetch('/api/reviews/company/user?includeUnapproved=true');
+      const payload = (await response
+        .json()
+        .catch(() => null)) as CompanyUserReviewsApiResponse | null;
+
+      if (!response.ok || !payload?.success || !payload.data) {
+        throw new Error(getApiMessage(payload) || 'Failed to load your review');
+      }
+
+      const matchingReview =
+        payload.data.reviews.find((review) => review.companyId === company.id) || null;
+
+      setCurrentUserReview(matchingReview);
+      return matchingReview;
+    } catch {
+      setCurrentUserReview(null);
+      return null;
+    }
+  }, [company?.id, isCandidateUser, sessionStatus]);
+
+  const refreshReviews = useCallback(async () => {
+    await Promise.all([
+      fetchApprovedReviews({
+        page: 1,
+        limit: reviewsExpanded ? EXPANDED_REVIEWS_LIMIT : DEFAULT_REVIEWS_LIMIT,
+      }),
+      fetchCurrentUserCompanyReview(),
+    ]);
+  }, [fetchApprovedReviews, fetchCurrentUserCompanyReview, reviewsExpanded]);
+
   useEffect(() => {
     if (!slug) return;
+
+    setCompany(null);
+    setOverviewJobs([]);
+    setAllJobs(null);
+    setTechStack([]);
+    setReviews([]);
+    setReviewsTotal(0);
+    setReviewStats(null);
+    setReviewsPage(1);
+    setReviewsHasMore(false);
+    setReviewsExpanded(false);
+    setCurrentUserReview(null);
+    setReviewDialogOpen(false);
+    setReviewSubmitting(false);
+    setActiveTab('overview');
+    setLoading(true);
+    setNotFound(false);
+
     (async () => {
       try {
         const [profileRes, jobsRes, techStackJobsRes] = await Promise.all([
@@ -193,11 +393,12 @@ export default function CompanyProfilePage() {
         const companyData: PublicCompanyProfile = profileJson.data;
         setCompany(companyData);
 
-        // Check follow status (requires auth — silently ignore 401)
         fetch(`/api/candidate/company-followers/check/${companyData.id}`)
-          .then((r) => r.json())
-          .then((j) => {
-            if (j.success) setIsFollowing(j.data?.isFollowing ?? false);
+          .then((response) => response.json())
+          .then((payload) => {
+            if (payload.success) {
+              setIsFollowing(payload.data?.isFollowing ?? false);
+            }
           })
           .catch(() => {});
 
@@ -214,32 +415,32 @@ export default function CompanyProfilePage() {
           const techStackJobsJson = await techStackJobsRes.json();
           if (techStackJobsJson.success) {
             const rawJobs: RawJob[] = techStackJobsJson.data?.jobs ?? [];
-            setTechStack((prev) => {
-              const merged = new Set([...prev, ...extractRequiredTechStack(rawJobs)]);
+            setTechStack((previousTechStack) => {
+              const merged = new Set([...previousTechStack, ...extractRequiredTechStack(rawJobs)]);
               return Array.from(merged).sort((a, b) => a.localeCompare(b));
             });
           }
         }
       } catch {
-        /* silent */
+        // Keep existing silent failure behavior for the main company shell.
       } finally {
         setLoading(false);
       }
     })();
   }, [slug, mapJobs, extractRequiredTechStack]);
 
-  // Lazy-load full jobs list when "jobs" tab is clicked
   useEffect(() => {
     if (activeTab !== 'jobs' || allJobs !== null || !company) return;
+
     setAllJobsLoading(true);
     fetch(`/api/companies/${company.companySlug}/jobs?limit=50`)
-      .then((r) => r.json())
-      .then((json) => {
-        if (json.success) {
-          const rawJobs: RawJob[] = json.data?.jobs ?? [];
+      .then((response) => response.json())
+      .then((payload) => {
+        if (payload.success) {
+          const rawJobs: RawJob[] = payload.data?.jobs ?? [];
           setAllJobs(mapJobs(rawJobs));
-          setTechStack((prev) => {
-            const merged = new Set([...prev, ...extractRequiredTechStack(rawJobs)]);
+          setTechStack((previousTechStack) => {
+            const merged = new Set([...previousTechStack, ...extractRequiredTechStack(rawJobs)]);
             return Array.from(merged).sort((a, b) => a.localeCompare(b));
           });
           return;
@@ -253,60 +454,55 @@ export default function CompanyProfilePage() {
 
   useEffect(() => {
     if (!slug) return;
-    setReviewsLoading(true);
 
-    const encodedSlug = encodeURIComponent(slug);
-    fetch(
-      `/api/reviews/company?companySlug=${encodedSlug}&page=1&limit=3&sortBy=createdAt&sortOrder=desc`
-    )
-      .then((r) => r.json())
-      .then((json: CompanyReviewsApiResponse) => {
-        if (json.success && json.data) {
-          setReviews(json.data.reviews ?? []);
-          setReviewsTotal(json.data.total ?? 0);
-          setReviewStats(json.data.statistics ?? null);
-          return;
-        }
+    void fetchApprovedReviews({ page: 1, limit: DEFAULT_REVIEWS_LIMIT });
+  }, [fetchApprovedReviews, slug]);
 
-        setReviews([]);
-        setReviewsTotal(0);
-        setReviewStats(null);
-      })
-      .catch(() => {
-        setReviews([]);
-        setReviewsTotal(0);
-        setReviewStats(null);
-      })
-      .finally(() => setReviewsLoading(false));
-  }, [slug]);
+  useEffect(() => {
+    if (!company?.id || sessionStatus === 'loading') return;
+
+    void fetchCurrentUserCompanyReview();
+  }, [company?.id, fetchCurrentUserCompanyReview, sessionStatus]);
 
   const handleFollow = async () => {
     if (!company || followLoading) return;
+
     setFollowLoading(true);
     try {
       if (isFollowing) {
-        const res = await fetch(`/api/candidate/company-followers/${company.id}`, {
+        const response = await fetch(`/api/candidate/company-followers/${company.id}`, {
           method: 'DELETE',
         });
-        if (res.ok || res.status === 204) {
+
+        if (response.ok || response.status === 204) {
           setIsFollowing(false);
-          setCompany((prev) =>
-            prev ? { ...prev, followerCount: Math.max(0, prev.followerCount - 1) } : prev
+          setCompany((previousCompany) =>
+            previousCompany
+              ? {
+                  ...previousCompany,
+                  followerCount: Math.max(0, previousCompany.followerCount - 1),
+                }
+              : previousCompany
           );
         }
       } else {
-        const res = await fetch('/api/candidate/company-followers', {
+        const response = await fetch('/api/candidate/company-followers', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ companyId: company.id }),
         });
-        if (res.ok) {
+
+        if (response.ok) {
           setIsFollowing(true);
-          setCompany((prev) => (prev ? { ...prev, followerCount: prev.followerCount + 1 } : prev));
+          setCompany((previousCompany) =>
+            previousCompany
+              ? { ...previousCompany, followerCount: previousCompany.followerCount + 1 }
+              : previousCompany
+          );
         }
       }
     } catch {
-      /* silent */
+      // Keep silent error behavior for follow/unfollow, matching existing UX.
     } finally {
       setFollowLoading(false);
     }
@@ -320,7 +516,102 @@ export default function CompanyProfilePage() {
     // TODO: call job-alert subscription API
   };
 
-  // ─── Loading skeleton ────────────────────────────────────────────────────────
+  const handleOpenReviewDialog = () => {
+    if (sessionStatus === 'loading' || !company) return;
+
+    if (!session) {
+      const callbackUrl =
+        typeof window !== 'undefined' ? window.location.href : `/candidate/companies/${slug}`;
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+      return;
+    }
+
+    if (!isCandidateUser) {
+      toast.error('Only candidate accounts can submit reviews.');
+      return;
+    }
+
+    if (!canWriteReview) {
+      return;
+    }
+
+    setActiveTab('reviews');
+    scrollToReviewsSection();
+    setReviewDialogOpen(true);
+  };
+
+  const handleExpandReviews = async () => {
+    if (reviewsExpanded) {
+      setActiveTab('reviews');
+      scrollToReviewsSection();
+      return;
+    }
+
+    setActiveTab('reviews');
+    setReviewsExpanded(true);
+    scrollToReviewsSection();
+    await fetchApprovedReviews({ page: 1, limit: EXPANDED_REVIEWS_LIMIT });
+  };
+
+  const handleLoadMoreReviews = async () => {
+    if (!reviewsExpanded || !reviewsHasMore || reviewsLoadingMore) return;
+
+    await fetchApprovedReviews({
+      append: true,
+      page: reviewsPage + 1,
+      limit: EXPANDED_REVIEWS_LIMIT,
+    });
+  };
+
+  const handleReviewSubmit = async (values: CreateCompanyReviewInput) => {
+    if (!company) return;
+
+    setReviewSubmitting(true);
+
+    try {
+      const response = await fetch('/api/reviews/company', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
+
+      const payload = await response.json().catch(() => null);
+
+      if (!response.ok || !payload?.success) {
+        const message = getApiMessage(payload);
+
+        if (response.status === 409) {
+          throw new Error(message || 'You have already reviewed this company.');
+        }
+
+        if (response.status === 403) {
+          throw new Error(message || 'Only candidate accounts can submit reviews.');
+        }
+
+        if (response.status === 401) {
+          throw new Error(message || 'Please sign in to submit a review.');
+        }
+
+        throw new Error(message || 'Unable to submit your review right now.');
+      }
+
+      setReviewDialogOpen(false);
+      setActiveTab('reviews');
+      scrollToReviewsSection();
+      toast.success('Đánh giá của bạn đã được gửi thành công và đang chờ ban quản trị phê duyệt.');
+      await refreshReviews();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Unable to submit your review right now.'
+      );
+      throw error;
+    } finally {
+      setReviewSubmitting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 pt-16">
@@ -336,7 +627,6 @@ export default function CompanyProfilePage() {
     );
   }
 
-  // ─── Not found ───────────────────────────────────────────────────────────────
   if (notFound || !company) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-gray-50 pt-16">
@@ -348,105 +638,119 @@ export default function CompanyProfilePage() {
     );
   }
 
-  // ─── Derived values ───────────────────────────────────────────────────────────
   const location = [company.city, company.province].filter(Boolean).join(', ');
   const companySizeLabel =
-    COMPANY_SIZE_LABELS[company.companySize ?? ''] ?? company.companySize ?? '–';
+    COMPANY_SIZE_LABELS[company.companySize ?? ''] ?? company.companySize ?? '-';
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16">
-      <div className="mx-auto max-w-6xl space-y-4 px-4 py-8 sm:px-6 lg:px-8">
-        {/* Company Hero */}
-        <CompanyHero
-          name={company.companyName}
-          logoUrl={company.logoUrl ?? undefined}
-          coverImageUrl={company.coverImageUrl ?? undefined}
-          industry={company.industry?.name}
-          location={location || undefined}
-          websiteUrl={company.websiteUrl ?? undefined}
-          activeJobsCount={company.activeJobCount}
-          employeesCount={companySizeLabel}
-          followersCount={formatFollowers(company.followerCount)}
-          isFollowing={isFollowing}
-          onFollow={handleFollow}
-          onAlert={handleAlert}
-          followLoading={followLoading}
-        />
-
-        {/* Tab Navigation */}
-        <div className="sticky top-16 z-20 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-          <CompanyTabs
-            activeTab={activeTab}
-            jobsCount={company.activeJobCount}
-            onTabChange={setActiveTab}
+    <>
+      <div className="min-h-screen bg-gray-50 pt-16">
+        <div className="mx-auto max-w-6xl space-y-4 px-4 py-8 sm:px-6 lg:px-8">
+          <CompanyHero
+            name={company.companyName}
+            logoUrl={company.logoUrl ?? undefined}
+            coverImageUrl={company.coverImageUrl ?? undefined}
+            industry={company.industry?.name}
+            location={location || undefined}
+            websiteUrl={company.websiteUrl ?? undefined}
+            activeJobsCount={company.activeJobCount}
+            employeesCount={companySizeLabel}
+            followersCount={formatFollowers(company.followerCount)}
+            isFollowing={isFollowing}
+            onFollow={handleFollow}
+            onAlert={handleAlert}
+            followLoading={followLoading}
           />
-        </div>
 
-        {/* Main Grid */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Left / Main Content */}
-          <div className="space-y-5 lg:col-span-2">
-            <section id="company-section-overview" className="scroll-mt-32 space-y-5">
-              <CompanyAbout description={company.description ?? ''} techStack={techStack} />
-              <CompanyKeyBenefits />
-            </section>
-
-            <section id="company-section-jobs" className="scroll-mt-32">
-              {allJobsLoading ? (
-                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <div
-                      key={i}
-                      className="flex animate-pulse gap-4 border-b border-gray-100 py-4 first:pt-0 last:border-0 last:pb-0"
-                    >
-                      <div className="flex-1 space-y-2">
-                        <div className="h-3.5 w-2/3 rounded bg-gray-200" />
-                        <div className="h-3 w-1/2 rounded bg-gray-200" />
-                      </div>
-                      <div className="h-7 w-16 rounded-lg bg-gray-200" />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <CompanyActiveOpenings
-                  jobs={allJobs ?? overviewJobs}
-                  companyId={company.companySlug}
-                  companyName={company.companyName}
-                  logoUrl={company.logoUrl}
-                  totalCount={company.activeJobCount}
-                />
-              )}
-            </section>
-
-            <section id="company-section-life" className="scroll-mt-32">
-              <div className="rounded-2xl border border-gray-200 bg-white p-10 text-center shadow-sm">
-                <p className="text-gray-400">Life at Company content coming soon...</p>
-              </div>
-            </section>
-
-            <section id="company-section-reviews" className="scroll-mt-32">
-              <CompanyReviews
-                reviews={reviews}
-                totalReviews={reviewsTotal}
-                stats={reviewStats}
-                isLoading={reviewsLoading}
-              />
-            </section>
+          <div className="sticky top-16 z-20 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <CompanyTabs
+              activeTab={activeTab}
+              jobsCount={company.activeJobCount}
+              onTabChange={setActiveTab}
+            />
           </div>
 
-          {/* Sidebar */}
-          <div id="job-alert-form">
-            <CompanySidebar
-              industry={company.industry?.name}
-              companySize={companySizeLabel}
-              headquarters={location || undefined}
-              foundedYear={company.foundedYear?.toString()}
-              websiteUrl={company.websiteUrl ?? undefined}
-              onSubscribeJobAlert={handleSubscribeJobAlert}
-            />
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <div className="space-y-5 lg:col-span-2">
+              <section id="company-section-overview" className="scroll-mt-32 space-y-5">
+                <CompanyAbout description={company.description ?? ''} techStack={techStack} />
+                <CompanyKeyBenefits />
+              </section>
+
+              <section id="company-section-jobs" className="scroll-mt-32">
+                {allJobsLoading ? (
+                  <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                    {[1, 2, 3, 4, 5].map((item) => (
+                      <div
+                        key={item}
+                        className="flex animate-pulse gap-4 border-b border-gray-100 py-4 first:pt-0 last:border-0 last:pb-0"
+                      >
+                        <div className="flex-1 space-y-2">
+                          <div className="h-3.5 w-2/3 rounded bg-gray-200" />
+                          <div className="h-3 w-1/2 rounded bg-gray-200" />
+                        </div>
+                        <div className="h-7 w-16 rounded-lg bg-gray-200" />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <CompanyActiveOpenings
+                    jobs={allJobs ?? overviewJobs}
+                    companyId={company.companySlug}
+                    companyName={company.companyName}
+                    logoUrl={company.logoUrl}
+                    totalCount={company.activeJobCount}
+                  />
+                )}
+              </section>
+
+              <section id="company-section-life" className="scroll-mt-32">
+                <div className="rounded-2xl border border-gray-200 bg-white p-10 text-center shadow-sm">
+                  <p className="text-gray-400">Life at Company content coming soon...</p>
+                </div>
+              </section>
+
+              <section id={REVIEWS_SECTION_ID} className="scroll-mt-32">
+                <CompanyReviews
+                  reviews={reviews}
+                  totalReviews={reviewsTotal}
+                  stats={reviewStats}
+                  isLoading={reviewsLoading}
+                  currentUserReview={currentUserReview}
+                  canWriteReview={canWriteReview}
+                  writeReviewLabel={writeReviewLabel}
+                  onWriteReview={handleOpenReviewDialog}
+                  onExpand={handleExpandReviews}
+                  onLoadMore={handleLoadMoreReviews}
+                  hasMore={reviewsHasMore}
+                  isExpanded={reviewsExpanded}
+                  isLoadingMore={reviewsLoadingMore}
+                />
+              </section>
+            </div>
+
+            <div id="job-alert-form">
+              <CompanySidebar
+                industry={company.industry?.name}
+                companySize={companySizeLabel}
+                headquarters={location || undefined}
+                foundedYear={company.foundedYear?.toString()}
+                websiteUrl={company.websiteUrl ?? undefined}
+                onSubscribeJobAlert={handleSubscribeJobAlert}
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
+      <CompanyReviewDialog
+        open={reviewDialogOpen}
+        onOpenChange={setReviewDialogOpen}
+        companyId={company.id}
+        companyName={company.companyName}
+        isSubmitting={reviewSubmitting}
+        onSubmit={handleReviewSubmit}
+      />
+    </>
   );
 }

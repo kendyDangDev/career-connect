@@ -15,10 +15,7 @@ import {
   Loader2,
 } from 'lucide-react';
 
-import {
-  useCandidateSavedJobStatus,
-  useToggleSavedJob,
-} from '@/hooks/candidate/useSavedJobs';
+import { useCandidateSavedJobStatus, useToggleSavedJob } from '@/hooks/candidate/useSavedJobs';
 
 export interface JobCardData {
   id: string;
@@ -72,10 +69,10 @@ function formatSalary(min?: number | null, max?: number | null, currency?: strin
   if (!min && !max) return 'Thỏa thuận';
   const curr = currency ?? 'VND';
   const fmt = (n: number) =>
-    curr === 'VND' ? `${(n / 1_000_000).toFixed(0)}M` : `$${(n / 1000).toFixed(0)}k`;
-  if (min && max) return `${fmt(min)} – ${fmt(max)}`;
-  if (min) return `Từ ${fmt(min)}`;
-  if (max) return `Đến ${fmt(max)}`;
+    curr === 'VND' ? `${(n / 1_000_000).toFixed(0)}` : `$${(n / 1000).toFixed(0)}k`;
+  if (min && max) return `${fmt(min)} – ${fmt(max)} Triệu`;
+  if (min) return `Từ ${fmt(min)} Triệu`;
+  if (max) return `Đến ${fmt(max)} Triệu`;
 }
 
 function timeAgo(date?: string | Date | null) {
@@ -135,19 +132,19 @@ export default function JobCard({ job }: JobCardProps) {
   };
 
   return (
-    <div className="group backdrop-bltop-0 ur-smition-all relative flex flex-col gap-4 rounded-2xl border border-gray-100/80 bg-white/95 p-5 shadow-sm duration-300 hover:-translate-y-1 hover:border-purple-200/70 hover:bg-white hover:shadow-lg hover:ring-1 hover:shadow-purple-200/40 hover:ring-purple-100/50">
+    <div className="group relative flex flex-col gap-4 rounded-2xl border border-gray-100/80 bg-white/95 p-5 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-purple-200/70 hover:bg-white hover:shadow-lg hover:ring-1 hover:shadow-purple-200/40 hover:ring-purple-100/50">
       {/* Badges — góc trên phải (ưu tiên: Featured > Urgent > Mới) */}
       {job.isFeatured ? (
-        <span className="absolute top-4 right-4 flex items-center gap-1 rounded-full bg-gradient-to-r from-orange-400 to-pink-400 px-2.5 py-0.5 text-xs font-semibold text-white shadow">
-          <Flame className="h-3 w-3" /> Nổi bật
+        <span className="absolute top-0 right-0 flex items-center gap-1 rounded-tr-2xl rounded-bl-2xl bg-gradient-to-br from-amber-400 to-orange-500 px-3 py-1 text-[11px] font-bold tracking-wide text-white shadow-sm">
+          <Flame className="h-3.5 w-3.5" /> NỔI BẬT
         </span>
       ) : job.isUrgent ? (
-        <span className="absolute top-4 right-4 flex items-center gap-1 rounded-full bg-gradient-to-r from-red-500 to-rose-500 px-2.5 py-0.5 text-xs font-semibold text-white shadow">
-          <AlertCircle className="h-3 w-3" /> Gấp
+        <span className="absolute top-0 right-0 flex items-center gap-1 rounded-tr-2xl rounded-bl-2xl bg-gradient-to-br from-rose-500 to-red-500 px-3 py-1 text-[11px] font-bold tracking-wide text-white shadow-sm">
+          <AlertCircle className="h-3.5 w-3.5" /> GẤP
         </span>
       ) : isNew ? (
-        <span className="absolute top-4 right-4 flex items-center gap-1 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 px-2.5 py-0.5 text-xs font-semibold text-white shadow">
-          <Sparkles className="h-3 w-3" /> Mới
+        <span className="absolute top-0 right-0 flex items-center gap-1 rounded-tr-2xl rounded-bl-2xl bg-gradient-to-br from-emerald-400 to-teal-500 px-3 py-1 text-[11px] font-bold tracking-wide text-white shadow-sm">
+          <Sparkles className="h-3.5 w-3.5" /> MỚI
         </span>
       ) : null}
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Send, Paperclip, Smile, MoreVertical, Phone, Video, Info } from 'lucide-react';
+import { ArrowLeft, Send, Paperclip, Smile, MoreVertical, Phone, Video, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
@@ -21,14 +21,29 @@ interface MessageThreadProps {
   };
   messages: Message[];
   onSendMessage: (content: string) => void;
+  onBack?: () => void;
 }
 
-export function MessageThread({ conversation, messages, onSendMessage }: MessageThreadProps) {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+export function MessageThread({
+  conversation,
+  messages,
+  onSendMessage,
+  onBack,
+}: MessageThreadProps) {
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const container = messagesContainerRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: 'smooth',
+    });
   }, [messages]);
 
   return (
@@ -36,6 +51,14 @@ export function MessageThread({ conversation, messages, onSendMessage }: Message
       {/* Header */}
       <div className="flex flex-shrink-0 items-center justify-between border-b border-gray-100 p-4">
         <div className="flex items-center gap-3">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="rounded-lg p-2 text-gray-600 transition-colors hover:bg-purple-50 hover:text-purple-600 md:hidden"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+          )}
           <div className="relative">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-purple-600 text-sm font-bold text-white">
               {conversation.avatar ? (
@@ -78,7 +101,7 @@ export function MessageThread({ conversation, messages, onSendMessage }: Message
       </div>
 
       {/* Messages */}
-      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
+      <div ref={messagesContainerRef} className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
         {messages.length === 0 ? (
           <div className="flex h-full items-center justify-center text-gray-400">
             <p className="text-sm">Chưa có tin nhắn. Hãy bắt đầu cuộc trò chuyện!</p>
@@ -117,7 +140,6 @@ export function MessageThread({ conversation, messages, onSendMessage }: Message
                 </div>
               </div>
             ))}
-            <div ref={messagesEndRef} />
           </>
         )}
       </div>

@@ -187,7 +187,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
           <div
             className={`absolute top-0 opacity-0 transition-opacity group-hover:opacity-100 ${isOwn ? 'left-0 -translate-x-full' : 'right-0 translate-x-full'} `}
           >
-            <DropdownMenu>
+            {/* <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button size="sm" variant="ghost" className="h-6 w-6 border bg-white p-0 shadow-sm">
                   <MoreVertical className="h-3 w-3" />
@@ -199,7 +199,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
                 <DropdownMenuItem>Copy</DropdownMenuItem>
                 {isOwn && <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>}
               </DropdownMenuContent>
-            </DropdownMenu>
+            </DropdownMenu> */}
           </div>
         </div>
 

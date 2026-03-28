@@ -45,7 +45,7 @@ export function CompanyHero({
   return (
     <div className="overflow-hidden rounded-2xl border border-purple-100 bg-white shadow-sm">
       {/* Cover Banner */}
-      <div className="relative h-52 w-full bg-gradient-to-br from-purple-700 via-purple-600 to-fuchsia-600">
+      <div className="relative h-80 w-full bg-gradient-to-br from-purple-700 via-purple-600 to-fuchsia-600">
         {coverImageUrl && (
           <Image src={coverImageUrl} alt={`${name} cover`} fill className="object-cover" priority />
         )}

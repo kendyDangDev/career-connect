@@ -44,14 +44,15 @@ export const useCandidatesData = (options: UseCandidatesDataOptions) => {
 
   // Extract data from response
   const candidates = candidatesResponse?.data || [];
-  const pagination: PaginationInfo = candidatesResponse
+  const paginationMeta = candidatesResponse?.meta;
+  const pagination: PaginationInfo = paginationMeta
     ? {
-        page: candidatesResponse.meta.page,
-        limit: candidatesResponse.meta.limit,
-        total: candidatesResponse.meta.total,
-        totalPages: candidatesResponse.meta.totalPages,
-        hasNextPage: candidatesResponse.meta.page < candidatesResponse.meta.totalPages,
-        hasPreviousPage: candidatesResponse.meta.page > 1,
+        page: paginationMeta.page,
+        limit: paginationMeta.limit,
+        total: paginationMeta.total,
+        totalPages: paginationMeta.totalPages,
+        hasNextPage: paginationMeta.page < paginationMeta.totalPages,
+        hasPreviousPage: paginationMeta.page > 1,
       }
     : {
         page: options.page,

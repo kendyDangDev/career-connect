@@ -9,6 +9,7 @@ import {
   FileText,
   History,
   MapPin,
+  MessageSquare,
   Undo2,
   Wallet,
 } from 'lucide-react';
@@ -22,6 +23,7 @@ import ApplicationStatusBadge, {
 
 interface ApplicationCardProps {
   application: CandidateApplicationListItem;
+  onMakeChat: (application: CandidateApplicationListItem) => void;
   onOpenTimeline: (application: CandidateApplicationListItem) => void;
   onWithdraw: (application: CandidateApplicationListItem) => void;
   isWithdrawing?: boolean;
@@ -103,6 +105,7 @@ function formatLocation(application: CandidateApplicationListItem) {
 
 export default function ApplicationCard({
   application,
+  onMakeChat,
   onOpenTimeline,
   onWithdraw,
   isWithdrawing = false,
@@ -219,6 +222,16 @@ export default function ApplicationCard({
               </a>
             </Button>
           )}
+
+          <Button
+            type="button"
+            variant="outline"
+            className="border-purple-200 bg-purple-50/70 text-purple-700 hover:bg-purple-100"
+            onClick={() => onMakeChat(application)}
+          >
+            <MessageSquare className="h-4 w-4" />
+            Trao đổi với công ty
+          </Button>
 
           <Button
             type="button"

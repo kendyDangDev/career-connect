@@ -96,7 +96,7 @@ export default function CandidateHeader() {
             {session ? (
               <>
                 <Link
-                  href="/chat"
+                  href="/candidate/chat"
                   className={`relative rounded-full p-2 transition ${
                     solid ? 'hover:bg-gray-100' : 'hover:bg-white/10'
                   }`}

@@ -17,6 +17,27 @@ import {
 import { MessageInput } from './MessageInput';
 import { MessageItem } from './MessageItem';
 
+function getOtherParticipant(conversation: any, currentUserId?: string) {
+  return conversation.participants.find((participant: any) => participant.userId !== currentUserId);
+}
+
+function getConversationName(conversation: any, currentUserId?: string) {
+  if (conversation.type === 'DIRECT') {
+    const otherParticipant = getOtherParticipant(conversation, currentUserId);
+    const fullName =
+      `${otherParticipant?.user?.firstName || ''} ${otherParticipant?.user?.lastName || ''}`.trim();
+
+    return fullName || otherParticipant?.user?.email || 'Unknown User';
+  }
+
+  return (
+    conversation.name ||
+    conversation.application?.job?.title ||
+    conversation.job?.title ||
+    `${conversation.type.replace('_', ' ')} Chat`
+  );
+}
+
 interface ChatWindowProps {
   className?: string;
   onBack?: () => void; // For mobile responsive
@@ -63,22 +84,16 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ className, onBack }) => 
   // Get conversation info
   const getConversationInfo = () => {
     if (activeConversation.type === 'DIRECT') {
-      const otherParticipant = activeConversation.participants.find(
-        (p) => p.userId !== session?.user?.id
-      );
+      const otherParticipant = getOtherParticipant(activeConversation, session?.user?.id);
       return {
-        name:
-          `${otherParticipant?.user.firstName} ${otherParticipant?.user.lastName}` ||
-          'Unknown User',
-        avatar: otherParticipant?.user.avatarUrl,
+        name: getConversationName(activeConversation, session?.user?.id),
+        avatar: otherParticipant?.user?.avatarUrl,
         isOnline: onlineUsers.some((u) => u.userId === otherParticipant?.userId),
         participantCount: 2,
       };
     } else {
       return {
-        name:
-          `${activeConversation.firstName} ${activeConversation.lastName}` ||
-          `${activeConversation.type.replace('_', ' ')} Chat`,
+        name: getConversationName(activeConversation, session?.user?.id),
         avatar: null,
         isOnline: false,
         participantCount: activeConversation.participants.length,

@@ -17,12 +17,19 @@ export const candidatesKeys = {
 
 // API Functions
 export const getCandidates = async (params: CandidatesQuery): Promise<CandidatesResponse> => {
-  const response = await axiosInstance.get<CandidatesResponse>('/candidates', { params });
+  const sanitizedParams = Object.fromEntries(
+    Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== '')
+  );
+  const response = await axiosInstance.get<CandidatesResponse>('/api/candidates', {
+    params: sanitizedParams,
+  });
   return response.data;
 };
 
 export const getCandidateDetails = async (id: string): Promise<Candidate> => {
-  const response = await axiosInstance.get<{ success: boolean; data: Candidate }>(`/candidates/${id}`);
+  const response = await axiosInstance.get<{ success: boolean; data: Candidate }>(
+    `/api/candidates/${id}`
+  );
   if (!response.data.success) {
     throw new Error('Failed to fetch candidate details');
   }
@@ -30,7 +37,10 @@ export const getCandidateDetails = async (id: string): Promise<Candidate> => {
 };
 
 export const updateCandidate = async (id: string, data: Partial<Candidate>): Promise<Candidate> => {
-  const response = await axiosInstance.patch<{ success: boolean; data: Candidate }>(`/candidates/${id}`, data);
+  const response = await axiosInstance.patch<{ success: boolean; data: Candidate }>(
+    `/api/candidates/${id}`,
+    data
+  );
   if (!response.data.success) {
     throw new Error('Failed to update candidate');
   }
@@ -38,7 +48,7 @@ export const updateCandidate = async (id: string, data: Partial<Candidate>): Pro
 };
 
 export const deleteCandidate = async (id: string): Promise<void> => {
-  const response = await axiosInstance.delete<{ success: boolean }>(`/candidates/${id}`);
+  const response = await axiosInstance.delete<{ success: boolean }>(`/api/candidates/${id}`);
   if (!response.data.success) {
     throw new Error('Failed to delete candidate');
   }

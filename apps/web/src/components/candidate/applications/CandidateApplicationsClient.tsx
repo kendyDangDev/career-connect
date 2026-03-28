@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import {
@@ -34,7 +35,10 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useChatContext } from '@/contexts/ChatContext';
+import { toast } from 'sonner';
 
+import { CandidateChatModal } from '@/components/candidate/chat/CandidateChatModal';
 import ApplicationCard from './ApplicationCard';
 import ApplicationTimelineModal from './ApplicationTimelineModal';
 
@@ -110,12 +114,15 @@ function getStatusCount(
 }
 
 export default function CandidateApplicationsClient() {
+  const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isRouting, startTransition] = useTransition();
+  const { createConversation, setActiveConversation } = useChatContext();
   const [timelineApplication, setTimelineApplication] =
     useState<CandidateApplicationListItem | null>(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const tab = normalizeTab(searchParams.get('tab'));
   const page = normalizePage(searchParams.get('page'));
@@ -234,6 +241,30 @@ export default function CandidateApplicationsClient() {
     }
 
     withdrawMutation.mutate(application.id);
+  };
+
+  const handleMakeChat = async (application: CandidateApplicationListItem) => {
+    const currentUserId = session?.user?.id;
+
+    if (!currentUserId) {
+      toast.error('KhÃ´ng xÃ¡c Ä‘á»‹nh Ä‘Æ°á»£c tÃ i khoáº£n Ä‘á»ƒ báº¯t Ä‘áº§u tráº¡o Ä‘á»•i.');
+      return;
+    }
+
+    const conversation = await createConversation(
+      [currentUserId],
+      'APPLICATION_RELATED',
+      `Phỏng vấn Job: ${application.job.title}`,
+      { applicationId: application.id, jobId: application.jobId }
+    );
+
+    if (!conversation) {
+      toast.error('KhÃ´ng thá»ƒ má»Ÿ cuá»™c trÃ² chuyá»‡n vá»›i cÃ´ng ty.');
+      return;
+    }
+
+    setActiveConversation(conversation);
+    setIsChatOpen(true);
   };
 
   return (
@@ -460,6 +491,7 @@ export default function CandidateApplicationsClient() {
                     <ApplicationCard
                       key={application.id}
                       application={application}
+                      onMakeChat={handleMakeChat}
                       onOpenTimeline={setTimelineApplication}
                       onWithdraw={handleWithdraw}
                       isWithdrawing={
@@ -515,6 +547,8 @@ export default function CandidateApplicationsClient() {
           }
         }}
       />
+
+      <CandidateChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </>
   );
 }

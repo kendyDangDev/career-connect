@@ -13,7 +13,7 @@ interface Message {
   senderId: string;
   conversationId: string;
   type: 'TEXT' | 'IMAGE' | 'FILE' | 'SYSTEM';
-  createdAt: Date;
+  createdAt: Date | string;
   sender: {
     id: string;
     name: string | null;
@@ -33,13 +33,34 @@ interface MessageAttachment {
 
 interface Conversation {
   id: string;
-  firstName?: string | null;
-  lastName?: string | null;
+  name?: string | null;
   type: 'DIRECT' | 'GROUP' | 'APPLICATION_RELATED';
-  lastMessageAt?: Date | null;
-  createdAt: Date;
+  lastMessageAt?: Date | string | null;
+  createdAt: Date | string;
   participants: ConversationParticipant[];
   messages: Message[];
+  unreadCount?: number;
+  application?: {
+    id: string;
+    job?: {
+      id: string;
+      title: string;
+      company?: {
+        id?: string;
+        companyName: string;
+        logoUrl?: string | null;
+      } | null;
+    } | null;
+  } | null;
+  job?: {
+    id: string;
+    title: string;
+    company?: {
+      id?: string;
+      companyName: string;
+      logoUrl?: string | null;
+    } | null;
+  } | null;
   _count: {
     messages: number;
   };
@@ -49,7 +70,7 @@ interface ConversationParticipant {
   id: string;
   userId: string;
   conversationId: string;
-  joinedAt: Date;
+  joinedAt: Date | string;
   user: {
     id: string;
     firstName: string | null;
@@ -109,9 +130,49 @@ interface ChatContextType {
   loadMessages: (conversationId: string) => Promise<void>;
   createConversation: (
     participantIds: string[],
-    type?: 'DIRECT' | 'GROUP',
-    name?: string
+    type?: 'DIRECT' | 'GROUP' | 'APPLICATION_RELATED',
+    name?: string,
+    payload?: { applicationId?: string; jobId?: string }
   ) => Promise<Conversation | null>;
+}
+
+function getDisplayName(
+  user?: {
+    firstName?: string | null;
+    lastName?: string | null;
+    name?: string | null;
+    email?: string | null;
+  } | null
+) {
+  const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim();
+  return fullName || user?.name || user?.email || null;
+}
+
+function normalizeMessage(rawMessage: any): Message {
+  return {
+    ...rawMessage,
+    attachments: rawMessage?.attachments ?? [],
+    sender: {
+      id: rawMessage?.sender?.id ?? '',
+      name: getDisplayName(rawMessage?.sender),
+      avatar: rawMessage?.sender?.avatar ?? rawMessage?.sender?.avatarUrl ?? null,
+    },
+  };
+}
+
+function normalizeConversation(rawConversation: any): Conversation {
+  return {
+    ...rawConversation,
+    name: rawConversation?.name ?? null,
+    messages: Array.isArray(rawConversation?.messages)
+      ? rawConversation.messages.map(normalizeMessage)
+      : [],
+    participants: Array.isArray(rawConversation?.participants) ? rawConversation.participants : [],
+    _count: {
+      messages: rawConversation?._count?.messages ?? rawConversation?.messages?.length ?? 0,
+    },
+    unreadCount: rawConversation?.unreadCount ?? 0,
+  };
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -209,43 +270,44 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
     // Message events
     newSocket.on('message:new', (message: Message) => {
-      console.log('New message received:', message);
+      const normalizedMessage = normalizeMessage(message);
+      console.log('New message received:', normalizedMessage);
 
       // Add message to current conversation if it matches
-      if (activeConversation && message.conversationId === activeConversation.id) {
+      if (activeConversation && normalizedMessage.conversationId === activeConversation.id) {
         setMessages((prev) => {
           // Check if message already exists to avoid duplicates
-          const messageExists = prev.some((m) => m.id === message.id);
+          const messageExists = prev.some((m) => m.id === normalizedMessage.id);
           if (messageExists) {
-            console.log('Message already exists, skipping:', message.id);
+            console.log('Message already exists, skipping:', normalizedMessage.id);
             return prev;
           }
 
           // Remove any temporary/optimistic messages from the same sender with similar timestamp
           const filteredMessages = prev.filter((m) => {
             if (!m.id.startsWith('temp_')) return true;
-            if (m.senderId !== message.senderId) return true;
+            if (m.senderId !== normalizedMessage.senderId) return true;
 
             // Remove temp message if real message is from same sender and within 5 seconds
             const tempTime = new Date(m.createdAt).getTime();
-            const realTime = new Date(message.createdAt).getTime();
+            const realTime = new Date(normalizedMessage.createdAt).getTime();
             const timeDiff = Math.abs(realTime - tempTime);
             return timeDiff > 5000; // Keep temp messages older than 5 seconds
           });
 
-          console.log('Adding new message to conversation:', message.id);
-          return [...filteredMessages, message];
+          console.log('Adding new message to conversation:', normalizedMessage.id);
+          return [...filteredMessages, normalizedMessage];
         });
       }
 
       // Update conversation list with new message
       setConversations((prev) =>
         prev.map((conv) => {
-          if (conv.id === message.conversationId) {
+          if (conv.id === normalizedMessage.conversationId) {
             return {
               ...conv,
-              lastMessageAt: message.createdAt,
-              messages: [message],
+              lastMessageAt: normalizedMessage.createdAt,
+              messages: [normalizedMessage],
               // _count: {
               //   messages: conv._count.messages + 1,
               // },
@@ -256,9 +318,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       );
 
       // Show notification if message is not from current user
-      if (session?.user && message.senderId !== session.user.id) {
-        const content = message.content || '';
-        toast.info(`New message from ${message.sender?.name || 'Unknown User'}`, {
+      if (session?.user && normalizedMessage.senderId !== session.user.id) {
+        const content = normalizedMessage.content || '';
+        toast.info(`New message from ${normalizedMessage.sender?.name || 'Unknown User'}`, {
           description: content.slice(0, 50) + (content.length > 50 ? '...' : ''),
         });
       }
@@ -325,8 +387,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   }, [chatToken, tokenLoading, isChatEnabled]);
 
   // Load conversations
-  const loadConversations = async () => {
-    if (!session) return;
+  const loadConversations = React.useCallback(async () => {
+    if (!session || !chatToken) return;
 
     setIsLoading(true);
     setError(null);
@@ -343,7 +405,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       }
 
       const data = await response.json();
-      setConversations(data.conversations || []);
+      setConversations((data.conversations || []).map(normalizeConversation));
     } catch (error) {
       console.error('Error loading conversations:', error);
       setError('Failed to load conversations');
@@ -351,11 +413,11 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [chatToken, session]);
 
   // Load messages for a conversation
-  const loadMessages = async (conversationId: string) => {
-    if (!session) return;
+  const loadMessages = React.useCallback(async (conversationId: string) => {
+    if (!session || !chatToken) return;
 
     setIsLoading(true);
     setError(null);
@@ -372,7 +434,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       }
 
       const data = await response.json();
-      setMessages(data.data.messages || []);
+      setMessages((data.data.messages || []).map(normalizeMessage));
     } catch (error) {
       console.error('Error loading messages:', error);
       setError('Failed to load messages');
@@ -380,7 +442,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [chatToken, session]);
 
   // Send message
   const sendMessage = (
@@ -461,10 +523,11 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   // Create new conversation
   const createConversation = async (
     participantIds: string[],
-    type: 'DIRECT' | 'GROUP' = 'DIRECT',
-    name?: string
+    type: 'DIRECT' | 'GROUP' | 'APPLICATION_RELATED' = 'DIRECT',
+    name?: string,
+    payload?: { applicationId?: string; jobId?: string }
   ): Promise<Conversation | null> => {
-    if (!session) return null;
+    if (!session || !chatToken) return null;
 
     setIsLoading(true);
     setError(null);
@@ -480,6 +543,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
           participantIds,
           type,
           name,
+          ...payload,
         }),
       });
 
@@ -488,11 +552,17 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       }
 
       const { conversation } = await response.json();
+      const normalizedConversation = normalizeConversation(conversation);
 
       // Add to conversations list
-      setConversations((prev) => [conversation, ...prev]);
+      setConversations((prev) => [
+        normalizedConversation,
+        ...prev.filter(
+          (existingConversation) => existingConversation.id !== normalizedConversation.id
+        ),
+      ]);
 
-      return conversation;
+      return normalizedConversation;
     } catch (error) {
       console.error('Error creating conversation:', error);
       setError('Failed to create conversation');
@@ -533,15 +603,15 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
   // Load conversations on mount - only when chat is enabled
   useEffect(() => {
-    if (session && isChatEnabled) {
-      loadConversations();
+    if (session && isChatEnabled && chatToken) {
+      void loadConversations();
     }
-  }, [session, isChatEnabled]);
+  }, [chatToken, isChatEnabled, loadConversations, session]);
 
   // Load messages when active conversation changes
   useEffect(() => {
-    if (activeConversation) {
-      loadMessages(activeConversation.id);
+    if (activeConversation && chatToken) {
+      void loadMessages(activeConversation.id);
       // Auto-join conversation room
       if (socket && isConnected) {
         socket.emit('join_conversation', activeConversation.id);
@@ -550,7 +620,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     } else {
       setMessages([]);
     }
-  }, [activeConversation, socket, isConnected]);
+  }, [activeConversation, chatToken, isConnected, loadMessages, socket]);
 
   // Initialize chat - enable socket connection and load conversations
   const initializeChat = () => {

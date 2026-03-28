@@ -349,6 +349,8 @@ async function seedDatabase() {
         description:
           'TechCorp Vietnam là công ty nền tảng công nghệ hàng đầu, chuyên cung cấp giải pháp phần mềm và điện toán đám mây. Với môi trường làm việc năng động và chú trọng đổi mới, chúng tôi luôn tạo ra cơ hội phát triển vượt bậc cho nhân tài IT.',
         websiteUrl: 'https://techcorp.vn',
+        coverImageUrl:
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774541491/d190aa5a-23ce-46b6-8208-9c84b176ddae_kwvjcy.png',
         address: '123 Trần Hưng Đạo, Quận 1',
         city: 'Hồ Chí Minh',
         province: 'Hồ Chí Minh',
@@ -381,6 +383,8 @@ async function seedDatabase() {
         description:
           'FinTech Pro là đơn vị tiên phong trong lĩnh vực công nghệ tài chính, không ngừng mang đến những giải pháp thanh toán và quản lý dòng tiền đột phá. Chúng tôi quy tụ đội ngũ chuyên gia hàng đầu để kiến tạo hệ sinh thái tài chính số an toàn.',
         websiteUrl: 'https://fintechpro.vn',
+        coverImageUrl:
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774541491/d190aa5a-23ce-46b6-8208-9c84b176ddae_kwvjcy.png',
         address: '789 Lê Lợi, Hải Châu',
         city: 'Đà Nẵng',
         province: 'Đà Nẵng',
@@ -397,6 +401,8 @@ async function seedDatabase() {
         description:
           'Đổi mới công nghệ luôn là kim chỉ nam tại Tech Innovate. Chúng tôi cung cấp các nền tảng trí tuệ nhân tạo và tự động hóa giúp tối ưu hóa nghiệp vụ cho các đối tác lớn. Gia nhập Tech Innovate là bước đệm hoàn hảo để thành công.',
         websiteUrl: 'https://techinnovate.vn',
+        coverImageUrl:
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774541491/d190aa5a-23ce-46b6-8208-9c84b176ddae_kwvjcy.png',
         address: '123 Nguyễn Huệ, Quận 1',
         city: 'Hồ Chí Minh',
         province: 'Hồ Chí Minh',
@@ -413,6 +419,8 @@ async function seedDatabase() {
         description:
           'Tiên phong trong mảng công nghệ xanh, Green Solutions nghiên cứu và cung cấp các giải pháp vận hành bền vững nhằm bảo vệ môi trường. Cùng hướng đến giảm thiểu rác thải, tối ưu hóa năng lượng tái tạo và chung tay xây dựng một hệ sinh thái sống văn minh.',
         websiteUrl: 'https://greensolutions.vn',
+        coverImageUrl:
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774541491/d190aa5a-23ce-46b6-8208-9c84b176ddae_kwvjcy.png',
         address: '456 Trần Phú, Thanh Khê',
         city: 'Đà Nẵng',
         province: 'Đà Nẵng',
@@ -429,6 +437,8 @@ async function seedDatabase() {
         description:
           'EduTech Hub là trung tâm công nghệ giáo dục hàng đầu, chuyên phát triển các nền tảng học tập trực tuyến thông minh. Chúng tôi ứng dụng công nghệ tương tác ảo để mang đến trải nghiệm giáo dục cá nhân hóa, giúp học viên tiếp thu tri thức mọi lúc.',
         websiteUrl: 'https://edutechhub.vn',
+        coverImageUrl:
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774541491/d190aa5a-23ce-46b6-8208-9c84b176ddae_kwvjcy.png',
         address: '101 Hùng Vương, Hải Phòng',
         city: 'Hải Phòng',
         province: 'Hải Phòng',
@@ -444,6 +454,8 @@ async function seedDatabase() {
         description:
           'HealthCare Plus mang những ứng dụng tiên tiến nhất vào lĩnh vực y tế thông qua hệ thống quản lý bệnh viện và theo dõi sức khỏe từ xa. Sứ mệnh của chúng tôi là cải thiện chất lượng chăm sóc người bệnh, tối ưu quy trình khám chữa bệnh hiện đại.',
         websiteUrl: 'https://healthcareplus.vn',
+        coverImageUrl:
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774541491/d190aa5a-23ce-46b6-8208-9c84b176ddae_kwvjcy.png',
         address: '321 Lý Thường Kiệt, Cầu Giấy',
         city: 'Hà Nội',
         province: 'Hà Nội',
@@ -460,6 +472,8 @@ async function seedDatabase() {
         description:
           'Với mạng lưới vận hành đa dạng, LogiTech ứng dụng thành công trí tuệ nhân tạo vào quản lý chuỗi cung ứng. Hệ thống phần mềm của chúng tôi giúp doanh nghiệp tối ưu nguồn lực, rút ngắn tối đa thời gian giao nhận và tăng cường hiệu suất vận tải.',
         websiteUrl: 'https://logitech.vn',
+        coverImageUrl:
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774541491/d190aa5a-23ce-46b6-8208-9c84b176ddae_kwvjcy.png',
         address: '654 Nguyễn Trãi, Thanh Xuân',
         city: 'Hà Nội',
         province: 'Hà Nội',
@@ -476,6 +490,8 @@ async function seedDatabase() {
         description:
           'RetailMaster cung cấp nền tảng bán lẻ đa kênh hiện đại nhằm kết nối người mua và người bán một cách liền mạch. Các giải pháp do chúng tôi thiết kế giúp tối ưu quy trình bán hàng, quản lý kho bãi chính xác và nâng cao trải nghiệm mua sắm.',
         websiteUrl: 'https://retailmaster.vn',
+        coverImageUrl:
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774541491/d190aa5a-23ce-46b6-8208-9c84b176ddae_kwvjcy.png',
         address: '987 Hai Bà Trưng, Ninh Kiều',
         city: 'Cần Thơ',
         province: 'Cần Thơ',
@@ -492,6 +508,8 @@ async function seedDatabase() {
         description:
           'SmartBuild là đơn vị dẫn đầu trong công nghệ xây dựng thông minh (PropTech), chuyên số hóa công tác thiết kế và quản lý các công trình kiến trúc. Chúng tôi giúp các nhà thầu kiểm soát dự án chặt chẽ, rút ngắn thời gian và tối ưu nguyên vật liệu.',
         websiteUrl: 'https://smartbuild.vn',
+        coverImageUrl:
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774541491/d190aa5a-23ce-46b6-8208-9c84b176ddae_kwvjcy.png',
         address: '258 Lê Đại Hành, Liên Chiểu',
         city: 'Đà Nẵng',
         province: 'Đà Nẵng',
@@ -508,6 +526,8 @@ async function seedDatabase() {
         description:
           'CyberSec là tổ chức nghiên cứu và cung cấp giải pháp bảo mật mạng chuyên sâu, bảo vệ khối dữ liệu nhạy cảm của các tập đoàn vừa và lớn. Đội ngũ chuyên gia an ninh mạng của chúng tôi liên tục rà soát rủi ro và đánh chặn lỗ hổng.',
         websiteUrl: 'https://cybersec.vn',
+        coverImageUrl:
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774541491/d190aa5a-23ce-46b6-8208-9c84b176ddae_kwvjcy.png',
         address: '147 Trần Hưng Đạo, Hải Châu',
         city: 'Đà Nẵng',
         province: 'Đà Nẵng',
@@ -524,6 +544,8 @@ async function seedDatabase() {
         description:
           'Nhằm tối ưu hóa trải nghiệm xê dịch, TravelEasy đem lại giải pháp đặt vé, phòng khách sạn và lên kế hoạch du lịch cực kỳ cá nhân hóa. Sứ mệnh của chúng tôi là áp dụng công nghệ số để mọi chuyến đi trở nên dễ dàng và thư giãn tuyệt đối.',
         websiteUrl: 'https://traveleasy.vn',
+        coverImageUrl:
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774541491/d190aa5a-23ce-46b6-8208-9c84b176ddae_kwvjcy.png',
         address: '369 Hoàng Văn Thụ, Tân Bình',
         city: 'Hồ Chí Minh',
         province: 'Hồ Chí Minh',
@@ -540,6 +562,8 @@ async function seedDatabase() {
         description:
           'AgriTech tự hào là công ty nông nghiệp công nghệ cao, ứng dụng phần mềm phân tích dữ liệu cánh đồng và tự động hóa khâu tưới tiêu. Chúng tôi mong muốn hỗ trợ người nông dân gia tăng năng suất mùa vụ và mở ra kỷ nguyên nông nghiệp xanh.',
         websiteUrl: 'https://agritech.vn',
+        coverImageUrl:
+          'https://res.cloudinary.com/dbbkqb3gq/image/upload/v1774541491/d190aa5a-23ce-46b6-8208-9c84b176ddae_kwvjcy.png',
         address: '852 Nguyễn Văn Cừ, Ninh Kiều',
         city: 'Cần Thơ',
         province: 'Cần Thơ',
@@ -609,8 +633,16 @@ async function seedDatabase() {
           recruiterId: employer.id,
           title: jobTemplates[i].t,
           slug: `job-${jobTemplates[i].c}-${i}`,
-          description: `Mô tả công việc cho vị trí ${jobTemplates[i].t}.`,
-          requirements: 'Yêu cầu công việc.',
+          description: `Chúng tôi đang tìm kiếm một Lập trình viên có trách nhiệm tham gia phát triển, xây dựng và duy trì các hệ thống phần mềm của công ty. Ứng viên sẽ phối hợp cùng đội ngũ thiết kế, kiểm thử và các bên liên quan để đảm bảo sản phẩm hoạt động ổn định, hiệu quả và đáp ứng yêu cầu người dùng. Ngoài ra, bạn sẽ tham gia cải tiến hiệu năng, sửa lỗi và đề xuất các giải pháp kỹ thuật phù hợp nhằm nâng cao chất lượng sản phẩm.\n
+          Ứng viên cũng sẽ tham gia vào quá trình phân tích yêu cầu, thiết kế giải pháp kỹ thuật và đóng góp ý tưởng để tối ưu trải nghiệm người dùng. Bên cạnh đó, bạn cần chủ động cập nhật công nghệ mới và tuân thủ các quy trình phát triển phần mềm của công ty. Khả năng làm việc nhóm, giao tiếp tốt và tinh thần học hỏi là những yếu tố quan trọng cho vị trí này.
+          `,
+          requirements: `Có hiểu biết vững về cấu trúc dữ liệu và giải thuật.\n
+                          Thành thạo ít nhất một ngôn ngữ lập trình (Java, Python, JavaScript, C#, …).\n
+                          Có kinh nghiệm xây dựng, phát triển và bảo trì hệ thống phần mềm.\n
+                          Hiểu quy trình phát triển phần mềm (Agile/Scrum là một lợi thế).
+                          Có tư duy logic tốt.
+                          Khả năng phân tích và xử lý lỗi (debug) hiệu quả.
+                        `,
           jobType: 'FULL_TIME',
           workLocationType: 'ONSITE',
           experienceLevel: 'MID',
@@ -720,22 +752,6 @@ async function seedDatabase() {
       });
     }
 
-    console.log('📊 Tạo Job Views...');
-    for (let i = 0; i < 50; i++) {
-      const job = jobs[i % jobs.length];
-      const user = users[i % users.length];
-
-      await prisma.jobView.create({
-        data: {
-          jobId: job.id,
-          userId: user.id,
-          ipAddress: `192.168.1.${getRandomNumber(1, 255)}`,
-          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          viewedAt: getRandomDate(new Date(2025, 0, 1), new Date()),
-        },
-      });
-    }
-
     console.log('⭐ Tạo Company Reviews...');
     for (let i = 0; i < 10; i++) {
       const company = companies[i % companies.length];
@@ -758,6 +774,21 @@ async function seedDatabase() {
           positionTitle: 'Software Developer',
           employmentLength: '1-2 năm',
           isApproved: true,
+        },
+      });
+    }
+
+    console.log('🔄 Đang đồng bộ hóa applicationCount và viewCount cho Jobs...');
+    for (const job of jobs) {
+      // 1. Đếm số lượng applications thực tế
+      const actualAppCount = await prisma.application.count({
+        where: { jobId: job.id },
+      });
+
+      await prisma.job.update({
+        where: { id: job.id },
+        data: {
+          applicationCount: actualAppCount,
         },
       });
     }

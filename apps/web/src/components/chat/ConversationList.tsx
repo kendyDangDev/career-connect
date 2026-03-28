@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Search, Plus, MoreVertical, MessageCircle, Users, Clock } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import { useChatContext } from '@/contexts/ChatContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,11 +16,33 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+function getOtherParticipant(conversation: any, currentUserId?: string) {
+  return conversation.participants.find((participant: any) => participant.userId !== currentUserId);
+}
+
+function getConversationName(conversation: any, currentUserId?: string) {
+  if (conversation.type === 'DIRECT') {
+    const otherParticipant = getOtherParticipant(conversation, currentUserId);
+    const fullName =
+      `${otherParticipant?.user?.firstName || ''} ${otherParticipant?.user?.lastName || ''}`.trim();
+
+    return fullName || otherParticipant?.user?.email || 'Unknown User';
+  }
+
+  return (
+    conversation.name ||
+    conversation.application?.job?.title ||
+    conversation.job?.title ||
+    `${conversation.type.replace('_', ' ')} Chat`
+  );
+}
+
 interface ConversationListProps {
   className?: string;
 }
 
 export const ConversationList: React.FC<ConversationListProps> = ({ className }) => {
+  const { data: session } = useSession();
   const {
     conversations,
     activeConversation,
@@ -46,10 +69,8 @@ export const ConversationList: React.FC<ConversationListProps> = ({ className })
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
 
-        // Search in conversation name (for group/application conversations)
-        const conversationName =
-          conv.firstName && conv.lastName ? `${conv.firstName} ${conv.lastName}`.toLowerCase() : '';
-        if (conversationName && conversationName.includes(query)) {
+        const conversationName = getConversationName(conv, session?.user?.id).toLowerCase();
+        if (conversationName.includes(query)) {
           return true;
         }
 
@@ -78,29 +99,23 @@ export const ConversationList: React.FC<ConversationListProps> = ({ className })
 
       return true;
     });
-  }, [conversations, searchQuery, filterType]);
+  }, [conversations, searchQuery, filterType, session?.user?.id]);
 
   // Get conversation display info
   const getConversationInfo = (conversation: any) => {
     if (conversation.type === 'DIRECT') {
       // For direct messages, show the other participant
-      const otherParticipant = conversation.participants.find(
-        (p: any) => p.userId !== conversation.currentUserId
-      );
+      const otherParticipant = getOtherParticipant(conversation, session?.user?.id);
 
       return {
-        name:
-          `${otherParticipant?.user?.firstName} ${otherParticipant?.user?.lastName}` ||
-          'Unknown User',
+        name: getConversationName(conversation, session?.user?.id),
         avatar: otherParticipant?.user?.avatarUrl,
         isOnline: onlineUsers.some((u) => u.userId === otherParticipant?.userId),
       };
     } else {
       // For group or application-related conversations
       return {
-        name:
-          `${conversation.firstName} ${conversation.lastName}` ||
-          `${conversation.type.replace('_', ' ')} Chat`,
+        name: getConversationName(conversation, session?.user?.id),
         avatar: null,
         isOnline: false,
       };

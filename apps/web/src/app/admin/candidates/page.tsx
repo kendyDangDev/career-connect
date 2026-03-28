@@ -6,9 +6,32 @@ import { toast } from 'sonner';
 import { CandidatesTable } from './components/CandidatesTable';
 import { CandidateDetailDialog } from './components/CandidateDetailDialog';
 import { useCandidatesData } from '@/hooks/useCandidatesData';
-import { CandidateListItem } from './types';
+import {
+  CandidateListItem,
+  AvailabilityStatus,
+  PreferredWorkType,
+  UserStatus,
+} from './types';
 import { Loader2, Users } from 'lucide-react';
 import { AdminPageHeader } from '@/components/layout/AdminLayout/AdminPageHeader';
+
+const VALID_STATUS: readonly UserStatus[] = ['ACTIVE', 'INACTIVE', 'SUSPENDED'];
+const VALID_AVAILABILITY_STATUS: readonly AvailabilityStatus[] = [
+  'AVAILABLE',
+  'NOT_AVAILABLE',
+  'PASSIVE',
+];
+const VALID_PREFERRED_WORK_TYPES: readonly PreferredWorkType[] = [
+  'FULL_TIME',
+  'PART_TIME',
+  'CONTRACT',
+  'FREELANCE',
+];
+
+const normalizeEnumParam = <T extends string>(value: string | null, allowedValues: readonly T[]) => {
+  if (!value) return '';
+  return allowedValues.includes(value as T) ? value : '';
+};
 
 function CandidatesPageContent() {
   const router = useRouter();
@@ -21,9 +44,15 @@ function CandidatesPageContent() {
   const page = parseInt(searchParams?.get('page') || '1');
   const limit = parseInt(searchParams?.get('limit') || '10');
   const search = searchParams?.get('search') || '';
-  const status = searchParams?.get('status') || '';
-  const availabilityStatus = searchParams?.get('availabilityStatus') || '';
-  const preferredWorkType = searchParams?.get('preferredWorkType') || '';
+  const status = normalizeEnumParam(searchParams?.get('status') || null, VALID_STATUS);
+  const availabilityStatus = normalizeEnumParam(
+    searchParams?.get('availabilityStatus') || null,
+    VALID_AVAILABILITY_STATUS
+  );
+  const preferredWorkType = normalizeEnumParam(
+    searchParams?.get('preferredWorkType') || null,
+    VALID_PREFERRED_WORK_TYPES
+  );
   const sortBy = searchParams?.get('sortBy') || 'createdAt';
   const sortOrder = (searchParams?.get('sortOrder') || 'desc') as 'asc' | 'desc';
 

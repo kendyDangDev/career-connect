@@ -62,7 +62,7 @@ export default async function RecommendedCompanies() {
   return (
     <div className="mt-6 rounded-2xl border border-purple-100 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Công ty đề xuất</h3>
+        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Công ty hàng đầu</h3>
       </div>
 
       <div className="space-y-4">
@@ -128,7 +128,7 @@ export default async function RecommendedCompanies() {
           href="/candidate/companies"
           className="inline-flex items-center gap-2 text-sm font-semibold text-purple-700 transition-colors hover:text-purple-800 dark:text-purple-300 dark:hover:text-purple-200"
         >
-          Xem tất cả các công ty đề xuất
+          Xem tất cả công ty
           <ArrowRight className="h-4 w-4" />
         </Link>
       </div>

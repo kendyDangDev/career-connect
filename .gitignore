@@ -65,5 +65,9 @@ prisma/dev.db-journal
 # OS
 Thumbs.db
 
-
+# Antigravity skills
+skills/
+.codex/skills/
 docs/
+
+

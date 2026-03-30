@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth-config';
@@ -396,10 +397,7 @@ export async function POST(request: NextRequest) {
         });
 
         if (!linkedApplication) {
-          const response = NextResponse.json(
-            { error: 'Application not found' },
-            { status: 404 }
-          );
+          const response = NextResponse.json({ error: 'Application not found' }, { status: 404 });
 
           if (origin) {
             response.headers.set('Access-Control-Allow-Origin', origin);
@@ -558,7 +556,9 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        const existingConversation = await getConversationResponse(existingApplicationConversation.id);
+        const existingConversation = await getConversationResponse(
+          existingApplicationConversation.id
+        );
         const response = NextResponse.json({ success: true, conversation: existingConversation });
 
         if (origin) {

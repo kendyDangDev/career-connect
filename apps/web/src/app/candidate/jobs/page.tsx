@@ -12,6 +12,8 @@ export const metadata: Metadata = {
   keywords: 'tìm việc làm, việc làm mới nhất, tuyển dụng, job search, CareerConnect',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default function JobsPage() {
   return (
     <div className="min-h-screen bg-white pt-16 antialiased">

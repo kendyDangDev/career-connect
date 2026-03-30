@@ -13,7 +13,8 @@
     "db:cleanup": "node scripts/cleanup-database.js",
     "db:reset": "node scripts/reset-and-seed.js",
     "db:create-user": "node scripts/create-test-user.js",
-    "db:seed-cv": "node scripts/seed-cv-template.js"
+    "db:seed-cv": "node scripts/seed-cv-template.js",
+    "prisma": "prisma"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

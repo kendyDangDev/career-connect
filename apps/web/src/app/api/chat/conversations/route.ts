@@ -407,7 +407,22 @@ export async function POST(request: NextRequest) {
           return response;
         }
 
-        if (linkedApplication.userId !== userId) {
+        const isApplicationOwner = linkedApplication.userId === userId;
+        const hasCompanyAccess = isApplicationOwner
+          ? true
+          : Boolean(
+              await prisma.companyUser.findFirst({
+                where: {
+                  userId,
+                  companyId: linkedApplication.job.companyId,
+                },
+                select: {
+                  id: true,
+                },
+              })
+            );
+
+        if (!isApplicationOwner && !hasCompanyAccess) {
           const response = NextResponse.json(
             { error: 'You do not have permission to create a chat for this application' },
             { status: 403 }
@@ -438,6 +453,7 @@ export async function POST(request: NextRequest) {
         applicationId = linkedApplication.id;
         jobId = linkedApplication.jobId;
         resolvedCompanyId = linkedApplication.job.companyId;
+        participantIds = Array.from(new Set([linkedApplication.userId, userId]));
       } else if (data.jobId) {
         const linkedApplication = await prisma.application.findFirst({
           where: {
@@ -475,6 +491,7 @@ export async function POST(request: NextRequest) {
         applicationId = linkedApplication.id;
         jobId = linkedApplication.jobId;
         resolvedCompanyId = linkedApplication.job.companyId;
+        participantIds = Array.from(new Set([userId]));
       }
 
       if (!resolvedCompanyId || !applicationId || !jobId) {

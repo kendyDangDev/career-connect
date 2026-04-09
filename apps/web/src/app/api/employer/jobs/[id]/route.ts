@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { withCompanyAuth, canPostJobs, CompanyAuthenticatedRequest } from "@/lib/middleware/company-auth";
 import { EmployerJobService } from "@/services/employer/job.service";
 import { UpdateJobDTO } from "@/types/employer/job";
-import { validateJobData, sanitizeJobData } from "@/lib/utils/job-utils";
+import { validateJobData, sanitizeJobData, canChangeJobStatus } from "@/lib/utils/job-utils";
+import { JobStatus } from "@/generated/prisma";
 
 interface Params {
   params: {
@@ -98,6 +99,50 @@ export const PUT = withCompanyAuth(async (request: CompanyAuthenticatedRequest, 
 
     // Sanitize data
     const sanitizedData = sanitizeJobData(body);
+
+    const currentJob = await EmployerJobService.getJobDetail(id, request.company!.id);
+    if (!currentJob) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Job not found or you don't have permission to update it"
+        },
+        { status: 404 }
+      );
+    }
+
+    if (
+      sanitizedData.status !== undefined &&
+      sanitizedData.status !== currentJob.status
+    ) {
+      const statusCheck = canChangeJobStatus(
+        currentJob.status,
+        sanitizedData.status as JobStatus
+      );
+
+      if (!statusCheck.allowed) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: statusCheck.reason || "Invalid status transition"
+          },
+          { status: 400 }
+        );
+      }
+
+      if (
+        sanitizedData.status === JobStatus.ACTIVE &&
+        request.company!.verificationStatus !== 'VERIFIED'
+      ) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Cannot activate job - company verification required'
+          },
+          { status: 403 }
+        );
+      }
+    }
 
     // Update job
     const updatedJob = await EmployerJobService.updateJob(

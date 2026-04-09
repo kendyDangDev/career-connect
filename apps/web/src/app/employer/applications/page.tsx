@@ -82,11 +82,6 @@ export default function ApplicationsPage() {
     });
   };
 
-  const handleViewCV = (id: string) => {
-    // TODO: Implement CV view
-    console.log('View CV:', id);
-  };
-
   const handleSendMessage = async (id: string) => {
     // Find candidate data
     const candidate = applications.find((app: any) => app.id === id);
@@ -101,7 +96,11 @@ export default function ApplicationsPage() {
     });
 
     // Start conversation with userId (not candidateId)
-    await startConversation(candidate.userId, candidate.firstName + ' ' + candidate.lastName);
+    await startConversation(candidate.userId, candidate.firstName + ' ' + candidate.lastName, {
+      type: 'APPLICATION_RELATED',
+      applicationId: candidate.id,
+      jobId: candidate.jobId,
+    });
 
     // Open modal
     setMessageModalOpen(true);
@@ -280,7 +279,6 @@ export default function ApplicationsPage() {
                   candidate={candidate}
                   onStatusChange={handleStatusChange}
                   onRatingChange={handleRatingChange}
-                  onViewCV={handleViewCV}
                   onSendMessage={handleSendMessage}
                 />
               ))}

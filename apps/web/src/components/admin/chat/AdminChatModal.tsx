@@ -1,142 +1,220 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { X, Minimize2, Maximize2, Send } from 'lucide-react';
-import { ChatProvider, useChatContext } from '@/contexts/ChatContext';
-import { ConversationList } from '@/components/chat/ConversationList';
-import { ChatWindow } from '@/components/chat/ChatWindow';
-import { Button } from '@/components/ui/button';
+import { useEffect, useMemo, useState } from 'react';
+import { Maximize2, Minimize2, RefreshCw, X } from 'lucide-react';
 import * as SheetPrimitive from '@radix-ui/react-dialog';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useChatContext } from '@/contexts/ChatContext';
+import { AdminChatConversationRail } from './AdminChatConversationRail';
+import { AdminChatThread } from './AdminChatThread';
+import { AdminConversation } from './admin-chat-helpers';
 
 interface AdminChatModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const ChatContent = ({ onClose }: { onClose: () => void }) => {
-  const [isMaximized, setIsMaximized] = useState(false);
-  const [showConversationList, setShowConversationList] = useState(true);
-  const { activeConversation } = useChatContext();
+type MobileView = 'rail' | 'thread';
 
-  // On mobile, toggle between conversation list and chat window
+function AdminChatDrawer({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) {
+  const {
+    conversations,
+    activeConversation,
+    setActiveConversation,
+    initializeChat,
+    loadConversations,
+    isChatEnabled,
+    isConnected,
+    isLoading,
+  } = useChatContext();
+
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [mobileView, setMobileView] = useState<MobileView>('rail');
+  const [viewportWidth, setViewportWidth] = useState(0);
+
   useEffect(() => {
-    if (activeConversation && window.innerWidth < 768) {
-      setShowConversationList(false);
-    }
-  }, [activeConversation]);
+    const syncViewport = () => setViewportWidth(window.innerWidth);
 
-  const handleBackToConversations = () => {
-    setShowConversationList(true);
+    syncViewport();
+    window.addEventListener('resize', syncViewport);
+
+    return () => window.removeEventListener('resize', syncViewport);
+  }, []);
+
+  const isMobile = viewportWidth > 0 ? viewportWidth < 768 : true;
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    if (!isChatEnabled) {
+      initializeChat();
+    }
+
+    void loadConversations();
+
+    if (isMobile) {
+      setMobileView('rail');
+    }
+  }, [initializeChat, isChatEnabled, isMobile, isOpen, loadConversations]);
+
+  const unreadMessageCount = useMemo(
+    () => conversations.reduce((total, conversation) => total + (conversation.unreadCount ?? 0), 0),
+    [conversations]
+  );
+
+  const drawerWidth = useMemo(() => {
+    if (isMobile || viewportWidth === 0) {
+      return '100vw';
+    }
+
+    if (isExpanded) {
+      return viewportWidth < 1440 ? 'min(96vw, 82rem)' : 'min(96vw, 94rem)';
+    }
+
+    return viewportWidth < 1280 ? 'min(94vw, 68rem)' : 'min(92vw, 82rem)';
+  }, [isExpanded, isMobile, viewportWidth]);
+
+  const statusLabel = useMemo(() => {
+    if (!isChatEnabled) {
+      return 'Inbox standby';
+    }
+
+    if (!isConnected) {
+      return 'Connecting to live inbox';
+    }
+
+    if (conversations.length === 0) {
+      return 'Live inbox ready';
+    }
+
+    if (unreadMessageCount === 0) {
+      return `${conversations.length} live threads`;
+    }
+
+    return `${unreadMessageCount} unread messages across ${conversations.length} threads`;
+  }, [conversations.length, isChatEnabled, isConnected, unreadMessageCount]);
+
+  const handleSelectConversation = (conversation: AdminConversation) => {
+    setActiveConversation(conversation);
+
+    if (isMobile) {
+      setMobileView('thread');
+    }
   };
 
   return (
-    <div className="flex h-full flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b px-4 py-3 bg-gradient-to-r from-purple-500/5 to-blue-500/5">
-        <h3 className="text-lg font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-          Messages
-        </h3>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsMaximized(!isMaximized)}
-            className="hover:bg-purple-500/10"
-          >
-            {isMaximized ? (
-              <Minimize2 className="h-4 w-4 text-purple-600" />
-            ) : (
-              <Maximize2 className="h-4 w-4 text-purple-600" />
-            )}
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-            className="hover:bg-red-500/10"
-          >
-            <X className="h-4 w-4 text-gray-500 hover:text-red-500" />
-          </Button>
-        </div>
-      </div>
+    <div className="ml-auto h-full pointer-events-auto" style={{ width: drawerWidth, maxWidth: drawerWidth }}>
+      <div className="relative flex h-full flex-col overflow-hidden border-l border-slate-200 bg-white shadow-2xl shadow-slate-900/20">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(99,102,241,0.14),_transparent_34%),radial-gradient(circle_at_top_left,_rgba(14,165,233,0.08),_transparent_24%)]" />
 
-      {/* Chat Content */}
-      <div className="flex-1 overflow-hidden">
-        <div className="flex h-full">
-          {/* Conversation List - Desktop: always visible, Mobile: toggleable */}
+        <div className="relative border-b border-slate-200/80 bg-white/92 px-5 py-4 backdrop-blur-xl">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-violet-600">
+                Executive Ops
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
+                Message command center
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">{statusLabel}</p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => void loadConversations()}
+                className="h-10 w-10 rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-100"
+                aria-label="Refresh inbox"
+              >
+                <RefreshCw className={cn('h-4 w-4', isLoading && 'animate-spin')} />
+              </Button>
+
+              {!isMobile ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsExpanded((value) => !value)}
+                  className="h-10 w-10 rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-100"
+                  aria-label={isExpanded ? 'Collapse drawer' : 'Expand drawer'}
+                >
+                  {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                </Button>
+              ) : null}
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={onClose}
+                className="h-10 w-10 rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-rose-50 hover:text-rose-600"
+                aria-label="Close drawer"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative flex min-h-0 flex-1">
           <div
             className={cn(
-              'border-r bg-gray-50/50',
-              showConversationList ? 'flex' : 'hidden',
-              'md:flex md:w-80 lg:w-96',
-              showConversationList && 'w-full',
-              isMaximized && 'lg:w-[400px]'
+              'min-h-0 shrink-0',
+              isMobile ? (mobileView === 'rail' ? 'flex w-full' : 'hidden') : 'flex w-[23rem] xl:w-[26rem]'
             )}
           >
-            <ConversationList className="w-full" />
+            <AdminChatConversationRail onSelect={handleSelectConversation} className="w-full" />
           </div>
 
-          {/* Chat Window */}
           <div
             className={cn(
-              'bg-white',
-              showConversationList ? 'hidden' : 'flex',
-              'md:flex flex-1'
+              'min-h-0 min-w-0 flex-1',
+              isMobile ? (mobileView === 'thread' ? 'flex' : 'hidden') : 'flex'
             )}
           >
-            <ChatWindow
+            <AdminChatThread
+              activeConversation={activeConversation}
+              onBack={isMobile ? () => setMobileView('rail') : undefined}
               className="w-full"
-              onBack={handleBackToConversations}
             />
           </div>
         </div>
       </div>
     </div>
   );
-};
+}
 
 export function AdminChatModal({ isOpen, onClose }: AdminChatModalProps) {
-  const [width, setWidth] = useState('40rem');
-
-  // Update width based on screen size
-  useEffect(() => {
-    const updateWidth = () => {
-      if (window.innerWidth < 640) {
-        setWidth('100%');
-      } else if (window.innerWidth < 1024) {
-        setWidth('32rem');
-      } else if (window.innerWidth < 1536) {
-        setWidth('48rem');
-      } else {
-        setWidth('64rem');
-      }
-    };
-
-    updateWidth();
-    window.addEventListener('resize', updateWidth);
-    return () => window.removeEventListener('resize', updateWidth);
-  }, []);
-
   return (
-    <SheetPrimitive.Root open={isOpen} onOpenChange={onClose}>
+    <SheetPrimitive.Root
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) {
+          onClose();
+        }
+      }}
+    >
       <SheetPrimitive.Portal>
-        <SheetPrimitive.Overlay className="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <SheetPrimitive.Overlay className="fixed inset-0 z-50 bg-slate-950/65 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
         <SheetPrimitive.Content
           className={cn(
-            'fixed inset-y-0 right-0 z-50 h-full bg-background shadow-lg',
+            'fixed inset-0 z-50 p-0 outline-none pointer-events-none',
             'data-[state=open]:animate-in data-[state=closed]:animate-out',
-            'data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right',
-            'data-[state=closed]:duration-300 data-[state=open]:duration-500',
-            'p-0 sm:max-w-none',
-            'shadow-2xl shadow-purple-500/10',
-            'border-l border-purple-200/50'
+            'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0'
           )}
-          style={{ width }}
         >
-          <ChatProvider>
-            <ChatContent onClose={onClose} />
-          </ChatProvider>
+          <AdminChatDrawer isOpen={isOpen} onClose={onClose} />
         </SheetPrimitive.Content>
       </SheetPrimitive.Portal>
     </SheetPrimitive.Root>

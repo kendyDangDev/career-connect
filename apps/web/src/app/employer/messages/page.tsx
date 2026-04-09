@@ -43,6 +43,10 @@ export default function MessagesPage() {
 
       const lastMessage = conv.messages?.[0];
       const isOnline = onlineUsers.some((u) => u.userId === otherParticipant?.userId);
+      const jobTitle =
+        conv.type === 'APPLICATION_RELATED'
+          ? conv.application?.job?.title || conv.job?.title || conv.name || undefined
+          : undefined;
 
       // Split name into first and last name
       // const fullName = otherParticipant?.user?.name || '';
@@ -64,7 +68,7 @@ export default function MessagesPage() {
           : '',
         unread: 0, // TODO: Implement unread count
         online: isOnline,
-        position: undefined, // TODO: Get position from user profile if needed
+        position: jobTitle,
       };
     });
   }, [conversations, onlineUsers, session]);
@@ -105,6 +109,13 @@ export default function MessagesPage() {
     );
 
     const isOnline = onlineUsers.some((u) => u.userId === otherParticipant?.userId);
+    const jobTitle =
+      activeConversation.type === 'APPLICATION_RELATED'
+        ? activeConversation.application?.job?.title ||
+          activeConversation.job?.title ||
+          activeConversation.name ||
+          undefined
+        : undefined;
 
     return {
       id: activeConversation.id,
@@ -112,7 +123,7 @@ export default function MessagesPage() {
         `${otherParticipant?.user?.firstName} ${otherParticipant?.user?.lastName}` ||
         'Unknown User',
       avatar: otherParticipant?.user?.avatarUrl || undefined,
-      position: undefined, // TODO: Get position from user profile
+      position: jobTitle,
       online: isOnline,
     };
   }, [activeConversation, onlineUsers, session]);

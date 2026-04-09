@@ -470,6 +470,7 @@ export type InterviewOutcome = (typeof InterviewOutcome)[keyof typeof InterviewO
 export const NotificationType: {
   APPLICATION_STATUS: 'APPLICATION_STATUS',
   NEW_JOB_MATCH: 'NEW_JOB_MATCH',
+  COMPANY_NEW_JOB: 'COMPANY_NEW_JOB',
   MESSAGE: 'MESSAGE',
   SYSTEM: 'SYSTEM'
 };

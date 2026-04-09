@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withPermission, AuthenticatedRequest } from '@/lib/middleware/auth';
 import { prisma } from '@/lib/prisma';
+import {
+  notificationService,
+  type NewActiveJobNotificationEvent,
+} from '@/lib/services/notification-service';
 import { z } from 'zod';
 import { JobStatus, ApplicationStatus } from '@/generated/prisma';
 
@@ -46,6 +50,12 @@ export const POST = withPermission('job.edit', async (req: AuthenticatedRequest)
         id: true,
         title: true,
         status: true,
+        companyId: true,
+        company: {
+          select: {
+            companyName: true,
+          },
+        },
       }
     });
     
@@ -63,10 +73,23 @@ export const POST = withPermission('job.edit', async (req: AuthenticatedRequest)
       );
     }
     
+    const notificationEvents: NewActiveJobNotificationEvent[] =
+      action === 'UPDATE_STATUS' && data?.status === JobStatus.ACTIVE
+        ? existingJobs
+            .filter((job) => job.status !== JobStatus.ACTIVE && job.company?.companyName)
+            .map((job) => ({
+              jobId: job.id,
+              jobTitle: job.title,
+              companyId: job.companyId,
+              companyName: job.company!.companyName,
+            }))
+        : [];
+
     // Perform bulk action
     const result = await prisma.$transaction(async (tx) => {
       let updateData: any = {};
       let auditAction = '';
+      let affectedCount = 0;
       
       switch (action) {
         case 'UPDATE_STATUS':
@@ -105,12 +128,30 @@ export const POST = withPermission('job.edit', async (req: AuthenticatedRequest)
           auditAction = 'BULK_NOT_URGENT';
           break;
       }
-      
-      // Update all jobs
-      const updatedJobs = await tx.job.updateMany({
-        where: { id: { in: jobIds } },
-        data: updateData,
-      });
+
+      if (action === 'UPDATE_STATUS' && data?.status === JobStatus.ACTIVE) {
+        const activatingJobs = existingJobs.filter((job) => job.status !== JobStatus.ACTIVE);
+
+        if (activatingJobs.length > 0) {
+          const updatedJobs = await tx.job.updateMany({
+            where: { id: { in: activatingJobs.map((job) => job.id) } },
+            data: {
+              status: JobStatus.ACTIVE,
+              publishedAt: new Date(),
+            },
+          });
+
+          affectedCount = updatedJobs.count;
+
+        }
+      } else {
+        const updatedJobs = await tx.job.updateMany({
+          where: { id: { in: jobIds } },
+          data: updateData,
+        });
+
+        affectedCount = updatedJobs.count;
+      }
       
       // Create audit log
       await tx.auditLog.create({
@@ -120,14 +161,18 @@ export const POST = withPermission('job.edit', async (req: AuthenticatedRequest)
           tableName: 'jobs',
           recordId: jobIds.join(','),
           oldValues: { jobs: existingJobs },
-          newValues: { action, data, affectedCount: updatedJobs.count },
+          newValues: { action, data, affectedCount },
           ipAddress: req.headers.get('x-forwarded-for') || 'unknown',
           userAgent: req.headers.get('user-agent') || 'unknown',
         },
       });
       
-      return updatedJobs;
+      return { count: affectedCount };
     });
+
+    if (notificationEvents.length > 0) {
+      await notificationService.notifyFollowersOfNewActiveJobs(notificationEvents);
+    }
     
     return NextResponse.json({
       success: true,

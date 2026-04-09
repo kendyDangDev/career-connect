@@ -77,6 +77,7 @@ interface ConversationParticipant {
     lastName: string | null;
     email: string;
     avatarUrl?: string | null;
+    userType?: 'CANDIDATE' | 'EMPLOYER' | 'ADMIN' | string | null;
   };
 }
 
@@ -206,6 +207,16 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const socketRef = useRef<Socket | null>(null);
+  const activeConversationRef = useRef<Conversation | null>(null);
+  const currentUserIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    activeConversationRef.current = activeConversation;
+  }, [activeConversation]);
+
+  useEffect(() => {
+    currentUserIdRef.current = session?.user?.id ?? null;
+  }, [session?.user?.id]);
 
   // Initialize socket connection - only when chat is enabled
   useEffect(() => {
@@ -271,10 +282,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     // Message events
     newSocket.on('message:new', (message: Message) => {
       const normalizedMessage = normalizeMessage(message);
+      const activeConversationId = activeConversationRef.current?.id ?? null;
+      const currentUserId = currentUserIdRef.current;
+      const isFromCurrentUser = currentUserId === normalizedMessage.senderId;
+      const isActiveConversation = activeConversationId === normalizedMessage.conversationId;
       console.log('New message received:', normalizedMessage);
 
       // Add message to current conversation if it matches
-      if (activeConversation && normalizedMessage.conversationId === activeConversation.id) {
+      if (isActiveConversation) {
         setMessages((prev) => {
           // Check if message already exists to avoid duplicates
           const messageExists = prev.some((m) => m.id === normalizedMessage.id);
@@ -300,6 +315,13 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         });
       }
 
+      if (socketRef.current && isActiveConversation && currentUserId && !isFromCurrentUser) {
+        socketRef.current.emit('mark_message_read', {
+          messageId: normalizedMessage.id,
+          conversationId: normalizedMessage.conversationId,
+        });
+      }
+
       // Update conversation list with new message
       setConversations((prev) =>
         prev.map((conv) => {
@@ -308,6 +330,11 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
               ...conv,
               lastMessageAt: normalizedMessage.createdAt,
               messages: [normalizedMessage],
+              unreadCount: isActiveConversation
+                ? 0
+                : !isFromCurrentUser && currentUserId
+                  ? (conv.unreadCount ?? 0) + 1
+                  : (conv.unreadCount ?? 0),
               // _count: {
               //   messages: conv._count.messages + 1,
               // },
@@ -318,7 +345,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       );
 
       // Show notification if message is not from current user
-      if (session?.user && normalizedMessage.senderId !== session.user.id) {
+      if (currentUserId && !isFromCurrentUser) {
         const content = normalizedMessage.content || '';
         toast.info(`New message from ${normalizedMessage.sender?.name || 'Unknown User'}`, {
           description: content.slice(0, 50) + (content.length > 50 ? '...' : ''),
@@ -329,14 +356,24 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     // Typing events
     newSocket.on(
       'user:typing',
-      (data: { userId: string; conversationId: string; userInfo: any }) => {
+      (data: { userId: string; conversationId: string; userInfo?: any; user?: any }) => {
         if (session?.user && data.userId !== session.user.id) {
+          const userInfo = data.userInfo ?? data.user ?? null;
           setTypingUsers((prev) => {
             const exists = prev.find(
               (u) => u.userId === data.userId && u.conversationId === data.conversationId
             );
             if (!exists) {
-              return [...prev, data];
+              return [
+                ...prev,
+                {
+                  userId: data.userId,
+                  conversationId: data.conversationId,
+                  userInfo: {
+                    name: getDisplayName(userInfo) || 'Someone',
+                  },
+                },
+              ];
             }
             return prev;
           });
@@ -435,6 +472,11 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
       const data = await response.json();
       setMessages((data.data.messages || []).map(normalizeMessage));
+      setConversations((prev) =>
+        prev.map((conversation) =>
+          conversation.id === conversationId ? { ...conversation, unreadCount: 0 } : conversation
+        )
+      );
     } catch (error) {
       console.error('Error loading messages:', error);
       setError('Failed to load messages');
@@ -623,15 +665,15 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   }, [activeConversation, chatToken, isConnected, loadMessages, socket]);
 
   // Initialize chat - enable socket connection and load conversations
-  const initializeChat = () => {
+  const initializeChat = React.useCallback(() => {
     if (!isChatEnabled) {
       console.log('Initializing chat...');
       setIsChatEnabled(true);
     }
-  };
+  }, [isChatEnabled]);
 
   // Disconnect chat - cleanup socket and conversations
-  const disconnectChat = () => {
+  const disconnectChat = React.useCallback(() => {
     if (isChatEnabled) {
       console.log('Disconnecting chat...');
       setIsChatEnabled(false);
@@ -651,7 +693,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       setOnlineUsers([]);
       setTypingUsers([]);
     }
-  };
+  }, [isChatEnabled]);
 
   const value: ChatContextType = {
     socket,

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { Building2, SendHorizonal, X } from 'lucide-react';
 import * as SheetPrimitive from '@radix-ui/react-dialog';
@@ -17,27 +17,50 @@ interface CandidateChatModalProps {
   onClose: () => void;
 }
 
-function getConversationTitle(conversation: any) {
+type ActiveChatConversation = NonNullable<ReturnType<typeof useChatContext>['activeConversation']>;
+
+function getOtherParticipant(conversation: ActiveChatConversation, currentUserId?: string) {
+  return conversation.participants.find((participant) => participant.userId !== currentUserId);
+}
+
+function getDirectConversationCounterparty(
+  conversation: ActiveChatConversation,
+  currentUserId?: string
+) {
+  const otherParticipant = getOtherParticipant(conversation, currentUserId);
+  const firstName = otherParticipant?.user?.firstName?.trim() || '';
+  const lastName = otherParticipant?.user?.lastName?.trim() || '';
+  const fullName = `${firstName} ${lastName}`.trim();
+  const emailPrefix = otherParticipant?.user?.email?.split('@')[0]?.trim() || '';
+
+  return {
+    name: fullName || emailPrefix || 'Nhà tuyển dụng',
+    avatarUrl: otherParticipant?.user?.avatarUrl || null,
+  };
+}
+
+function getConversationTitle(conversation: ActiveChatConversation) {
   return (
-    conversation?.name ||
-    conversation?.application?.job?.title ||
-    conversation?.job?.title ||
-    'Tin nhan ung tuyen'
+    conversation.name ||
+    conversation.application?.job?.title ||
+    conversation.job?.title ||
+    (conversation.type === 'DIRECT' ? 'Tin nhắn trực tiếp' : 'Tin nhắn ứng tuyển')
   );
 }
 
-function getCompanyName(conversation: any) {
-  return (
-    conversation?.application?.job?.company?.companyName ||
-    conversation?.job?.company?.companyName ||
-    'Nha tuyen dung'
-  );
-}
+function getConversationCounterparty(conversation: ActiveChatConversation, currentUserId?: string) {
+  if (conversation.type === 'DIRECT') {
+    return getDirectConversationCounterparty(conversation, currentUserId);
+  }
 
-function getCompanyLogo(conversation: any) {
-  return (
-    conversation?.application?.job?.company?.logoUrl || conversation?.job?.company?.logoUrl || null
-  );
+  return {
+    name:
+      conversation.application?.job?.company?.companyName ||
+      conversation.job?.company?.companyName ||
+      'Nhà tuyển dụng',
+    avatarUrl:
+      conversation.application?.job?.company?.logoUrl || conversation.job?.company?.logoUrl || null,
+  };
 }
 
 const CandidateChatContent = ({ onClose }: { onClose: () => void }) => {
@@ -76,8 +99,12 @@ const CandidateChatContent = ({ onClose }: { onClose: () => void }) => {
   }
 
   const conversationTitle = getConversationTitle(activeConversation);
-  const companyName = getCompanyName(activeConversation);
-  const companyLogo = getCompanyLogo(activeConversation);
+  const counterparty = getConversationCounterparty(activeConversation, session?.user?.id);
+  const counterpartyLabel = activeConversation.type === 'DIRECT' ? 'nhà tuyển dụng' : 'công ty';
+  const introText =
+    activeConversation.type === 'DIRECT'
+      ? 'Gửi tin nhắn trực tiếp đến nhà tuyển dụng.'
+      : 'Gửi tin nhắn trực tiếp đến nhà tuyển dụng cho hồ sơ này.';
   const currentTypingUsers = typingUsers.filter(
     (typingUser) => typingUser.conversationId === activeConversation.id
   );
@@ -86,8 +113,10 @@ const CandidateChatContent = ({ onClose }: { onClose: () => void }) => {
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between border-b bg-gradient-to-r from-purple-500/5 to-blue-500/5 px-4 py-3">
         <div className="min-w-0">
-          <h3 className="truncate text-lg font-semibold text-slate-900">Trao đổi với công ty</h3>
-          <p className="truncate text-sm text-slate-500">{companyName}</p>
+          <h3 className="truncate text-lg font-semibold text-slate-900">
+            Trao đổi với {counterpartyLabel}
+          </h3>
+          <p className="truncate text-sm text-slate-500">{counterparty.name}</p>
         </div>
 
         <Button variant="ghost" size="icon" onClick={onClose} className="hover:bg-red-500/10">
@@ -99,18 +128,20 @@ const CandidateChatContent = ({ onClose }: { onClose: () => void }) => {
         <div className="rounded-2xl border border-purple-100 bg-white p-4 shadow-sm">
           <div className="flex items-start gap-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-purple-100 text-purple-700">
-              {companyLogo ? (
-                <img src={companyLogo} alt={companyName} className="h-full w-full object-contain" />
+              {counterparty.avatarUrl ? (
+                <img
+                  src={counterparty.avatarUrl}
+                  alt={counterparty.name}
+                  className="h-full w-full object-contain"
+                />
               ) : (
                 <Building2 className="h-5 w-5" />
               )}
             </div>
 
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-slate-900">{companyName}</p>
-              <p className="text-sm text-slate-500">
-                Gửi tin nhắn trực tiếp đến nhà tuyển dụng cho hồ sơ này.
-              </p>
+              <p className="truncate text-sm font-semibold text-slate-900">{counterparty.name}</p>
+              <p className="text-sm text-slate-500">{introText}</p>
               <div className="mt-3 inline-flex max-w-full items-center gap-2 rounded-full bg-purple-50 px-3 py-1 text-xs font-medium text-purple-700">
                 <SendHorizonal className="h-3.5 w-3.5" />
                 <span className="truncate">{conversationTitle}</span>
@@ -130,7 +161,7 @@ const CandidateChatContent = ({ onClose }: { onClose: () => void }) => {
             <div className="rounded-3xl border border-dashed border-purple-200 bg-white px-6 py-10 text-center shadow-sm">
               <p className="text-sm font-medium text-slate-900">Chưa có tin nhắn nào</p>
               <p className="mt-2 text-sm text-slate-500">
-                Hãy gửi tin nhắn đầu tiên cho {companyName}.
+                Hãy gửi tin nhắn đầu tiên cho {counterparty.name}.
               </p>
             </div>
           </div>
@@ -191,7 +222,6 @@ const CandidateChatContent = ({ onClose }: { onClose: () => void }) => {
             <p className="text-sm font-medium text-slate-900">Soạn tin nhắn</p>
             <p className="mt-1 text-xs text-slate-500">
               Tin nhắn sẽ được gửi vào cuộc trò chuyện với{' '}
-              <span className="text-base font-semibold text-slate-800">{companyName}</span>
             </p>
           </div>
 

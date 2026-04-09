@@ -12,6 +12,10 @@ import {
   UpdateJobStatusDTO,
 } from '@/types/employer/job';
 import { generateJobSlug } from '@/lib/utils/job-utils';
+import {
+  notificationService,
+  type NewActiveJobNotificationEvent,
+} from '@/lib/services/notification-service';
 
 export class EmployerJobService {
   /**
@@ -284,6 +288,8 @@ export class EmployerJobService {
 
     // Extract skills and categories
     const { skills, categories, ...jobData } = data;
+    const isBecomingActive =
+      jobData.status === JobStatus.ACTIVE && existingJob.status !== JobStatus.ACTIVE;
 
     // If title changed, update slug
     if (data.title && data.title !== existingJob.title) {
@@ -312,12 +318,18 @@ export class EmployerJobService {
     }
 
     // Update job in transaction
+    let notificationEvent: NewActiveJobNotificationEvent | null = null;
+
     const updatedJob = await prisma.$transaction(async (tx) => {
       // Update job data
       const job = await tx.job.update({
         where: { id: jobId },
         data: {
           ...jobData,
+          ...(isBecomingActive &&
+            !existingJob.publishedAt && {
+              publishedAt: new Date(),
+            }),
           updatedAt: new Date(),
         },
       });
@@ -360,8 +372,28 @@ export class EmployerJobService {
         }
       }
 
+      if (isBecomingActive) {
+        const company = await tx.company.findUnique({
+          where: { id: companyId },
+          select: { companyName: true },
+        });
+
+        if (company?.companyName) {
+          notificationEvent = {
+            jobId,
+            jobTitle: job.title,
+            companyId,
+            companyName: company.companyName,
+          };
+        }
+      }
+
       return job;
     });
+
+    if (notificationEvent) {
+      await notificationService.notifyFollowersOfNewActiveJobs([notificationEvent]);
+    }
 
     return updatedJob;
   }
@@ -385,18 +417,43 @@ export class EmployerJobService {
       return { success: false, message: 'Job not found' };
     }
 
-    // Update status
-    await prisma.job.update({
-      where: { id: jobId },
-      data: {
-        status: data.status,
-        ...(data.status === JobStatus.ACTIVE &&
-          !job.publishedAt && {
-            publishedAt: new Date(),
-          }),
-        updatedAt: new Date(),
-      },
+    const isBecomingActive = job.status !== JobStatus.ACTIVE && data.status === JobStatus.ACTIVE;
+
+    let notificationEvent: NewActiveJobNotificationEvent | null = null;
+
+    await prisma.$transaction(async (tx) => {
+      await tx.job.update({
+        where: { id: jobId },
+        data: {
+          status: data.status,
+          ...(isBecomingActive &&
+            !job.publishedAt && {
+              publishedAt: new Date(),
+            }),
+          updatedAt: new Date(),
+        },
+      });
+
+      if (isBecomingActive) {
+        const company = await tx.company.findUnique({
+          where: { id: companyId },
+          select: { companyName: true },
+        });
+
+        if (company?.companyName) {
+          notificationEvent = {
+            jobId,
+            jobTitle: job.title,
+            companyId,
+            companyName: company.companyName,
+          };
+        }
+      }
     });
+
+    if (notificationEvent) {
+      await notificationService.notifyFollowersOfNewActiveJobs([notificationEvent]);
+    }
 
     // TODO: If notifyApplicants is true, send notifications to all applicants
 

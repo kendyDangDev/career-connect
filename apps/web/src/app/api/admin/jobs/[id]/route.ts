@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withPermission, AuthenticatedRequest } from '@/lib/middleware/auth';
 import { prisma } from '@/lib/prisma';
+import {
+  notificationService,
+  type NewActiveJobNotificationEvent,
+} from '@/lib/services/notification-service';
 import { z } from 'zod';
 import { JobStatus, JobType, WorkLocationType, ExperienceLevel } from '@/generated/prisma';
 
@@ -450,6 +454,13 @@ export const PUT = withPermission(
           title: true,
           status: true,
           slug: true,
+          publishedAt: true,
+          companyId: true,
+          company: {
+            select: {
+              companyName: true,
+            },
+          },
         },
       });
 
@@ -464,6 +475,8 @@ export const PUT = withPermission(
       }
 
       // Update job in transaction
+      let notificationEvent: NewActiveJobNotificationEvent | null = null;
+
       const updatedJob = await prisma.$transaction(async (tx) => {
         // Update slug if title changed
         let newSlug = existingJob.slug;
@@ -515,7 +528,9 @@ export const PUT = withPermission(
             featured: data.featured,
             urgent: data.urgent,
             publishedAt:
-              data.status === JobStatus.ACTIVE && existingJob.status !== JobStatus.ACTIVE
+              data.status === JobStatus.ACTIVE &&
+              existingJob.status !== JobStatus.ACTIVE &&
+              !existingJob.publishedAt
                 ? new Date()
                 : undefined,
           },
@@ -580,6 +595,19 @@ export const PUT = withPermission(
           }
         }
 
+        if (
+          data.status === JobStatus.ACTIVE &&
+          existingJob.status !== JobStatus.ACTIVE &&
+          existingJob.company?.companyName
+        ) {
+          notificationEvent = {
+            jobId: id,
+            jobTitle: job.title,
+            companyId: existingJob.companyId,
+            companyName: existingJob.company.companyName,
+          };
+        }
+
         // Create audit log
         await tx.auditLog.create({
           data: {
@@ -596,6 +624,10 @@ export const PUT = withPermission(
 
         return job;
       });
+
+      if (notificationEvent) {
+        await notificationService.notifyFollowersOfNewActiveJobs([notificationEvent]);
+      }
 
       return NextResponse.json({
         success: true,
@@ -734,13 +766,45 @@ export const PATCH = withPermission(
         );
       }
 
+      const existingJob = await prisma.job.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          publishedAt: true,
+          companyId: true,
+          company: {
+            select: {
+              companyName: true,
+            },
+          },
+        },
+      });
+
+      if (!existingJob) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Job not found',
+          },
+          { status: 404 }
+        );
+      }
+
+      const isBecomingActive =
+        existingJob.status !== JobStatus.ACTIVE && status === JobStatus.ACTIVE;
+
       // Update job status
+      let notificationEvent: NewActiveJobNotificationEvent | null = null;
+
       const job = await prisma.$transaction(async (tx) => {
         const updatedJob = await tx.job.update({
           where: { id },
           data: {
             status,
-            publishedAt: status === JobStatus.ACTIVE ? new Date() : undefined,
+            publishedAt:
+              isBecomingActive && !existingJob.publishedAt ? new Date() : undefined,
           },
           select: {
             id: true,
@@ -748,6 +812,15 @@ export const PATCH = withPermission(
             status: true,
           },
         });
+
+        if (isBecomingActive && existingJob.company?.companyName) {
+          notificationEvent = {
+            jobId: id,
+            jobTitle: updatedJob.title,
+            companyId: existingJob.companyId,
+            companyName: existingJob.company.companyName,
+          };
+        }
 
         // Create audit log
         await tx.auditLog.create({
@@ -764,6 +837,10 @@ export const PATCH = withPermission(
 
         return updatedJob;
       });
+
+      if (notificationEvent) {
+        await notificationService.notifyFollowersOfNewActiveJobs([notificationEvent]);
+      }
 
       return NextResponse.json({
         success: true,

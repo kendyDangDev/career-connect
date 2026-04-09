@@ -793,7 +793,7 @@ export default function ApplicationDetailPage({ params }: PageProps) {
             <div className="shadow-soft rounded-xl border border-purple-100 bg-white p-6">
               <h3 className="mb-4 text-sm font-bold text-gray-900">Hồ sơ</h3>
               <a
-                href={application.cvFileUrl}
+                href={`/api/employer/applications/${applicationId}/cv`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 rounded-lg bg-purple-600 px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-purple-700"

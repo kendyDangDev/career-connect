@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ApplicationStatus } from '@/generated/prisma';
-import { Router } from 'next/router';
 import Link from 'next/link';
 
 interface CandidateCardProps {
@@ -35,7 +34,6 @@ interface CandidateCardProps {
   };
   onStatusChange?: (id: string, status: string) => void;
   onRatingChange?: (id: string, rating: number) => void;
-  onViewCV?: (id: string) => void;
   onSendMessage?: (id: string) => void;
 }
 
@@ -71,7 +69,6 @@ export function CandidateCard({
   candidate,
   onStatusChange,
   onRatingChange,
-  onViewCV,
   onSendMessage,
 }: CandidateCardProps) {
   const status = statusConfig[candidate.status];
@@ -249,8 +246,7 @@ export function CandidateCard({
       {/* Actions */}
       <div className="mt-4 flex items-center gap-2 border-t border-gray-100 pt-4">
         <a
-          // onClick={() => onViewCV?.(candidate.id)}
-          href={candidate.cvFileUrl}
+          href={candidate.cvFileUrl ? `/api/employer/applications/${candidate.id}/cv` : undefined}
           target="_blank"
           rel="noopener noreferrer"
           className={`flex flex-1 items-center justify-center gap-2 rounded-lg border border-purple-200 bg-white px-4 py-2 text-sm font-medium ${candidate.cvFileUrl ? 'text-purple-700 hover:shadow-sm' : 'cursor-not-allowed text-gray-400 hover:shadow-none'}`}

@@ -509,7 +509,7 @@ export default function JobApplicationsPage({ params }: PageProps) {
 
                   {application.cvFileUrl && (
                     <a
-                      href={application.cvFileUrl}
+                      href={`/api/employer/applications/${application.id}/cv`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50"

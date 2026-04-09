@@ -1,11 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import {
-  Bell,
   Bookmark,
   Briefcase,
   ChevronDown,
@@ -15,8 +14,9 @@ import {
   MessageCircle,
   User,
   X,
-  Zap,
 } from 'lucide-react';
+import { CandidateNotificationBell } from './CandidateNotificationBell';
+import { useChatContext } from '@/contexts/ChatContext';
 
 const navLinks = [
   { label: 'Trang chủ', href: '/candidate' },
@@ -28,6 +28,7 @@ const navLinks = [
 
 export default function CandidateHeader() {
   const { data: session } = useSession();
+  const { conversations, loadConversations } = useChatContext();
   const pathname = usePathname();
   const isHome = pathname === '/candidate';
   const [scrolled, setScrolled] = useState(false);
@@ -35,6 +36,18 @@ export default function CandidateHeader() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const solid = !isHome || scrolled;
+  const sessionUserId = session?.user?.id;
+  const unreadMessagesCount = useMemo(
+    () => conversations.reduce((total, conversation) => total + (conversation.unreadCount ?? 0), 0),
+    [conversations]
+  );
+  const unreadMessagesLabel = useMemo(() => {
+    if (unreadMessagesCount <= 0) {
+      return null;
+    }
+
+    return unreadMessagesCount > 9 ? '9+' : String(unreadMessagesCount);
+  }, [unreadMessagesCount]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -48,6 +61,35 @@ export default function CandidateHeader() {
     document.addEventListener('click', close);
     return () => document.removeEventListener('click', close);
   }, [dropdownOpen]);
+
+  useEffect(() => {
+    if (!sessionUserId) {
+      return;
+    }
+
+    const refreshConversations = () => {
+      void loadConversations();
+    };
+
+    refreshConversations();
+
+    const intervalId = window.setInterval(refreshConversations, 30000);
+    window.addEventListener('focus', refreshConversations);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refreshConversations();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', refreshConversations);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [loadConversations, sessionUserId]);
 
   return (
     <header
@@ -102,17 +144,18 @@ export default function CandidateHeader() {
                   }`}
                 >
                   <MessageCircle className={`h-5 w-5 ${solid ? 'text-gray-600' : 'text-white'}`} />
+                  {unreadMessagesLabel && (
+                    <span className="absolute -top-0.5 -right-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-semibold text-white shadow-sm">
+                      {unreadMessagesLabel}
+                    </span>
+                  )}
                 </Link>
 
-                <Link
-                  href="/notifications"
-                  className={`relative rounded-full p-2 transition ${
-                    solid ? 'hover:bg-gray-100' : 'hover:bg-white/10'
-                  }`}
-                >
-                  <Bell className={`h-5 w-5 ${solid ? 'text-gray-600' : 'text-white'}`} />
-                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
-                </Link>
+                <CandidateNotificationBell
+                  solid={solid}
+                  shouldClose={dropdownOpen}
+                  onOpen={() => setDropdownOpen(false)}
+                />
 
                 <div className="relative" onClick={(event) => event.stopPropagation()}>
                   <button

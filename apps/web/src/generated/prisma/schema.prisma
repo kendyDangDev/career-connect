@@ -898,6 +898,7 @@ enum InterviewOutcome {
 enum NotificationType {
   APPLICATION_STATUS
   NEW_JOB_MATCH
+  COMPANY_NEW_JOB
   MESSAGE
   SYSTEM
 }

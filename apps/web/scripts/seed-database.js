@@ -164,6 +164,7 @@ async function seedDatabase() {
       },
     });
 
+    // Keep this array in the same order as companyData below so each employer manages exactly one company.
     const employerData = [
       { email: 'hr@techcorp.com', firstName: 'HR', lastName: 'Manager', phone: '0281234567' },
       {
@@ -177,6 +178,66 @@ async function seedDatabase() {
         firstName: 'Talent',
         lastName: 'Acquisition',
         phone: '0281234569',
+      },
+      {
+        email: 'hr@techinnovate.vn',
+        firstName: 'Minh',
+        lastName: 'Tran',
+        phone: '0281234570',
+      },
+      {
+        email: 'hr@greensolutions.vn',
+        firstName: 'Linh',
+        lastName: 'Nguyen',
+        phone: '0281234571',
+      },
+      {
+        email: 'recruitment@edutechhub.vn',
+        firstName: 'An',
+        lastName: 'Phan',
+        phone: '0281234572',
+      },
+      {
+        email: 'talent@healthcareplus.vn',
+        firstName: 'Huong',
+        lastName: 'Le',
+        phone: '0281234573',
+      },
+      {
+        email: 'jobs@logitech.vn',
+        firstName: 'Bao',
+        lastName: 'Do',
+        phone: '0281234574',
+      },
+      {
+        email: 'hr@retailmaster.vn',
+        firstName: 'Thu',
+        lastName: 'Vo',
+        phone: '0281234575',
+      },
+      {
+        email: 'careers@smartbuild.vn',
+        firstName: 'Khanh',
+        lastName: 'Bui',
+        phone: '0281234576',
+      },
+      {
+        email: 'talent@cybersec.vn',
+        firstName: 'Quang',
+        lastName: 'Ho',
+        phone: '0281234577',
+      },
+      {
+        email: 'hr@traveleasy.vn',
+        firstName: 'Nhi',
+        lastName: 'Dang',
+        phone: '0281234578',
+      },
+      {
+        email: 'recruitment@agritech.vn',
+        firstName: 'Phuc',
+        lastName: 'Vu',
+        phone: '0281234579',
       },
     ];
 
@@ -576,8 +637,16 @@ async function seedDatabase() {
       },
     ];
 
+    if (employers.length !== companyData.length) {
+      throw new Error(
+        `Employer/company seed mismatch: ${employers.length} employers for ${companyData.length} companies`
+      );
+    }
+
     const companies = [];
     for (let i = 0; i < companyData.length; i++) {
+      const assignedEmployer = employers[i];
+
       const company = await prisma.company.create({
         data: {
           ...companyData[i],
@@ -590,12 +659,27 @@ async function seedDatabase() {
       await prisma.companyUser.create({
         data: {
           companyId: company.id,
-          userId: employers[i % employers.length].id,
+          userId: assignedEmployer.id,
           role: 'ADMIN',
           isPrimaryContact: true,
         },
       });
     }
+
+    const primaryCompanyUsers = await prisma.companyUser.findMany({
+      where: {
+        companyId: { in: companies.map((company) => company.id) },
+        isPrimaryContact: true,
+      },
+      select: {
+        companyId: true,
+        userId: true,
+      },
+    });
+
+    const recruiterByCompanyId = new Map(
+      primaryCompanyUsers.map((companyUser) => [companyUser.companyId, companyUser.userId])
+    );
 
     // 6. Jobs
     console.log('💼 Tạo Jobs theo phân loại...');
@@ -625,12 +709,16 @@ async function seedDatabase() {
     const jobs = [];
     for (let i = 0; i < jobTemplates.length; i++) {
       const company = companies[i % companies.length];
-      const employer = employers[i % employers.length];
+      const recruiterId = recruiterByCompanyId.get(company.id);
+
+      if (!recruiterId) {
+        throw new Error(`Primary recruiter not found for company ${company.companyName}`);
+      }
 
       const job = await prisma.job.create({
         data: {
           companyId: company.id,
-          recruiterId: employer.id,
+          recruiterId,
           title: jobTemplates[i].t,
           slug: `job-${jobTemplates[i].c}-${i}`,
           description: `Chúng tôi đang tìm kiếm một Lập trình viên có trách nhiệm tham gia phát triển, xây dựng và duy trì các hệ thống phần mềm của công ty. Ứng viên sẽ phối hợp cùng đội ngũ thiết kế, kiểm thử và các bên liên quan để đảm bảo sản phẩm hoạt động ổn định, hiệu quả và đáp ứng yêu cầu người dùng. Ngoài ra, bạn sẽ tham gia cải tiến hiệu năng, sửa lỗi và đề xuất các giải pháp kỹ thuật phù hợp nhằm nâng cao chất lượng sản phẩm.\n
@@ -808,7 +896,7 @@ Admin: admin@careerconnect.com / admin123
 Candidate (Frontend): nguyenvana@gmail.com / fe1@gmail.com / 123456
 Candidate (Backend): tranthib@gmail.com / be1@gmail.com / 123456
 Candidate (Design): levanc@gmail.com / ui1@gmail.com / 123456
-Employer: hr@techcorp.com / 123456
+Employers (1:1 with companies): hr@techcorp.com / recruiter@innovate.com / hr@fintech.com / 123456
     `);
   } catch (error) {
     console.error('❌ Lỗi khi seed database:', error);

@@ -1,9 +1,7 @@
 'use client';
 
 import { format } from 'date-fns';
-import {
-  Badge,
-} from '@/components/ui/badge';
+import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -56,8 +54,8 @@ function DetailBlock({ title, content }: { title: string; content?: string | nul
   }
 
   return (
-    <div className="space-y-2 rounded-xl border bg-slate-50/80 p-4 dark:bg-slate-900/50">
-      <h4 className="text-sm font-semibold">{title}</h4>
+    <div className="space-y-2 rounded-2xl border border-slate-200 bg-slate-50/80 p-5 dark:bg-slate-900/50">
+      <h4 className="text-sm font-semibold text-slate-900">{title}</h4>
       <p className="text-muted-foreground whitespace-pre-wrap text-sm leading-6">{content}</p>
     </div>
   );
@@ -70,8 +68,8 @@ export function ReviewDetailDialog({
 }: ReviewDetailDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-3xl p-0">
-        <DialogHeader className="space-y-3 border-b px-6 py-5">
+      <DialogContent className="flex max-h-[90vh] w-[min(96vw,56rem)] max-w-4xl flex-col gap-0 overflow-hidden p-0 sm:rounded-2xl">
+        <DialogHeader className="space-y-4 border-b px-6 pt-6 pb-5 pr-14">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant={review?.isApproved ? 'default' : 'secondary'}>
               {review?.isApproved ? 'Đã duyệt' : 'Chờ duyệt'}
@@ -79,26 +77,26 @@ export function ReviewDetailDialog({
             {review?.reviewer.isAnonymous ? <Badge variant="outline">Ẩn danh</Badge> : null}
           </div>
 
-          <DialogTitle className="text-xl">
+          <DialogTitle className="text-2xl leading-tight">
             {review?.title || 'Chi tiết đánh giá công ty'}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="max-w-2xl text-base leading-7">
             Xem đầy đủ nội dung đánh giá trước khi thực hiện moderation.
           </DialogDescription>
         </DialogHeader>
 
         {review ? (
-          <ScrollArea className="max-h-[calc(90vh-110px)]">
-            <div className="space-y-6 px-6 py-5">
-              <div className="grid gap-3 md:grid-cols-2">
-                <div className="rounded-xl border bg-white p-4 shadow-sm dark:bg-slate-950/40">
+          <ScrollArea className="min-h-0 flex-1">
+            <div className="space-y-5 px-6 py-6">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="rounded-2xl border bg-white p-5 shadow-sm dark:bg-slate-950/40">
                   <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
                     Công ty
                   </p>
                   <p className="mt-2 text-base font-semibold">{review.company.companyName}</p>
                 </div>
 
-                <div className="rounded-xl border bg-white p-4 shadow-sm dark:bg-slate-950/40">
+                <div className="rounded-2xl border bg-white p-5 shadow-sm dark:bg-slate-950/40">
                   <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
                     Reviewer
                   </p>
@@ -106,8 +104,8 @@ export function ReviewDetailDialog({
                 </div>
               </div>
 
-              <div className="grid gap-3 md:grid-cols-3">
-                <div className="rounded-xl border bg-white p-4 shadow-sm dark:bg-slate-950/40">
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="rounded-2xl border bg-white p-5 shadow-sm dark:bg-slate-950/40">
                   <div className="text-muted-foreground flex items-center gap-2 text-sm">
                     <Star className="h-4 w-4" />
                     Đánh giá tổng
@@ -118,7 +116,7 @@ export function ReviewDetailDialog({
                   </div>
                 </div>
 
-                <div className="rounded-xl border bg-white p-4 shadow-sm dark:bg-slate-950/40">
+                <div className="rounded-2xl border bg-white p-5 shadow-sm dark:bg-slate-950/40">
                   <div className="text-muted-foreground flex items-center gap-2 text-sm">
                     <Briefcase className="h-4 w-4" />
                     Trạng thái việc làm
@@ -131,7 +129,7 @@ export function ReviewDetailDialog({
                   ) : null}
                 </div>
 
-                <div className="rounded-xl border bg-white p-4 shadow-sm dark:bg-slate-950/40">
+                <div className="rounded-2xl border bg-white p-5 shadow-sm dark:bg-slate-950/40">
                   <div className="text-muted-foreground flex items-center gap-2 text-sm">
                     <CalendarDays className="h-4 w-4" />
                     Gửi lúc
@@ -156,31 +154,31 @@ export function ReviewDetailDialog({
 
               <Separator />
 
-              <div className="space-y-4">
+              <div className="space-y-5 pb-1">
                 <h3 className="text-base font-semibold">Đánh giá chi tiết</h3>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-xl border p-4">
+                  <div className="rounded-2xl border bg-white p-5 shadow-sm dark:bg-slate-950/40">
                     <p className="text-sm font-medium">Work-life balance</p>
                     <div className="mt-2">
                       <RatingStars value={review.workLifeBalanceRating} />
                     </div>
                   </div>
 
-                  <div className="rounded-xl border p-4">
+                  <div className="rounded-2xl border bg-white p-5 shadow-sm dark:bg-slate-950/40">
                     <p className="text-sm font-medium">Salary & benefits</p>
                     <div className="mt-2">
                       <RatingStars value={review.salaryBenefitRating} />
                     </div>
                   </div>
 
-                  <div className="rounded-xl border p-4">
+                  <div className="rounded-2xl border bg-white p-5 shadow-sm dark:bg-slate-950/40">
                     <p className="text-sm font-medium">Management</p>
                     <div className="mt-2">
                       <RatingStars value={review.managementRating} />
                     </div>
                   </div>
 
-                  <div className="rounded-xl border p-4">
+                  <div className="rounded-2xl border bg-white p-5 shadow-sm dark:bg-slate-950/40">
                     <p className="text-sm font-medium">Culture</p>
                     <div className="mt-2">
                       <RatingStars value={review.cultureRating} />

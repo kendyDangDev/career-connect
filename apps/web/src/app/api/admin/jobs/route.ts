@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withPermission, AuthenticatedRequest } from '@/lib/middleware/auth';
 import { prisma } from '@/lib/prisma';
+import {
+  notificationService,
+  type NewActiveJobNotificationEvent,
+} from '@/lib/services/notification-service';
 import { z } from 'zod';
 import { JobStatus, JobType, WorkLocationType, ExperienceLevel, Prisma } from '@/generated/prisma';
 
@@ -508,6 +512,17 @@ export const POST = withPermission('job.create', async (req: AuthenticatedReques
 
       return newJob;
     });
+
+    if (job.status === JobStatus.ACTIVE) {
+      const notificationEvent: NewActiveJobNotificationEvent = {
+        jobId: job.id,
+        jobTitle: job.title,
+        companyId: job.company.id,
+        companyName: job.company.companyName,
+      };
+
+      await notificationService.notifyFollowersOfNewActiveJobs([notificationEvent]);
+    }
 
     return NextResponse.json(
       {

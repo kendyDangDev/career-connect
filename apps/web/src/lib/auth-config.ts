@@ -5,6 +5,61 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from '@/lib/prisma';
 import { verifyPassword } from '@/lib/auth-utils';
 import { loginSchema } from '@/lib/validations';
+import type { UserStatus, UserType } from '@/generated/prisma';
+
+type AuthSessionUpdatePayload = {
+  firstName?: string | null;
+  lastName?: string | null;
+  avatarUrl?: string | null;
+  companyId?: string | null;
+  userType?: UserType;
+  emailVerified?: boolean;
+  phoneVerified?: boolean;
+  status?: UserStatus;
+};
+
+function isAuthSessionUpdatePayload(value: unknown): value is AuthSessionUpdatePayload {
+  return typeof value === 'object' && value !== null;
+}
+
+async function getAuthSessionPayload(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      userType: true,
+      emailVerified: true,
+      phoneVerified: true,
+      status: true,
+      firstName: true,
+      lastName: true,
+      avatarUrl: true,
+      companyUsers: {
+        take: 1,
+        orderBy: [{ isPrimaryContact: 'desc' }, { createdAt: 'desc' }],
+        select: {
+          companyId: true,
+        },
+      },
+    },
+  });
+
+  if (!user) {
+    return null;
+  }
+
+  return {
+    id: user.id,
+    userType: user.userType,
+    emailVerified: user.emailVerified,
+    phoneVerified: user.phoneVerified,
+    status: user.status,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    avatarUrl: user.avatarUrl,
+    companyId: user.companyUsers[0]?.companyId ?? null,
+  };
+}
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -176,19 +231,65 @@ export const authOptions: NextAuthOptions = {
       }
     },
 
-    async jwt({ token, user, account }) {
-      // Initial sign in
-      if (user && account) {
-        token.userType = user.userType;
-        token.emailVerified = !!user.emailVerified;
-        token.phoneVerified = user.phoneVerified;
-        token.firstName = user.firstName;
-        token.lastName = user.lastName;
-        token.avatarUrl = user.avatarUrl;
-        token.companyId = (user as any).companyId || null;
+    async jwt({ token, user, account, trigger, session }) {
+      if (trigger === 'update' && isAuthSessionUpdatePayload(session)) {
+        if ('firstName' in session) {
+          token.firstName = session.firstName ?? null;
+        }
+
+        if ('lastName' in session) {
+          token.lastName = session.lastName ?? null;
+        }
+
+        if ('avatarUrl' in session) {
+          token.avatarUrl = session.avatarUrl ?? null;
+        }
+
+        if ('companyId' in session) {
+          token.companyId = session.companyId ?? null;
+        }
+
+        if ('userType' in session && session.userType) {
+          token.userType = session.userType;
+        }
+
+        if ('emailVerified' in session && typeof session.emailVerified === 'boolean') {
+          token.emailVerified = session.emailVerified;
+        }
+
+        if ('phoneVerified' in session && typeof session.phoneVerified === 'boolean') {
+          token.phoneVerified = session.phoneVerified;
+        }
+
+        if ('status' in session && session.status) {
+          token.status = session.status;
+        }
+
+        return token;
       }
 
-      // Return previous token if the access token has not expired yet
+      if ((user && account) || trigger === 'update') {
+        const userId = user?.id ?? token.sub;
+
+        if (!userId) {
+          return token;
+        }
+
+        const authPayload = await getAuthSessionPayload(userId);
+        if (!authPayload) {
+          return token;
+        }
+
+        token.sub = authPayload.id;
+        token.userType = authPayload.userType;
+        token.emailVerified = authPayload.emailVerified;
+        token.phoneVerified = authPayload.phoneVerified;
+        token.status = authPayload.status;
+        token.firstName = authPayload.firstName;
+        token.lastName = authPayload.lastName;
+        token.avatarUrl = authPayload.avatarUrl;
+        token.companyId = authPayload.companyId;
+      }
       return token;
     },
 
@@ -198,10 +299,14 @@ export const authOptions: NextAuthOptions = {
         session.user.userType = token.userType as any;
         session.user.emailVerified = token.emailVerified as true;
         session.user.phoneVerified = token.phoneVerified as boolean;
+        session.user.status = token.status as any;
         session.user.firstName = token.firstName as string | null;
         session.user.lastName = token.lastName as string | null;
         session.user.avatarUrl = token.avatarUrl as string | null;
         session.user.companyId = token.companyId as string | null;
+        session.user.name =
+          [session.user.firstName, session.user.lastName].filter(Boolean).join(' ') ||
+          session.user.email;
       }
 
       return session;

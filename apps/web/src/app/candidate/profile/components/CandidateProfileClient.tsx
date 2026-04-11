@@ -1,12 +1,14 @@
 'use client';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useSession } from 'next-auth/react';
 import { Clock3, RotateCcw, Save } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { candidateProfileApi } from '@/api/candidate/profile.api';
 import { Button } from '@/components/ui/button';
 import { getCandidateProfileCompletionScore } from '@/lib/candidate/profile-completion';
+import { dispatchCandidateProfileChanged } from '@/lib/candidate/profile-events';
 import type { CandidateProfileFormValues } from '@/types/candidate/profile.types';
 
 import AIResumeCard from './AIResumeCard';
@@ -23,9 +25,7 @@ const buildSuggestions = (values: CandidateProfileFormValues) => {
   const suggestions: string[] = [];
 
   if (!values.candidate.cvFileUrl) {
-    suggestions.push(
-      'Tải CV chính lên để recruiter có thể preview hồ sơ chỉ trong một lần click.'
-    );
+    suggestions.push('Tải CV chính lên để recruiter có thể preview hồ sơ chỉ trong một lần click.');
   }
 
   if (!values.profile.bio) {
@@ -57,6 +57,39 @@ const buildSuggestions = (values: CandidateProfileFormValues) => {
 
 export default function CandidateProfileClient({ initialData }: CandidateProfileClientProps) {
   const [lastSavedLabel, setLastSavedLabel] = useState('Sẵn sàng cập nhật hồ sơ mới nhất.');
+  const { update: updateSession } = useSession();
+  const syncSessionUser = useCallback(
+    async (
+      patch: Partial<
+        Pick<CandidateProfileFormValues['user'], 'firstName' | 'lastName' | 'avatarUrl'>
+      >
+    ) => {
+      const sessionPatch: {
+        firstName?: string;
+        lastName?: string;
+        avatarUrl?: string | null;
+      } = {};
+
+      if (patch.firstName !== undefined) {
+        sessionPatch.firstName = patch.firstName;
+      }
+
+      if (patch.lastName !== undefined) {
+        sessionPatch.lastName = patch.lastName;
+      }
+
+      if (patch.avatarUrl !== undefined) {
+        sessionPatch.avatarUrl = patch.avatarUrl;
+      }
+
+      if (Object.keys(sessionPatch).length === 0) {
+        return;
+      }
+
+      await updateSession(sessionPatch);
+    },
+    [updateSession]
+  );
 
   const {
     control,
@@ -89,14 +122,18 @@ export default function CandidateProfileClient({ initialData }: CandidateProfile
     { label: 'Certificates', value: String(initialData.stats.certifications) },
   ];
 
-  const handleAvatarUploaded = (avatarUrl: string) => {
+  const handleAvatarUploaded = async (avatarUrl: string) => {
     resetField('user.avatarUrl', { defaultValue: avatarUrl });
     setLastSavedLabel('Ảnh đại diện đã được cập nhật thành công.');
+    dispatchCandidateProfileChanged({ avatarUrl });
+    await syncSessionUser({ avatarUrl });
   };
 
-  const handleAvatarRemoved = () => {
+  const handleAvatarRemoved = async () => {
     resetField('user.avatarUrl', { defaultValue: null });
     setLastSavedLabel('Ảnh đại diện đã được gỡ khỏi hồ sơ.');
+    dispatchCandidateProfileChanged({ avatarUrl: null });
+    await syncSessionUser({ avatarUrl: null });
   };
 
   const onSubmit = async (payload: CandidateProfileFormValues) => {
@@ -106,6 +143,16 @@ export default function CandidateProfileClient({ initialData }: CandidateProfile
       reset(data);
       setLastSavedLabel('Đã lưu và đồng bộ thành công với hồ sơ ứng viên.');
       toast.success('Đã cập nhật hồ sơ ứng viên');
+      dispatchCandidateProfileChanged({
+        firstName: data.user.firstName,
+        lastName: data.user.lastName,
+        avatarUrl: data.user.avatarUrl,
+      });
+      await syncSessionUser({
+        firstName: data.user.firstName,
+        lastName: data.user.lastName,
+        avatarUrl: data.user.avatarUrl,
+      });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Đã xảy ra lỗi khi lưu hồ sơ';
       toast.error(message);

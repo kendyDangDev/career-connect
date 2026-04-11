@@ -125,7 +125,7 @@ export class EmailService {
       return;
     }
 
-    const reviewUrl = `${process.env.NEXT_PUBLIC_APP_URL}/admin/companies/${companyId}`;
+    const reviewUrl = `${process.env.NEXT_PUBLIC_APP_URL}/admin/companies`;
 
     const html = `
       <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
@@ -174,7 +174,7 @@ export class EmailService {
     companyName: string,
     firstName?: string
   ): Promise<void> {
-    const loginUrl = `${process.env.NEXT_PUBLIC_APP_URL}/employer/login`;
+    const loginUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/signin`;
 
     const html = `
       <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">

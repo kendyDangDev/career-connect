@@ -242,6 +242,7 @@ model Company {
   description        String?
   logoUrl            String?            @map("logo_url")
   coverImageUrl      String?            @map("cover_image_url")
+  businessLicenseUrl String?            @map("business_license_url")
   address            String?
   city               String?
   province           String?
@@ -250,6 +251,7 @@ model Company {
   email              String?
   foundedYear        Int?               @map("founded_year")
   verificationStatus VerificationStatus @default(PENDING) @map("verification_status")
+  verificationNotes  String?            @map("verification_notes")
   createdAt          DateTime           @default(now()) @map("created_at")
   updatedAt          DateTime           @updatedAt @map("updated_at")
   industry           Industry?          @relation(fields: [industryId], references: [id])

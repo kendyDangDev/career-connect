@@ -10,6 +10,7 @@ import type {
   CompanyFormData,
   CompaniesResponse,
   CompaniesQuery,
+  CompanyVerificationPayload,
 } from '@/types/company-admin.types';
 import { handleApiError } from '@/lib/axios';
 
@@ -200,6 +201,22 @@ export function useCompaniesData(options?: UseCompaniesDataOptions) {
     },
   });
 
+  const updateVerificationStatusMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: CompanyVerificationPayload }) =>
+      companyAdminApi.updateVerificationStatus(id, data),
+    onSuccess: (response, { id }) => {
+      queryClient.invalidateQueries({ queryKey: companyAdminKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: companyAdminKeys.detail(id) });
+      toast.success(
+        response.data ? 'Cập nhật trạng thái xác minh thành công!' : 'Cập nhật thành công!'
+      );
+    },
+    onError: (error) => {
+      const errorMessage = handleApiError(error);
+      toast.error(errorMessage || 'Cập nhật trạng thái xác minh thất bại!');
+    },
+  });
+
   // Delete company mutation
   const deleteCompanyMutation = useMutation({
     mutationFn: (id: string) => companyAdminApi.deleteCompany(id),
@@ -254,6 +271,17 @@ export function useCompaniesData(options?: UseCompaniesDataOptions) {
     [getCompanyQuery]
   );
 
+  const updateVerificationStatus = useCallback(
+    async (id: string, payload: CompanyVerificationPayload) => {
+      const result = await updateVerificationStatusMutation.mutateAsync({
+        id,
+        data: payload,
+      });
+      return result.data;
+    },
+    [updateVerificationStatusMutation]
+  );
+
   // Refresh data
   const refresh = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: companyAdminKeys.lists() });
@@ -288,6 +316,7 @@ export function useCompaniesData(options?: UseCompaniesDataOptions) {
     // CRUD operations
     createCompany,
     updateCompany,
+    updateVerificationStatus,
     deleteCompany,
     getCompany,
 

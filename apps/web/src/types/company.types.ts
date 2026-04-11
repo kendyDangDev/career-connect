@@ -1,12 +1,14 @@
+import { CompanySize, VerificationStatus } from '@/generated/prisma';
+
 // Company Profile Types
 export interface CompanyProfile {
   id: string;
   companyName: string;
-  slug: string;
+  companySlug: string;
   description: string | null;
   industry: { id: string; name: string; slug?: string } | null;
-  companySize: string | null;
-  foundedYear: string | null;
+  companySize: CompanySize | null;
+  foundedYear: number | null;
   websiteUrl: string | null;
   email: string | null;
   phone: string | null;
@@ -14,13 +16,14 @@ export interface CompanyProfile {
   city: string | null;
   logoUrl: string | null;
   coverImageUrl: string | null;
-  verificationStatus: 'PENDING' | 'VERIFIED' | 'REJECTED';
+  verificationStatus: VerificationStatus;
+  verificationNotes?: string | null;
   createdAt: string;
   updatedAt: string;
   _count?: {
-    jobs: number;
-    followers: number;
-    teamMembers: number;
+    jobs?: number;
+    followers?: number;
+    teamMembers?: number;
   };
 }
 
@@ -49,7 +52,7 @@ export interface UpdateCompanyData {
   companyName?: string;
   description?: string;
   industryId?: string | null;
-  companySize?: string;
+  companySize?: CompanySize | '';
   foundedYear?: string;
   websiteUrl?: string;
   email?: string;

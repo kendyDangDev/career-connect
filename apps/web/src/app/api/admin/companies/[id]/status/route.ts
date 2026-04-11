@@ -47,6 +47,19 @@ export const PATCH = withPermission(
         );
       }
 
+      if (
+        verificationStatus === VerificationStatus.REJECTED &&
+        !verificationNotes?.trim()
+      ) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Verification notes are required when rejecting a company',
+          },
+          { status: 400 }
+        );
+      }
+
       // Get current company data for audit
       const currentCompany = await AdminCompanyService.getCompanyDetail(id);
       if (!currentCompany) {
@@ -71,7 +84,17 @@ export const PATCH = withPermission(
       }
 
       // Update verification status
-      await AdminCompanyService.updateVerificationStatus(id, body);
+      const updatedCompany = await AdminCompanyService.updateVerificationStatus(id, body);
+
+      if (!updatedCompany) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Failed to update verification status',
+          },
+          { status: 500 }
+        );
+      }
 
       // Log admin action
       await createAuditLog(
@@ -79,29 +102,21 @@ export const PATCH = withPermission(
         `UPDATE_VERIFICATION_STATUS_${verificationStatus}`,
         'companies',
         id,
-        { verificationStatus: currentCompany.verificationStatus },
-        { verificationStatus, verificationNotes },
+        {
+          verificationStatus: currentCompany.verificationStatus,
+          verificationNotes: currentCompany.verificationNotes,
+        },
+        {
+          verificationStatus,
+          verificationNotes: verificationStatus === VerificationStatus.REJECTED
+            ? verificationNotes?.trim() || null
+            : null,
+        },
         request
       );
 
-      // Get updated company
-      const updatedCompany = await AdminCompanyService.getCompanyDetail(id);
-
-      // TODO: Send notification if notifyCompany is true
-      if (notifyCompany && updatedCompany?.companyUsers[0]?.user.email) {
-        // Implement email notification
-        console.log(
-          `TODO: Send verification status update email to ${updatedCompany.companyUsers[0].user.email}`
-        );
-      }
-
       return successResponse(
-        {
-          id,
-          verificationStatus,
-          previousStatus: currentCompany.verificationStatus,
-          notificationSent: notifyCompany || false,
-        },
+        updatedCompany,
         `Company verification status updated to ${verificationStatus}`
       );
     } catch (error) {

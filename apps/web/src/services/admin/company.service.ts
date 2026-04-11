@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
-import { Prisma, VerificationStatus } from "@/generated/prisma";
+import { NotificationType, Prisma, UserType, VerificationStatus } from "@/generated/prisma";
+import { emailService } from '@/lib/services/email.service';
+import { notificationService } from '@/lib/services/notification-service';
 import {
   CompanyListParams,
   AdminCompanyDetail,
@@ -205,21 +207,110 @@ export class AdminCompanyService {
   static async updateVerificationStatus(
     companyId: string,
     data: CompanyVerificationDTO
-  ): Promise<boolean> {
+  ): Promise<AdminCompanyDetail | null> {
     const { verificationStatus, verificationNotes, notifyCompany } = data;
 
-    // Update status
-    await prisma.company.update({
+    const company = await prisma.company.findUnique({
       where: { id: companyId },
-      data: {
-        verificationStatus,
-        updatedAt: new Date()
+      include: {
+        companyUsers: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+                userType: true,
+              },
+            },
+          },
+          orderBy: [{ isPrimaryContact: 'desc' }, { createdAt: 'asc' }],
+        },
+      },
+    });
+
+    if (!company) {
+      return null;
+    }
+
+    const primaryContact =
+      company.companyUsers.find((companyUser) => companyUser.isPrimaryContact) ??
+      company.companyUsers.find((companyUser) => companyUser.role === 'ADMIN') ??
+      company.companyUsers[0];
+
+    await prisma.$transaction(async (tx) => {
+      await tx.company.update({
+        where: { id: companyId },
+        data: {
+          verificationStatus,
+          verificationNotes:
+            verificationStatus === VerificationStatus.REJECTED
+              ? verificationNotes?.trim() || null
+              : null,
+          updatedAt: new Date(),
+        },
+      });
+
+      if (
+        verificationStatus === VerificationStatus.VERIFIED &&
+        primaryContact?.user.userType !== UserType.EMPLOYER
+      ) {
+        await tx.user.update({
+          where: { id: primaryContact.user.id },
+          data: {
+            userType: UserType.EMPLOYER,
+          },
+        });
       }
     });
 
-    // TODO: If notifyCompany is true, send notification email
+    if (notifyCompany && primaryContact?.user.email) {
+      try {
+        const recipientName = primaryContact.user.firstName || undefined;
 
-    return true;
+        if (verificationStatus === VerificationStatus.VERIFIED) {
+        await emailService.sendCompanyApprovalEmail(
+          primaryContact.user.email,
+          company.companyName,
+          recipientName
+        );
+
+        await notificationService.createNotification({
+          userId: primaryContact.user.id,
+          type: NotificationType.SYSTEM,
+          title: 'Yêu cầu trở thành nhà tuyển dụng đã được duyệt',
+          message: `${company.companyName} đã được xác minh. Bạn có thể truy cập Employer Dashboard ngay bây giờ.`,
+          relatedEntityId: companyId,
+          relatedEntityType: 'company',
+        });
+      }
+
+        if (verificationStatus === VerificationStatus.REJECTED) {
+        const rejectionReason = verificationNotes?.trim() || 'Vui lòng kiểm tra lại hồ sơ doanh nghiệp và nộp lại.';
+
+        await emailService.sendCompanyRejectionEmail(
+          primaryContact.user.email,
+          company.companyName,
+          rejectionReason,
+          recipientName
+        );
+
+        await notificationService.createNotification({
+          userId: primaryContact.user.id,
+          type: NotificationType.SYSTEM,
+          title: 'Yêu cầu trở thành nhà tuyển dụng bị từ chối',
+          message: rejectionReason,
+          relatedEntityId: companyId,
+          relatedEntityType: 'company',
+        });
+      }
+      } catch (error) {
+        console.error('Failed to notify company about verification status change:', error);
+      }
+    }
+
+    return this.getCompanyDetail(companyId);
   }
 
   /**

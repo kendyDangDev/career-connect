@@ -1,4 +1,4 @@
-import { CheckCircle, AlertCircle, X, Clock } from 'lucide-react';
+import { AlertCircle, CheckCircle, Clock, type LucideIcon, X } from 'lucide-react';
 
 export type VerificationStatus = 'PENDING' | 'VERIFIED' | 'REJECTED';
 
@@ -9,12 +9,11 @@ interface VerificationStatusBadgeProps {
 
 interface VerificationStatusAlertProps {
   status: VerificationStatus;
-  onRequestVerification?: () => void;
-  onResendRequest?: () => void;
+  verificationNotes?: string | null;
 }
 
 /**
- * Badge hiển thị trạng thái xác minh
+ * Badge hien thi trang thai xac minh.
  */
 export function VerificationStatusBadge({ status, className = '' }: VerificationStatusBadgeProps) {
   const statusConfig = {
@@ -42,7 +41,17 @@ export function VerificationStatusBadge({ status, className = '' }: Verification
       iconColor: 'text-red-300',
       textColor: 'text-white',
     },
-  };
+  } satisfies Record<
+    VerificationStatus,
+    {
+      icon: LucideIcon;
+      label: string;
+      borderColor: string;
+      bgColor: string;
+      iconColor: string;
+      textColor: string;
+    }
+  >;
 
   const config = statusConfig[status];
   const Icon = config.icon;
@@ -58,12 +67,11 @@ export function VerificationStatusBadge({ status, className = '' }: Verification
 }
 
 /**
- * Alert box hiển thị thông tin chi tiết về trạng thái xác minh
+ * Alert box chi hien thi thong tin trang thai, khong con CTA cua flow self-verification cu.
  */
 export function VerificationStatusAlert({
   status,
-  onRequestVerification,
-  onResendRequest,
+  verificationNotes,
 }: VerificationStatusAlertProps) {
   const alertConfig = {
     PENDING: {
@@ -75,8 +83,7 @@ export function VerificationStatusAlert({
       textColor: 'text-blue-700',
       title: 'Đang chờ xác minh',
       description:
-        'Yêu cầu xác minh của bạn đang được xem xét. Chúng tôi sẽ thông báo kết quả sớm nhất có thể.',
-      showButton: false,
+        'Thông tin công ty đang được đội ngũ admin xem xét. Employer portal không cần gửi thêm yêu cầu xác minh.',
     },
     REJECTED: {
       icon: X,
@@ -85,13 +92,9 @@ export function VerificationStatusAlert({
       iconColor: 'text-red-600',
       titleColor: 'text-red-900',
       textColor: 'text-red-700',
-      buttonColor: 'bg-red-600 hover:bg-red-700',
       title: 'Yêu cầu xác minh bị từ chối',
       description:
-        'Thông tin công ty chưa đủ điều kiện để xác minh. Vui lòng cập nhật đầy đủ thông tin và gửi lại yêu cầu.',
-      buttonText: 'Gửi lại yêu cầu xác minh',
-      showButton: true,
-      onClick: onResendRequest,
+        'Admin đã từ chối hồ sơ hiện tại. Candidate cần cập nhật yêu cầu ở luồng become employer để nộp lại.',
     },
     VERIFIED: {
       icon: CheckCircle,
@@ -102,31 +105,36 @@ export function VerificationStatusAlert({
       textColor: 'text-green-700',
       title: 'Công ty đã được xác minh',
       description:
-        'Chúc mừng! Công ty của bạn đã được xác minh. Điều này sẽ giúp tăng độ tin cậy với ứng viên.',
-      showButton: false,
+        'Công ty của bạn đã được xác minh và có thể vận hành đầy đủ trong employer portal.',
     },
-  };
+  } satisfies Record<
+    VerificationStatus,
+    {
+      icon: LucideIcon;
+      borderColor: string;
+      bgColor: string;
+      iconColor: string;
+      titleColor: string;
+      textColor: string;
+      title: string;
+      description: string;
+    }
+  >;
 
-  // Trường hợp chưa có trạng thái (null hoặc undefined)
-  if (!status || status === ('UNVERIFIED' as any)) {
-    const Icon = AlertCircle;
+  // Fallback cho du lieu legacy.
+  if (!status || (status as VerificationStatus | 'UNVERIFIED') === 'UNVERIFIED') {
     return (
       <div className="rounded-xl border border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100/50 p-6">
         <div className="flex items-start gap-4">
-          <Icon className="h-6 w-6 shrink-0 text-orange-600" />
+          <AlertCircle className="h-6 w-6 shrink-0 text-orange-600" />
           <div className="flex-1">
-            <h3 className="mb-1 font-semibold text-orange-900">Công ty chưa được xác minh</h3>
-            <p className="mb-3 text-sm text-orange-700">
-              Hãy hoàn thiện thông tin và gửi yêu cầu xác minh để tăng độ tin cậy với ứng viên
+            <h3 className="mb-1 font-semibold text-orange-900">
+              Công ty chưa có trạng thái xác minh
+            </h3>
+            <p className="text-sm text-orange-700">
+              Dữ liệu xác minh chưa đầy đủ. Vui lòng liên hệ admin nếu trạng thái này xuất hiện bất
+              thường.
             </p>
-            {onRequestVerification && (
-              <button
-                onClick={onRequestVerification}
-                className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white shadow-md transition-all hover:bg-orange-700 hover:shadow-lg"
-              >
-                Gửi yêu cầu xác minh
-              </button>
-            )}
           </div>
         </div>
       </div>
@@ -143,14 +151,11 @@ export function VerificationStatusAlert({
         <div className="flex-1">
           <h3 className={`mb-1 font-semibold ${config.titleColor}`}>{config.title}</h3>
           <p className={`text-sm ${config.textColor}`}>{config.description}</p>
-          {config.showButton && status === 'REJECTED' && onResendRequest && (
-            <button
-              onClick={onResendRequest}
-              className="mt-3 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-md transition-all hover:bg-red-700 hover:shadow-lg"
-            >
-              Gửi lại yêu cầu xác minh
-            </button>
-          )}
+          {status === 'REJECTED' && verificationNotes ? (
+            <div className="mt-3 rounded-lg border border-red-200 bg-white/70 px-4 py-3 text-sm text-red-800">
+              Admin note: {verificationNotes}
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
@@ -158,7 +163,7 @@ export function VerificationStatusAlert({
 }
 
 /**
- * Component hiển thị icon status nhỏ gọn (dùng trong table, list, etc.)
+ * Component hien thi icon status nho gon (dung trong table, list, etc.)
  */
 export function VerificationStatusIcon({ status }: { status: VerificationStatus }) {
   const iconConfig = {
@@ -177,7 +182,14 @@ export function VerificationStatusIcon({ status }: { status: VerificationStatus 
       color: 'text-red-500',
       bgColor: 'bg-red-100',
     },
-  };
+  } satisfies Record<
+    VerificationStatus,
+    {
+      icon: LucideIcon;
+      color: string;
+      bgColor: string;
+    }
+  >;
 
   const config = iconConfig[status];
   const Icon = config.icon;
@@ -192,7 +204,7 @@ export function VerificationStatusIcon({ status }: { status: VerificationStatus 
 }
 
 /**
- * Component hiển thị text status
+ * Component hien thi text status.
  */
 export function VerificationStatusText({ status }: { status: VerificationStatus }) {
   const textConfig = {
@@ -211,7 +223,14 @@ export function VerificationStatusText({ status }: { status: VerificationStatus 
       color: 'text-red-700',
       bgColor: 'bg-red-100',
     },
-  };
+  } satisfies Record<
+    VerificationStatus,
+    {
+      label: string;
+      color: string;
+      bgColor: string;
+    }
+  >;
 
   const config = textConfig[status];
 

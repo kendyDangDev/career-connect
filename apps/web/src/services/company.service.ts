@@ -203,8 +203,7 @@ export class CompanyService {
    * Get company statistics for dashboard
    */
   static async getCompanyStats(companyId: string) {
-    const [activeJobs, totalApplications, newApplications, followers, views, avgReviewRating] =
-      await Promise.all([
+    const [activeJobs, totalApplications, followers, profileViews, teamMembers] = await Promise.all([
         // Active jobs count
         prisma.job.count({
           where: {
@@ -220,22 +219,12 @@ export class CompanyService {
           },
         }),
 
-        // New applications (last 7 days)
-        prisma.application.count({
-          where: {
-            job: { companyId },
-            appliedAt: {
-              gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-            },
-          },
-        }),
-
         // Followers count
         prisma.companyFollower.count({
           where: { companyId },
         }),
 
-        // Job views (last 30 days)
+        // Use job views as the visibility metric until dedicated company profile views exist.
         prisma.jobView.count({
           where: {
             job: { companyId },
@@ -245,25 +234,17 @@ export class CompanyService {
           },
         }),
 
-        // Average review rating
-        prisma.companyReview.aggregate({
-          where: {
-            companyId,
-            isApproved: true,
-          },
-          _avg: {
-            rating: true,
-          },
+        prisma.companyUser.count({
+          where: { companyId },
         }),
       ]);
 
     return {
       activeJobs,
       totalApplications,
-      newApplications,
       followers,
-      views,
-      averageRating: avgReviewRating._avg.rating || 0,
+      profileViews,
+      teamMembers,
     };
   }
 

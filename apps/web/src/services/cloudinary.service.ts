@@ -102,13 +102,33 @@ export class CloudinaryService {
   }
 
   /**
+   * Generate a unique public ID for company documents
+   */
+  private generateCompanyDocumentPublicId(
+    companyId: string,
+    documentType: string,
+    originalFileName?: string
+  ): string {
+    const timestamp = Date.now();
+    const uniqueId = uuidv4().substring(0, 8);
+    const sanitizedFileName =
+      originalFileName
+        ?.replace(/\.[^/.]+$/, '')
+        .replace(/[^a-zA-Z0-9\-_]/g, '_')
+        .substring(0, 50) || documentType;
+    const extension = originalFileName?.split('.').pop()?.toLowerCase();
+
+    return `career-connect/companies/${companyId}/documents/${documentType}/${sanitizedFileName}_${timestamp}_${uniqueId}${extension ? `.${extension}` : ''}`;
+  }
+
+  /**
    * Upload company image (logo, cover, gallery) to Cloudinary
    */
   async uploadImage(
     file: File | Buffer,
     folder: string,
     companyId: string,
-    type: 'logo' | 'cover' | 'gallery',
+    type: 'logo' | 'cover' | 'gallery' | 'document',
     options?: {
       width?: number;
       height?: number;
@@ -201,6 +221,81 @@ export class CloudinaryService {
       return {
         success: false,
         error: error.message || 'Failed to upload image to Cloudinary',
+      };
+    }
+  }
+
+  /**
+   * Upload company document (business license, authorization letter, etc.) to Cloudinary
+   */
+  async uploadCompanyDocument(
+    file: File | Buffer,
+    companyId: string,
+    documentType: 'business-license' | 'authorization-letter' | 'other',
+    originalFileName?: string
+  ): Promise<CloudinaryUploadResult> {
+    try {
+      const resolvedFileName =
+        originalFileName || (file instanceof File ? file.name : `${documentType}.pdf`);
+      const publicId = this.generateCompanyDocumentPublicId(
+        companyId,
+        documentType,
+        resolvedFileName
+      );
+      const buffer = file instanceof File ? Buffer.from(await file.arrayBuffer()) : file;
+
+      const uploadResult = await new Promise<UploadApiResponse>((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            public_id: publicId,
+            resource_type: 'raw',
+            type: 'upload',
+            overwrite: true,
+            context: {
+              company_id: companyId,
+              document_type: documentType,
+              original_filename: resolvedFileName,
+              upload_date: new Date().toISOString(),
+            },
+            tags: ['company-document', `company_${companyId}`, documentType],
+            use_filename: false,
+            unique_filename: false,
+            timeout: 60000,
+          },
+          (error, result) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+
+            if (!result) {
+              reject(new Error('Upload failed - no result'));
+              return;
+            }
+
+            resolve(result);
+          }
+        );
+
+        uploadStream.on('error', (error) => reject(error));
+        uploadStream.end(buffer);
+      });
+
+      return {
+        success: true,
+        publicId: uploadResult.public_id,
+        url: uploadResult.url,
+        secureUrl: uploadResult.secure_url,
+        fileSize: uploadResult.bytes,
+        format: uploadResult.format,
+        resourceType: uploadResult.resource_type,
+      };
+    } catch (error: any) {
+      console.error('❌ Error uploading company document to Cloudinary:', error);
+
+      return {
+        success: false,
+        error: error.message || 'Failed to upload company document to Cloudinary',
       };
     }
   }

@@ -47,41 +47,41 @@ model VerificationToken {
 }
 
 model User {
-  id                                    String                   @id @default(cuid())
-  email                                 String                   @unique
-  passwordHash                          String?                  @map("password_hash")
-  userType                              UserType                 @default(CANDIDATE) @map("user_type")
-  firstName                             String?                  @map("first_name")
-  lastName                              String?                  @map("last_name")
-  phone                                 String?
-  avatarUrl                             String?                  @map("avatar_url")
-  emailVerified                         Boolean                  @default(false) @map("email_verified")
-  status                                UserStatus               @default(ACTIVE)
-  createdAt                             DateTime                 @default(now()) @map("created_at")
-  updatedAt                             DateTime                 @updatedAt @map("updated_at")
-  phoneVerified                         Boolean                  @default(false) @map("phone_verified")
-  accounts                              Account[]
-  applicationTimelineChanges            ApplicationTimeline[]
-  applications                          Application[]            @relation("UserApplications")
-  auditLogs                             AuditLog[]
-  candidate                             Candidate?
-  companyReviews                        CompanyReview[]
-  companyUsers                          CompanyUser[]
-  emailVerificationTokens               EmailVerificationToken[]
-  interviewReviews                      InterviewReview[]
-  jobViews                              JobView[]
-  createdJobs                           Job[]                    @relation("JobRecruiter")
-  sentMessages                          Message[]                @relation("MessageSender")
-  notifications                         Notification[]
-  conversationParticipants              ConversationParticipant[]
-  messageReads                          MessageRead[]
-  passwordResetTokens                   PasswordResetToken[]
-  phoneVerificationTokens               PhoneVerificationToken[]
-  sessions                              Session[]
-  systemSettingsUpdates                 SystemSetting[]          @relation("SystemSettingUpdater")
-  profile                               UserProfile?
-  interviewQuestionSets                 InterviewQuestionSet[]
-  practiceSessions                      PracticeSession[]
+  id                         String                    @id @default(cuid())
+  email                      String                    @unique
+  passwordHash               String?                   @map("password_hash")
+  userType                   UserType                  @default(CANDIDATE) @map("user_type")
+  firstName                  String?                   @map("first_name")
+  lastName                   String?                   @map("last_name")
+  phone                      String?
+  avatarUrl                  String?                   @map("avatar_url")
+  emailVerified              Boolean                   @default(false) @map("email_verified")
+  status                     UserStatus                @default(ACTIVE)
+  createdAt                  DateTime                  @default(now()) @map("created_at")
+  updatedAt                  DateTime                  @updatedAt @map("updated_at")
+  phoneVerified              Boolean                   @default(false) @map("phone_verified")
+  accounts                   Account[]
+  applicationTimelineChanges ApplicationTimeline[]
+  applications               Application[]             @relation("UserApplications")
+  auditLogs                  AuditLog[]
+  candidate                  Candidate?
+  companyReviews             CompanyReview[]
+  companyUsers               CompanyUser[]
+  emailVerificationTokens    EmailVerificationToken[]
+  interviewReviews           InterviewReview[]
+  jobViews                   JobView[]
+  createdJobs                Job[]                     @relation("JobRecruiter")
+  sentMessages               Message[]                 @relation("MessageSender")
+  notifications              Notification[]
+  conversationParticipants   ConversationParticipant[]
+  messageReads               MessageRead[]
+  passwordResetTokens        PasswordResetToken[]
+  phoneVerificationTokens    PhoneVerificationToken[]
+  sessions                   Session[]
+  systemSettingsUpdates      SystemSetting[]           @relation("SystemSettingUpdater")
+  profile                    UserProfile?
+  interviewQuestionSets      InterviewQuestionSet[]
+  practiceSessions           PracticeSession[]
 
   @@map("users")
 }
@@ -242,6 +242,7 @@ model Company {
   description        String?
   logoUrl            String?            @map("logo_url")
   coverImageUrl      String?            @map("cover_image_url")
+  businessLicenseUrl String?            @map("business_license_url")
   address            String?
   city               String?
   province           String?
@@ -250,6 +251,7 @@ model Company {
   email              String?
   foundedYear        Int?               @map("founded_year")
   verificationStatus VerificationStatus @default(PENDING) @map("verification_status")
+  verificationNotes  String?            @map("verification_notes")
   createdAt          DateTime           @default(now()) @map("created_at")
   updatedAt          DateTime           @updatedAt @map("updated_at")
   industry           Industry?          @relation(fields: [industryId], references: [id])
@@ -585,60 +587,60 @@ model Notification {
 
 // Chat System Models
 model Conversation {
-  id                String                      @id @default(cuid())
-  name              String?
-  type              ConversationType            @default(DIRECT)
-  applicationId     String?                     @map("application_id")
-  jobId             String?                     @map("job_id")
-  createdAt         DateTime                    @default(now()) @map("created_at")
-  updatedAt         DateTime                    @updatedAt @map("updated_at")
-  lastMessageAt     DateTime?                   @map("last_message_at")
+  id            String           @id @default(cuid())
+  name          String?
+  type          ConversationType @default(DIRECT)
+  applicationId String?          @map("application_id")
+  jobId         String?          @map("job_id")
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+  lastMessageAt DateTime?        @map("last_message_at")
 
   // Relations
-  application       Application?                @relation(fields: [applicationId], references: [id])
-  job               Job?                        @relation(fields: [jobId], references: [id])
-  participants      ConversationParticipant[]
-  messages          Message[]
+  application  Application?              @relation(fields: [applicationId], references: [id])
+  job          Job?                      @relation(fields: [jobId], references: [id])
+  participants ConversationParticipant[]
+  messages     Message[]
 
   @@map("conversations")
 }
 
 model ConversationParticipant {
-  id             String            @id @default(cuid())
-  conversationId String            @map("conversation_id")
-  userId         String            @map("user_id")
-  role           ParticipantRole   @default(MEMBER)
-  joinedAt       DateTime          @default(now()) @map("joined_at")
-  leftAt         DateTime?         @map("left_at")
-  lastReadAt     DateTime?         @map("last_read_at")
+  id             String          @id @default(cuid())
+  conversationId String          @map("conversation_id")
+  userId         String          @map("user_id")
+  role           ParticipantRole @default(MEMBER)
+  joinedAt       DateTime        @default(now()) @map("joined_at")
+  leftAt         DateTime?       @map("left_at")
+  lastReadAt     DateTime?       @map("last_read_at")
 
   // Relations
-  conversation   Conversation      @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([conversationId, userId])
   @@map("conversation_participants")
 }
 
 model Message {
-  id             String              @id @default(cuid())
-  conversationId String              @map("conversation_id")
-  senderId       String              @map("sender_id")
+  id             String      @id @default(cuid())
+  conversationId String      @map("conversation_id")
+  senderId       String      @map("sender_id")
   content        String
-  type           MessageType         @default(TEXT)
-  replyToId      String?             @map("reply_to_id")
-  isEdited       Boolean             @default(false) @map("is_edited")
-  isDeleted      Boolean             @default(false) @map("is_deleted")
-  createdAt      DateTime            @default(now()) @map("created_at")
-  updatedAt      DateTime            @updatedAt @map("updated_at")
+  type           MessageType @default(TEXT)
+  replyToId      String?     @map("reply_to_id")
+  isEdited       Boolean     @default(false) @map("is_edited")
+  isDeleted      Boolean     @default(false) @map("is_deleted")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
 
   // Relations
-  conversation   Conversation        @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  sender         User                @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
-  replyTo        Message?            @relation("MessageReply", fields: [replyToId], references: [id])
-  replies        Message[]           @relation("MessageReply")
-  attachments    MessageAttachment[]
-  readBy         MessageRead[]
+  conversation Conversation        @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User                @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  replyTo      Message?            @relation("MessageReply", fields: [replyToId], references: [id])
+  replies      Message[]           @relation("MessageReply")
+  attachments  MessageAttachment[]
+  readBy       MessageRead[]
 
   @@map("messages")
 }
@@ -653,7 +655,7 @@ model MessageAttachment {
   createdAt DateTime @default(now()) @map("created_at")
 
   // Relations
-  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
 
   @@map("message_attachments")
 }
@@ -665,8 +667,8 @@ model MessageRead {
   readAt    DateTime @default(now()) @map("read_at")
 
   // Relations
-  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([messageId, userId])
   @@map("message_reads")
@@ -954,36 +956,36 @@ enum QuestionDifficulty {
 }
 
 model InterviewQuestionSet {
-  id                String              @id @default(cuid())
-  userId            String              @map("user_id")
+  id                String             @id @default(cuid())
+  userId            String             @map("user_id")
   title             String
-  cvText            String              @map("cv_text")
-  jdText            String              @map("jd_text")
-  difficulty        QuestionDifficulty  @default(MEDIUM)
-  totalQuestions    Int                 @map("total_questions")
-  estimatedDuration Int                 @map("estimated_duration")
-  status            QuestionSetStatus   @default(GENERATING)
-  createdAt         DateTime            @default(now()) @map("created_at")
-  updatedAt         DateTime            @updatedAt @map("updated_at")
+  cvText            String             @map("cv_text")
+  jdText            String             @map("jd_text")
+  difficulty        QuestionDifficulty @default(MEDIUM)
+  totalQuestions    Int                @map("total_questions")
+  estimatedDuration Int                @map("estimated_duration")
+  status            QuestionSetStatus  @default(GENERATING)
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
 
-  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  questions         InterviewQuestion[]
-  practiceSessions  PracticeSession[]
+  user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questions        InterviewQuestion[]
+  practiceSessions PracticeSession[]
 
   @@map("interview_question_sets")
 }
 
 model InterviewQuestion {
-  id              String                @id @default(cuid())
-  questionSetId   String                @map("question_set_id")
-  orderIndex      Int                   @map("order_index")
-  question        String
-  category        String
-  difficulty      QuestionDifficulty    @default(MEDIUM)
-  sampleAnswer    String?               @map("sample_answer")
-  createdAt       DateTime              @default(now()) @map("created_at")
+  id            String             @id @default(cuid())
+  questionSetId String             @map("question_set_id")
+  orderIndex    Int                @map("order_index")
+  question      String
+  category      String
+  difficulty    QuestionDifficulty @default(MEDIUM)
+  sampleAnswer  String?            @map("sample_answer")
+  createdAt     DateTime           @default(now()) @map("created_at")
 
-  questionSet     InterviewQuestionSet  @relation(fields: [questionSetId], references: [id], onDelete: Cascade)
+  questionSet     InterviewQuestionSet @relation(fields: [questionSetId], references: [id], onDelete: Cascade)
   practiceAnswers PracticeAnswer[]
 
   @@map("interview_questions")
@@ -1000,26 +1002,26 @@ model PracticeSession {
   status          PracticeSessionStatus @default(IN_PROGRESS)
   createdAt       DateTime              @default(now()) @map("created_at")
 
-  questionSet     InterviewQuestionSet  @relation(fields: [questionSetId], references: [id], onDelete: Cascade)
-  user            User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  answers         PracticeAnswer[]
+  questionSet InterviewQuestionSet @relation(fields: [questionSetId], references: [id], onDelete: Cascade)
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers     PracticeAnswer[]
 
   @@map("practice_sessions")
 }
 
 model PracticeAnswer {
-  id           String            @id @default(cuid())
-  sessionId    String            @map("session_id")
-  questionId   String            @map("question_id")
-  answer       String
-  score        Float?
-  feedback     String?
-  strengths    Json?
-  weaknesses   Json?
-  answeredAt   DateTime          @default(now()) @map("answered_at")
+  id         String   @id @default(cuid())
+  sessionId  String   @map("session_id")
+  questionId String   @map("question_id")
+  answer     String
+  score      Float?
+  feedback   String?
+  strengths  Json?
+  weaknesses Json?
+  answeredAt DateTime @default(now()) @map("answered_at")
 
-  session      PracticeSession   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  question     InterviewQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  session  PracticeSession   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  question InterviewQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@map("practice_answers")
 }

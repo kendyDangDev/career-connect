@@ -103,10 +103,14 @@ export async function authenticateUser(
       secret: process.env.NEXTAUTH_SECRET,
     });
 
-    if (nextAuthToken && nextAuthToken.id) {
+    const nextAuthUserId =
+      (typeof nextAuthToken?.id === 'string' ? nextAuthToken.id : undefined) ||
+      (typeof nextAuthToken?.sub === 'string' ? nextAuthToken.sub : undefined);
+
+    if (nextAuthToken && nextAuthUserId) {
       // Verify user exists in database
       const dbUser = await prisma.user.findUnique({
-        where: { id: nextAuthToken.id as string },
+        where: { id: nextAuthUserId },
         select: {
           id: true,
           email: true,

@@ -1,5 +1,38 @@
 import { CompanySize, VerificationStatus } from '@/generated/prisma';
 
+export interface CompanyPrimaryContact {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+}
+
+export interface CompanyUserSummary {
+  id: string;
+  role: string;
+  isPrimaryContact: boolean;
+  user: {
+    id: string;
+    email: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    phone?: string | null;
+  };
+}
+
+export interface CompanyStatistics {
+  totalJobs: number;
+  activeJobs: number;
+  totalApplications: number;
+  pendingApplications: number;
+  totalFollowers: number;
+  totalReviews: number;
+  averageRating: number;
+  totalViews: number;
+  viewsLastMonth: number;
+  primaryContact?: CompanyPrimaryContact;
+}
+
 export interface Company {
   id: string;
   companyName: string;
@@ -12,6 +45,8 @@ export interface Company {
   websiteUrl?: string | null;
   description?: string | null;
   logoUrl?: string | null;
+  businessLicenseUrl?: string | null;
+  verificationNotes?: string | null;
   coverImageUrl?: string | null;
   address?: string | null;
   city?: string | null;
@@ -27,7 +62,10 @@ export interface Company {
     companyUsers: number;
     jobs: number;
     companyFollowers: number;
+    companyReviews?: number;
   };
+  companyUsers?: CompanyUserSummary[];
+  stats?: CompanyStatistics;
 }
 
 export interface CompanyFormData {

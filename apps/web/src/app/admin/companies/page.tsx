@@ -3,6 +3,7 @@
 import React, { useState, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
+import { VerificationStatus } from '@/generated/prisma';
 import { CompaniesTable } from './components/CompaniesTable';
 import { CompanyFormDialog } from './components/CompanyFormDialog';
 import { CompanyDetailDialog } from './components/CompanyDetailDialog';
@@ -23,6 +24,8 @@ function CompaniesPageContent() {
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
   const [formLoading, setFormLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [verificationLoading, setVerificationLoading] = useState(false);
 
   // Parse URL params
   const page = parseInt(searchParams?.get('page') || '1');
@@ -46,7 +49,9 @@ function CompaniesPageContent() {
     handleSort,
     createCompany,
     updateCompany,
+    updateVerificationStatus,
     deleteCompany,
+    getCompany,
     refresh,
   } = useCompaniesData({
     page,
@@ -110,9 +115,21 @@ function CompaniesPageContent() {
     setIsFormDialogOpen(true);
   };
 
-  const handleView = (company: Company) => {
+  const handleView = async (company: Company) => {
     setSelectedCompany(company);
     setIsDetailDialogOpen(true);
+
+    try {
+      setDetailLoading(true);
+      const companyDetail = await getCompany(company.id);
+      if (companyDetail) {
+        setSelectedCompany(companyDetail);
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Khong the tai chi tiet cong ty');
+    } finally {
+      setDetailLoading(false);
+    }
   };
 
   const handleDelete = (company: Company) => {
@@ -152,6 +169,46 @@ function CompaniesPageContent() {
       } finally {
         setDeleteLoading(false);
       }
+    }
+  };
+
+  const handleVerificationChange = async (
+    verificationStatus: VerificationStatus,
+    verificationNotes?: string | null
+  ) => {
+    if (!selectedCompany) {
+      return;
+    }
+
+    if (
+      verificationStatus !== VerificationStatus.VERIFIED &&
+      verificationStatus !== VerificationStatus.REJECTED
+    ) {
+      return;
+    }
+
+    try {
+      setVerificationLoading(true);
+      const updatedCompany = await updateVerificationStatus(selectedCompany.id, {
+        verificationStatus,
+        verificationNotes,
+        notifyCompany: true,
+      });
+
+      if (updatedCompany) {
+        setSelectedCompany(updatedCompany);
+      }
+
+      refresh();
+      toast.success(
+        verificationStatus === 'VERIFIED'
+          ? 'Da duyet cong ty thanh cong'
+          : 'Da tu choi va luu ghi chu thanh cong'
+      );
+    } catch (error: any) {
+      toast.error(error.message || 'Cap nhat trang thai xac minh that bai');
+    } finally {
+      setVerificationLoading(false);
     }
   };
 
@@ -209,6 +266,9 @@ function CompaniesPageContent() {
           open={isDetailDialogOpen}
           onOpenChange={setIsDetailDialogOpen}
           company={selectedCompany}
+          loading={detailLoading}
+          verificationLoading={verificationLoading}
+          onVerificationChange={handleVerificationChange}
         />
 
         <DeleteConfirmDialog

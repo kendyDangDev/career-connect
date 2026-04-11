@@ -15,6 +15,11 @@ export interface UploadResult {
 export class UploadService {
   private static uploadDir = join(process.cwd(), "public", "uploads");
 
+  private static getFileExtension(fileName: string): string {
+    const fileNameSegments = fileName.toLowerCase().split('.');
+    return fileNameSegments.length > 1 ? `.${fileNameSegments.pop()}` : '';
+  }
+
   /**
    * Ensure upload directory exists
    */
@@ -281,6 +286,11 @@ export class UploadService {
         const publicId = cloudinaryService.extractPublicIdFromUrl(fileUrl);
         
         if (publicId) {
+          const deletedRawResource = await cloudinaryService.deleteCv(publicId);
+          if (deletedRawResource) {
+            return true;
+          }
+
           return await cloudinaryService.deleteImage(publicId);
         }
         
@@ -496,5 +506,72 @@ export class UploadService {
     }
 
     return { valid: true };
+  }
+
+  /**
+   * Validate business license / legal document before upload
+   */
+  static validateBusinessLicenseFile(file: File): { valid: boolean; error?: string } {
+    const extension = this.getFileExtension(file.name);
+
+    if (
+      !mediaConstraints.document.allowedTypes.includes(file.type) &&
+      !mediaConstraints.document.allowedExtensions.includes(extension)
+    ) {
+      return {
+        valid: false,
+        error: 'Invalid file format. Please upload a PDF, JPG, JPEG, or PNG file',
+      };
+    }
+
+    if (file.size > mediaConstraints.document.maxSize) {
+      return {
+        valid: false,
+        error: `File size must not exceed ${mediaConstraints.document.maxSize / 1024 / 1024}MB`,
+      };
+    }
+
+    return { valid: true };
+  }
+
+  /**
+   * Upload legal document for company verification
+   */
+  static async uploadBusinessLicense(file: File, companyId: string): Promise<UploadResult> {
+    try {
+      const validationResult = this.validateBusinessLicenseFile(file);
+      if (!validationResult.valid) {
+        return {
+          success: false,
+          error: validationResult.error,
+        };
+      }
+
+      const cloudinaryService = CloudinaryService.getInstance();
+      const uploadResult = await cloudinaryService.uploadCompanyDocument(
+        file,
+        companyId,
+        'business-license',
+        file.name
+      );
+
+      if (!uploadResult.success || !uploadResult.secureUrl) {
+        return {
+          success: false,
+          error: uploadResult.error || 'Failed to upload business license',
+        };
+      }
+
+      return {
+        success: true,
+        fileUrl: uploadResult.secureUrl,
+      };
+    } catch (error) {
+      console.error('Error uploading business license:', error);
+      return {
+        success: false,
+        error: 'Failed to upload business license',
+      };
+    }
   }
 }

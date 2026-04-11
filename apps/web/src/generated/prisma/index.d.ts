@@ -20594,6 +20594,7 @@ export namespace Prisma {
     description: string | null
     logoUrl: string | null
     coverImageUrl: string | null
+    businessLicenseUrl: string | null
     address: string | null
     city: string | null
     province: string | null
@@ -20602,6 +20603,7 @@ export namespace Prisma {
     email: string | null
     foundedYear: number | null
     verificationStatus: $Enums.VerificationStatus | null
+    verificationNotes: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -20616,6 +20618,7 @@ export namespace Prisma {
     description: string | null
     logoUrl: string | null
     coverImageUrl: string | null
+    businessLicenseUrl: string | null
     address: string | null
     city: string | null
     province: string | null
@@ -20624,6 +20627,7 @@ export namespace Prisma {
     email: string | null
     foundedYear: number | null
     verificationStatus: $Enums.VerificationStatus | null
+    verificationNotes: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -20638,6 +20642,7 @@ export namespace Prisma {
     description: number
     logoUrl: number
     coverImageUrl: number
+    businessLicenseUrl: number
     address: number
     city: number
     province: number
@@ -20646,6 +20651,7 @@ export namespace Prisma {
     email: number
     foundedYear: number
     verificationStatus: number
+    verificationNotes: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -20670,6 +20676,7 @@ export namespace Prisma {
     description?: true
     logoUrl?: true
     coverImageUrl?: true
+    businessLicenseUrl?: true
     address?: true
     city?: true
     province?: true
@@ -20678,6 +20685,7 @@ export namespace Prisma {
     email?: true
     foundedYear?: true
     verificationStatus?: true
+    verificationNotes?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -20692,6 +20700,7 @@ export namespace Prisma {
     description?: true
     logoUrl?: true
     coverImageUrl?: true
+    businessLicenseUrl?: true
     address?: true
     city?: true
     province?: true
@@ -20700,6 +20709,7 @@ export namespace Prisma {
     email?: true
     foundedYear?: true
     verificationStatus?: true
+    verificationNotes?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -20714,6 +20724,7 @@ export namespace Prisma {
     description?: true
     logoUrl?: true
     coverImageUrl?: true
+    businessLicenseUrl?: true
     address?: true
     city?: true
     province?: true
@@ -20722,6 +20733,7 @@ export namespace Prisma {
     email?: true
     foundedYear?: true
     verificationStatus?: true
+    verificationNotes?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -20823,6 +20835,7 @@ export namespace Prisma {
     description: string | null
     logoUrl: string | null
     coverImageUrl: string | null
+    businessLicenseUrl: string | null
     address: string | null
     city: string | null
     province: string | null
@@ -20831,6 +20844,7 @@ export namespace Prisma {
     email: string | null
     foundedYear: number | null
     verificationStatus: $Enums.VerificationStatus
+    verificationNotes: string | null
     createdAt: Date
     updatedAt: Date
     _count: CompanyCountAggregateOutputType | null
@@ -20864,6 +20878,7 @@ export namespace Prisma {
     description?: boolean
     logoUrl?: boolean
     coverImageUrl?: boolean
+    businessLicenseUrl?: boolean
     address?: boolean
     city?: boolean
     province?: boolean
@@ -20872,6 +20887,7 @@ export namespace Prisma {
     email?: boolean
     foundedYear?: boolean
     verificationStatus?: boolean
+    verificationNotes?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     industry?: boolean | Company$industryArgs<ExtArgs>
@@ -20893,6 +20909,7 @@ export namespace Prisma {
     description?: boolean
     logoUrl?: boolean
     coverImageUrl?: boolean
+    businessLicenseUrl?: boolean
     address?: boolean
     city?: boolean
     province?: boolean
@@ -20901,6 +20918,7 @@ export namespace Prisma {
     email?: boolean
     foundedYear?: boolean
     verificationStatus?: boolean
+    verificationNotes?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     industry?: boolean | Company$industryArgs<ExtArgs>
@@ -20916,6 +20934,7 @@ export namespace Prisma {
     description?: boolean
     logoUrl?: boolean
     coverImageUrl?: boolean
+    businessLicenseUrl?: boolean
     address?: boolean
     city?: boolean
     province?: boolean
@@ -20924,6 +20943,7 @@ export namespace Prisma {
     email?: boolean
     foundedYear?: boolean
     verificationStatus?: boolean
+    verificationNotes?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     industry?: boolean | Company$industryArgs<ExtArgs>
@@ -20939,6 +20959,7 @@ export namespace Prisma {
     description?: boolean
     logoUrl?: boolean
     coverImageUrl?: boolean
+    businessLicenseUrl?: boolean
     address?: boolean
     city?: boolean
     province?: boolean
@@ -20947,11 +20968,12 @@ export namespace Prisma {
     email?: boolean
     foundedYear?: boolean
     verificationStatus?: boolean
+    verificationNotes?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CompanyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyName" | "companySlug" | "industryId" | "companySize" | "websiteUrl" | "description" | "logoUrl" | "coverImageUrl" | "address" | "city" | "province" | "country" | "phone" | "email" | "foundedYear" | "verificationStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["company"]>
+  export type CompanyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "companyName" | "companySlug" | "industryId" | "companySize" | "websiteUrl" | "description" | "logoUrl" | "coverImageUrl" | "businessLicenseUrl" | "address" | "city" | "province" | "country" | "phone" | "email" | "foundedYear" | "verificationStatus" | "verificationNotes" | "createdAt" | "updatedAt", ExtArgs["result"]["company"]>
   export type CompanyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     industry?: boolean | Company$industryArgs<ExtArgs>
     companyFollowers?: boolean | Company$companyFollowersArgs<ExtArgs>
@@ -20988,6 +21010,7 @@ export namespace Prisma {
       description: string | null
       logoUrl: string | null
       coverImageUrl: string | null
+      businessLicenseUrl: string | null
       address: string | null
       city: string | null
       province: string | null
@@ -20996,6 +21019,7 @@ export namespace Prisma {
       email: string | null
       foundedYear: number | null
       verificationStatus: $Enums.VerificationStatus
+      verificationNotes: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["company"]>
@@ -21436,6 +21460,7 @@ export namespace Prisma {
     readonly description: FieldRef<"Company", 'String'>
     readonly logoUrl: FieldRef<"Company", 'String'>
     readonly coverImageUrl: FieldRef<"Company", 'String'>
+    readonly businessLicenseUrl: FieldRef<"Company", 'String'>
     readonly address: FieldRef<"Company", 'String'>
     readonly city: FieldRef<"Company", 'String'>
     readonly province: FieldRef<"Company", 'String'>
@@ -21444,6 +21469,7 @@ export namespace Prisma {
     readonly email: FieldRef<"Company", 'String'>
     readonly foundedYear: FieldRef<"Company", 'Int'>
     readonly verificationStatus: FieldRef<"Company", 'VerificationStatus'>
+    readonly verificationNotes: FieldRef<"Company", 'String'>
     readonly createdAt: FieldRef<"Company", 'DateTime'>
     readonly updatedAt: FieldRef<"Company", 'DateTime'>
   }
@@ -59146,6 +59172,7 @@ export namespace Prisma {
     description: 'description',
     logoUrl: 'logoUrl',
     coverImageUrl: 'coverImageUrl',
+    businessLicenseUrl: 'businessLicenseUrl',
     address: 'address',
     city: 'city',
     province: 'province',
@@ -59154,6 +59181,7 @@ export namespace Prisma {
     email: 'email',
     foundedYear: 'foundedYear',
     verificationStatus: 'verificationStatus',
+    verificationNotes: 'verificationNotes',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -61260,6 +61288,7 @@ export namespace Prisma {
     description?: StringNullableFilter<"Company"> | string | null
     logoUrl?: StringNullableFilter<"Company"> | string | null
     coverImageUrl?: StringNullableFilter<"Company"> | string | null
+    businessLicenseUrl?: StringNullableFilter<"Company"> | string | null
     address?: StringNullableFilter<"Company"> | string | null
     city?: StringNullableFilter<"Company"> | string | null
     province?: StringNullableFilter<"Company"> | string | null
@@ -61268,6 +61297,7 @@ export namespace Prisma {
     email?: StringNullableFilter<"Company"> | string | null
     foundedYear?: IntNullableFilter<"Company"> | number | null
     verificationStatus?: EnumVerificationStatusFilter<"Company"> | $Enums.VerificationStatus
+    verificationNotes?: StringNullableFilter<"Company"> | string | null
     createdAt?: DateTimeFilter<"Company"> | Date | string
     updatedAt?: DateTimeFilter<"Company"> | Date | string
     industry?: XOR<IndustryNullableScalarRelationFilter, IndustryWhereInput> | null
@@ -61288,6 +61318,7 @@ export namespace Prisma {
     description?: SortOrderInput | SortOrder
     logoUrl?: SortOrderInput | SortOrder
     coverImageUrl?: SortOrderInput | SortOrder
+    businessLicenseUrl?: SortOrderInput | SortOrder
     address?: SortOrderInput | SortOrder
     city?: SortOrderInput | SortOrder
     province?: SortOrderInput | SortOrder
@@ -61296,6 +61327,7 @@ export namespace Prisma {
     email?: SortOrderInput | SortOrder
     foundedYear?: SortOrderInput | SortOrder
     verificationStatus?: SortOrder
+    verificationNotes?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     industry?: IndustryOrderByWithRelationInput
@@ -61319,6 +61351,7 @@ export namespace Prisma {
     description?: StringNullableFilter<"Company"> | string | null
     logoUrl?: StringNullableFilter<"Company"> | string | null
     coverImageUrl?: StringNullableFilter<"Company"> | string | null
+    businessLicenseUrl?: StringNullableFilter<"Company"> | string | null
     address?: StringNullableFilter<"Company"> | string | null
     city?: StringNullableFilter<"Company"> | string | null
     province?: StringNullableFilter<"Company"> | string | null
@@ -61327,6 +61360,7 @@ export namespace Prisma {
     email?: StringNullableFilter<"Company"> | string | null
     foundedYear?: IntNullableFilter<"Company"> | number | null
     verificationStatus?: EnumVerificationStatusFilter<"Company"> | $Enums.VerificationStatus
+    verificationNotes?: StringNullableFilter<"Company"> | string | null
     createdAt?: DateTimeFilter<"Company"> | Date | string
     updatedAt?: DateTimeFilter<"Company"> | Date | string
     industry?: XOR<IndustryNullableScalarRelationFilter, IndustryWhereInput> | null
@@ -61347,6 +61381,7 @@ export namespace Prisma {
     description?: SortOrderInput | SortOrder
     logoUrl?: SortOrderInput | SortOrder
     coverImageUrl?: SortOrderInput | SortOrder
+    businessLicenseUrl?: SortOrderInput | SortOrder
     address?: SortOrderInput | SortOrder
     city?: SortOrderInput | SortOrder
     province?: SortOrderInput | SortOrder
@@ -61355,6 +61390,7 @@ export namespace Prisma {
     email?: SortOrderInput | SortOrder
     foundedYear?: SortOrderInput | SortOrder
     verificationStatus?: SortOrder
+    verificationNotes?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: CompanyCountOrderByAggregateInput
@@ -61377,6 +61413,7 @@ export namespace Prisma {
     description?: StringNullableWithAggregatesFilter<"Company"> | string | null
     logoUrl?: StringNullableWithAggregatesFilter<"Company"> | string | null
     coverImageUrl?: StringNullableWithAggregatesFilter<"Company"> | string | null
+    businessLicenseUrl?: StringNullableWithAggregatesFilter<"Company"> | string | null
     address?: StringNullableWithAggregatesFilter<"Company"> | string | null
     city?: StringNullableWithAggregatesFilter<"Company"> | string | null
     province?: StringNullableWithAggregatesFilter<"Company"> | string | null
@@ -61385,6 +61422,7 @@ export namespace Prisma {
     email?: StringNullableWithAggregatesFilter<"Company"> | string | null
     foundedYear?: IntNullableWithAggregatesFilter<"Company"> | number | null
     verificationStatus?: EnumVerificationStatusWithAggregatesFilter<"Company"> | $Enums.VerificationStatus
+    verificationNotes?: StringNullableWithAggregatesFilter<"Company"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Company"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Company"> | Date | string
   }
@@ -65101,6 +65139,7 @@ export namespace Prisma {
     description?: string | null
     logoUrl?: string | null
     coverImageUrl?: string | null
+    businessLicenseUrl?: string | null
     address?: string | null
     city?: string | null
     province?: string | null
@@ -65109,6 +65148,7 @@ export namespace Prisma {
     email?: string | null
     foundedYear?: number | null
     verificationStatus?: $Enums.VerificationStatus
+    verificationNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     industry?: IndustryCreateNestedOneWithoutCompaniesInput
@@ -65129,6 +65169,7 @@ export namespace Prisma {
     description?: string | null
     logoUrl?: string | null
     coverImageUrl?: string | null
+    businessLicenseUrl?: string | null
     address?: string | null
     city?: string | null
     province?: string | null
@@ -65137,6 +65178,7 @@ export namespace Prisma {
     email?: string | null
     foundedYear?: number | null
     verificationStatus?: $Enums.VerificationStatus
+    verificationNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     companyFollowers?: CompanyFollowerUncheckedCreateNestedManyWithoutCompanyInput
@@ -65155,6 +65197,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    businessLicenseUrl?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
@@ -65163,6 +65206,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    verificationNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     industry?: IndustryUpdateOneWithoutCompaniesNestedInput
@@ -65183,6 +65227,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    businessLicenseUrl?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
@@ -65191,6 +65236,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    verificationNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     companyFollowers?: CompanyFollowerUncheckedUpdateManyWithoutCompanyNestedInput
@@ -65210,6 +65256,7 @@ export namespace Prisma {
     description?: string | null
     logoUrl?: string | null
     coverImageUrl?: string | null
+    businessLicenseUrl?: string | null
     address?: string | null
     city?: string | null
     province?: string | null
@@ -65218,6 +65265,7 @@ export namespace Prisma {
     email?: string | null
     foundedYear?: number | null
     verificationStatus?: $Enums.VerificationStatus
+    verificationNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -65231,6 +65279,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    businessLicenseUrl?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
@@ -65239,6 +65288,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    verificationNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -65253,6 +65303,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    businessLicenseUrl?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
@@ -65261,6 +65312,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    verificationNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -69196,6 +69248,7 @@ export namespace Prisma {
     description?: SortOrder
     logoUrl?: SortOrder
     coverImageUrl?: SortOrder
+    businessLicenseUrl?: SortOrder
     address?: SortOrder
     city?: SortOrder
     province?: SortOrder
@@ -69204,6 +69257,7 @@ export namespace Prisma {
     email?: SortOrder
     foundedYear?: SortOrder
     verificationStatus?: SortOrder
+    verificationNotes?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -69222,6 +69276,7 @@ export namespace Prisma {
     description?: SortOrder
     logoUrl?: SortOrder
     coverImageUrl?: SortOrder
+    businessLicenseUrl?: SortOrder
     address?: SortOrder
     city?: SortOrder
     province?: SortOrder
@@ -69230,6 +69285,7 @@ export namespace Prisma {
     email?: SortOrder
     foundedYear?: SortOrder
     verificationStatus?: SortOrder
+    verificationNotes?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -69244,6 +69300,7 @@ export namespace Prisma {
     description?: SortOrder
     logoUrl?: SortOrder
     coverImageUrl?: SortOrder
+    businessLicenseUrl?: SortOrder
     address?: SortOrder
     city?: SortOrder
     province?: SortOrder
@@ -69252,6 +69309,7 @@ export namespace Prisma {
     email?: SortOrder
     foundedYear?: SortOrder
     verificationStatus?: SortOrder
+    verificationNotes?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -79727,6 +79785,7 @@ export namespace Prisma {
     description?: string | null
     logoUrl?: string | null
     coverImageUrl?: string | null
+    businessLicenseUrl?: string | null
     address?: string | null
     city?: string | null
     province?: string | null
@@ -79735,6 +79794,7 @@ export namespace Prisma {
     email?: string | null
     foundedYear?: number | null
     verificationStatus?: $Enums.VerificationStatus
+    verificationNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     industry?: IndustryCreateNestedOneWithoutCompaniesInput
@@ -79754,6 +79814,7 @@ export namespace Prisma {
     description?: string | null
     logoUrl?: string | null
     coverImageUrl?: string | null
+    businessLicenseUrl?: string | null
     address?: string | null
     city?: string | null
     province?: string | null
@@ -79762,6 +79823,7 @@ export namespace Prisma {
     email?: string | null
     foundedYear?: number | null
     verificationStatus?: $Enums.VerificationStatus
+    verificationNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     companyFollowers?: CompanyFollowerUncheckedCreateNestedManyWithoutCompanyInput
@@ -79874,6 +79936,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    businessLicenseUrl?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
@@ -79882,6 +79945,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    verificationNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     industry?: IndustryUpdateOneWithoutCompaniesNestedInput
@@ -79901,6 +79965,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    businessLicenseUrl?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
@@ -79909,6 +79974,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    verificationNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     companyFollowers?: CompanyFollowerUncheckedUpdateManyWithoutCompanyNestedInput
@@ -80171,6 +80237,7 @@ export namespace Prisma {
     description?: string | null
     logoUrl?: string | null
     coverImageUrl?: string | null
+    businessLicenseUrl?: string | null
     address?: string | null
     city?: string | null
     province?: string | null
@@ -80179,6 +80246,7 @@ export namespace Prisma {
     email?: string | null
     foundedYear?: number | null
     verificationStatus?: $Enums.VerificationStatus
+    verificationNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     industry?: IndustryCreateNestedOneWithoutCompaniesInput
@@ -80198,6 +80266,7 @@ export namespace Prisma {
     description?: string | null
     logoUrl?: string | null
     coverImageUrl?: string | null
+    businessLicenseUrl?: string | null
     address?: string | null
     city?: string | null
     province?: string | null
@@ -80206,6 +80275,7 @@ export namespace Prisma {
     email?: string | null
     foundedYear?: number | null
     verificationStatus?: $Enums.VerificationStatus
+    verificationNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     companyFollowers?: CompanyFollowerUncheckedCreateNestedManyWithoutCompanyInput
@@ -80524,6 +80594,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    businessLicenseUrl?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
@@ -80532,6 +80603,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    verificationNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     industry?: IndustryUpdateOneWithoutCompaniesNestedInput
@@ -80551,6 +80623,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    businessLicenseUrl?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
@@ -80559,6 +80632,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    verificationNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     companyFollowers?: CompanyFollowerUncheckedUpdateManyWithoutCompanyNestedInput
@@ -82283,6 +82357,7 @@ export namespace Prisma {
     description?: string | null
     logoUrl?: string | null
     coverImageUrl?: string | null
+    businessLicenseUrl?: string | null
     address?: string | null
     city?: string | null
     province?: string | null
@@ -82291,6 +82366,7 @@ export namespace Prisma {
     email?: string | null
     foundedYear?: number | null
     verificationStatus?: $Enums.VerificationStatus
+    verificationNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     companyFollowers?: CompanyFollowerCreateNestedManyWithoutCompanyInput
@@ -82309,6 +82385,7 @@ export namespace Prisma {
     description?: string | null
     logoUrl?: string | null
     coverImageUrl?: string | null
+    businessLicenseUrl?: string | null
     address?: string | null
     city?: string | null
     province?: string | null
@@ -82317,6 +82394,7 @@ export namespace Prisma {
     email?: string | null
     foundedYear?: number | null
     verificationStatus?: $Enums.VerificationStatus
+    verificationNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     companyFollowers?: CompanyFollowerUncheckedCreateNestedManyWithoutCompanyInput
@@ -82365,6 +82443,7 @@ export namespace Prisma {
     description?: StringNullableFilter<"Company"> | string | null
     logoUrl?: StringNullableFilter<"Company"> | string | null
     coverImageUrl?: StringNullableFilter<"Company"> | string | null
+    businessLicenseUrl?: StringNullableFilter<"Company"> | string | null
     address?: StringNullableFilter<"Company"> | string | null
     city?: StringNullableFilter<"Company"> | string | null
     province?: StringNullableFilter<"Company"> | string | null
@@ -82373,6 +82452,7 @@ export namespace Prisma {
     email?: StringNullableFilter<"Company"> | string | null
     foundedYear?: IntNullableFilter<"Company"> | number | null
     verificationStatus?: EnumVerificationStatusFilter<"Company"> | $Enums.VerificationStatus
+    verificationNotes?: StringNullableFilter<"Company"> | string | null
     createdAt?: DateTimeFilter<"Company"> | Date | string
     updatedAt?: DateTimeFilter<"Company"> | Date | string
   }
@@ -83537,6 +83617,7 @@ export namespace Prisma {
     description?: string | null
     logoUrl?: string | null
     coverImageUrl?: string | null
+    businessLicenseUrl?: string | null
     address?: string | null
     city?: string | null
     province?: string | null
@@ -83545,6 +83626,7 @@ export namespace Prisma {
     email?: string | null
     foundedYear?: number | null
     verificationStatus?: $Enums.VerificationStatus
+    verificationNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     industry?: IndustryCreateNestedOneWithoutCompaniesInput
@@ -83564,6 +83646,7 @@ export namespace Prisma {
     description?: string | null
     logoUrl?: string | null
     coverImageUrl?: string | null
+    businessLicenseUrl?: string | null
     address?: string | null
     city?: string | null
     province?: string | null
@@ -83572,6 +83655,7 @@ export namespace Prisma {
     email?: string | null
     foundedYear?: number | null
     verificationStatus?: $Enums.VerificationStatus
+    verificationNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     companyReviews?: CompanyReviewUncheckedCreateNestedManyWithoutCompanyInput
@@ -83668,6 +83752,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    businessLicenseUrl?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
@@ -83676,6 +83761,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    verificationNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     industry?: IndustryUpdateOneWithoutCompaniesNestedInput
@@ -83695,6 +83781,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    businessLicenseUrl?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
@@ -83703,6 +83790,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    verificationNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     companyReviews?: CompanyReviewUncheckedUpdateManyWithoutCompanyNestedInput
@@ -83840,6 +83928,7 @@ export namespace Prisma {
     description?: string | null
     logoUrl?: string | null
     coverImageUrl?: string | null
+    businessLicenseUrl?: string | null
     address?: string | null
     city?: string | null
     province?: string | null
@@ -83848,6 +83937,7 @@ export namespace Prisma {
     email?: string | null
     foundedYear?: number | null
     verificationStatus?: $Enums.VerificationStatus
+    verificationNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     industry?: IndustryCreateNestedOneWithoutCompaniesInput
@@ -83867,6 +83957,7 @@ export namespace Prisma {
     description?: string | null
     logoUrl?: string | null
     coverImageUrl?: string | null
+    businessLicenseUrl?: string | null
     address?: string | null
     city?: string | null
     province?: string | null
@@ -83875,6 +83966,7 @@ export namespace Prisma {
     email?: string | null
     foundedYear?: number | null
     verificationStatus?: $Enums.VerificationStatus
+    verificationNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     companyFollowers?: CompanyFollowerUncheckedCreateNestedManyWithoutCompanyInput
@@ -83987,6 +84079,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    businessLicenseUrl?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
@@ -83995,6 +84088,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    verificationNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     industry?: IndustryUpdateOneWithoutCompaniesNestedInput
@@ -84014,6 +84108,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    businessLicenseUrl?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
@@ -84022,6 +84117,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    verificationNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     companyFollowers?: CompanyFollowerUncheckedUpdateManyWithoutCompanyNestedInput
@@ -84124,6 +84220,7 @@ export namespace Prisma {
     description?: string | null
     logoUrl?: string | null
     coverImageUrl?: string | null
+    businessLicenseUrl?: string | null
     address?: string | null
     city?: string | null
     province?: string | null
@@ -84132,6 +84229,7 @@ export namespace Prisma {
     email?: string | null
     foundedYear?: number | null
     verificationStatus?: $Enums.VerificationStatus
+    verificationNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     industry?: IndustryCreateNestedOneWithoutCompaniesInput
@@ -84151,6 +84249,7 @@ export namespace Prisma {
     description?: string | null
     logoUrl?: string | null
     coverImageUrl?: string | null
+    businessLicenseUrl?: string | null
     address?: string | null
     city?: string | null
     province?: string | null
@@ -84159,6 +84258,7 @@ export namespace Prisma {
     email?: string | null
     foundedYear?: number | null
     verificationStatus?: $Enums.VerificationStatus
+    verificationNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     companyFollowers?: CompanyFollowerUncheckedCreateNestedManyWithoutCompanyInput
@@ -84354,6 +84454,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    businessLicenseUrl?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
@@ -84362,6 +84463,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    verificationNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     industry?: IndustryUpdateOneWithoutCompaniesNestedInput
@@ -84381,6 +84483,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    businessLicenseUrl?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
@@ -84389,6 +84492,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    verificationNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     companyFollowers?: CompanyFollowerUncheckedUpdateManyWithoutCompanyNestedInput
@@ -90050,6 +90154,7 @@ export namespace Prisma {
     description?: string | null
     logoUrl?: string | null
     coverImageUrl?: string | null
+    businessLicenseUrl?: string | null
     address?: string | null
     city?: string | null
     province?: string | null
@@ -90058,6 +90163,7 @@ export namespace Prisma {
     email?: string | null
     foundedYear?: number | null
     verificationStatus?: $Enums.VerificationStatus
+    verificationNotes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -90071,6 +90177,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    businessLicenseUrl?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
@@ -90079,6 +90186,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    verificationNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     companyFollowers?: CompanyFollowerUpdateManyWithoutCompanyNestedInput
@@ -90097,6 +90205,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    businessLicenseUrl?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
@@ -90105,6 +90214,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    verificationNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     companyFollowers?: CompanyFollowerUncheckedUpdateManyWithoutCompanyNestedInput
@@ -90123,6 +90233,7 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    businessLicenseUrl?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     province?: NullableStringFieldUpdateOperationsInput | string | null
@@ -90131,6 +90242,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     foundedYear?: NullableIntFieldUpdateOperationsInput | number | null
     verificationStatus?: EnumVerificationStatusFieldUpdateOperationsInput | $Enums.VerificationStatus
+    verificationNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

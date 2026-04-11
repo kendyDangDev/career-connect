@@ -6,7 +6,7 @@ import type {
   CvOptimizationSuggestion,
 } from '@/types/candidate/cv-optimization.types';
 
-const GEMINI_MODEL = 'gemini-2.5-flash-lite';
+const GEMINI_MODEL = 'gemini-3.1-flash-lite';
 
 const suggestionSchema = z.object({
   title: z.preprocess(

@@ -5,6 +5,7 @@ import {
   CompaniesResponse,
   CompanyResponse,
   CompaniesQuery,
+  CompanyVerificationPayload,
 } from '@/types/company-admin.types';
 
 /**
@@ -54,6 +55,23 @@ export const companyAdminApi = {
     const { data } = await axiosInstance.put<CompanyResponse>(
       `/api/admin/companies/${id}`,
       companyData
+    );
+    return data;
+  },
+
+  /**
+   * Update company verification status
+   * @param id - Company ID
+   * @param payload - Verification data
+   * @returns Updated company detail
+   */
+  updateVerificationStatus: async (
+    id: string,
+    payload: CompanyVerificationPayload
+  ): Promise<CompanyResponse> => {
+    const { data } = await axiosInstance.patch<CompanyResponse>(
+      `/api/admin/companies/${id}/status`,
+      payload
     );
     return data;
   },

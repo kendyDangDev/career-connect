@@ -150,5 +150,10 @@ export const mediaConstraints = {
     maxSize: 10 * 1024 * 1024, // 10MB per image
     maxFiles: 20,
     allowedTypes: ['image/jpeg', 'image/png', 'image/webp']
+  },
+  document: {
+    maxSize: 5 * 1024 * 1024, // 5MB
+    allowedTypes: ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'],
+    allowedExtensions: ['.pdf', '.jpg', '.jpeg', '.png']
   }
 };

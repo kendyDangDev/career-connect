@@ -282,6 +282,7 @@ exports.Prisma.CompanyScalarFieldEnum = {
   description: 'description',
   logoUrl: 'logoUrl',
   coverImageUrl: 'coverImageUrl',
+  businessLicenseUrl: 'businessLicenseUrl',
   address: 'address',
   city: 'city',
   province: 'province',
@@ -290,6 +291,7 @@ exports.Prisma.CompanyScalarFieldEnum = {
   email: 'email',
   foundedYear: 'foundedYear',
   verificationStatus: 'verificationStatus',
+  verificationNotes: 'verificationNotes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

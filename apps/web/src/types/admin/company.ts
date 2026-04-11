@@ -157,7 +157,7 @@ export interface BulkCompanyOperation {
 // Company verification DTO
 export interface CompanyVerificationDTO {
   verificationStatus: VerificationStatus;
-  verificationNotes?: string;
+  verificationNotes?: string | null;
   notifyCompany?: boolean;
 }
 

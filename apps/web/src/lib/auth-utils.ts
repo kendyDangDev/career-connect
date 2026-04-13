@@ -4,9 +4,25 @@ import jwt from 'jsonwebtoken';
 import { Resend } from 'resend';
 import { Twilio } from 'twilio';
 
-// Initialize services
-const resend = new Resend(process.env.RESEND_API_KEY);
-const twilio = new Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+function getResendClient(): Resend {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error('RESEND_API_KEY is not configured');
+  }
+
+  return new Resend(apiKey);
+}
+
+function getTwilioClient(): Twilio {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+
+  if (!accountSid || !authToken) {
+    throw new Error('TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN must be configured');
+  }
+
+  return new Twilio(accountSid, authToken);
+}
 
 // Password utilities
 export async function hashPassword(password: string): Promise<string> {
@@ -53,7 +69,7 @@ export async function sendVerificationEmail(
 ): Promise<void> {
   const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify-email?token=${token}`;
 
-  await resend.emails.send({
+  await getResendClient().emails.send({
     from: process.env.FROM_EMAIL || 'Career Connect <noreply@career-connect.com>',
     to: email,
     subject: 'Xác thực tài khoản Career Connect',
@@ -74,11 +90,11 @@ export async function sendVerificationEmail(
           <h2 style="color: #111827; font-size: 24px; margin-bottom: 20px; text-align: center;">
             Xác thực tài khoản của bạn
           </h2>
-          
+
           <p style="color: #374151; line-height: 1.6; font-size: 16px;">
             Xin chào <strong>${firstName || 'bạn'}</strong>,
           </p>
-          
+
           <p style="color: #374151; line-height: 1.6; font-size: 16px;">
             Cảm ơn bạn đã đăng ký tài khoản tại Career Connect. Để hoàn tất quá trình đăng ký, vui lòng click vào nút bên dưới để xác thực email của bạn:
           </p>
@@ -104,11 +120,11 @@ export async function sendVerificationEmail(
           </div>
 
           <hr style="margin: 40px 0; border: none; border-top: 1px solid #e5e7eb;">
-          
+
           <p style="color: #6b7280; font-size: 12px; text-align: center; line-height: 1.5;">
             Nếu bạn không tạo tài khoản này, vui lòng bỏ qua email này.<br>
             Cần hỗ trợ? Liên hệ: <a href="mailto:support@career-connect.com" style="color: #2563eb;">support@career-connect.com</a><br>
-            © 2025 Career Connect. All rights reserved.
+            © 2026 Career Connect. All rights reserved.
           </p>
         </div>
       </div>
@@ -126,7 +142,7 @@ export async function sendVerificationEmailWithCode(
 ): Promise<void> {
   const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify-email?token=${token}`;
 
-  await resend.emails.send({
+  await getResendClient().emails.send({
     from: process.env.FROM_EMAIL || 'Career Connect <noreply@career-connect.com>',
     to: email,
     subject: 'Mã xác thực tài khoản Career Connect',
@@ -147,11 +163,11 @@ export async function sendVerificationEmailWithCode(
           <h2 style="color: #111827; font-size: 24px; margin-bottom: 20px; text-align: center;">
             🔐 Mã xác thực tài khoản
           </h2>
-          
+
           <p style="color: #374151; line-height: 1.6; font-size: 16px;">
             Xin chào <strong>${firstName || 'bạn'}</strong>,
           </p>
-          
+
           <p style="color: #374151; line-height: 1.6; font-size: 16px;">
             Cảm ơn bạn đã đăng ký tài khoản tại Career Connect. Sử dụng mã xác thực bên dưới để hoàn tất quá trình đăng ký:
           </p>
@@ -197,11 +213,11 @@ export async function sendVerificationEmailWithCode(
           </div>
 
           <hr style="margin: 40px 0; border: none; border-top: 1px solid #e5e7eb;">
-          
+
           <p style="color: #6b7280; font-size: 12px; text-align: center; line-height: 1.5;">
             Bạn nhận được email này vì đã đăng ký tài khoản tại Career Connect.<br>
             Cần hỗ trợ? Liên hệ: <a href="mailto:support@career-connect.com" style="color: #2563eb;">support@career-connect.com</a> | Hotline: 1900-1234<br>
-            © 2025 Career Connect. All rights reserved.
+            © 2026 Career Connect. All rights reserved.
           </p>
         </div>
       </div>
@@ -217,7 +233,7 @@ export async function sendPasswordResetEmail(
 ): Promise<void> {
   const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password?token=${token}`;
 
-  await resend.emails.send({
+  await getResendClient().emails.send({
     from: process.env.FROM_EMAIL || 'no-reply@career-connect.com',
     to: email,
     subject: 'Đặt lại mật khẩu Career Connect',
@@ -226,24 +242,24 @@ export async function sendPasswordResetEmail(
         <h2 style="color: #dc2626;">Đặt lại mật khẩu</h2>
         <p>Xin chào ${firstName || ''},</p>
         <p>Bạn đã yêu cầu đặt lại mật khẩu cho tài khoản Career Connect của mình. Click vào nút bên dưới để tạo mật khẩu mới:</p>
-        
+
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${resetUrl}" 
+          <a href="${resetUrl}"
              style="background-color: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
             Đặt lại mật khẩu
           </a>
         </div>
-        
+
         <p>Hoặc copy và paste link sau vào trình duyệt:</p>
         <p style="word-break: break-all; color: #6b7280;">${resetUrl}</p>
-        
+
         <p>Link này sẽ hết hạn sau 1 giờ.</p>
-        
+
         <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
         <p style="color: #6b7280; font-size: 14px;">
           Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.
           <br>
-          © 2025 Career Connect. All rights reserved.
+          © 2026 Career Connect. All rights reserved.
         </p>
       </div>
     `,
@@ -254,7 +270,7 @@ export async function sendPasswordResetEmail(
 export async function sendPhoneVerificationSMS(phone: string, token: string): Promise<void> {
   const message = `Mã xác thực Career Connect của bạn là: ${token}. Mã này có hiệu lực trong 10 phút.`;
 
-  await twilio.messages.create({
+  await getTwilioClient().messages.create({
     body: message,
     from: process.env.TWILIO_PHONE_NUMBER,
     to: phone,

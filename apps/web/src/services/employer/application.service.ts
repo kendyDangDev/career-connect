@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import { Prisma, ApplicationStatus } from '@/generated/prisma';
+import { emailService } from '@/lib/services/email.service';
 import {
+  ApplicationEmailNotificationResult,
   ApplicationListItem,
   ApplicationDetail,
   ApplicationListResponse,
@@ -11,6 +13,7 @@ import {
   AddApplicationNoteDTO,
   ApplicationFilterCriteria,
   ScoringConfig,
+  UpdateApplicationStatusResult,
 } from '@/types/employer/application';
 import {
   calculateMatchScore,
@@ -340,13 +343,39 @@ export class EmployerApplicationService {
     companyId: string,
     userId: string,
     data: UpdateApplicationStatusDTO
-  ): Promise<boolean> {
-    // Verify application belongs to company
+  ): Promise<UpdateApplicationStatusResult> {
     const application = await prisma.application.findFirst({
       where: {
         id: applicationId,
         job: {
           companyId,
+        },
+      },
+      select: {
+        id: true,
+        status: true,
+        recruiterNotes: true,
+        interviewScheduledAt: true,
+        candidate: {
+          select: {
+            user: {
+              select: {
+                email: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+        job: {
+          select: {
+            title: true,
+            company: {
+              select: {
+                companyName: true,
+              },
+            },
+          },
         },
       },
     });
@@ -355,9 +384,32 @@ export class EmployerApplicationService {
       throw new Error('Application not found or access denied');
     }
 
-    // Update application in transaction
+    let parsedInterviewScheduledAt: Date | undefined;
+
+    if (data.interviewScheduledAt !== undefined) {
+      parsedInterviewScheduledAt =
+        data.interviewScheduledAt instanceof Date
+          ? data.interviewScheduledAt
+          : new Date(data.interviewScheduledAt);
+
+      if (Number.isNaN(parsedInterviewScheduledAt.getTime())) {
+        throw new Error('Interview schedule must be a valid date');
+      }
+
+      if (parsedInterviewScheduledAt.getTime() <= Date.now()) {
+        throw new Error('Interview schedule must be in the future');
+      }
+    }
+
+    if (
+      data.status === ApplicationStatus.INTERVIEWING &&
+      application.status !== ApplicationStatus.INTERVIEWING &&
+      !parsedInterviewScheduledAt
+    ) {
+      throw new Error('Interview schedule is required when moving application to INTERVIEWING');
+    }
+
     await prisma.$transaction(async (tx) => {
-      // Prepare update data - only include fields that are provided
       const updatePayload: Prisma.ApplicationUpdateInput = {
         statusUpdatedAt: new Date(),
       };
@@ -371,23 +423,19 @@ export class EmployerApplicationService {
       }
 
       if (data.notes !== undefined) {
-        // Append notes if there are existing notes, otherwise just set the new notes
-        updatePayload.recruiterNotes = application.recruiterNotes
-          ? `${application.recruiterNotes}\n\n${data.notes}`
-          : data.notes;
+        const normalizedNote = data.notes.trim();
+        updatePayload.recruiterNotes = normalizedNote.length > 0 ? normalizedNote : null;
       }
 
-      if (data.interviewScheduledAt !== undefined) {
-        updatePayload.interviewScheduledAt = new Date(data.interviewScheduledAt);
+      if (parsedInterviewScheduledAt !== undefined) {
+        updatePayload.interviewScheduledAt = parsedInterviewScheduledAt;
       }
 
-      // Update application
       await tx.application.update({
         where: { id: applicationId },
         data: updatePayload,
       });
 
-      // Only add to timeline if status is changed
       if (data.status !== undefined) {
         await tx.applicationTimeline.create({
           data: {
@@ -400,16 +448,46 @@ export class EmployerApplicationService {
       }
     });
 
-    // TODO: Send notification to candidate if requested
-    if (data.notifyCandidate) {
-      // Implement notification logic
+    const emailNotification: ApplicationEmailNotificationResult = {
+      attempted: false,
+      sent: false,
+    };
+
+    if (data.notifyCandidate && parsedInterviewScheduledAt) {
+      emailNotification.attempted = true;
+
+      const candidateName =
+        `${application.candidate.user.firstName || ''} ${
+          application.candidate.user.lastName || ''
+        }`.trim() || application.candidate.user.email.split('@')[0];
+
+      try {
+        await emailService.sendInterviewInvitationEmail({
+          email: application.candidate.user.email,
+          candidateName,
+          companyName: application.job.company.companyName,
+          jobTitle: application.job.title,
+          interviewScheduledAt: parsedInterviewScheduledAt,
+          isRescheduled:
+            application.status === ApplicationStatus.INTERVIEWING ||
+            Boolean(application.interviewScheduledAt),
+        });
+
+        emailNotification.sent = true;
+      } catch (error) {
+        console.error('Error sending interview invitation email:', error);
+        emailNotification.warning = 'Không thể gửi email mời phỏng vấn cho ứng viên.';
+      }
     }
 
-    return true;
+    return {
+      updated: true,
+      emailNotification,
+    };
   }
 
   /**
-   * Add note to application
+   * Save note to application as a single editable record
    */
   static async addApplicationNote(
     applicationId: string,
@@ -430,16 +508,12 @@ export class EmployerApplicationService {
       throw new Error('Application not found or access denied');
     }
 
-    // Append note
-    const currentNotes = application.recruiterNotes || '';
-    const timestamp = new Date().toISOString();
-    const newNote = `[${timestamp}] ${data.note}`;
-    const updatedNotes = currentNotes ? `${currentNotes}\n\n${newNote}` : newNote;
+    const updatedNote = data.note.trim();
 
     await prisma.application.update({
       where: { id: applicationId },
       data: {
-        recruiterNotes: updatedNotes,
+        recruiterNotes: updatedNote,
         updatedAt: new Date(),
       },
     });
@@ -511,10 +585,7 @@ export class EmployerApplicationService {
 
           // Add notes if provided
           if (data.notes) {
-            const currentNotes = application.recruiterNotes || '';
-            updateData.recruiterNotes = currentNotes
-              ? `${currentNotes}\n\n[Bulk Update] ${data.notes}`
-              : `[Bulk Update] ${data.notes}`;
+            updateData.recruiterNotes = `[Bulk Update] ${data.notes}`;
           }
 
           await tx.application.update({

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { file, z } from 'zod';
+import { z } from 'zod';
 import {
   Eye,
   EyeOff,
@@ -16,13 +16,13 @@ import {
   Loader2,
   CheckCircle,
   XCircle,
-  AlertCircle,
 } from 'lucide-react';
 
+import { BrandLogo } from '@/components/brand/BrandLogo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FormField, FormLabel, FormMessage } from '@/components/ui/form';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 
 // Zod validation schema matching the server-side Joi schema
 const registerSchema = z
@@ -188,12 +188,12 @@ export default function RegisterForm() {
   return (
     <Card className="w-full border-0 shadow-2xl">
       <CardHeader className="space-y-1 pb-8 text-center">
-        <div className="mb-4 flex items-center justify-center space-x-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
-            <span className="text-sm font-bold text-white">CC</span>
-          </div>
-          <CardTitle className="text-2xl font-bold text-gray-900">Career Connect</CardTitle>
-        </div>
+        <BrandLogo
+          size={32}
+          priority
+          className="mb-4 justify-center"
+          labelClassName="text-2xl font-bold text-gray-900"
+        />
         <CardDescription className="text-base text-gray-600">
           Tạo tài khoản để khám phá cơ hội nghề nghiệp tuyệt vời
         </CardDescription>

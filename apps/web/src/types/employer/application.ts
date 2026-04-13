@@ -255,6 +255,17 @@ export interface UpdateApplicationStatusDTO {
   notifyCandidate?: boolean;
 }
 
+export interface ApplicationEmailNotificationResult {
+  attempted: boolean;
+  sent: boolean;
+  warning?: string;
+}
+
+export interface UpdateApplicationStatusResult {
+  updated: boolean;
+  emailNotification: ApplicationEmailNotificationResult;
+}
+
 // Bulk update DTO
 export interface BulkUpdateApplicationsDTO {
   applicationIds: string[];

@@ -149,23 +149,27 @@ export default function PersonalInfoSection({
           />
         </FieldShell>
 
-        <FieldShell label="Thành phố"      helper="Tỉnh/Thành phố nơi bạn sinh sống." error={errors.profile?.city?.message}>
+        <FieldShell
+          label="Thành phố"
+          helper="Tỉnh/Thành phố nơi bạn sinh sống."
+          error={errors.profile?.province?.message}
+        >
           <Input
-            {...register('profile.city')}
+            {...register('profile.province')}
             placeholder="Ví dụ: Hồ Chí Minh"
             className={inputClassName}
           />
         </FieldShell>
 
-        <FieldShell label="Tỉnh/Thành khác" error={errors.profile?.province?.message}>
+        {/* <FieldShell label="Tỉnh/Thành khác" error={errors.profile?.province?.message}>
           <Input
             {...register('profile.province')}
             placeholder="Ví dụ: Bình Dương"
             className={inputClassName}
           />
-        </FieldShell>
+        </FieldShell> */}
 
-        <FieldShell label="Quốc gia" error={errors.profile?.country?.message}>
+        {/* <FieldShell label="Quốc gia" error={errors.profile?.country?.message}>
           <div className="relative">
             <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-violet-500">
               <MapPinHouse className="h-4 w-4" />
@@ -176,7 +180,7 @@ export default function PersonalInfoSection({
               className={inputWithLeadingIconClassName}
             />
           </div>
-        </FieldShell>
+        </FieldShell> */}
       </div>
 
       <div className="mt-6">

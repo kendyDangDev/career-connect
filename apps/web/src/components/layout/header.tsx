@@ -2,6 +2,7 @@
 
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
+import { BrandLogo } from '@/components/brand/BrandLogo';
 import { Button } from '@/components/ui/button';
 
 export function Header() {
@@ -11,14 +12,7 @@ export function Header() {
     <header className="bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">CC</span>
-            </div>
-            <Link href="/" className="text-xl font-bold text-gray-900">
-              Career Connect
-            </Link>
-          </div>
+          <BrandLogo href="/" size={32} priority labelClassName="text-xl font-bold text-gray-900" />
 
           <div className="flex items-center space-x-4">
             {status === 'loading' ? (

@@ -232,6 +232,8 @@ export function CandidateNotificationBell({
 
     return unreadCount > 9 ? '9+' : String(unreadCount);
   }, [unreadCount]);
+  const hasUnread = unreadCount > 0;
+  const triggerActive = isOpen;
 
   const clearCloseTimeout = useCallback(() => {
     if (closeTimeoutRef.current !== null) {
@@ -470,10 +472,20 @@ export function CandidateNotificationBell({
   return (
     <div
       ref={rootRef}
-      className="relative"
+      className="relative z-20"
       onMouseEnter={() => openPanel(false)}
       onMouseLeave={queueClose}
     >
+      {hasUnread && (
+        <span
+          aria-hidden="true"
+          className={cn(
+            'pointer-events-none absolute inset-0 -z-10 rounded-[1.15rem] blur-xl transition-opacity duration-300',
+            triggerActive ? 'opacity-100' : 'opacity-65',
+            solid ? 'bg-purple-200/70' : 'bg-purple-500/35'
+          )}
+        />
+      )}
       <button
         type="button"
         aria-expanded={isOpen}
@@ -490,32 +502,72 @@ export function CandidateNotificationBell({
           openPanel(true);
         }}
         className={cn(
-          'relative rounded-full p-2 transition',
-          solid ? 'hover:bg-gray-100' : 'hover:bg-white/10'
+          'group relative isolate rounded-2xl p-2.5 transition-all duration-300 focus-visible:ring-2 focus-visible:ring-purple-400/60 focus-visible:outline-none',
+          'before:absolute before:inset-0 before:-z-10 before:rounded-[1.05rem] before:transition before:duration-300',
+          triggerActive
+            ? solid
+              ? 'shadow-lg ring-1 shadow-purple-200/50 ring-purple-200/80 before:bg-gradient-to-br before:from-purple-100 before:via-fuchsia-50 before:to-white'
+              : 'shadow-lg ring-1 shadow-black/25 ring-white/20 backdrop-blur-md before:bg-white/16'
+            : solid
+              ? 'before:bg-transparent hover:shadow-md hover:ring-1 hover:shadow-purple-100/70 hover:ring-purple-100/80 hover:before:bg-purple-50/90'
+              : 'before:bg-transparent hover:ring-1 hover:ring-white/15 hover:before:bg-white/12'
         )}
       >
-        <Bell className={cn('h-5 w-5', solid ? 'text-gray-600' : 'text-white')} />
+        <Bell
+          className={cn(
+            'h-5 w-5 transition-all duration-300 group-hover:scale-105',
+            triggerActive ? 'text-purple-600' : solid ? 'text-gray-600' : 'text-white'
+          )}
+        />
 
         {!isSummaryLoading && badgeLabel && (
-          <span className="absolute -top-0.5 -right-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-semibold text-white shadow-sm">
+          <span className="absolute -top-0.5 -right-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-semibold text-white shadow-lg shadow-purple-400/30">
             {badgeLabel}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute top-full right-0 z-50 pt-3">
-          <div className="w-96 overflow-hidden rounded-3xl border border-purple-100/70 bg-white/95 shadow-2xl shadow-purple-200/30 backdrop-blur-xl">
-            <div className="flex items-center justify-between border-b border-purple-50 px-5 pt-4">
-              <div>
-                <p className="font-semibold text-gray-900">Thông báo</p>
-                <p className="text-xs text-gray-500">
-                  {unreadCount > 0 ? `${unreadCount} chưa đọc` : 'Bạn đã xem hết thông báo'}
-                </p>
+        <div className="absolute top-[calc(100%+0.85rem)] right-0 z-50 w-[24rem] max-w-[calc(100vw-1.5rem)]">
+          <div
+            aria-hidden="true"
+            className="absolute -top-2 right-5 h-4 w-4 rotate-45 rounded-[5px] border-t border-l border-purple-100/80 bg-white/95 shadow-sm"
+          />
+          <div className="relative overflow-hidden rounded-[1.75rem] border border-purple-100/70 bg-white/95 shadow-2xl shadow-purple-200/30 backdrop-blur-xl">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-r from-purple-500/10 via-fuchsia-500/10 to-sky-500/10"
+            />
+            <div className="relative flex items-start justify-between border-b border-purple-50/90 px-5 pt-4 pb-4">
+              <div className="flex items-start gap-3">
+                <div
+                  className={cn(
+                    'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border shadow-sm',
+                    hasUnread
+                      ? 'border-purple-200/80 bg-gradient-to-br from-purple-100 via-fuchsia-50 to-white text-purple-600 shadow-purple-200/40'
+                      : 'border-gray-200 bg-white text-gray-500'
+                  )}
+                >
+                  <Bell className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900">Thông báo</p>
+                  <p className="mt-1 inline-flex items-center gap-2 rounded-full border border-purple-100/80 bg-white/80 px-2.5 text-[11px] font-medium text-gray-500">
+                    <span
+                      className={cn(
+                        'inline-flex h-1.5 w-1.5 rounded-full',
+                        hasUnread ? 'bg-purple-500' : 'bg-emerald-500'
+                      )}
+                    />
+                    {unreadCount > 0 ? `${unreadCount} chưa đọc` : 'Bạn đã xem hết thông báo'}
+                  </p>
+                </div>
               </div>
 
               {(isPanelRefreshing || isPanelLoading) && (
-                <Loader2 className="h-4 w-4 animate-spin text-purple-500" />
+                <div className="mt-1 rounded-full border border-purple-100 bg-white/80 p-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-purple-500" />
+                </div>
               )}
             </div>
 

@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { getServerSession } from 'next-auth/next';
 import { redirect } from 'next/navigation';
+import { BrandLogo } from '@/components/brand/BrandLogo';
 import { authOptions } from '@/lib/auth-config';
 import RegisterForm from '@/components/auth/register-form';
 
@@ -16,12 +17,12 @@ export default async function SignUpPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-2 text-center lg:hidden">
-        <div className="mb-4 flex items-center justify-center space-x-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600">
-            <span className="font-bold text-white">CC</span>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">Career Connect</h1>
-        </div>
+        <BrandLogo
+          size={40}
+          priority
+          className="mb-4 justify-center"
+          labelClassName="text-2xl font-bold text-gray-900"
+        />
         <p className="text-gray-600">Tạo tài khoản để bắt đầu hành trình nghề nghiệp của bạn.</p>
       </div>
 

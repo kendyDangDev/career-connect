@@ -14,6 +14,7 @@ export interface CompanyProfile {
   phone: string | null;
   address: string | null;
   city: string | null;
+  province: string | null;
   logoUrl: string | null;
   coverImageUrl: string | null;
   verificationStatus: VerificationStatus;

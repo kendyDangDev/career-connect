@@ -210,7 +210,13 @@ export class EmployerJobService {
     // Get company name for slug
     const company = await prisma.company.findUnique({
       where: { id: companyId },
-      select: { companyName: true },
+      select: {
+        companyName: true,
+        address: true,
+        city: true,
+        province: true,
+        country: true,
+      },
     });
 
     // Generate unique slug
@@ -240,6 +246,10 @@ export class EmployerJobService {
         companyId,
         recruiterId,
         status: JobStatus.PENDING,
+        address: company?.address?.trim() || null,
+        locationCity: company?.city?.trim() || null,
+        locationProvince: company?.province?.trim() || null,
+        locationCountry: company?.country?.trim() || jobData.locationCountry || 'Vietnam',
         // Create skill relations
         ...(skills &&
           skills.length > 0 && {

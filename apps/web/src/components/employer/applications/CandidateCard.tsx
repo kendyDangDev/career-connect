@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import {
   Star,
   MapPin,
@@ -8,10 +11,14 @@ import {
   FileText,
   MessageSquare,
   MoreVertical,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
+import { vi } from 'date-fns/locale';
 import { ApplicationStatus } from '@/generated/prisma';
-import Link from 'next/link';
+import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 
 interface CandidateCardProps {
   candidate: {
@@ -23,18 +30,23 @@ interface CandidateCardProps {
     position: string;
     location: string;
     experience: string;
+    experienceYears?: number | null;
     appliedDate: string;
     status: ApplicationStatus;
-    rating?: number;
+    rating?: number | null;
     avatarUrl?: string;
     skills?: string[];
     notes?: string;
     cvFileUrl?: string;
     coverLetter?: string;
+    interviewScheduledAt?: string;
   };
   onStatusChange?: (id: string, status: string) => void;
   onRatingChange?: (id: string, rating: number) => void;
   onSendMessage?: (id: string) => void;
+  onSaveNote?: (id: string, note: string) => Promise<void> | void;
+  isSavingNote?: boolean;
+  onManageInterviewSchedule?: (id: string) => void;
 }
 
 const statusConfig: Record<ApplicationStatus, { label: string; color: string }> = {
@@ -70,10 +82,22 @@ export function CandidateCard({
   onStatusChange,
   onRatingChange,
   onSendMessage,
+  onSaveNote,
+  isSavingNote = false,
+  onManageInterviewSchedule,
 }: CandidateCardProps) {
+  const [isNotesExpanded, setIsNotesExpanded] = useState(false);
+  const [isEditingNote, setIsEditingNote] = useState(false);
+  const [draftNote, setDraftNote] = useState(candidate.notes ?? '');
+  const [noteError, setNoteError] = useState('');
   const status = statusConfig[candidate.status];
+  const rating = candidate.rating ?? 0;
+  const noteIsLong = Boolean(
+    candidate.notes && (candidate.notes.length > 180 || candidate.notes.split(/\r?\n/).length > 3)
+  );
+  const showInterviewScheduleSection =
+    candidate.status === ApplicationStatus.INTERVIEWING || Boolean(candidate.interviewScheduledAt);
 
-  // Get full name from firstName and lastName
   const getFullName = () => {
     const { firstName, lastName } = candidate;
     if (firstName && lastName) return `${firstName} ${lastName}`;
@@ -84,7 +108,6 @@ export function CandidateCard({
 
   const fullName = getFullName();
 
-  // Get initials for avatar
   const getInitials = () => {
     const { firstName, lastName } = candidate;
     if (firstName && lastName) return `${firstName[0]}${lastName[0]}`.toUpperCase();
@@ -93,12 +116,66 @@ export function CandidateCard({
     return candidate.email.slice(0, 2).toUpperCase();
   };
 
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'Không giới hạn';
+    try {
+      return format(new Date(dateString), 'dd/MM/yyyy', { locale: vi });
+    } catch {
+      return 'N/A';
+    }
+  };
+
+  const formatInterviewDateTime = (dateString?: string) => {
+    if (!dateString) return 'Chưa lên lịch phỏng vấn';
+    try {
+      return format(new Date(dateString), 'HH:mm - dd/MM/yyyy', { locale: vi });
+    } catch {
+      return 'N/A';
+    }
+  };
+
+  const openNoteEditor = () => {
+    setDraftNote(candidate.notes ?? '');
+    setNoteError('');
+    setIsEditingNote(true);
+  };
+
+  const cancelNoteEditor = () => {
+    if (isSavingNote) return;
+
+    setDraftNote(candidate.notes ?? '');
+    setNoteError('');
+    setIsEditingNote(false);
+  };
+
+  const handleSaveNote = async () => {
+    if (!onSaveNote) return;
+
+    const trimmedNote = draftNote.trim();
+
+    if (!trimmedNote) {
+      setNoteError('Vui lòng nhập nội dung ghi chú.');
+      return;
+    }
+
+    if (trimmedNote.length > 1000) {
+      setNoteError('Ghi chú tối đa 1000 ký tự.');
+      return;
+    }
+
+    try {
+      await Promise.resolve(onSaveNote(candidate.id, trimmedNote));
+      setNoteError('');
+      setIsEditingNote(false);
+    } catch {
+      // Error toast is handled upstream.
+    }
+  };
+
   return (
     <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-6 transition-all duration-200 hover:border-purple-200 hover:shadow-md">
-      {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex min-w-0 flex-1 items-start gap-4">
-          {/* Avatar */}
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-purple-600 text-lg font-bold text-white shadow-md">
             {candidate.avatarUrl ? (
               <img
@@ -111,29 +188,29 @@ export function CandidateCard({
             )}
           </div>
 
-          {/* Info */}
           <div className="min-w-0 flex-1">
             <div className="mb-1 flex items-start gap-2">
-              <Link
-                href={`/employer/applications/${candidate.id}`}
-                className="text-lg font-semibold text-gray-900 transition-colors group-hover:text-purple-700"
-              >
-                {fullName}
-              </Link>
-              {candidate.rating && (
-                <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={cn(
-                        'h-4 w-4 cursor-pointer transition-colors',
-                        i < candidate.rating! ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-                      )}
-                      onClick={() => onRatingChange?.(candidate.id, i + 1)}
-                    />
-                  ))}
-                </div>
-              )}
+              <div className="min-w-0">
+                <p className="text-lg font-semibold text-gray-900 transition-colors group-hover:text-purple-700">
+                  {fullName}
+                </p>
+              </div>
+              <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={cn(
+                      'h-4 w-4 cursor-pointer transition-colors',
+                      i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+                    )}
+                    onClick={() => onRatingChange?.(candidate.id, i + 1)}
+                    aria-label={`Đánh giá ${i + 1} sao cho ${fullName}`}
+                  />
+                ))}
+                <span className="ml-1 text-xs font-medium text-gray-500">
+                  {rating > 0 ? `${rating}/5` : 'Chưa đánh giá'}
+                </span>
+              </div>
             </div>
 
             <p className="mb-2 text-sm font-medium text-purple-600">{candidate.position}</p>
@@ -145,19 +222,18 @@ export function CandidateCard({
               </div>
               <div className="flex items-center gap-1">
                 <Briefcase className="h-3.5 w-3.5" />
-                {candidate?.experience === 'null+ năm'
+                {candidate.experience === 'null+ năm'
                   ? 'Chưa có kinh nghiệm'
                   : candidate.experience}
               </div>
               <div className="flex items-center gap-1">
                 <Calendar className="h-3.5 w-3.5" />
-                {candidate.appliedDate}
+                {formatDate(candidate.appliedDate)}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Status Badge */}
         <div className="flex items-center gap-2">
           <span
             className={cn(
@@ -173,14 +249,20 @@ export function CandidateCard({
               <MoreVertical className="h-4 w-4" />
             </button>
 
-            {/* Dropdown */}
             <div className="invisible absolute top-full right-0 z-10 mt-1 w-48 rounded-lg border border-gray-200 bg-white opacity-0 shadow-lg transition-all duration-200 group-hover/menu:visible group-hover/menu:opacity-100">
               <div className="p-1">
                 {Object.entries(statusConfig).map(([key, value]) => (
                   <button
                     key={key}
-                    onClick={() => onStatusChange?.(candidate.id, key)}
-                    className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-purple-50 hover:text-purple-700"
+                    type="button"
+                    disabled={key === candidate.status}
+                    onClick={() => onStatusChange?.(candidate.id, key as ApplicationStatus)}
+                    className={cn(
+                      'flex w-full items-center gap-2 rounded px-3 py-2 text-sm transition-colors',
+                      key === candidate.status
+                        ? 'cursor-default bg-gray-50 text-gray-400'
+                        : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
+                    )}
                   >
                     <div
                       className={cn(
@@ -197,7 +279,6 @@ export function CandidateCard({
         </div>
       </div>
 
-      {/* Contact Info */}
       <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
         <a
           href={`mailto:${candidate.email}`}
@@ -217,7 +298,6 @@ export function CandidateCard({
         )}
       </div>
 
-      {/* Skills */}
       {candidate.skills && candidate.skills.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-2">
           {candidate.skills.slice(0, 5).map((skill, index) => (
@@ -236,20 +316,171 @@ export function CandidateCard({
         </div>
       )}
 
-      {/* Notes */}
-      {candidate.notes && (
-        <div className="mt-4 rounded-lg border border-gray-100 bg-gray-50 p-3 text-sm text-gray-600">
-          <p className="line-clamp-2">{candidate.notes}</p>
+      {showInterviewScheduleSection && (
+        <div className="mt-4 overflow-hidden rounded-xl border border-sky-100 bg-sky-50/70">
+          <div className="flex items-center justify-between gap-3 px-4 py-3">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-gray-900">Lịch phỏng vấn</p>
+              <p className="mt-1 text-xs text-gray-600">
+                {formatInterviewDateTime(candidate.interviewScheduledAt)}
+              </p>
+            </div>
+
+            {candidate.status === ApplicationStatus.INTERVIEWING && (
+              <button
+                type="button"
+                onClick={() => onManageInterviewSchedule?.(candidate.id)}
+                className="shrink-0 rounded-lg border border-sky-200 bg-white px-3 py-1.5 text-xs font-medium text-sky-700 transition-colors hover:bg-sky-100"
+              >
+                {candidate.interviewScheduledAt ? 'Đổi lịch' : 'Chọn lịch'}
+              </button>
+            )}
+          </div>
         </div>
       )}
 
-      {/* Actions */}
+      <div className="mt-4">
+        {isEditingNote ? (
+          <div className="overflow-hidden rounded-xl border border-amber-100 bg-amber-50/70">
+            <div className="flex items-center justify-between gap-3 border-b border-amber-100 px-4 py-3">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-gray-900">
+                  {candidate.notes ? 'Chỉnh sửa ghi chú tuyển dụng' : 'Thêm ghi chú tuyển dụng'}
+                </p>
+                <p className="mt-1 text-xs text-gray-600">
+                  Ghi chú được lưu dưới dạng 1 bản duy nhất và sẽ ghi đè nội dung hiện tại.
+                </p>
+              </div>
+              <span className="shrink-0 text-xs font-medium text-amber-700">
+                {draftNote.trim().length}/1000
+              </span>
+            </div>
+
+            <div className="space-y-3 px-4 py-3">
+              <Textarea
+                value={draftNote}
+                onChange={(event) => {
+                  setDraftNote(event.target.value);
+                  if (noteError) {
+                    setNoteError('');
+                  }
+                }}
+                placeholder="Ví dụ: Ứng viên giao tiếp tốt, cần đào sâu thêm về kinh nghiệm React..."
+                className="min-h-[140px] resize-y border-amber-200 bg-white"
+                maxLength={1000}
+                error={noteError || undefined}
+              />
+
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={cancelNoteEditor}
+                  disabled={isSavingNote}
+                  className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveNote}
+                  disabled={isSavingNote || draftNote.trim() === (candidate.notes?.trim() ?? '')}
+                  className="rounded-lg border border-amber-200 bg-white px-3 py-1.5 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isSavingNote ? 'Đang lưu...' : 'Lưu ghi chú'}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : candidate.notes ? (
+          <div className="overflow-hidden rounded-xl border border-amber-100 bg-amber-50/70">
+            <div className="flex items-center justify-between gap-3 border-b border-amber-100 px-4 py-3">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-gray-900">Ghi chú tuyển dụng</p>
+                <div className="mt-1 flex items-center gap-2 text-xs text-gray-600">
+                  <div className="flex items-center gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={`note-rating-${i}`}
+                        className={cn(
+                          'h-3.5 w-3.5',
+                          i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+                        )}
+                      />
+                    ))}
+                  </div>
+                  <span>{rating > 0 ? `${rating}/5 sao` : 'Chưa đánh giá'}</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={openNoteEditor}
+                className="shrink-0 rounded-lg border border-amber-200 bg-white px-3 py-1.5 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-100"
+              >
+                Chỉnh sửa
+              </button>
+            </div>
+
+            <div className="px-4 py-3">
+              <p
+                className={cn(
+                  'text-sm leading-6 whitespace-pre-wrap text-gray-700',
+                  !isNotesExpanded && noteIsLong && 'line-clamp-3'
+                )}
+              >
+                {candidate.notes}
+              </p>
+
+              {noteIsLong && (
+                <button
+                  type="button"
+                  onClick={() => setIsNotesExpanded((prev) => !prev)}
+                  className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-purple-700 transition-colors hover:text-purple-800"
+                >
+                  {isNotesExpanded ? (
+                    <>
+                      Thu gọn
+                      <ChevronUp className="h-3.5 w-3.5" />
+                    </>
+                  ) : (
+                    <>
+                      Xem thêm
+                      <ChevronDown className="h-3.5 w-3.5" />
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={openNoteEditor}
+            className="flex w-full items-center justify-between rounded-xl border border-dashed border-purple-200 bg-purple-50/60 px-4 py-3 text-left transition-colors hover:border-purple-300 hover:bg-purple-50"
+          >
+            <div>
+              <p className="text-sm font-semibold text-purple-900">Chưa có ghi chú tuyển dụng</p>
+              <p className="mt-1 text-xs text-purple-700">
+                Tạo ghi chú nội bộ duy nhất để theo dõi ứng viên thuận tiện hơn.
+              </p>
+            </div>
+            <span className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-purple-700 shadow-sm">
+              Thêm ghi chú
+            </span>
+          </button>
+        )}
+      </div>
+
       <div className="mt-4 flex items-center gap-2 border-t border-gray-100 pt-4">
         <a
           href={candidate.cvFileUrl ? `/api/employer/applications/${candidate.id}/cv` : undefined}
           target="_blank"
           rel="noopener noreferrer"
-          className={`flex flex-1 items-center justify-center gap-2 rounded-lg border border-purple-200 bg-white px-4 py-2 text-sm font-medium ${candidate.cvFileUrl ? 'text-purple-700 hover:shadow-sm' : 'cursor-not-allowed text-gray-400 hover:shadow-none'}`}
+          className={`flex flex-1 items-center justify-center gap-2 rounded-lg border border-purple-200 bg-white px-4 py-2 text-sm font-medium ${
+            candidate.cvFileUrl
+              ? 'text-purple-700 hover:shadow-sm'
+              : 'cursor-not-allowed text-gray-400 hover:shadow-none'
+          }`}
         >
           <FileText className="h-4 w-4" />
           {candidate.cvFileUrl ? 'Xem CV' : 'CV Not Available'}

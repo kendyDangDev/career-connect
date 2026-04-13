@@ -5,7 +5,14 @@ import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import type {
   AdminCompanyReviewListItem,
   AdminCompanyReviewPagination,
@@ -106,8 +113,8 @@ export function CompanyReviewsTable({
     actionReviewId === review.id && actionTargetApproved === nextApproved;
 
   return (
-    <div className="w-full">
-      <div className="flex flex-col gap-4 px-4 py-4 lg:flex-row lg:items-center lg:justify-between">
+    <div className="w-full p-4">
+      <div className="flex flex-col gap-4 py-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative w-full sm:max-w-md">
             <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
@@ -147,7 +154,7 @@ export function CompanyReviewsTable({
         </div>
       ) : (
         <>
-          <div className="rounded-md border-x border-t">
+          <div className="rounded-md border-x border-t p-2">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -210,7 +217,9 @@ export function CompanyReviewsTable({
 
                       <TableCell>
                         <div className="space-y-1 text-sm">
-                          <p className="font-medium">{format(new Date(review.createdAt), 'dd/MM/yyyy')}</p>
+                          <p className="font-medium">
+                            {format(new Date(review.createdAt), 'dd/MM/yyyy')}
+                          </p>
                           <p className="text-muted-foreground">
                             {format(new Date(review.createdAt), 'HH:mm')}
                           </p>

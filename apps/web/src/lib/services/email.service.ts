@@ -30,6 +30,17 @@ export class EmailService {
     }
   }
 
+  private formatInterviewDateTime(interviewScheduledAt: string | Date): string {
+    const date =
+      interviewScheduledAt instanceof Date ? interviewScheduledAt : new Date(interviewScheduledAt);
+
+    return new Intl.DateTimeFormat('vi-VN', {
+      dateStyle: 'full',
+      timeStyle: 'short',
+      timeZone: 'Asia/Ho_Chi_Minh',
+    }).format(date);
+  }
+
   async sendCompanyVerificationEmail(
     email: string,
     token: string,
@@ -37,7 +48,7 @@ export class EmailService {
     firstName?: string
   ): Promise<void> {
     const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/employer/auth/verify-email?token=${token}`;
-    
+
     const html = `
       <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
         <div style="text-align: center; margin-bottom: 30px;">
@@ -48,11 +59,11 @@ export class EmailService {
         <h2 style="color: #111827; font-size: 24px; margin-bottom: 20px;">
           Xác thực tài khoản nhà tuyển dụng
         </h2>
-        
+
         <p style="color: #374151; line-height: 1.6;">
           Xin chào ${firstName || ''},
         </p>
-        
+
         <p style="color: #374151; line-height: 1.6;">
           Cảm ơn bạn đã đăng ký tài khoản nhà tuyển dụng cho <strong>${companyName}</strong> tại Career Connect.
           Để hoàn tất quá trình đăng ký, vui lòng xác thực email của bạn bằng cách click vào nút bên dưới:
@@ -60,7 +71,7 @@ export class EmailService {
 
         <div style="text-align: center; margin: 40px 0;">
           <a href="${verificationUrl}"
-             style="background-color: #2563eb; color: white; padding: 14px 28px; text-decoration: none; 
+             style="background-color: #2563eb; color: white; padding: 14px 28px; text-decoration: none;
                     border-radius: 8px; font-weight: 600; display: inline-block; font-size: 16px;">
             Xác thực Email
           </a>
@@ -75,7 +86,7 @@ export class EmailService {
 
         <div style="background-color: #fef3c7; border: 1px solid #fcd34d; border-radius: 8px; padding: 16px; margin: 30px 0;">
           <p style="color: #92400e; margin: 0; font-size: 14px;">
-            <strong>Lưu ý:</strong> Link xác thực này sẽ hết hạn sau 24 giờ. 
+            <strong>Lưu ý:</strong> Link xác thực này sẽ hết hạn sau 24 giờ.
             Sau khi xác thực email, tài khoản của bạn sẽ được gửi đến bộ phận kiểm duyệt.
           </p>
         </div>
@@ -89,10 +100,10 @@ export class EmailService {
         </ol>
 
         <hr style="margin: 40px 0; border: none; border-top: 1px solid #e5e7eb;">
-        
+
         <p style="color: #6b7280; font-size: 12px; text-align: center;">
           Nếu bạn không tạo tài khoản này, vui lòng bỏ qua email này.<br>
-          © 2025 Career Connect. All rights reserved.
+          © 2026 Career Connect. All rights reserved.
         </p>
       </div>
     `;
@@ -132,7 +143,7 @@ export class EmailService {
         <h2 style="color: #111827; font-size: 24px; margin-bottom: 20px;">
           Có công ty mới đăng ký
         </h2>
-        
+
         <p style="color: #374151; line-height: 1.6;">
           Một công ty mới vừa hoàn tất đăng ký và đang chờ phê duyệt:
         </p>
@@ -145,7 +156,7 @@ export class EmailService {
 
         <div style="text-align: center; margin: 30px 0;">
           <a href="${reviewUrl}"
-             style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; 
+             style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none;
                     border-radius: 8px; font-weight: 600; display: inline-block;">
             Xem chi tiết & Phê duyệt
           </a>
@@ -159,7 +170,7 @@ export class EmailService {
 
     // Send email to all admins
     await Promise.all(
-      admins.map(admin =>
+      admins.map((admin) =>
         this.sendEmail({
           to: admin.email,
           subject: `[Admin] Công ty mới đăng ký: ${companyName}`,
@@ -181,19 +192,19 @@ export class EmailService {
         <h2 style="color: #10b981; font-size: 24px; margin-bottom: 20px;">
           🎉 Tài khoản đã được phê duyệt!
         </h2>
-        
+
         <p style="color: #374151; line-height: 1.6;">
           Xin chào ${firstName || ''},
         </p>
-        
+
         <p style="color: #374151; line-height: 1.6;">
-          Chúng tôi vui mừng thông báo tài khoản nhà tuyển dụng cho <strong>${companyName}</strong> 
+          Chúng tôi vui mừng thông báo tài khoản nhà tuyển dụng cho <strong>${companyName}</strong>
           đã được phê duyệt thành công. Bây giờ bạn có thể đăng nhập và bắt đầu tuyển dụng.
         </p>
 
         <div style="text-align: center; margin: 40px 0;">
           <a href="${loginUrl}"
-             style="background-color: #2563eb; color: white; padding: 14px 28px; text-decoration: none; 
+             style="background-color: #2563eb; color: white; padding: 14px 28px; text-decoration: none;
                     border-radius: 8px; font-weight: 600; display: inline-block; font-size: 16px;">
             Đăng nhập ngay
           </a>
@@ -215,9 +226,9 @@ export class EmailService {
         </p>
 
         <hr style="margin: 40px 0; border: none; border-top: 1px solid #e5e7eb;">
-        
+
         <p style="color: #6b7280; font-size: 12px; text-align: center;">
-          © 2025 Career Connect. All rights reserved.
+          © 2026 Career Connect. All rights reserved.
         </p>
       </div>
     `;
@@ -240,13 +251,13 @@ export class EmailService {
         <h2 style="color: #dc2626; font-size: 24px; margin-bottom: 20px;">
           Thông báo về đơn đăng ký
         </h2>
-        
+
         <p style="color: #374151; line-height: 1.6;">
           Xin chào ${firstName || ''},
         </p>
-        
+
         <p style="color: #374151; line-height: 1.6;">
-          Cảm ơn bạn đã quan tâm đến Career Connect. Sau khi xem xét, chúng tôi rất tiếc phải thông báo rằng 
+          Cảm ơn bạn đã quan tâm đến Career Connect. Sau khi xem xét, chúng tôi rất tiếc phải thông báo rằng
           đơn đăng ký tài khoản nhà tuyển dụng cho <strong>${companyName}</strong> chưa được phê duyệt.
         </p>
 
@@ -257,14 +268,14 @@ export class EmailService {
         </div>
 
         <p style="color: #374151; line-height: 1.6;">
-          Bạn có thể đăng ký lại sau khi đã khắc phục các vấn đề trên. Nếu bạn có thắc mắc, 
+          Bạn có thể đăng ký lại sau khi đã khắc phục các vấn đề trên. Nếu bạn có thắc mắc,
           vui lòng liên hệ với chúng tôi qua email support@career-connect.com.
         </p>
 
         <hr style="margin: 40px 0; border: none; border-top: 1px solid #e5e7eb;">
-        
+
         <p style="color: #6b7280; font-size: 12px; text-align: center;">
-          © 2025 Career Connect. All rights reserved.
+          © 2026 Career Connect. All rights reserved.
         </p>
       </div>
     `;
@@ -272,6 +283,78 @@ export class EmailService {
     await this.sendEmail({
       to: email,
       subject: 'Thông báo về đơn đăng ký nhà tuyển dụng - Career Connect',
+      html,
+    });
+  }
+  async sendInterviewInvitationEmail(options: {
+    email: string;
+    candidateName: string;
+    companyName: string;
+    jobTitle: string;
+    interviewScheduledAt: string | Date;
+    isRescheduled?: boolean;
+  }): Promise<void> {
+    const applicationsUrl = `${process.env.NEXT_PUBLIC_APP_URL}/candidate/applications`;
+    const formattedInterviewTime = this.formatInterviewDateTime(options.interviewScheduledAt);
+    const greetingName = options.candidateName.trim() || 'bạn';
+    const statusCopy = options.isRescheduled
+      ? 'Lịch phỏng vấn của bạn vừa được cập nhật.'
+      : 'Bạn đã nhận được thư mời phỏng vấn mới từ nhà tuyển dụng.';
+
+    const html = `
+      <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #2563eb; margin: 0;">Career Connect</h1>
+          <p style="color: #6b7280; margin-top: 10px;">Thông báo lịch phỏng vấn</p>
+        </div>
+
+        <h2 style="color: #111827; font-size: 24px; margin-bottom: 20px;">
+          ${options.isRescheduled ? 'Cập nhật lịch phỏng vấn' : 'Thư mời phỏng vấn'}
+        </h2>
+
+        <p style="color: #374151; line-height: 1.6;">
+          Xin chào <strong>${greetingName}</strong>,
+        </p>
+
+        <p style="color: #374151; line-height: 1.6;">
+          ${statusCopy}
+        </p>
+
+        <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 20px; margin: 24px 0;">
+          <p style="margin: 0 0 12px 0; color: #1f2937;"><strong>Công ty:</strong> ${options.companyName}</p>
+          <p style="margin: 0 0 12px 0; color: #1f2937;"><strong>Vị trí:</strong> ${options.jobTitle}</p>
+          <p style="margin: 0; color: #1f2937;"><strong>Thời gian phỏng vấn:</strong> ${formattedInterviewTime}</p>
+        </div>
+
+        <p style="color: #374151; line-height: 1.6;">
+          Vui lòng truy cập trang quản lý đơn ứng tuyển để theo dõi trạng thái hồ sơ và chuẩn bị cho buổi phỏng vấn.
+        </p>
+
+        <div style="text-align: center; margin: 36px 0;">
+          <a href="${applicationsUrl}"
+             style="background-color: #2563eb; color: white; padding: 14px 28px; text-decoration: none;
+                    border-radius: 8px; font-weight: 600; display: inline-block; font-size: 16px;">
+            Xem đơn ứng tuyển
+          </a>
+        </div>
+
+        <p style="color: #6b7280; font-size: 13px; line-height: 1.6;">
+          Nếu bạn có câu hỏi thêm, hãy phản hồi trực tiếp với nhà tuyển dụng trong hệ thống Career Connect.
+        </p>
+
+        <hr style="margin: 40px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+        <p style="color: #6b7280; font-size: 12px; text-align: center;">
+          © 2026 Career Connect. All rights reserved.
+        </p>
+      </div>
+    `;
+
+    await this.sendEmail({
+      to: options.email,
+      subject: options.isRescheduled
+        ? `Cập nhật lịch phỏng vấn - ${options.jobTitle}`
+        : `Thư mời phỏng vấn - ${options.jobTitle}`,
       html,
     });
   }

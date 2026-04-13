@@ -1,23 +1,105 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { Users, Download, Upload, SlidersHorizontal, Loader2, AlertCircle } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { AlertCircle, Download, Loader2, SlidersHorizontal, Upload, Users } from 'lucide-react';
 import { CandidateCard } from '@/components/employer/applications/CandidateCard';
 import { FiltersPanel } from '@/components/employer/applications/FiltersPanel';
 import {
   useApplicationsList,
-  useUpdateApplicationStatus,
+  useSaveApplicationNote,
   useUpdateApplicationRating,
+  useUpdateApplicationStatus,
 } from '@/hooks/employer/useApplications';
 import { ApplicationStatus } from '@/generated/prisma';
 import { useStartConversation } from '@/hooks/useStartConversation';
 import { MessageModal } from '@/components/employer/applications/MessageModal';
 import { useChatContext } from '@/contexts/ChatContext';
 import { useDebounce } from '@/hooks/useDebounced';
+import { CandidateApplication } from '@/api/employer/applications.api';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+
+const applicationStatusLabels: Record<ApplicationStatus, string> = {
+  [ApplicationStatus.APPLIED]: 'Mới',
+  [ApplicationStatus.SCREENING]: 'Đang xem xét',
+  [ApplicationStatus.INTERVIEWING]: 'Phỏng vấn',
+  [ApplicationStatus.OFFERED]: 'Đã gửi offer',
+  [ApplicationStatus.HIRED]: 'Tuyển dụng',
+  [ApplicationStatus.REJECTED]: 'Từ chối',
+  [ApplicationStatus.WITHDRAWN]: 'Đã rút',
+};
+
+const toDatetimeLocalValue = (value?: string) => {
+  if (!value) return '';
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  const timezoneOffset = date.getTimezoneOffset() * 60_000;
+  return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 16);
+};
+
+const normalizeText = (value?: string | null) => value?.trim().toLowerCase() ?? '';
+
+const experienceRangeMatchers: Record<string, (years: number) => boolean> = {
+  '0-1 năm': (years) => years >= 0 && years <= 1,
+  '1-3 năm': (years) => years >= 1 && years <= 3,
+  '3-5 năm': (years) => years >= 3 && years <= 5,
+  '5+ năm': (years) => years >= 5,
+};
+
+const matchesRatingFilter = (
+  candidateRating: number | null | undefined,
+  minimumRating: number | null
+) => {
+  if (minimumRating == null) {
+    return true;
+  }
+
+  if (candidateRating == null) {
+    return false;
+  }
+
+  return candidateRating >= minimumRating;
+};
+
+const matchesExperienceFilter = (
+  experienceYears: number | null | undefined,
+  selectedRanges: string[]
+) => {
+  if (selectedRanges.length === 0) {
+    return true;
+  }
+
+  if (experienceYears == null) {
+    return false;
+  }
+
+  return selectedRanges.some((range) => experienceRangeMatchers[range]?.(experienceYears) ?? false);
+};
 
 export default function ApplicationsPage() {
   const [showFilters, setShowFilters] = useState(true);
-  const [page, setPage] = useState(1);
+  const page = 1;
   const [filters, setFilters] = useState({
     search: '',
     status: [] as ApplicationStatus[],
@@ -26,10 +108,8 @@ export default function ApplicationsPage() {
     experience: [] as string[],
   });
 
-  // Debounce search term (500ms delay)
   const debouncedSearch = useDebounce(filters.search, 500);
 
-  // Message modal state
   const [messageModalOpen, setMessageModalOpen] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<{
     id: string;
@@ -37,8 +117,21 @@ export default function ApplicationsPage() {
     fullName: string;
     avatarUrl?: string;
   } | null>(null);
+  const [statusConfirmation, setStatusConfirmation] = useState<{
+    applicationId: string;
+    candidateName: string;
+    currentStatus: ApplicationStatus;
+    nextStatus: ApplicationStatus;
+  } | null>(null);
+  const [interviewDialog, setInterviewDialog] = useState<{
+    applicationId: string;
+    candidateName: string;
+    currentStatus: ApplicationStatus;
+    nextStatus?: ApplicationStatus;
+  } | null>(null);
+  const [interviewScheduledAt, setInterviewScheduledAt] = useState('');
+  const [interviewError, setInterviewError] = useState('');
 
-  // Build API query parameters with debounced search
   const apiParams = useMemo(
     () => ({
       page,
@@ -51,28 +144,82 @@ export default function ApplicationsPage() {
     [page, debouncedSearch, filters.status]
   );
 
-  // Fetch applications with React Query
   const { data, isLoading, error, refetch } = useApplicationsList(apiParams);
 
-  // Mutations
   const updateStatusMutation = useUpdateApplicationStatus();
   const updateRatingMutation = useUpdateApplicationRating();
+  const saveNoteMutation = useSaveApplicationNote();
 
-  // Messaging
-  const { startConversation, isCreating } = useStartConversation();
+  const { startConversation } = useStartConversation();
   const { initializeChat } = useChatContext();
 
-  // Initialize chat on mount (for messaging feature)
   useEffect(() => {
     initializeChat();
-  }, []);
+  }, [initializeChat]);
 
-  // Handlers
+  const applications: CandidateApplication[] = data?.data?.applications || [];
+  const stats = data?.data?.stats;
+
+  const getCandidateById = (id: string) => applications.find((app) => app.id === id);
+
+  const getCandidateFullName = (candidate: CandidateApplication) => {
+    const fullName = `${candidate.firstName || ''} ${candidate.lastName || ''}`.trim();
+    return fullName || candidate.email.split('@')[0];
+  };
+
+  const isInterviewDialogSaving = updateStatusMutation.isPending;
+
+  const closeInterviewDialog = () => {
+    if (isInterviewDialogSaving) return;
+
+    setInterviewDialog(null);
+    setInterviewScheduledAt('');
+    setInterviewError('');
+  };
+
+  const closeStatusConfirmation = () => {
+    if (updateStatusMutation.isPending) return;
+    setStatusConfirmation(null);
+  };
+
   const handleStatusChange = (id: string, status: string) => {
-    updateStatusMutation.mutate({
+    const candidate = getCandidateById(id);
+    const nextStatus = status as ApplicationStatus;
+
+    if (!candidate || candidate.status === nextStatus) return;
+
+    if (nextStatus === ApplicationStatus.INTERVIEWING) {
+      setInterviewDialog({
+        applicationId: id,
+        candidateName: getCandidateFullName(candidate),
+        currentStatus: candidate.status,
+        nextStatus,
+      });
+      setInterviewScheduledAt(toDatetimeLocalValue(candidate.interviewScheduledAt));
+      setInterviewError('');
+      return;
+    }
+
+    setStatusConfirmation({
       applicationId: id,
-      statusData: { status: status as ApplicationStatus },
+      candidateName: getCandidateFullName(candidate),
+      currentStatus: candidate.status,
+      nextStatus,
     });
+  };
+
+  const handleOpenInterviewScheduleDialog = (id: string) => {
+    const candidate = getCandidateById(id);
+
+    if (!candidate) return;
+
+    setInterviewDialog({
+      applicationId: id,
+      candidateName: getCandidateFullName(candidate),
+      currentStatus: candidate.status,
+    });
+    setInterviewScheduledAt(toDatetimeLocalValue(candidate.interviewScheduledAt));
+    setInterviewError('');
   };
 
   const handleRatingChange = (id: string, rating: number) => {
@@ -82,52 +229,106 @@ export default function ApplicationsPage() {
     });
   };
 
+  const handleSaveNote = async (id: string, note: string) => {
+    await saveNoteMutation.mutateAsync({
+      applicationId: id,
+      notes: note.trim(),
+    });
+  };
+
+  const handleConfirmStatusChange = async () => {
+    if (!statusConfirmation) return;
+
+    try {
+      await updateStatusMutation.mutateAsync({
+        applicationId: statusConfirmation.applicationId,
+        statusData: { status: statusConfirmation.nextStatus },
+      });
+
+      setStatusConfirmation(null);
+    } catch {
+      // Error toast is handled by the mutation hook.
+    }
+  };
+
+  const handleSaveInterviewSchedule = async () => {
+    if (!interviewDialog) return;
+
+    if (!interviewScheduledAt) {
+      setInterviewError('Vui lòng chọn ngày giờ phỏng vấn.');
+      return;
+    }
+
+    const scheduledDate = new Date(interviewScheduledAt);
+    if (Number.isNaN(scheduledDate.getTime())) {
+      setInterviewError('Ngày giờ phỏng vấn không hợp lệ.');
+      return;
+    }
+
+    if (scheduledDate.getTime() <= Date.now()) {
+      setInterviewError('Ngày giờ phỏng vấn phải ở tương lai.');
+      return;
+    }
+
+    try {
+      await updateStatusMutation.mutateAsync({
+        applicationId: interviewDialog.applicationId,
+        statusData: {
+          status: interviewDialog.nextStatus,
+          interviewScheduledAt: scheduledDate.toISOString(),
+          notifyCandidate: true,
+        },
+      });
+
+      closeInterviewDialog();
+    } catch {
+      // Error toast is handled by the mutation hook.
+    }
+  };
+
   const handleSendMessage = async (id: string) => {
-    // Find candidate data
-    const candidate = applications.find((app: any) => app.id === id);
+    const candidate = getCandidateById(id);
     if (!candidate) return;
 
-    // Set selected candidate
+    const fullName = getCandidateFullName(candidate);
+
     setSelectedCandidate({
       id: candidate.id,
-      candidateId: candidate.userId, // Use userId for conversation
-      fullName: candidate.firstName + ' ' + candidate.lastName,
+      candidateId: candidate.userId,
+      fullName,
       avatarUrl: candidate.avatarUrl,
     });
 
-    // Start conversation with userId (not candidateId)
-    await startConversation(candidate.userId, candidate.firstName + ' ' + candidate.lastName, {
+    await startConversation(candidate.userId, fullName, {
       type: 'APPLICATION_RELATED',
       applicationId: candidate.id,
       jobId: candidate.jobId,
     });
 
-    // Open modal
     setMessageModalOpen(true);
   };
 
-  // Get applications and stats from API response
-  const applications = (data as any)?.data?.applications || [];
-  const stats = (data as any)?.data?.stats;
-  const pagination = (data as any)?.data?.pagination;
+  const filteredCandidates = applications.filter((candidate) => {
+    if (!matchesRatingFilter(candidate.rating, filters.rating)) {
+      return false;
+    }
 
-  // Client-side filter for rating (API doesn't support rating filter yet)
-  const filteredCandidates = applications.filter((candidate: any) => {
-    if (filters.rating && candidate.rating && candidate.rating < filters.rating) {
+    if (
+      filters.location.length > 0 &&
+      !filters.location.some((location) =>
+        normalizeText(candidate.location).includes(normalizeText(location))
+      )
+    ) {
       return false;
     }
-    // Note: location and experience filters would need API support
-    // For now, we'll keep them as client-side filters
-    if (filters.location.length > 0 && !filters.location.includes(candidate.location)) {
+
+    if (!matchesExperienceFilter(candidate.experienceYears, filters.experience)) {
       return false;
     }
-    if (filters.experience.length > 0 && !filters.experience.includes(candidate.experience)) {
-      return false;
-    }
+
     return true;
   });
 
-  // Loading state
   if (isLoading && !data) {
     return (
       <div className="flex h-96 items-center justify-center">
@@ -139,7 +340,6 @@ export default function ApplicationsPage() {
     );
   }
 
-  // Error state
   if (error && !data) {
     return (
       <div className="flex h-96 items-center justify-center">
@@ -160,7 +360,6 @@ export default function ApplicationsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="rounded-xl bg-gradient-to-r from-purple-600 via-purple-500 to-pink-500 p-6 shadow-lg">
         <div className="flex items-center justify-between">
           <div>
@@ -180,7 +379,7 @@ export default function ApplicationsPage() {
               {showFilters ? 'Ẩn bộ lọc' : 'Hiện bộ lọc'}
             </button>
 
-            <button className="flex items-center gap-2 rounded-lg bg-white/20 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition-all hover:bg-white/30">
+            {/* <button className="flex items-center gap-2 rounded-lg bg-white/20 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition-all hover:bg-white/30">
               <Upload className="h-4 w-4" />
               Import
             </button>
@@ -188,12 +387,11 @@ export default function ApplicationsPage() {
             <button className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-purple-700 shadow-md transition-all hover:shadow-lg">
               <Download className="h-4 w-4" />
               Export
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid gap-4 md:grid-cols-6">
         {[
           {
@@ -232,9 +430,9 @@ export default function ApplicationsPage() {
             count: stats?.byStatus[ApplicationStatus.REJECTED] || 0,
             color: 'from-gray-400 to-gray-500',
           },
-        ].map((stat, index) => (
+        ].map((stat) => (
           <div
-            key={index}
+            key={stat.status}
             className="shadow-soft relative overflow-hidden rounded-xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:shadow-md"
           >
             <div
@@ -248,9 +446,7 @@ export default function ApplicationsPage() {
         ))}
       </div>
 
-      {/* Main Content */}
       <div className="grid gap-6 lg:grid-cols-4">
-        {/* Filters */}
         {showFilters && (
           <div className="lg:col-span-1">
             <div className="sticky top-24">
@@ -263,7 +459,6 @@ export default function ApplicationsPage() {
           </div>
         )}
 
-        {/* Candidates List */}
         <div className={showFilters ? 'lg:col-span-3' : 'lg:col-span-4'}>
           {filteredCandidates.length === 0 ? (
             <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
@@ -273,13 +468,19 @@ export default function ApplicationsPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {filteredCandidates.map((candidate: any) => (
+              {filteredCandidates.map((candidate) => (
                 <CandidateCard
                   key={candidate.id}
                   candidate={candidate}
                   onStatusChange={handleStatusChange}
                   onRatingChange={handleRatingChange}
                   onSendMessage={handleSendMessage}
+                  onSaveNote={handleSaveNote}
+                  isSavingNote={
+                    saveNoteMutation.isPending &&
+                    saveNoteMutation.variables?.applicationId === candidate.id
+                  }
+                  onManageInterviewSchedule={handleOpenInterviewScheduleDialog}
                 />
               ))}
             </div>
@@ -287,7 +488,114 @@ export default function ApplicationsPage() {
         </div>
       </div>
 
-      {/* Message Modal */}
+      <Dialog
+        open={Boolean(interviewDialog)}
+        onOpenChange={(open) => {
+          if (!open) {
+            closeInterviewDialog();
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {interviewDialog?.currentStatus === ApplicationStatus.INTERVIEWING
+                ? 'Cập nhật lịch phỏng vấn'
+                : 'Lên lịch phỏng vấn'}
+            </DialogTitle>
+            <DialogDescription>
+              {interviewDialog ? (
+                <>
+                  Chọn ngày giờ phỏng vấn cho ứng viên{' '}
+                  <strong>{interviewDialog.candidateName}</strong>. Sau khi lưu, hệ thống sẽ gửi
+                  email thông báo đến ứng viên.
+                </>
+              ) : (
+                'Chọn ngày giờ phỏng vấn.'
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            <Input
+              type="datetime-local"
+              value={interviewScheduledAt}
+              onChange={(event) => {
+                setInterviewScheduledAt(event.target.value);
+                if (interviewError) {
+                  setInterviewError('');
+                }
+              }}
+              error={interviewError || undefined}
+              min={toDatetimeLocalValue(new Date().toISOString())}
+            />
+            <p className="text-xs text-gray-500">
+              Lịch phỏng vấn sẽ được lưu vào hệ thống và gửi email cho ứng viên ngay sau khi cập
+              nhật thành công.
+            </p>
+          </div>
+
+          <DialogFooter className="gap-2 sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={closeInterviewDialog}
+              disabled={isInterviewDialogSaving}
+            >
+              Hủy
+            </Button>
+            <Button onClick={handleSaveInterviewSchedule} disabled={isInterviewDialogSaving}>
+              {isInterviewDialogSaving ? 'Đang lưu...' : 'Lưu lịch phỏng vấn'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog
+        open={Boolean(statusConfirmation)}
+        onOpenChange={(open) => {
+          if (!open) {
+            closeStatusConfirmation();
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận thay đổi trạng thái</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              {statusConfirmation ? (
+                <>
+                  <span className="block">
+                    Bạn sắp chuyển ứng viên <strong>{statusConfirmation.candidateName}</strong> từ{' '}
+                    <strong>{applicationStatusLabels[statusConfirmation.currentStatus]}</strong>{' '}
+                    sang <strong>{applicationStatusLabels[statusConfirmation.nextStatus]}</strong>.
+                  </span>
+                  <span className="block">
+                    Hãy xác nhận để cập nhật trạng thái ứng viên trong hệ thống.
+                  </span>
+                </>
+              ) : (
+                'Xác nhận cập nhật trạng thái ứng viên.'
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={updateStatusMutation.isPending}>Hủy</AlertDialogCancel>
+            <Button
+              type="button"
+              onClick={handleConfirmStatusChange}
+              disabled={updateStatusMutation.isPending}
+              className={
+                statusConfirmation?.nextStatus === ApplicationStatus.REJECTED
+                  ? 'bg-destructive hover:bg-destructive/90 text-white'
+                  : ''
+              }
+            >
+              {updateStatusMutation.isPending ? 'Đang cập nhật...' : 'Xác nhận'}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {selectedCandidate && (
         <MessageModal
           isOpen={messageModalOpen}

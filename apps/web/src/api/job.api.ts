@@ -61,6 +61,20 @@ export interface AdminJobStatsSummary {
  */
 export const jobApi = {
   /**
+   * Create a new job for the authenticated employer
+   */
+  createJob: async (
+    jobData: CreateJobDTO
+  ): Promise<{ success: boolean; message: string; data: EmployerJobDetail | null }> => {
+    const { data } = await axiosInstance.post<{
+      success: boolean;
+      message: string;
+      data: EmployerJobDetail | null;
+    }>(`/api/employer/jobs`, jobData);
+    return data;
+  },
+
+  /**
    * Get job detail by ID
    * @param jobId - Job ID
    * @returns Job detail with company and stats

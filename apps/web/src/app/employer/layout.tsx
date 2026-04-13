@@ -16,6 +16,7 @@ import {
   Users,
 } from 'lucide-react';
 
+import { BrandLogo } from '@/components/brand/BrandLogo';
 import { Providers } from '@/components/providers/providers';
 import { cn } from '@/lib/utils';
 
@@ -58,12 +59,14 @@ function EmployerLayoutShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50/30">
       <aside className="shadow-soft-lg fixed inset-y-0 left-0 z-50 w-64 border-r border-purple-100 bg-white">
         <div className="flex h-16 items-center justify-center border-b border-purple-100 bg-gradient-to-r from-purple-600 to-purple-500">
-          <Link href="/employer/dashboard" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
-              <Briefcase className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-white">CareerConnect</span>
-          </Link>
+          <BrandLogo
+            href="/employer/dashboard"
+            size={32}
+            priority
+            className="gap-2"
+            iconClassName="rounded-lg bg-white/95 p-1 shadow-sm"
+            labelClassName="text-xl font-bold text-white"
+          />
         </div>
 
         <nav className="flex flex-col gap-1 p-4">

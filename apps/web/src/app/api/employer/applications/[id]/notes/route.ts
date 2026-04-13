@@ -35,8 +35,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     // Parse request body
     const body = await req.json();
 
+    const rawNote = typeof body.note === 'string' ? body.note : body.notes;
+
     // Validate note
-    if (!body.note || typeof body.note !== 'string' || body.note.trim().length === 0) {
+    if (typeof rawNote !== 'string' || rawNote.trim().length === 0) {
       return NextResponse.json(
         { success: false, error: 'Note is required and cannot be empty' },
         { status: 400 }
@@ -44,7 +46,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     }
 
     // Validate note length
-    if (body.note.length > 1000) {
+    if (rawNote.length > 1000) {
       return NextResponse.json(
         { success: false, error: 'Note cannot exceed 1000 characters' },
         { status: 400 }
@@ -53,36 +55,36 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     // Create note DTO
     const noteData: AddApplicationNoteDTO = {
-      note: body.note.trim(),
+      note: rawNote.trim(),
     };
 
     const { id } = await params;
 
-    // Add note to application
-    const result = await EmployerApplicationService.addApplicationNote(id, companyId, noteData);
+    // Save note to application
+    await EmployerApplicationService.addApplicationNote(id, companyId, noteData);
 
     return NextResponse.json({
       success: true,
-      message: 'Note added successfully',
+      message: 'Note saved successfully',
     });
   } catch (error: any) {
-    console.error('Error adding application note:', error);
+    console.error('Error saving application note:', error);
 
     if (error.message === 'Application not found or access denied') {
       return NextResponse.json(
         {
           success: false,
           error: 'Application not found or access denied',
-          code: ErrorCode.APPLICATION_NOT_FOUND,
-        },
-        { status: 404 }
-      );
-    }
+        code: ErrorCode.APPLICATION_NOT_FOUND,
+      },
+      { status: 404 }
+    );
+  }
 
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to add note',
+        error: 'Failed to save note',
         code: ErrorCode.INTERNAL_ERROR,
       },
       { status: 500 }

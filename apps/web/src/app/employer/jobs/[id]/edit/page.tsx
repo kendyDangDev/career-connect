@@ -523,7 +523,7 @@ export default function EditJobPage() {
             )}
 
             {/* Location */}
-            <div className="grid gap-4 md:grid-cols-2">
+            {/* <div className="grid gap-4 md:grid-cols-2">
               <div>
                 <label htmlFor="address" className="mb-2 block text-sm font-medium text-gray-700">
                   Địa chỉ <span className="text-red-500">*</span>
@@ -557,7 +557,7 @@ export default function EditJobPage() {
                   className="w-full rounded-lg border border-purple-100 bg-white px-4 py-2.5 text-sm transition-all outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-200"
                 />
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
 

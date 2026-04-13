@@ -25,15 +25,16 @@ export interface CandidateApplication {
   position: string;
   location: string;
   experience: string;
+  experienceYears?: number | null;
   appliedDate: string;
   status: ApplicationStatus;
-  rating?: number;
+  rating?: number | null;
   matchScore?: number;
   skills: string[];
   notes?: string;
   coverLetter?: string;
   cvFileUrl?: string;
-  interviewDate?: string;
+  interviewScheduledAt?: string;
 }
 
 export interface ApplicationsStats {
@@ -56,9 +57,23 @@ export interface ApplicationsListResponse {
 }
 
 export interface UpdateApplicationStatusRequest {
-  status: ApplicationStatus;
+  status?: ApplicationStatus;
   notes?: string;
-  interviewDate?: string;
+  interviewScheduledAt?: string;
+  notifyCandidate?: boolean;
+}
+
+export interface UpdateApplicationStatusResponse {
+  success: boolean;
+  message?: string;
+  data: {
+    updated: boolean;
+    emailNotification: {
+      attempted: boolean;
+      sent: boolean;
+      warning?: string;
+    };
+  };
 }
 
 export interface UpdateApplicationRatingRequest {
@@ -94,8 +109,8 @@ export const employerApplicationsApi = {
   updateStatus: async (
     applicationId: string,
     statusData: UpdateApplicationStatusRequest
-  ): Promise<{ success: boolean; data: any }> => {
-    const { data } = await axiosInstance.patch(
+  ): Promise<UpdateApplicationStatusResponse> => {
+    const { data } = await axiosInstance.patch<UpdateApplicationStatusResponse>(
       `/api/employer/applications/${applicationId}/status`,
       statusData
     );
@@ -109,7 +124,7 @@ export const employerApplicationsApi = {
     applicationId: string,
     ratingData: UpdateApplicationRatingRequest
   ): Promise<{ success: boolean; data: any }> => {
-    const { data } = await axiosInstance.put(
+    const { data } = await axiosInstance.patch(
       `/api/employer/applications/${applicationId}`,
       ratingData
     );
@@ -117,13 +132,13 @@ export const employerApplicationsApi = {
   },
 
   /**
-   * Add notes to application
+   * Save a single recruiter note for application
    */
-  addNotes: async (
+  saveNote: async (
     applicationId: string,
     notes: string
   ): Promise<{ success: boolean; data: any }> => {
-    const { data } = await axiosInstance.post(`/api/employer/applications/${applicationId}/notes`, {
+    const { data } = await axiosInstance.patch(`/api/employer/applications/${applicationId}`, {
       notes,
     });
     return data;

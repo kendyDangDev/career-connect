@@ -79,7 +79,6 @@ interface CandidatesTableProps {
   onSort: (field: string) => void;
   onPageChange: (page: number) => void;
   onPageSizeChange: (size: number) => void;
-  onView: (candidate: CandidateListItem) => void;
 }
 
 export const CandidatesTable: React.FC<CandidatesTableProps> = ({
@@ -92,7 +91,6 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
   onSort,
   onPageChange,
   onPageSizeChange,
-  onView,
 }) => {
   console.log('danh sách candidate:', candidates);
   const [searchValue, setSearchValue] = useState(filters.search);
@@ -224,7 +222,7 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
         </div>
       ) : (
         <>
-          <div className="rounded-md border">
+          <div className="rounded-md border p-2">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -260,7 +258,7 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
                   </TableHead>
                   <TableHead className="w-[200px]">Kỹ năng</TableHead>
                   <TableHead className="w-[150px]">Tình trạng</TableHead>
-                  <TableHead className="w-[150px]">Loại công việc</TableHead>
+                  <TableHead className="w-[200px]">Loại công việc</TableHead>
                   <TableHead className="w-[150px]">
                     <Button
                       variant="ghost"
@@ -276,8 +274,8 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
               </TableHeader>
               <TableBody>
                 {candidates.map((candidate) => (
-                  <TableRow key={candidate.id} className="hover:bg-muted/50 cursor-pointer">
-                    <TableCell onClick={() => onView(candidate)}>
+                  <TableRow key={candidate.id} className="hover:bg-muted/50">
+                    <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
                           <AvatarImage src={candidate.avatarUrl || undefined} />
@@ -304,13 +302,11 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell onClick={() => onView(candidate)}>
-                      {candidate.candidateInfo?.currentPosition || '-'}
-                    </TableCell>
-                    <TableCell onClick={() => onView(candidate)}>
+                    <TableCell>{candidate.candidateInfo?.currentPosition || '-'}</TableCell>
+                    <TableCell>
                       {formatExperience(candidate.candidateInfo?.experienceYears)}
                     </TableCell>
-                    <TableCell onClick={() => onView(candidate)}>
+                    <TableCell>
                       <div className="flex flex-wrap gap-1">
                         {candidate.candidateInfo?.skills?.slice(0, 3).map((skill, index) => (
                           <Badge key={index} variant="secondary" className="text-xs">
@@ -325,7 +321,7 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
                           )}
                       </div>
                     </TableCell>
-                    <TableCell onClick={() => onView(candidate)}>
+                    <TableCell>
                       {candidate.candidateInfo?.availabilityStatus && (
                         <Badge
                           variant={
@@ -342,7 +338,7 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
                         </Badge>
                       )}
                     </TableCell>
-                    <TableCell onClick={() => onView(candidate)}>
+                    <TableCell>
                       {candidate.candidateInfo?.preferredWorkType && (
                         <Badge variant="outline">
                           {
@@ -353,7 +349,7 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
                         </Badge>
                       )}
                     </TableCell>
-                    <TableCell onClick={() => onView(candidate)}>
+                    <TableCell className="px-6">
                       {format(new Date(candidate.createdAt), 'dd/MM/yyyy', { locale: vi })}
                     </TableCell>
                     {/* <TableCell>
@@ -365,7 +361,7 @@ export const CandidatesTable: React.FC<CandidatesTableProps> = ({
                           </Button>
                         </DropdownMenuTrigger>
                         {/* <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => onView(candidate)}>
+                          <DropdownMenuItem >
                             <Eye className="mr-2 h-4 w-4" />
                             Xem chi tiết
                           </DropdownMenuItem>

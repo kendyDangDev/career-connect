@@ -545,7 +545,7 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
             <div className="p-4">
               <div className="rounded-lg bg-gradient-to-r from-purple-500/5 to-blue-500/5 p-3">
                 <p className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-center text-xs font-medium text-transparent">
-                  © 2025 Career Connect
+                  © 2025 CareerConnect
                 </p>
                 <p className="text-muted-foreground mt-1 text-center text-[10px]">
                   Admin Dashboard v2.0

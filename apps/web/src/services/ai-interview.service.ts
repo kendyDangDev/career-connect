@@ -297,7 +297,7 @@ Rules:
       method: 'POST',
       headers: {
         'X-API-Key': apiKey,
-        'Cartesia-Version': '2025-04-16',
+        'Cartesia-Version': '2026-04-16',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({

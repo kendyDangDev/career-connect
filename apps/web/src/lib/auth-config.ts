@@ -61,22 +61,29 @@ async function getAuthSessionPayload(userId: string) {
   };
 }
 
+const googleClientId = process.env.GOOGLE_CLIENT_ID;
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+const googleProviders: NextAuthOptions['providers'] =
+  googleClientId && googleClientSecret
+    ? [
+        GoogleProvider({
+          clientId: googleClientId,
+          clientSecret: googleClientSecret,
+          authorization: {
+            params: {
+              prompt: 'consent',
+              access_type: 'offline',
+              response_type: 'code',
+            },
+          },
+        }),
+      ]
+    : [];
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
-    // Google OAuth Provider
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          prompt: 'consent',
-          access_type: 'offline',
-          response_type: 'code',
-        },
-      },
-    }),
-
+    ...googleProviders,
     // Credentials Provider for email/password login
     CredentialsProvider({
       name: 'credentials',

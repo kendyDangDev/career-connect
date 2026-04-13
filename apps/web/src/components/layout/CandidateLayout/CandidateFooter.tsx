@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Briefcase, Facebook, Linkedin, Twitter, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import { Facebook, Linkedin, Twitter, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+
+import { BrandLogo } from '@/components/brand/BrandLogo';
 
 const footerLinks = {
   'Ứng viên': [
@@ -46,14 +48,13 @@ export default function CandidateFooter() {
         <div className="grid grid-cols-2 gap-10 py-16 md:grid-cols-4 lg:grid-cols-5">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1 lg:col-span-2">
-            <Link href="/" className="mb-4 flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 shadow">
-                <Briefcase className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-xl font-extrabold text-white">
-                Career<span className="text-purple-400">Connect</span>
-              </span>
-            </Link>
+            <BrandLogo
+              href="/"
+              size={36}
+              className="mb-4 gap-2"
+              iconClassName="rounded-xl bg-white/95 p-1 shadow"
+              labelClassName="text-xl font-extrabold text-white"
+            />
             <p className="mt-3 mb-6 text-sm leading-relaxed">
               Nền tảng kết nối ứng viên với nhà tuyển dụng hàng đầu Việt Nam. Tìm kiếm cơ hội nghề
               nghiệp tốt nhất cho bạn.

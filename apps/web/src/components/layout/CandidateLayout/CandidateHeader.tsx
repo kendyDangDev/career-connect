@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 
 import { CandidateNotificationBell } from './CandidateNotificationBell';
+import { BrandLogo } from '@/components/brand/BrandLogo';
 import { useChatContext } from '@/contexts/ChatContext';
 import {
   CANDIDATE_PROFILE_CHANGED_EVENT,
@@ -284,18 +285,16 @@ export default function CandidateHeader() {
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          <Link href="/candidate" className="flex shrink-0 items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 shadow">
-              <Briefcase className="h-4 w-4 text-white" />
-            </div>
-            <span
-              className={`text-lg font-extrabold tracking-tight transition ${
-                solid ? 'text-gray-900' : 'text-white'
-              }`}
-            >
-              Career<span className="text-purple-400">Connect</span>
-            </span>
-          </Link>
+          <BrandLogo
+            href="/candidate"
+            size={32}
+            priority={isHome}
+            className="shrink-0 gap-2"
+            iconClassName="rounded-lg bg-white p-1 shadow-sm"
+            labelClassName={`text-lg font-extrabold tracking-tight transition ${
+              solid ? 'text-gray-900' : 'text-white'
+            }`}
+          />
 
           <nav className="hidden items-center gap-1 md:flex">
             {navLinks.map((link) => (
@@ -360,9 +359,7 @@ export default function CandidateHeader() {
                         {candidateAvatarFallback}
                       </div>
                     )}
-                    <span className="max-w-[11rem] truncate">
-                      {candidateDisplayName}
-                    </span>
+                    <span className="max-w-[11rem] truncate">{candidateDisplayName}</span>
                     <ChevronDown className="h-3.5 w-3.5" />
                   </button>
 

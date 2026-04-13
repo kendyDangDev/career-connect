@@ -176,6 +176,18 @@ function normalizeConversation(rawConversation: any): Conversation {
   };
 }
 
+function getSocketServerUrl() {
+  if (process.env.NEXT_PUBLIC_SOCKET_URL) {
+    return process.env.NEXT_PUBLIC_SOCKET_URL;
+  }
+
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+
+  return process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3000';
+}
+
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const useChatContext = () => {
@@ -225,7 +237,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     setIsConnecting(true);
     console.log('Attempting to connect to Socket.IO server...');
 
-    const newSocket = io('http://localhost:3000', {
+    const newSocket = io(getSocketServerUrl(), {
       auth: {
         token: chatToken,
       },

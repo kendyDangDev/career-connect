@@ -11,7 +11,6 @@ import {
   FunnelIcon,
   CalendarDaysIcon,
   EnvelopeIcon,
-  EyeIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   DocumentTextIcon,
@@ -486,16 +485,6 @@ const ApplicationsTab: React.FC<ApplicationsTabProps> = ({ jobId, onApplicationU
                     </td>
                     <td className="px-3 py-4 text-right text-sm font-medium whitespace-nowrap">
                       <div className="flex items-center justify-end space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            window.open(`/admin/applications/${application.id}`, '_blank');
-                          }}
-                          title="Xem chi tiết ứng viên"
-                        >
-                          <EyeIcon className="h-4 w-4" />
-                        </Button>
                         <Select
                           value={application.status}
                           onValueChange={(newStatus: ApplicationStatus) =>

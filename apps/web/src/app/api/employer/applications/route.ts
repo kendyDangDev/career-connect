@@ -3,6 +3,14 @@ import { withCompanyAuth, CompanyAuthenticatedRequest } from '@/lib/middleware/c
 import { prisma } from '@/lib/prisma';
 import { ApplicationStatus } from '@/generated/prisma';
 
+const formatExperienceLabel = (experienceYears: number | null | undefined) => {
+  if (experienceYears == null || experienceYears <= 0) {
+    return 'Chưa có kinh nghiệm';
+  }
+
+  return `${experienceYears}+ năm`;
+};
+
 export const GET = withCompanyAuth(async (request: CompanyAuthenticatedRequest) => {
   try {
     const companyId = request.company!.id;
@@ -96,6 +104,12 @@ export const GET = withCompanyAuth(async (request: CompanyAuthenticatedRequest) 
                 email: true,
                 phone: true,
                 avatarUrl: true,
+                profile: {
+                  select: {
+                    address: true,
+                    province: true,
+                  },
+                },
               },
             },
             skills: {
@@ -105,6 +119,7 @@ export const GET = withCompanyAuth(async (request: CompanyAuthenticatedRequest) 
             },
           },
         },
+
         job: {
           select: {
             id: true,
@@ -135,10 +150,11 @@ export const GET = withCompanyAuth(async (request: CompanyAuthenticatedRequest) 
       phone: app.candidate.user.phone,
       avatarUrl: app.candidate.user.avatarUrl,
       position: app.job.title,
-      location:
-        [app.job.locationCity, app.job.locationProvince].filter(Boolean).join(', ') ||
-        app.job.address,
-      experience: `${app.candidate.experienceYears}+ năm`,
+      location: [app.candidate.user.profile?.address, app.candidate.user.profile?.province]
+        .filter(Boolean)
+        .join(', '),
+      experience: formatExperienceLabel(app.candidate.experienceYears),
+      experienceYears: app.candidate.experienceYears,
       appliedDate: app.appliedAt.toISOString(),
       status: app.status,
       rating: app.rating,
@@ -147,13 +163,14 @@ export const GET = withCompanyAuth(async (request: CompanyAuthenticatedRequest) 
       notes: app.recruiterNotes,
       coverLetter: app.coverLetter,
       cvFileUrl: app.cvFileUrl,
-      interviewDate: app.interviewScheduledAt?.toISOString(),
+      interviewScheduledAt: app.interviewScheduledAt?.toISOString(),
     }));
 
     // Get stats by status
     const statsData = await prisma.application.groupBy({
       by: ['status'],
       where: {
+        ...(jobId ? { jobId } : {}),
         job: {
           companyId,
         },

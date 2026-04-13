@@ -1,15 +1,17 @@
+import { BrandLogo } from '@/components/brand/BrandLogo';
+
 export function Footer() {
   return (
     <footer className="bg-gray-900 text-white">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div className="col-span-1 md:col-span-2">
-            <div className="mb-4 flex items-center space-x-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
-                <span className="text-sm font-bold text-white">CC</span>
-              </div>
-              <h3 className="text-xl font-bold">Career Connect</h3>
-            </div>
+            <BrandLogo
+              href="/"
+              size={32}
+              className="mb-4"
+              labelClassName="text-xl font-bold text-white"
+            />
             <p className="mb-4 text-gray-400">
               Nền tảng kết nối nhân tài với cơ hội nghề nghiệp tốt nhất. Giúp bạn tìm kiếm việc làm
               mơ ước và xây dựng sự nghiệp thành công.
@@ -70,7 +72,7 @@ export function Footer() {
         </div>
 
         <div className="mt-8 border-t border-gray-800 pt-8 text-center text-gray-400">
-          <p>&copy; 2025 Career Connect. All rights reserved.</p>
+          <p>&copy; 2025 CareerConnect. All rights reserved.</p>
         </div>
       </div>
     </footer>

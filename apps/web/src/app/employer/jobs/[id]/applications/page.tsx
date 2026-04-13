@@ -18,7 +18,6 @@ import {
   MapPin,
   Phone,
   FileText,
-  Eye,
   ChevronLeft,
   ChevronRight,
   Loader2,
@@ -499,14 +498,6 @@ export default function JobApplicationsPage({ params }: PageProps) {
 
                 {/* Actions */}
                 <div className="flex shrink-0 flex-col gap-2">
-                  <Link
-                    href={`/employer/applications/${application.id}`}
-                    className="flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-purple-700"
-                  >
-                    <Eye className="h-4 w-4" />
-                    Xem chi tiết
-                  </Link>
-
                   {application.cvFileUrl && (
                     <a
                       href={`/api/employer/applications/${application.id}/cv`}

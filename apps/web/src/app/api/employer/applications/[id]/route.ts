@@ -88,6 +88,33 @@ export const PATCH = withCompanyAuth(
         );
       }
 
+      // Validate notes if provided
+      if (body.notes !== undefined) {
+        if (typeof body.notes !== 'string') {
+          return NextResponse.json(
+            { success: false, error: 'Notes must be a string' },
+            { status: 400 }
+          );
+        }
+
+        if (body.notes.length > 1000) {
+          return NextResponse.json(
+            { success: false, error: 'Notes cannot exceed 1000 characters' },
+            { status: 400 }
+          );
+        }
+      }
+
+      if (body.status === ApplicationStatus.INTERVIEWING && body.interviewScheduledAt === undefined) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'interviewScheduledAt is required when moving application to INTERVIEWING',
+          },
+          { status: 400 }
+        );
+      }
+
       // Create update DTO - only include fields that are provided
       const updateData: UpdateApplicationStatusDTO = {};
 
@@ -133,6 +160,20 @@ export const PATCH = withCompanyAuth(
             code: ErrorCode.APPLICATION_NOT_FOUND,
           },
           { status: 404 }
+        );
+      }
+
+      if (
+        error.message === 'Interview schedule must be a valid date' ||
+        error.message === 'Interview schedule must be in the future' ||
+        error.message === 'Interview schedule is required when moving application to INTERVIEWING'
+      ) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: error.message,
+          },
+          { status: 400 }
         );
       }
 

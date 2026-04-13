@@ -1,11 +1,12 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
   employerApplicationsApi,
   ApplicationsListParams,
   UpdateApplicationStatusRequest,
+  UpdateApplicationStatusResponse,
   UpdateApplicationRatingRequest,
 } from '@/api/employer/applications.api';
 import { handleApiError } from '@/lib/axios';
@@ -25,8 +26,8 @@ export const useApplicationsList = (params: ApplicationsListParams = {}) => {
   return useQuery({
     queryKey: applicationsKeys.list(params),
     queryFn: () => employerApplicationsApi.getApplications(params),
-    staleTime: 1000 * 60 * 2, // 2 minutes
-    placeholderData: (previousData) => previousData, // Keep previous page data while fetching new page
+    staleTime: 1000 * 60 * 2,
+    placeholderData: (previousData) => previousData,
   });
 };
 
@@ -45,11 +46,18 @@ export const useUpdateApplicationStatus = () => {
       statusData: UpdateApplicationStatusRequest;
     }) => employerApplicationsApi.updateStatus(applicationId, statusData),
 
-    onSuccess: (_, variables) => {
-      // Invalidate all application lists
+    onSuccess: (response: UpdateApplicationStatusResponse, variables) => {
       queryClient.invalidateQueries({ queryKey: applicationsKeys.lists() });
 
-      toast.success('Cập nhật trạng thái thành công');
+      if (variables.statusData.status || variables.statusData.notes) {
+        toast.success('Cập nhật trạng thái thành công');
+      } else {
+        toast.success('Đã cập nhật lịch phỏng vấn');
+      }
+
+      if (response.data.emailNotification.warning) {
+        toast.warning(response.data.emailNotification.warning);
+      }
     },
 
     onError: (error) => {
@@ -87,18 +95,18 @@ export const useUpdateApplicationRating = () => {
 };
 
 /**
- * Hook to add notes to application
+ * Hook to save a single note for application
  */
-export const useAddApplicationNotes = () => {
+export const useSaveApplicationNote = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ applicationId, notes }: { applicationId: string; notes: string }) =>
-      employerApplicationsApi.addNotes(applicationId, notes),
+      employerApplicationsApi.saveNote(applicationId, notes),
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: applicationsKeys.lists() });
-      toast.success('Đã thêm ghi chú');
+      toast.success('Đã lưu ghi chú');
     },
 
     onError: (error) => {

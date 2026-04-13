@@ -61,6 +61,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       );
     }
 
+    if (body.status === ApplicationStatus.INTERVIEWING && !body.interviewScheduledAt) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'interviewScheduledAt is required when moving application to INTERVIEWING',
+        },
+        { status: 400 }
+      );
+    }
+
     // Create update DTO
     const updateData: UpdateApplicationStatusDTO = {
       status: body.status,
@@ -82,6 +92,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({
       success: true,
       message: 'Application status updated successfully',
+      data: result,
     });
   } catch (error: any) {
     console.error('Error updating application status:', error);
@@ -94,6 +105,20 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
           code: ErrorCode.APPLICATION_NOT_FOUND,
         },
         { status: 404 }
+      );
+    }
+
+    if (
+      error.message === 'Interview schedule must be a valid date' ||
+      error.message === 'Interview schedule must be in the future' ||
+      error.message === 'Interview schedule is required when moving application to INTERVIEWING'
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: error.message,
+        },
+        { status: 400 }
       );
     }
 

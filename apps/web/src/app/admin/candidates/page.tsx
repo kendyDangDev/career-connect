@@ -6,12 +6,7 @@ import { toast } from 'sonner';
 import { CandidatesTable } from './components/CandidatesTable';
 import { CandidateDetailDialog } from './components/CandidateDetailDialog';
 import { useCandidatesData } from '@/hooks/useCandidatesData';
-import {
-  CandidateListItem,
-  AvailabilityStatus,
-  PreferredWorkType,
-  UserStatus,
-} from './types';
+import { CandidateListItem, AvailabilityStatus, PreferredWorkType, UserStatus } from './types';
 import { Loader2, Users } from 'lucide-react';
 import { AdminPageHeader } from '@/components/layout/AdminLayout/AdminPageHeader';
 
@@ -28,7 +23,10 @@ const VALID_PREFERRED_WORK_TYPES: readonly PreferredWorkType[] = [
   'FREELANCE',
 ];
 
-const normalizeEnumParam = <T extends string>(value: string | null, allowedValues: readonly T[]) => {
+const normalizeEnumParam = <T extends string>(
+  value: string | null,
+  allowedValues: readonly T[]
+) => {
   if (!value) return '';
   return allowedValues.includes(value as T) ? value : '';
 };
@@ -108,11 +106,6 @@ function CandidatesPageContent() {
     updateURLParams({ limit: newSize, page: 1 });
   };
 
-  const handleView = (candidate: CandidateListItem) => {
-    setSelectedCandidate(candidate);
-    setIsDetailDialogOpen(true);
-  };
-
   // Show error if any
   if (error) {
     toast.error(error);
@@ -153,7 +146,6 @@ function CandidatesPageContent() {
           onSort={handleSort}
           onPageChange={handlePageChange}
           onPageSizeChange={handlePageSizeChange}
-          onView={handleView}
         />
 
         <CandidateDetailDialog

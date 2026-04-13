@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { Bell, MessageSquare, Search, Settings, LogOut, User, ChevronDown } from 'lucide-react';
@@ -9,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { BrandLogo } from '@/components/brand/BrandLogo';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -68,17 +68,14 @@ export function AdminHeader({ user, className }: AdminHeaderProps) {
       <div className="flex h-16 items-center gap-4 px-4">
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <Link href="/admin" className="flex items-center gap-3 font-semibold group">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity"></div>
-              <div className="relative bg-gradient-to-br from-purple-600 to-blue-600 text-white flex h-10 w-10 items-center justify-center rounded-xl shadow-xl transform group-hover:scale-110 transition-transform">
-                <span className="text-sm font-bold">CC</span>
-              </div>
-            </div>
-            <span className="hidden md:inline-block bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent font-bold text-lg">
-              Career Connect
-            </span>
-          </Link>
+          <BrandLogo
+            href="/admin"
+            size={40}
+            priority
+            className="group gap-3"
+            iconClassName="rounded-xl shadow-xl transition-transform group-hover:scale-110"
+            labelClassName="hidden text-lg font-bold text-gray-900 md:inline-flex"
+          />
         </div>
 
         {/* Search Bar */}

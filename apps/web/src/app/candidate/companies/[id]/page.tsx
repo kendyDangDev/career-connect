@@ -29,7 +29,7 @@ const COMPANY_SIZE_LABELS: Record<string, string> = {
   SMALL_11_50: '11 - 50',
   MEDIUM_51_200: '51 - 200',
   LARGE_201_500: '200+',
-  ENTERPRISE_501_PLUS: '500+',
+  ENTERPRISE_500_PLUS: '500+',
 };
 
 const JOB_TYPE_LABELS: Record<string, string> = {

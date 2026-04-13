@@ -22,7 +22,7 @@ const statusOptions = [
   { value: 'REJECTED', label: 'Từ chối', color: 'bg-red-500' },
 ];
 
-const locationOptions = ['Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng', 'Cần Thơ', 'Hải Phòng'];
+// const locationOptions = ['Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng', 'Cần Thơ', 'Hải Phòng'];
 const experienceOptions = ['0-1 năm', '1-3 năm', '3-5 năm', '5+ năm'];
 
 export function FiltersPanel({ filters, onFilterChange, isSearching = false }: FiltersPanelProps) {
@@ -148,7 +148,7 @@ export function FiltersPanel({ filters, onFilterChange, isSearching = false }: F
       </div>
 
       {/* Location */}
-      <div className="mb-6">
+      {/* <div className="mb-6">
         <label className="mb-3 block text-sm font-medium text-gray-700">
           <MapPin className="mr-1 inline h-4 w-4" />
           Địa điểm
@@ -169,7 +169,7 @@ export function FiltersPanel({ filters, onFilterChange, isSearching = false }: F
             </button>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* Experience */}
       <div>
